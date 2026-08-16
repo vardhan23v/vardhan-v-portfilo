@@ -18,13 +18,13 @@ export function Landing() {
         <header className="landing-head">
           <p className="landing-eyebrow">sree vardhan v — portfolio</p>
           <h1 className="landing-title">
-            One portfolio.
+            Same work.
             <br />
-            <span className="landing-grad">Pick your vibe.</span>
+            <span className="landing-grad">Two vibes.</span>
           </h1>
           <p className="landing-sub">
-            Same work, same projects — two ways to browse. Choose one, switch
-            anytime.
+            Every project, every milestone — presented twice. A hacker's shell
+            or a clean classic. Pick a lane, switch anytime.
           </p>
         </header>
 
@@ -41,10 +41,13 @@ export function Landing() {
               </div>
             </div>
             <div className="ed-meta">
+              <span className="ed-num" aria-hidden="true">
+                01
+              </span>
               <h2>Terminal</h2>
               <p>
                 A fully interactive shell — type commands, read man pages, browse
-                the work as a file system.
+                the work like a file system.
               </p>
               <span className="ed-cta">
                 Enter the shell <span aria-hidden="true">→</span>
@@ -60,6 +63,9 @@ export function Landing() {
               <div className="mc-role">generative-ai :: full-stack</div>
             </div>
             <div className="ed-meta">
+              <span className="ed-num" aria-hidden="true">
+                02
+              </span>
               <h2>Classic</h2>
               <p>
                 The original — animated build terminal, project grid, GitHub

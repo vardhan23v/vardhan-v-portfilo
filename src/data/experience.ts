@@ -1,97 +1,57 @@
-export interface Experience {
-  company: string;
-  role: string;
-  period: string;
-  points: string[];
-  accent: string;
-}
-
-export const experience: Experience[] = [
+export const experience = [
   {
     company: "OxCode",
     role: "AI Product Beta Tester",
-    period: "July 2026 — Present",
+    period: "Jul 2026 — Present",
     points: [
-      "Selected for the OxCode Founding Builders community",
-      "Tested AI-powered software engineering workflows",
-      "Reported bugs and product feedback",
-      "Evaluated developer experience",
-      "Built and refined web applications using AI coding tools",
+      "Selected for the Founding Builders community; test AI-powered software engineering workflows.",
+      "Report bugs and product feedback; evaluate developer experience.",
     ],
-    accent: "#38bdf8",
   },
   {
     company: "FlyRank AI",
     role: "Front-end AI Engineering Intern",
-    period: "July 2026 — Present",
+    period: "Jul 2026 — Present",
     points: [
-      "AI-focused frontend engineering",
-      "Built intelligent interfaces",
-      "Worked with modern AI + web technologies",
+      "Build AI-focused frontend interfaces with modern AI + web technologies.",
     ],
-    accent: "#7c6cff",
   },
   {
-    company: "Zetheta Algorithms Private Limited",
+    company: "Zetheta Algorithms",
     role: "Full Stack Engineer",
-    period: "July 2026 — August 2026",
+    period: "Jul 2026 — Aug 2026",
     points: [
-      "Built a multi-step loan application form",
-      "Custom API integration",
-      "Frontend development with multi-step form workflows",
-      "Backend communication and application workflow development",
+      "Built a multi-step loan application form with custom API integration.",
+      "Connected frontend workflows to backend services.",
     ],
-    accent: "#34d399",
   },
   {
-    company: "Zaalima Development Pvt. Ltd.",
+    company: "Zaalima Development",
     role: "Web Development Intern",
-    period: "March 2026 — June 2026",
+    period: "Mar 2026 — Jun 2026",
     points: [
-      "Hands-on web development experience",
-      "Built web-based solutions",
-      "Worked in a startup environment",
-      "Hands-on problem solving",
+      "Built web-based solutions in a startup environment with hands-on problem solving.",
     ],
-    accent: "#f472b6",
   },
 ];
 
-export interface Education {
-  school: string;
-  degree: string;
-  period: string;
-  detail: string;
-}
-
-export const education: Education[] = [
-  {
-    school: "NMAM Institute of Technology (NITTE)",
-    degree: "B.Tech — Computer Science and Engineering",
-    period: "2024 — 2028",
-    detail: "Focus on full-stack development, Generative AI, AI-powered applications, and developer tools.",
-  },
-  {
-    school: "Narayana Junior College",
-    degree: "Class XII — MPC",
-    period: "2022 — 2024",
-    detail: "Mathematics, Physics, and Chemistry.",
-  },
-  {
-    school: "Narayana English Medium School",
-    degree: "Class X — SSC",
-    period: "2022",
-    detail: "",
-  },
-];
+export const education = {
+  school: "NMAM Institute of Technology, NITTE",
+  degree: "B.Tech — Computer Science and Engineering",
+  period: "2024–2028",
+};
 
 export const certifications = [
   "Software Engineering Job Simulation — Electronic Arts (Forage)",
-  "Introduction to Software Engineering Job Simulation — Commonwealth Bank (Forage)",
-  "Full Stack Generative and Agentic AI with Python — Udemy",
+  "Software Engineering Job Simulation — Commonwealth Bank (Forage)",
+  "Full Stack Generative & Agentic AI with Python — Udemy",
   "PostgreSQL Developer — Infosys Springboard",
-  "CS105: Introduction to Python",
-  "Web Development Fundamentals",
-  "Java 11 Essentials",
-  "Java Programming Fundamentals",
+];
+
+export const process = [
+  { step: "01", label: "Understand", text: "Clarify the problem before choosing the technology." },
+  { step: "02", label: "Design", text: "Define the data flow and user experience." },
+  { step: "03", label: "Build", text: "Implement the smallest useful version." },
+  { step: "04", label: "Test", text: "Find failure cases and improve reliability." },
+  { step: "05", label: "Ship", text: "Deploy, observe, and iterate." },
 ];

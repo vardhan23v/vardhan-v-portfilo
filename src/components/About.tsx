@@ -1,61 +1,61 @@
-import { SectionHead } from "./SectionHead";
+import { site } from "../data/site";
+import { education, certifications } from "../data/experience";
 import { Reveal } from "../hooks/useReveal";
-import { Icon } from "../lib/icons";
 import "./About.css";
-
-const strengths = [
-  { icon: "sparkles", title: "Generative AI", text: "LLM integration, prompt engineering, agents, and MCP tooling." },
-  { icon: "server", title: "Full-Stack", text: "React frontends, Node.js APIs, and databases wired end-to-end." },
-  { icon: "rocket", title: "Product Thinker", text: "I ship working applications, not just demos and tutorials." },
-] as const;
-
-function StrengthGlyph({ icon }: { icon: string }) {
-  const Glyph = Icon[icon as keyof typeof Icon];
-  return <Glyph width={20} height={20} />;
-}
 
 export function About() {
   return (
     <section id="about">
       <div className="container">
-        <SectionHead eyebrow="About" title={<>Builder first, student second — <span className="grad-text">shipping with AI</span></>} />
+        <Reveal>
+          <header className="section-head">
+            <span className="section-index">05 — About</span>
+            <h2 className="section-title">Early career, serious about the craft.</h2>
+          </header>
+        </Reveal>
 
         <div className="about-grid">
-          <Reveal>
-            <div className="about-card card">
-              <p className="about-lead">
-                I'm a Computer Science undergraduate at <strong>NMAM Institute of Technology</strong>{" "}
-                focused on full-stack development and AI-integrated applications.
-              </p>
+          <div className="about-identity">
+            <p className="about-name">{site.fullName}</p>
+            <p className="about-role">{site.role}</p>
+            <p className="about-year">
+              CS undergraduate · {education.school} · {education.degree} · {education.period}
+            </p>
+            <p className="about-location">{site.location}</p>
+          </div>
+
+          <div className="about-story">
+            <p>
+              I'm a Computer Science undergraduate building at the intersection of AI and
+              full-stack development. My work spans React interfaces, Node.js APIs, and
+              databases — tied together by LLM integrations that turn prompts into working
+              product features.
+            </p>
+            <p>
+              Most of what I know came from shipping: AI-powered developer tools, a Chrome
+              extension generator, career platforms, a voice-first assistant, and an
+              emergency-operations prototype. I'm most interested in{" "}
+              <span className="about-mark">Generative AI</span>,{" "}
+              <span className="about-mark">AI agents</span>, and{" "}
+              <span className="about-mark">developer tooling</span> — products that make
+              building software faster and more capable.
+            </p>
+
+            <div className="about-cred">
+              <h3>Education</h3>
               <p>
-                I enjoy building products across the stack — from React interfaces and Node.js APIs to
-                databases and LLM integrations. I've built AI-powered developer tools, a Chrome
-                extension generator, career platforms, and full-stack web applications using
-                technologies such as React, Node.js, MongoDB, MySQL, Gemini, Claude, and Groq.
-              </p>
-              <p>
-                I'm particularly interested in <span className="about-accent">Generative AI</span>,{" "}
-                <span className="about-accent">AI agents</span>,{" "}
-                <span className="about-accent">developer tooling</span>, and products that solve real
-                problems.
+                {education.school} — {education.degree}, {education.period}
               </p>
             </div>
-          </Reveal>
 
-          <div className="about-strengths">
-            {strengths.map((s, i) => (
-              <Reveal key={s.title} delay={`reveal-d${i + 1}`}>
-                <div className="about-strength">
-                  <span className="about-strength-icon" aria-hidden="true">
-                    <StrengthGlyph icon={s.icon} />
-                  </span>
-                  <div>
-                    <h3>{s.title}</h3>
-                    <p>{s.text}</p>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
+            <div className="about-cred">
+              <h3>Certifications</h3>
+              <ul className="about-certs">
+                {certifications.map((c) => (
+                  <li key={c}>{c}</li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </div>

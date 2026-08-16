@@ -1,29 +1,25 @@
 import { useEffect, useRef, type ElementType, type ReactNode } from "react";
 
-const observerCache = new WeakMap<Element, IntersectionObserver>();
+let cachedObs: IntersectionObserver | null = null;
 
 function getObserver(): IntersectionObserver {
-  const root = typeof document !== "undefined" ? document.documentElement : null;
-  if (!root) throw new Error("no dom");
-  let obs = observerCache.get(root);
-  if (!obs) {
-    obs = new IntersectionObserver(
+  if (!cachedObs) {
+    cachedObs = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
             entry.target.classList.add("is-visible");
-            obs?.unobserve(entry.target);
+            cachedObs?.unobserve(entry.target);
           }
         }
       },
-      { rootMargin: "0px 0px -8% 0px", threshold: 0.05 }
+      { rootMargin: "0px 0px -6% 0px", threshold: 0.04 }
     );
-    observerCache.set(root, obs);
   }
-  return obs;
+  return cachedObs;
 }
 
-export function useReveal<T extends HTMLElement>(delay?: string) {
+export function useReveal<T extends HTMLElement>() {
   const ref = useRef<T | null>(null);
   useEffect(() => {
     const el = ref.current;
@@ -32,21 +28,13 @@ export function useReveal<T extends HTMLElement>(delay?: string) {
     getObserver().observe(el);
     return () => getObserver().unobserve(el);
   }, []);
-  return { ref, className: `reveal${delay ? ` ${delay}` : ""}` };
+  return ref;
 }
 
-interface RevealProps {
-  children: ReactNode;
-  as?: ElementType;
-  delay?: string;
-  className?: string;
-  id?: string;
-}
-
-export function Reveal({ children, as: Tag = "div", delay, className = "", id }: RevealProps) {
-  const { ref, className: base } = useReveal<HTMLElement>(delay);
+export function Reveal({ children, as: Tag = "div", className = "" }: { children: ReactNode; as?: ElementType; className?: string }) {
+  const ref = useReveal<HTMLElement>();
   return (
-    <Tag ref={ref} className={`${base} ${className}`.trim()} id={id}>
+    <Tag ref={ref} className={`reveal ${className}`.trim()}>
       {children}
     </Tag>
   );

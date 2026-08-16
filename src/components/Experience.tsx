@@ -1,42 +1,33 @@
 import { experience } from "../data/experience";
-import { SectionHead } from "./SectionHead";
 import { Reveal } from "../hooks/useReveal";
-import { Icon } from "../lib/icons";
 import "./Experience.css";
 
 export function Experience() {
   return (
     <section id="experience">
       <div className="container">
-        <SectionHead
-          eyebrow="Experience"
-          title={<>Where I've been <span className="grad-text">building</span></>}
-          sub="Internships and product communities where I shipped real work and learned how products actually get made."
-        />
+        <Reveal>
+          <header className="section-head">
+            <span className="section-index">02 — Experience</span>
+            <h2 className="section-title">Internships and product communities.</h2>
+          </header>
+        </Reveal>
 
-        <div className="timeline">
-          {experience.map((e, i) => (
-            <Reveal key={e.company} as="div" className="timeline-item" delay={i % 2 ? "reveal-d1" : undefined}>
-              <div className="timeline-dot" style={{ "--td": e.accent } as React.CSSProperties} aria-hidden="true" />
-              <article className="timeline-card card">
-                <div className="timeline-head">
-                  <div>
-                    <span className="timeline-role">{e.role}</span>
-                    <h3>{e.company}</h3>
-                  </div>
-                  <span className="timeline-period">
-                    <Icon.clock width={13} height={13} /> {e.period}
-                  </span>
+        <div className="exp-list">
+          {experience.map((e) => (
+            <Reveal as="article" key={e.company} className="exp-row">
+              <div className="exp-main">
+                <div className="exp-role">
+                  <span className="exp-company">{e.company}</span>
+                  <span className="exp-role-name"> — {e.role}</span>
                 </div>
-                <ul>
+                <ul className="exp-points">
                   {e.points.map((p) => (
-                    <li key={p}>
-                      <Icon.check width={14} height={14} />
-                      {p}
-                    </li>
+                    <li key={p}>{p}</li>
                   ))}
                 </ul>
-              </article>
+              </div>
+              <div className="exp-period">{e.period}</div>
             </Reveal>
           ))}
         </div>

@@ -1,0 +1,97 @@
+.oss-list {
+  border-top: 1px solid var(--line);
+}
+
+.oss-row {
+  display: grid;
+  grid-template-columns: 230px 1fr 130px;
+  align-items: center;
+  gap: 24px;
+  padding: 17px 4px;
+  border-bottom: 1px solid var(--line);
+  transition: background 0.16s ease;
+}
+
+.oss-row:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.oss-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.16s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.oss-row:hover .oss-name {
+  color: var(--accent);
+}
+
+.oss-lang {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--lc);
+}
+
+.oss-desc {
+  color: var(--ink-3);
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.oss-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.oss-lang-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.oss-ext {
+  color: var(--ink-3);
+  font-size: 15px;
+  transition: color 0.16s ease, transform 0.16s ease;
+}
+
+.oss-row:hover .oss-ext {
+  color: var(--accent);
+  transform: translate(2px, -2px);
+}
+
+.oss-more {
+  margin-top: 30px;
+}
+
+@media (max-width: 760px) {
+  .oss-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .oss-meta {
+    display: none;
+  }
+  .oss-desc {
+    white-space: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oss-ext {
+    transform: none;
+  }
+}

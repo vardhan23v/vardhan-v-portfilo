@@ -57,7 +57,7 @@ export function Landing() {
         <div className="edition-bar">
           <span className="edition-bar-label">four interfaces</span>
           <span className="edition-bar-hint">
-            keyboard: press <kbd>1</kbd>–<kbd>4</kbd> · switch from any page
+            keyboard: tab + enter · press <kbd>1</kbd>–<kbd>4</kbd> · switch from any page
           </span>
         </div>
 

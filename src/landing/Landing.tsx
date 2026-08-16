@@ -18,9 +18,9 @@ export function Landing() {
         <header className="landing-head">
           <p className="landing-eyebrow">sree vardhan v — portfolio</p>
           <h1 className="landing-title">
-            Same work.
+            One portfolio.
             <br />
-            <span className="landing-grad">Four vibes.</span>
+            <span className="landing-grad">Four interfaces.</span>
           </h1>
           <p className="landing-sub">
             Every project, every milestone — rendered in four styles: a

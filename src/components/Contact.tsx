@@ -1,119 +1,121 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { site } from "../data/site";
 import { Reveal } from "../hooks/useReveal";
-
-const channels = [
-  {
-    label: "Email",
-    value: site.email,
-    href: `mailto:${site.email}`,
-    icon: "✉",
-    bg: "linear-gradient(135deg, #a78bfa, #6366f1)",
-  },
-  {
-    label: "GitHub",
-    value: "github.com/vardhan23v",
-    href: site.github,
-    icon: "⌥",
-    bg: "linear-gradient(135deg, #34d399, #0d9488)",
-  },
-  {
-    label: "LinkedIn",
-    value: "linkedin.com/in/vardhan-v23",
-    href: site.linkedin,
-    icon: "◈",
-    bg: "linear-gradient(135deg, #22d3ee, #3b82f6)",
-  },
-];
+import { Icon } from "../lib/icons";
+import "./Contact.css";
 
 export function Contact() {
-  const [from, setFrom] = useState("");
-  const [subject, setSubject] = useState("");
-  const [body, setBody] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
 
-  const onSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    window.location.href = `mailto:${site.email}?subject=${encodeURIComponent(
-      subject || "Hello from your portfolio"
-    )}&body=${encodeURIComponent(`${body}\n\n— ${from}`)}`;
+    const subject = encodeURIComponent(`Portfolio contact — ${name}`);
+    const body = encodeURIComponent(`${message}\n\n— ${name} (${email})`);
+    window.location.href = `mailto:${site.email}?subject=${subject}&body=${body}`;
     setSent(true);
-    setTimeout(() => setSent(false), 4500);
   };
 
   return (
-    <section className="section" id="contact" aria-labelledby="contact-title">
+    <section id="contact">
       <div className="container">
-        <Reveal>
-          <div className="sec-head" style={{ marginBottom: 44 }}>
-            <span className="eyebrow">contact</span>
-            <h2 className="sec-title" id="contact-title">
-              Let's build something
-            </h2>
-            <p className="sec-sub">
-              Open to internships, freelance, and interesting problems. I usually reply within a day.
-            </p>
-          </div>
-        </Reveal>
-
-        <div className="contact-grid">
+        <div className="contact-wrap">
           <Reveal>
-            <div className="contact-ch">
-              {channels.map((c) => (
-                <a key={c.label} href={c.href} target={c.href.startsWith("mailto") ? undefined : "_blank"} rel="noopener noreferrer">
-                  <span className="ci" style={{ background: c.bg }} aria-hidden="true">
-                    {c.icon}
+            <div className="contact-copy">
+              <span className="section-eyebrow">Contact</span>
+              <h2 className="section-title">
+                Have an idea? <span className="grad-text">Let's build it.</span>
+              </h2>
+              <p className="contact-desc">
+                I'm always interested in building interesting products, experimenting with AI, and
+                working on challenging problems.
+              </p>
+
+              <div className="contact-channels">
+                <a href={`mailto:${site.email}`} className="contact-channel">
+                  <span className="contact-channel-icon">
+                    <Icon.mail width={19} height={19} />
                   </span>
-                  <span>
-                    <span className="cn">{c.label}</span>
-                    <span className="chd">{c.value}</span>
-                  </span>
+                  <div>
+                    <span className="contact-channel-label">Email</span>
+                    <span className="contact-channel-value">{site.email}</span>
+                  </div>
                 </a>
-              ))}
+                <a href={site.linkedin} target="_blank" rel="noopener noreferrer" className="contact-channel">
+                  <span className="contact-channel-icon">
+                    <Icon.linkedin width={18} height={18} />
+                  </span>
+                  <div>
+                    <span className="contact-channel-label">LinkedIn</span>
+                    <span className="contact-channel-value">in/vardhan-v23</span>
+                  </div>
+                </a>
+                <a href={site.github} target="_blank" rel="noopener noreferrer" className="contact-channel">
+                  <span className="contact-channel-icon">
+                    <Icon.github width={19} height={19} />
+                  </span>
+                  <div>
+                    <span className="contact-channel-label">GitHub</span>
+                    <span className="contact-channel-value">vardhan23v</span>
+                  </div>
+                </a>
+              </div>
             </div>
           </Reveal>
 
-          <Reveal>
-            <div className="mail-panel">
-              <form className="mail-form" onSubmit={onSubmit}>
-                <div className="field">
-                  <label htmlFor="cf-from">Your name or email</label>
+          <Reveal delay="reveal-d2">
+            <form className="contact-form card" onSubmit={handleSubmit} aria-label="Contact form">
+              <div className="form-row">
+                <div className="form-field">
+                  <label htmlFor="cf-name">Name</label>
                   <input
-                    id="cf-from"
-                    value={from}
-                    onChange={(e) => setFrom(e.target.value)}
-                    placeholder="you@example.com"
+                    id="cf-name"
+                    type="text"
+                    required
+                    autoComplete="name"
+                    placeholder="Your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </div>
+                <div className="form-field">
+                  <label htmlFor="cf-email">Email</label>
+                  <input
+                    id="cf-email"
+                    type="email"
+                    required
                     autoComplete="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
-                <div className="field">
-                  <label htmlFor="cf-subject">Subject</label>
-                  <input
-                    id="cf-subject"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    placeholder="Want to build something together"
-                  />
-                </div>
-                <div className="field">
-                  <label htmlFor="cf-body">Message</label>
-                  <textarea
-                    id="cf-body"
-                    value={body}
-                    onChange={(e) => setBody(e.target.value)}
-                    placeholder="Tell me about the problem, the stack, and the timeline."
-                  />
-                </div>
-                <button type="submit" className="btn btn-primary">
-                  Send message
-                </button>
-                <span className="mail-hint" role="status">
-                  {sent
-                    ? "✓ Your mail client should have opened with the message ready to send."
-                    : "Opens your mail client — no backend, no spam, no tracking."}
-                </span>
-              </form>
-            </div>
+              </div>
+              <div className="form-field">
+                <label htmlFor="cf-message">Message</label>
+                <textarea
+                  id="cf-message"
+                  required
+                  rows={5}
+                  placeholder="Tell me about your idea…"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                />
+              </div>
+              <button type="submit" className="btn btn-primary form-submit">
+                <Icon.send width={16} height={16} /> Send Message
+              </button>
+              {sent && (
+                <p className="form-note" role="status">
+                  Opening your email app — hit send there and I'll get back to you.
+                </p>
+              )}
+              <p className="form-legal">
+                Opens your email client — no server involved.
+              </p>
+            </form>
           </Reveal>
         </div>
       </div>

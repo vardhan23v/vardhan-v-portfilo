@@ -1,89 +1,62 @@
-import { certifications, education } from "../data/experience";
-import { site } from "../data/site";
+import { SectionHead } from "./SectionHead";
 import { Reveal } from "../hooks/useReveal";
+import { Icon } from "../lib/icons";
+import "./About.css";
 
-const facts = [
-  { label: "Based in", value: site.location },
-  { label: "Currently", value: "AI + full-stack development" },
-  { label: "Studying", value: `${education.degree} — ${education.school}` },
-  { label: "Certifications", value: `${certifications.length} completed` },
-];
+const strengths = [
+  { icon: "sparkles", title: "Generative AI", text: "LLM integration, prompt engineering, agents, and MCP tooling." },
+  { icon: "server", title: "Full-Stack", text: "React frontends, Node.js APIs, and databases wired end-to-end." },
+  { icon: "rocket", title: "Product Thinker", text: "I ship working applications, not just demos and tutorials." },
+] as const;
 
-const principles = [
-  { icon: "◈", text: "Understand the problem before choosing the stack." },
-  { icon: "✚", text: "Build the smallest useful version, then let usage drive the rest." },
-  { icon: "❋", text: "Reliability beats features — fallbacks, tests, honest failure states." },
-];
+function StrengthGlyph({ icon }: { icon: string }) {
+  const Glyph = Icon[icon as keyof typeof Icon];
+  return <Glyph width={20} height={20} />;
+}
 
 export function About() {
   return (
-    <section className="section" id="about" aria-labelledby="about-title">
+    <section id="about">
       <div className="container">
-        <Reveal>
-          <div className="sec-head" style={{ marginBottom: 44 }}>
-            <span className="eyebrow">about</span>
-            <h2 className="sec-title" id="about-title">
-              A builder, not a spectator
-            </h2>
-          </div>
-        </Reveal>
+        <SectionHead eyebrow="About" title={<>Builder first, student second — <span className="grad-text">shipping with AI</span></>} />
 
         <div className="about-grid">
           <Reveal>
-            <div>
-              <p className="about-text">
-                I'm {site.fullName}, a Computer Science undergraduate at {education.school}. I work across the
-                whole stack — interfaces, APIs, databases, and the LLM layer on top of it — and I ship what I
-                build. My rule of thumb:{" "}
-                <strong className="grad">the demo works before the design is praised.</strong>
+            <div className="about-card card">
+              <p className="about-lead">
+                I'm a Computer Science undergraduate at <strong>NMAM Institute of Technology</strong>{" "}
+                focused on full-stack development and AI-integrated applications.
               </p>
-              <p className="about-text" style={{ marginTop: 14 }}>
-                Lately I've been deep in AI product engineering: multi-provider LLM fallback chains,
-                deterministic multi-agent simulations, streaming assistants with server-side auth, and
-                extensions generated end-to-end by language models. Everything I learn lands in{" "}
-                <a className="tlink" href="#work">
-                  public repos
-                </a>
-                .
+              <p>
+                I enjoy building products across the stack — from React interfaces and Node.js APIs to
+                databases and LLM integrations. I've built AI-powered developer tools, a Chrome
+                extension generator, career platforms, and full-stack web applications using
+                technologies such as React, Node.js, MongoDB, MySQL, Gemini, Claude, and Groq.
               </p>
-
-              <ul className="about-principles">
-                {principles.map((pr) => (
-                  <li key={pr.text}>
-                    <span className="pi" aria-hidden="true">
-                      {pr.icon}
-                    </span>
-                    {pr.text}
-                  </li>
-                ))}
-              </ul>
+              <p>
+                I'm particularly interested in <span className="about-accent">Generative AI</span>,{" "}
+                <span className="about-accent">AI agents</span>,{" "}
+                <span className="about-accent">developer tooling</span>, and products that solve real
+                problems.
+              </p>
             </div>
           </Reveal>
 
-          <Reveal>
-            <div className="about-facts">
-              {facts.map((f) => (
-                <div className="about-fact" key={f.label}>
-                  <div className="fl">{f.label}</div>
-                  <div className="fv">{f.value}</div>
+          <div className="about-strengths">
+            {strengths.map((s, i) => (
+              <Reveal key={s.title} delay={`reveal-d${i + 1}`}>
+                <div className="about-strength">
+                  <span className="about-strength-icon" aria-hidden="true">
+                    <StrengthGlyph icon={s.icon} />
+                  </span>
+                  <div>
+                    <h3>{s.title}</h3>
+                    <p>{s.text}</p>
+                  </div>
                 </div>
-              ))}
-              <div className="about-fact">
-                <div className="fl">Connect</div>
-                <div className="fv" style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-                  <a className="tlink" href={site.github} target="_blank" rel="noopener noreferrer">
-                    GitHub
-                  </a>
-                  <a className="tlink" href={site.linkedin} target="_blank" rel="noopener noreferrer">
-                    LinkedIn
-                  </a>
-                  <a className="tlink" href={`mailto:${site.email}`}>
-                    {site.email}
-                  </a>
-                </div>
-              </div>
-            </div>
-          </Reveal>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </div>
     </section>

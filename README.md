@@ -1,86 +1,95 @@
 <div align="center">
 
-# Vardhan V — Portfolio
+# Sree Vardhan V — Portfolio
 
 **Generative AI Developer & Full-Stack Developer**
 
-<img src="docs/screenshot-hero.png" alt="Portfolio hero — CRT terminal with interactive shell" width="720" />
+<img src="docs/screenshot-hero.png" alt="Portfolio hero — dark theme with animated terminal showing 'vardhan build --ai'" width="720" />
 
-[![Live Site](https://img.shields.io/badge/Live%20Site-vardhan--v--portfilo.vercel.app-a8a8b3?style=flat-square&logo=vercel&logoColor=white)](https://vardhan-v-portfilo.vercel.app)
-[![GitHub](https://img.shields.io/badge/GitHub-vardhan23v-a8a8b3?style=flat-square&logo=github&logoColor=white)](https://github.com/vardhan23v)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-vardhan--v23-a8a8b3?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/vardhan-v23)
+[![Live Site](https://img.shields.io/badge/Live%20Site-vardhan--v--portfilo.vercel.app-38bdf8?style=flat-square&logo=vercel&logoColor=white)](https://vardhan-v-portfilo.vercel.app)
+[![GitHub](https://img.shields.io/badge/GitHub-vardhan23v-7c6cff?style=flat-square&logo=github&logoColor=white)](https://github.com/vardhan23v)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-vardhan--v23-0a66c2?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/vardhan-v23)
 
 </div>
 
-A portfolio that behaves like a terminal because it was built by someone who lives in one.
-CRT boot screen, phosphor-green on near-black, scanlines, a real interactive command shell,
-and case studies rendered as man pages. **No template. No glassmorphism. Just a shell.**
+A premium, production-quality personal portfolio positioning me as a **Generative AI
+Developer & Full-Stack Developer** — built around real AI-powered products, not a list of
+technologies.
 
-## Highlights
+> *I build with AI. I ship with code.*
 
-- **CRT boot sequence** — power-on log lines, skippable, plays once per session
-- **Interactive terminal** — type `help`, `whoami`, `ls`, `work`, `cat about.txt`,
-  `uptime`, `clear`… it runs, scrolls to sections, and never takes itself too seriously
-- **Selected Work** — `ls -l ./work/` listing of five case studies (Extension AI,
-  AI Code Reviewer, CareerForge Pro, Vard AI, DisasterMind AI) with LIVE/SOURCE badges
-- **Case-study pages** — `/work/:slug` rendered as `vim README.md`-style man pages:
-  the_problem, the_approach, architecture tree, engineering_decisions as commits,
-  outcome, what_i_learned
-- **Experience** — `tail -f ~/experience.log` — factual 2026 timeline (OxCode,
-  FlyRank AI, Zetheta, Zaalima) plus education and certs
-- **How I work** — a five-stage shell pipeline: understand | design | build | test | ship
-- **Technologies** — `tree ~/skills` filesystem tree, no percentage bars
-- **Open source** — `git remote -v` listing from the live GitHub API with static fallback
-- **Contact** — a `sendmail`-style mail session that opens your mail client
-- **Footer** — live uptime counter, UTC clock, `exit status: 0`
+## ✨ Highlights
 
-## Stack
+- **Hero** — animated terminal (`$ vardhan build --ai` → `✓ shipped`) with neural-node glow
+  and floating code chips
+- **7 featured projects** — Extension AI, AI Code Reviewer, CareerForge Pro, Vard AI,
+  DisasterMind AI, Campus Compass, DriveNest — each with the problem it solves, features,
+  tech stack, GitHub + live demo links
+- **"Other things I've built"** — 10 more projects in a compact grid
+- **Experience timeline** — OxCode, FlyRank AI, Zetheta Algorithms, Zaalima Development
+- **Tech stack** — glyph chips grouped by category (no fake percentage bars)
+- **Building in Public** — live GitHub API stats + top repos, with a graceful static
+  fallback if the API fails
+- **Contact** — channels + mailto-fallback form (no fake backend)
+- **SEO & a11y** — Open Graph/Twitter meta, sitemap, robots.txt, semantic HTML, skip link,
+  focus states, `prefers-reduced-motion` support
 
-| Layer | Choice |
+## 🛠 Tech Stack
+
+| Layer | Tools |
 | --- | --- |
 | Framework | Vite, React 19, TypeScript |
-| Routing | react-router-dom (`/work/:slug` case studies) |
-| Styling | Hand-written CSS — CRT scanlines, phosphor palette, no UI library |
-| Animation | Boot sequence, scroll reveals, animated cursor; reduced-motion support |
-| Data | GitHub REST API with graceful static fallback |
-| Deployment | Vercel (auto-deploy on push, SPA rewrite in `vercel.json`) |
+| Styling | Hand-written CSS with design tokens (zero UI libraries) |
+| Animation | IntersectionObserver scroll reveals, pure CSS keyframes |
+| Data | GitHub REST API (live "Building in Public" section) |
+| Deployment | Vercel (auto-deploy on push) |
 
-## Local development
+Bundle is ~73 kB gzipped — no icon libraries, no animation frameworks, no bloated deps.
+
+## 📁 Structure
+
+```
+.
+├── public/            # favicon, robots.txt, sitemap.xml, resume/ (drop resume.pdf here)
+├── docs/              # README screenshots
+└── src/
+    ├── data/          # ALL content — projects, experience, skills, education, certs
+    ├── components/    # one component per section + Navbar, Footer, Terminal
+    ├── hooks/         # useReveal (scroll reveal)
+    ├── lib/           # inline SVG icon set
+    └── styles/        # global design system
+```
+
+## 🚀 Getting Started
 
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm run build      # typecheck + production build → dist/
-npm run preview    # serve the production build
+npm run build      # production build → dist/
+npm run preview    # preview the production build
 ```
 
-## Project structure
+## ✏️ Customizing Content
 
-```
-public/          # favicon, robots.txt, sitemap.xml, resume/ (add resume.pdf), work/ screenshots
-src/
-  data/          # ALL content — case studies, experience, tech, repos
-  components/    # one component per section + WorkDetail, Hero (interactive shell), Boot
-  hooks/         # useReveal (scroll reveal)
-  styles/        # terminal design system (CRT, windows, prompts)
-vercel.json      # SPA rewrite for case-study routes
-```
+Everything on the site is **data-driven** — edit the files in `src/data/`:
 
-## Editing content
+| File | What it controls |
+| --- | --- |
+| `src/data/site.ts` | Name, title, links, resume path |
+| `src/data/projects.ts` | Featured + other projects |
+| `src/data/experience.ts` | Experience, education, certifications |
+| `src/data/skills.ts` | Tech stack categories + "Currently Exploring" |
 
-Everything is data-driven — edit `src/data/` and rebuild:
+No component changes needed. Rebuild and push — Vercel deploys automatically.
 
-- `src/data/work.ts` — case studies + "also built"
-- `src/data/experience.ts` — experience, education, certifications, process
-- `src/data/tech.ts` — technology groups + GitHub fallback repos
-- `src/data/site.ts` — name, links, resume path
+## 📝 Before Launch
 
-## Before launch
+1. Drop your resume at `public/resume/resume.pdf`
+2. Update `og:url` and `sitemap.xml` if you change domains
+3. The GitHub section shows live stats; if the API is rate-limited it falls back to a
+   static snapshot
 
-1. Add your resume at `public/resume/resume.pdf`
-2. Point `og:url` at your domain if you change it
-
-## Links
+## 🔗 Links
 
 - **Live:** https://vardhan-v-portfilo.vercel.app
 - **GitHub:** https://github.com/vardhan23v
@@ -89,4 +98,4 @@ Everything is data-driven — edit `src/data/` and rebuild:
 
 ---
 
-© Vardhan V · Built with React + TypeScript
+© Sree Vardhan V · Designed & built by me — no template involved.

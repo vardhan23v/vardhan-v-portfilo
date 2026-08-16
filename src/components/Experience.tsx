@@ -1,65 +1,45 @@
-import { certifications, education, experience } from "../data/experience";
+import { experience } from "../data/experience";
+import { SectionHead } from "./SectionHead";
 import { Reveal } from "../hooks/useReveal";
+import { Icon } from "../lib/icons";
+import "./Experience.css";
 
 export function Experience() {
   return (
-    <section className="section" id="experience" aria-labelledby="exp-title">
+    <section id="experience">
       <div className="container">
-        <Reveal>
-          <div className="sec-head" style={{ marginBottom: 44 }}>
-            <span className="eyebrow">experience</span>
-            <h2 className="sec-title" id="exp-title">
-              Where I've been working
-            </h2>
-            <p className="sec-sub">
-              Factual, current, and growing. No inflated titles — the work is the evidence.
-            </p>
-          </div>
-        </Reveal>
+        <SectionHead
+          eyebrow="Experience"
+          title={<>Where I've been <span className="grad-text">building</span></>}
+          sub="Internships and product communities where I shipped real work and learned how products actually get made."
+        />
 
-        <Reveal>
-          <div className="exp-list">
-            {experience.map((e) => (
-              <div className="exp-item" key={e.company}>
-                <div className="exp-card">
-                  <div className="exp-period">{e.period}</div>
-                  <div className="exp-role">{e.role}</div>
-                  <div className="exp-company">
-                    {e.company} <span style={{ color: "var(--text-3)" }}>—</span>{" "}
-                    <span className="badge-src" style={{ fontSize: 11 }}>
-                      ACTIVE
-                    </span>
+        <div className="timeline">
+          {experience.map((e, i) => (
+            <Reveal key={e.company} as="div" className="timeline-item" delay={i % 2 ? "reveal-d1" : undefined}>
+              <div className="timeline-dot" style={{ "--td": e.accent } as React.CSSProperties} aria-hidden="true" />
+              <article className="timeline-card card">
+                <div className="timeline-head">
+                  <div>
+                    <span className="timeline-role">{e.role}</span>
+                    <h3>{e.company}</h3>
                   </div>
-                  <ul className="exp-points">
-                    {e.points.map((pt, i) => (
-                      <li key={i}>{pt}</li>
-                    ))}
-                  </ul>
+                  <span className="timeline-period">
+                    <Icon.clock width={13} height={13} /> {e.period}
+                  </span>
                 </div>
-              </div>
-            ))}
-          </div>
-        </Reveal>
-
-        <Reveal>
-          <div className="edu-panel">
-            <div className="edu-card">
-              <h3>Education</h3>
-              <div className="big">{education.degree}</div>
-              <div className="dim">
-                {education.school} · {education.period}
-              </div>
-            </div>
-            <div className="edu-card">
-              <h3>Certifications</h3>
-              <ul className="cert-list">
-                {certifications.map((c) => (
-                  <li key={c}>{c}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </Reveal>
+                <ul>
+                  {e.points.map((p) => (
+                    <li key={p}>
+                      <Icon.check width={14} height={14} />
+                      {p}
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            </Reveal>
+          ))}
+        </div>
       </div>
     </section>
   );

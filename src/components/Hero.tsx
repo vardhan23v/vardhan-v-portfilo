@@ -1,91 +1,119 @@
-import { Link } from "react-router-dom";
-import { caseStudies } from "../data/work";
 import { site } from "../data/site";
+import { Icon } from "../lib/icons";
+import { Terminal } from "./Terminal";
 import { Reveal } from "../hooks/useReveal";
-
-const featured = caseStudies.find((p) => p.shot) ?? caseStudies[0];
-
-const stats = [
-  { num: "05", lbl: "products shipped" },
-  { num: "04", lbl: "engineering roles" },
-  { num: "12+", lbl: "public repos" },
-  { num: "'28", lbl: "B.Tech CSE" },
-];
+import "./Hero.css";
 
 export function Hero() {
   return (
-    <section className="hero" aria-label="Introduction">
+    <section className="hero" id="top">
       <div className="container hero-grid">
-        <Reveal>
-          <span className="eyebrow">
-            <span className="dot" aria-hidden="true" />
-            {site.status}
-          </span>
-          <h1 className="hero-title">
-            I build <span className="hero-grad">AI-powered products</span> and full-stack
-            systems that actually ship.
-          </h1>
-          <p className="hero-sub">
-            {site.fullName} — Computer Science undergraduate focused on Generative AI,
-            developer tools, and end-to-end product engineering.
-          </p>
-          <div className="hero-cta">
-            <a className="btn btn-primary" href="#work">
-              View my work
-            </a>
-            <a className="btn btn-ghost" href={`mailto:${site.email}`}>
-              Get in touch
-            </a>
-            <a className="btn btn-ghost" href={site.resume} download>
-              Resume
-            </a>
-          </div>
-          <div className="hero-stats">
-            {stats.map((s) => (
-              <div className="stat" key={s.lbl}>
-                <div className="num">{s.num}</div>
-                <div className="lbl">{s.lbl}</div>
-              </div>
-            ))}
-          </div>
-        </Reveal>
+        <div className="hero-copy">
+          <Reveal>
+            <p className="hero-availability">
+              <span className="hero-availability-dot" aria-hidden="true" />
+              Open to internships & AI product builds
+            </p>
+          </Reveal>
 
-        <Reveal className="" as="div">
-          <div className="hero-visual">
-            <span className="float-chip float-chip-1">
-              <span className="ic" aria-hidden="true" />
-              Gemini · Groq · Claude
-            </span>
-            <span className="float-chip float-chip-2">
-              <span className="ic" aria-hidden="true" />
-              React · Node · MongoDB
-            </span>
-            <span className="float-chip float-chip-3">
-              <span className="ic" aria-hidden="true" />
-              10-agent simulation
-            </span>
+          <Reveal delay="reveal-d1">
+            <h1 className="hero-name">
+              Sree Vardhan <span className="grad-text">V</span>
+            </h1>
+          </Reveal>
 
-            <div className="feature-card">
-              <div className="feature-shot">
-                <img
-                  src={featured.shot}
-                  alt={`Screenshot of ${featured.name}, my ${featured.tagline}`}
-                  loading="eager"
-                />
-                <div className="feature-meta">
-                  <span className="feature-name">{featured.name}</span>
-                  <span className="badge-live">LIVE</span>
-                </div>
-              </div>
-              <div className="feature-body">
-                <span className="feature-tag">{featured.tagline}</span>
-                <Link className="tlink-arrow" to={`/work/${featured.slug}`}>
-                  Read the case study →
-                </Link>
-              </div>
+          <Reveal delay="reveal-d2">
+            <p className="hero-role">Generative AI Developer &amp; Full-Stack Developer</p>
+          </Reveal>
+
+          <Reveal delay="reveal-d3">
+            <p className="hero-desc">
+              Computer Science undergraduate building AI-powered web applications, developer
+              tools, and full-stack products.
+            </p>
+          </Reveal>
+
+          <Reveal delay="reveal-d3">
+            <p className="hero-tagline">
+              <Icon.sparkles width={17} height={17} />
+              {site.tagline}
+            </p>
+          </Reveal>
+
+          <Reveal delay="reveal-d4">
+            <div className="hero-actions">
+              <a href="#projects" className="btn btn-primary">
+                View Projects <Icon.arrowRight width={17} height={17} />
+              </a>
+              <a href={site.resume} className="btn btn-ghost" download>
+                <Icon.download width={17} height={17} /> Download Resume
+              </a>
             </div>
+          </Reveal>
+
+          <Reveal delay="reveal-d4">
+            <div className="hero-links">
+              <a href={site.github} target="_blank" rel="noopener noreferrer">
+                <Icon.github width={17} height={17} /> GitHub
+              </a>
+              <a href={site.linkedin} target="_blank" rel="noopener noreferrer">
+                <Icon.linkedin width={16} height={16} /> LinkedIn
+              </a>
+              <a href={`mailto:${site.email}`}>
+                <Icon.mail width={17} height={17} /> Email
+              </a>
+              <span className="hero-location">
+                <Icon.mapPin width={15} height={15} /> {site.location}
+              </span>
+            </div>
+          </Reveal>
+        </div>
+
+        <div className="hero-visual">
+          <div className="hero-neural" aria-hidden="true">
+            <span className="hero-node n1" />
+            <span className="hero-node n2" />
+            <span className="hero-node n3" />
+            <span className="hero-node n4" />
+            <span className="hero-node n5" />
+            <svg className="hero-lines" viewBox="0 0 400 400" fill="none">
+              <path d="M90 70 L200 190" stroke="url(#lg1)" />
+              <path d="M310 70 L200 190" stroke="url(#lg1)" />
+              <path d="M90 70 L70 300" stroke="url(#lg2)" />
+              <path d="M310 70 L330 300" stroke="url(#lg2)" />
+              <path d="M200 190 L70 300" stroke="url(#lg3)" />
+              <path d="M200 190 L330 300" stroke="url(#lg3)" />
+              <path d="M70 300 L330 300" stroke="url(#lg1)" opacity="0.5" />
+              <defs>
+                <linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1">
+                  <stop stopColor="#7c6cff" stopOpacity="0.55" />
+                  <stop offset="1" stopColor="#38bdf8" stopOpacity="0.18" />
+                </linearGradient>
+                <linearGradient id="lg2" x1="1" y1="0" x2="0" y2="1">
+                  <stop stopColor="#38bdf8" stopOpacity="0.4" />
+                  <stop offset="1" stopColor="#7c6cff" stopOpacity="0.12" />
+                </linearGradient>
+                <linearGradient id="lg3" x1="0" y1="0" x2="1" y2="1">
+                  <stop stopColor="#a78bfa" stopOpacity="0.4" />
+                  <stop offset="1" stopColor="#38bdf8" stopOpacity="0.15" />
+                </linearGradient>
+              </defs>
+            </svg>
           </div>
-        </Reveal>
+          <Reveal delay="reveal-d2">
+            <Terminal />
+          </Reveal>
+        </div>
+      </div>
+
+      <div className="hero-float hero-float-code" aria-hidden="true">
+        <Icon.code width={16} height={16} /> const ship = (idea) =&gt; build(idea)
+      </div>
+      <div className="hero-float hero-float-llm" aria-hidden="true">
+        <Icon.sparkles width={16} height={16} /> model.groq · 70B
+      </div>
+      <div className="hero-float hero-float-ts" aria-hidden="true">
+        λ stream.toJSON()
       </div>
     </section>
   );

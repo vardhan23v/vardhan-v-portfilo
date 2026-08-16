@@ -23,6 +23,9 @@ await p.waitForSelector(".edition-grid", { timeout: 10000 });
 chk("h1", await p.evaluate(() => /One\s*portfolio\.\s*Four\s*interfaces\./.test(document.querySelector("h1")?.textContent ?? "")));
 chk("what", (await bodyTxt()).includes("I build AI-powered products and full-stack systems."));
 chk("bar", (await bodyTxt()).includes("keyboard: tab + enter"));
+chk("cta primary", await p.evaluate(() => document.body.innerText.includes("View selected work")));
+chk("cta github", await p.evaluate(() => !!document.querySelector('a[href="https://github.com/vardhan23v"][target="_blank"]')));
+chk("pipeline", await p.evaluate(() => document.body.innerText.includes("frontend") && document.body.innerText.includes("llm")));
 
 await p.goto(base + "/paper", { waitUntil: "networkidle0" });
 await p.waitForSelector(".paper-eng-btn", { timeout: 10000 });
@@ -53,6 +56,7 @@ chk("terminal prompt", (await bodyTxt()).includes("SELECTED_PROJECTS"));
 await p.goto(base + "/classic", { waitUntil: "networkidle0" });
 await p.waitForSelector(".hero", { timeout: 10000 });
 chk("classic alive", (await bodyTxt()).includes("vardhan build --ai"));
+chk("classic no campus", !(await bodyTxt()).includes("Campus Compass"));
 
 console.log(f === 0 ? "LIVE PRODUCTION CHECK PASS" : f + " FAILURES");
 await b.close();

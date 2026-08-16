@@ -28,6 +28,30 @@ export function Landing() {
             development, and developer tooling. One body of work, four ways to
             experience it — pick a lane, switch anytime.
           </p>
+
+          <div className="landing-ctas">
+            <a className="l-cta l-cta-primary" href="#editions">
+              View selected work <span aria-hidden="true">→</span>
+            </a>
+            <a className="l-cta" href={site.github} target="_blank" rel="noopener noreferrer">
+              GitHub <span aria-hidden="true">↗</span>
+            </a>
+            <a className="l-cta" href={site.resume} target="_blank" rel="noopener noreferrer">
+              Resume <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+
+          <div className="landing-pipeline" aria-hidden="true">
+            <span>frontend</span>
+            <i>→</i>
+            <span>api</span>
+            <i>→</i>
+            <span>database</span>
+            <i>→</i>
+            <span>llm</span>
+            <i>→</i>
+            <span>product</span>
+          </div>
         </header>
 
         <div className="edition-bar">
@@ -35,7 +59,7 @@ export function Landing() {
           <span className="edition-bar-hint">keyboard: tab + enter · switch from any page</span>
         </div>
 
-        <div className="edition-grid" role="list" aria-label="Portfolio interfaces — choose an edition">
+        <div className="edition-grid" id="editions" role="list" aria-label="Portfolio interfaces — choose an edition">
           <Link to="/terminal" className="edition-card ed-term" aria-label="Open the Terminal interface" role="listitem">
             <div className="mini-term" aria-hidden="true">
               <div className="mini-body">

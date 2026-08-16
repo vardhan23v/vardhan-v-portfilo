@@ -1,4 +1,5 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
+import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { Landing } from "./landing/Landing";
 import { ClassicSite } from "./classic/ClassicSite";
 import { TerminalLayout } from "./terminal/TerminalLayout";
@@ -8,9 +9,32 @@ import { PaperSite } from "./paper/PaperSite";
 import { AuroraSite } from "./aurora/AuroraSite";
 import "./landing/Landing.css";
 
+const interfaceRoutes = ["/terminal", "/classic", "/paper", "/aurora"];
+
+function InterfaceShortcuts() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      const n = Number(e.key);
+      if (n >= 1 && n <= 4 && interfaceRoutes[n - 1]) {
+        navigate(interfaceRoutes[n - 1]);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [navigate]);
+
+  return null;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
+      <InterfaceShortcuts />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/classic" element={<ClassicSite />} />

@@ -219,6 +219,22 @@ h1, h2, h3, p {
   color: var(--text-3);
 }
 
+.edition-bar-hint kbd {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 1px 5px;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  color: var(--text-2);
+}
+
+@media (max-width: 640px) {
+  .edition-bar-hint {
+    display: none;
+  }
+}
+
 /* ---------- Edition cards ---------- */
 
 .edition-grid {

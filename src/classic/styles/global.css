@@ -1,4 +1,4 @@
-:root {
+.classic-root {
   --bg: #05060f;
   --bg-soft: #0a0b1a;
   --surface: rgba(255, 255, 255, 0.03);
@@ -21,25 +21,23 @@
   --nav-h: 68px;
 }
 
-*,
-*::before,
-*::after {
+.classic-root *, .classic-root *::before, .classic-root *::after {
   box-sizing: border-box;
 }
 
-html {
+.classic-root {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--nav-h) + 8px);
   -webkit-text-size-adjust: 100%;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
+  .classic-root {
     scroll-behavior: auto;
   }
 }
 
-body {
+.classic-root {
   margin: 0;
   font-family: var(--font-sans);
   background: var(--bg);
@@ -50,42 +48,38 @@ body {
   overflow-x: hidden;
 }
 
-::selection {
+.classic-root ::selection {
   background: rgba(124, 108, 255, 0.35);
   color: #fff;
 }
 
-img,
-svg {
+.classic-root img, .classic-root svg {
   display: block;
   max-width: 100%;
 }
 
-a {
+.classic-root a {
   color: inherit;
   text-decoration: none;
 }
 
-button {
+.classic-root button {
   font-family: inherit;
   cursor: pointer;
 }
 
-h1,
-h2,
-h3,
-h4 {
+.classic-root h1, .classic-root h2, .classic-root h3, .classic-root h4 {
   font-family: var(--font-display);
   line-height: 1.15;
   margin: 0;
   letter-spacing: -0.02em;
 }
 
-p {
+.classic-root p {
   margin: 0;
 }
 
-:focus-visible {
+.classic-root :focus-visible {
   outline: 2px solid var(--accent-2);
   outline-offset: 3px;
   border-radius: 4px;
@@ -93,7 +87,7 @@ p {
 
 /* ---------- Background layers ---------- */
 
-.bg-grid {
+.classic-root .bg-grid {
   position: fixed;
   inset: 0;
   z-index: -3;
@@ -105,15 +99,14 @@ p {
   pointer-events: none;
 }
 
-.bg-glow {
+.classic-root .bg-glow {
   position: fixed;
   inset: 0;
   z-index: -2;
   pointer-events: none;
 }
 
-.bg-glow::before,
-.bg-glow::after {
+.classic-root .bg-glow::before, .classic-root .bg-glow::after {
   content: "";
   position: absolute;
   border-radius: 50%;
@@ -121,7 +114,7 @@ p {
   opacity: 0.5;
 }
 
-.bg-glow::before {
+.classic-root .bg-glow::before {
   width: 640px;
   height: 640px;
   top: -260px;
@@ -130,7 +123,7 @@ p {
   background: radial-gradient(circle, rgba(124, 108, 255, 0.28), transparent 65%);
 }
 
-.bg-glow::after {
+.classic-root .bg-glow::after {
   width: 520px;
   height: 520px;
   top: 700px;
@@ -140,29 +133,29 @@ p {
 
 /* ---------- Layout ---------- */
 
-.container {
+.classic-root .container {
   width: 100%;
   max-width: var(--max-w);
   margin: 0 auto;
   padding: 0 24px;
 }
 
-main > section {
+.classic-root main > section {
   position: relative;
   padding: 96px 0;
 }
 
 @media (max-width: 760px) {
-  main > section {
+  .classic-root main > section {
     padding: 72px 0;
   }
 }
 
-.section-head {
+.classic-root .section-head {
   margin-bottom: 48px;
 }
 
-.section-eyebrow {
+.classic-root .section-eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -174,26 +167,26 @@ main > section {
   margin-bottom: 14px;
 }
 
-.section-eyebrow::before {
+.classic-root .section-eyebrow::before {
   content: "";
   width: 26px;
   height: 1px;
   background: linear-gradient(90deg, var(--accent-2), transparent);
 }
 
-.section-title {
+.classic-root .section-title {
   font-size: clamp(28px, 4.4vw, 40px);
   font-weight: 700;
 }
 
-.section-sub {
+.classic-root .section-sub {
   color: var(--text-dim);
   max-width: 640px;
   margin-top: 12px;
   font-size: 16px;
 }
 
-.grad-text {
+.classic-root .grad-text {
   background: linear-gradient(100deg, #c7bfff 0%, var(--accent-2) 100%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -202,7 +195,7 @@ main > section {
 
 /* ---------- Buttons ---------- */
 
-.btn {
+.classic-root .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -216,34 +209,34 @@ main > section {
   white-space: nowrap;
 }
 
-.btn:active {
+.classic-root .btn:active {
   transform: scale(0.97);
 }
 
-.btn-primary {
+.classic-root .btn-primary {
   background: linear-gradient(120deg, var(--accent), #6d5cff 45%, #4c8dff);
   color: #fff;
   box-shadow: 0 6px 28px rgba(110, 92, 255, 0.32);
 }
 
-.btn-primary:hover {
+.classic-root .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 34px rgba(110, 92, 255, 0.45);
 }
 
-.btn-ghost {
+.classic-root .btn-ghost {
   background: var(--surface);
   border-color: var(--border-strong);
   color: var(--text);
 }
 
-.btn-ghost:hover {
+.classic-root .btn-ghost:hover {
   background: var(--surface-hover);
   border-color: rgba(255, 255, 255, 0.24);
   transform: translateY(-2px);
 }
 
-.btn-sm {
+.classic-root .btn-sm {
   padding: 8px 14px;
   font-size: 13.5px;
   border-radius: 10px;
@@ -251,7 +244,7 @@ main > section {
 
 /* ---------- Cards / surfaces ---------- */
 
-.card {
+.classic-root .card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -261,32 +254,30 @@ main > section {
 
 /* ---------- Reveal animations ---------- */
 
-.reveal {
+.classic-root .reveal {
   opacity: 0;
   transform: translateY(26px);
   transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
 }
 
-.reveal.is-visible {
+.classic-root .reveal.is-visible {
   opacity: 1;
   transform: none;
 }
 
-.reveal-d1 { transition-delay: 0.08s; }
-.reveal-d2 { transition-delay: 0.16s; }
-.reveal-d3 { transition-delay: 0.24s; }
-.reveal-d4 { transition-delay: 0.32s; }
+.classic-root .reveal-d1 { transition-delay: 0.08s; }
+.classic-root .reveal-d2 { transition-delay: 0.16s; }
+.classic-root .reveal-d3 { transition-delay: 0.24s; }
+.classic-root .reveal-d4 { transition-delay: 0.32s; }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal {
+  .classic-root .reveal {
     opacity: 1;
     transform: none;
     transition: none;
   }
-  *,
-  *::before,
-  *::after {
+  .classic-root *, .classic-root *::before, .classic-root *::after {
     animation-duration: 0.001s !important;
     animation-iteration-count: 1 !important;
   }
@@ -294,7 +285,7 @@ main > section {
 
 /* ---------- Misc ---------- */
 
-.skip-link {
+.classic-root .skip-link {
   position: fixed;
   top: -60px;
   left: 16px;
@@ -307,13 +298,22 @@ main > section {
   transition: top 0.2s ease;
 }
 
-.skip-link:focus {
+.classic-root .skip-link:focus {
   top: 16px;
 }
 
 @media print {
-  .bg-grid,
-  .bg-glow {
+  .classic-root .bg-grid, .classic-root .bg-glow {
     display: none;
   }
+}
+.classic-root {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  min-height: 100vh;
 }

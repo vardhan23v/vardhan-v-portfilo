@@ -1,4 +1,4 @@
-.timeline {
+.classic-root .timeline {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -6,7 +6,7 @@
   padding-left: 34px;
 }
 
-.timeline::before {
+.classic-root .timeline::before {
   content: "";
   position: absolute;
   left: 8px;
@@ -17,11 +17,11 @@
   opacity: 0.5;
 }
 
-.timeline-item {
+.classic-root .timeline-item {
   position: relative;
 }
 
-.timeline-dot {
+.classic-root .timeline-dot {
   position: absolute;
   left: -31px;
   top: 26px;
@@ -33,18 +33,18 @@
     0 0 16px color-mix(in srgb, var(--td, var(--accent)) 55%, transparent);
 }
 
-.timeline-card {
+.classic-root .timeline-card {
   padding: 26px 30px;
   transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
 }
 
-.timeline-card:hover {
+.classic-root .timeline-card:hover {
   transform: translateX(4px);
   border-color: var(--border-strong);
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4);
 }
 
-.timeline-head {
+.classic-root .timeline-head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -53,7 +53,7 @@
   margin-bottom: 14px;
 }
 
-.timeline-role {
+.classic-root .timeline-role {
   font-family: var(--font-mono);
   font-size: 12.5px;
   text-transform: uppercase;
@@ -63,11 +63,11 @@
   margin-bottom: 6px;
 }
 
-.timeline-card h3 {
+.classic-root .timeline-card h3 {
   font-size: 19.5px;
 }
 
-.timeline-period {
+.classic-root .timeline-period {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -81,7 +81,7 @@
   white-space: nowrap;
 }
 
-.timeline-card ul {
+.classic-root .timeline-card ul {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -90,7 +90,7 @@
   gap: 8px;
 }
 
-.timeline-card li {
+.classic-root .timeline-card li {
   display: inline-flex;
   align-items: flex-start;
   gap: 10px;
@@ -98,20 +98,20 @@
   font-size: 14.5px;
 }
 
-.timeline-card li svg {
+.classic-root .timeline-card li svg {
   flex-shrink: 0;
   margin-top: 4px;
   color: var(--green);
 }
 
 @media (max-width: 640px) {
-  .timeline {
+  .classic-root .timeline {
     padding-left: 26px;
   }
-  .timeline-dot {
+  .classic-root .timeline-dot {
     left: -24px;
   }
-  .timeline-card {
+  .classic-root .timeline-card {
     padding: 22px 20px;
   }
 }

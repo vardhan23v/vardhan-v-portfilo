@@ -1,4 +1,4 @@
-.terminal {
+.classic-root .terminal {
   position: relative;
   width: 100%;
   max-width: 520px;
@@ -14,7 +14,7 @@
   text-align: left;
 }
 
-.terminal-bar {
+.classic-root .terminal-bar {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -23,23 +23,23 @@
   background: rgba(255, 255, 255, 0.02);
 }
 
-.terminal-dot {
+.classic-root .terminal-dot {
   width: 11px;
   height: 11px;
   border-radius: 50%;
 }
 
-.terminal-dot-r { background: #ff5f57; }
-.terminal-dot-y { background: #febc2e; }
-.terminal-dot-g { background: #28c840; }
+.classic-root .terminal-dot-r { background: #ff5f57; }
+.classic-root .terminal-dot-y { background: #febc2e; }
+.classic-root .terminal-dot-g { background: #28c840; }
 
-.terminal-title {
+.classic-root .terminal-title {
   margin-left: 8px;
   font-size: 12.5px;
   color: var(--text-faint);
 }
 
-.terminal-status {
+.classic-root .terminal-status {
   margin-left: auto;
   display: inline-flex;
   align-items: center;
@@ -52,7 +52,7 @@
   background: rgba(52, 211, 153, 0.07);
 }
 
-.terminal-pulse {
+.classic-root .terminal-pulse {
   width: 6px;
   height: 6px;
   border-radius: 50%;
@@ -65,12 +65,12 @@
   50% { opacity: 0.35; }
 }
 
-.terminal-body {
+.classic-root .terminal-body {
   padding: 18px 18px 22px;
   min-height: 218px;
 }
 
-.terminal-line {
+.classic-root .terminal-line {
   display: flex;
   gap: 9px;
   align-items: baseline;
@@ -81,31 +81,31 @@
   transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
-.terminal-line-in {
+.classic-root .terminal-line-in {
   opacity: 1;
   transform: none;
 }
 
-.terminal-prompt {
+.classic-root .terminal-prompt {
   color: var(--accent-2);
   font-weight: 600;
 }
 
-.terminal-arrow {
+.classic-root .terminal-arrow {
   color: var(--text-faint);
   font-size: 11px;
 }
 
-.terminal-dim {
+.classic-root .terminal-dim {
   color: var(--text-dim);
 }
 
-.terminal-ok {
+.classic-root .terminal-ok {
   color: var(--green);
   font-weight: 500;
 }
 
-.terminal-cursor {
+.classic-root .terminal-cursor {
   display: inline-block;
   width: 7px;
   height: 14px;
@@ -120,8 +120,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .terminal-pulse,
-  .terminal-cursor {
+  .classic-root .terminal-pulse, .classic-root .terminal-cursor {
     animation: none;
   }
 }

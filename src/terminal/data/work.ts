@@ -13,14 +13,11 @@ export interface CaseStudy {
   tech: string[];
   github: string;
   live?: string;
-  shot?: string;
-  theme: { from: string; to: string; main: string; glow: string };
 }
 
 export const caseStudies: CaseStudy[] = [
   {
     slug: "extension-ai",
-    theme: { from: "#a78bfa", to: "#6366f1", main: "#8b5cf6", glow: "rgba(139, 92, 246, 0.35)" },
     number: "01",
     name: "Extension AI",
     tagline: "AI-powered Chrome extension generator",
@@ -68,7 +65,6 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     slug: "code-reviewer",
-    theme: { from: "#22d3ee", to: "#3b82f6", main: "#38bdf8", glow: "rgba(56, 189, 248, 0.35)" },
     number: "02",
     name: "AI Code Reviewer",
     tagline: "AI-powered code analysis and review tool",
@@ -115,7 +111,6 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     slug: "careerforge-pro",
-    theme: { from: "#34d399", to: "#0d9488", main: "#2dd4bf", glow: "rgba(45, 212, 191, 0.35)" },
     number: "03",
     name: "CareerForge Pro",
     tagline: "AI-assisted career and resume platform",
@@ -162,7 +157,6 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     slug: "vard-ai",
-    theme: { from: "#f472b6", to: "#db2777", main: "#f43f5e", glow: "rgba(244, 63, 94, 0.35)" },
     number: "04",
     name: "Vard AI",
     tagline: "Voice-first AI assistant",
@@ -209,8 +203,6 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     slug: "disastermind-ai",
-    shot: "/work/disastermind-map.jpg",
-    theme: { from: "#fbbf24", to: "#f97316", main: "#fb923c", glow: "rgba(251, 146, 60, 0.35)" },
     number: "05",
     name: "DisasterMind AI",
     tagline: "AI-powered emergency operations interface",

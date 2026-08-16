@@ -4,7 +4,7 @@
 
 **Generative AI Developer & Full-Stack Developer**
 
-<img src="docs/screenshot-hero.png" alt="Portfolio hero — dark theme with animated terminal showing 'vardhan build --ai'" width="720" />
+<img src="docs/screenshot-hero.png" alt="Portfolio landing — choose between the Terminal and Classic editions" width="720" />
 
 [![Live Site](https://img.shields.io/badge/Live%20Site-vardhan--v--portfilo.vercel.app-38bdf8?style=flat-square&logo=vercel&logoColor=white)](https://vardhan-v-portfilo.vercel.app)
 [![GitHub](https://img.shields.io/badge/GitHub-vardhan23v-7c6cff?style=flat-square&logo=github&logoColor=white)](https://github.com/vardhan23v)
@@ -17,6 +17,20 @@ Developer & Full-Stack Developer** — built around real AI-powered products, no
 technologies.
 
 > *I build with AI. I ship with code.*
+
+## ✨ Dual editions
+
+The site opens on an **edition picker** — one portfolio, two skins, same real work:
+
+- **`/terminal` — Terminal edition** — retro CRT/hacker theme: boot sequence,
+  interactive command shell in the hero (`help`, `whoami`, `ls`, `cat about.txt`…),
+  work as `ls -l ./work/`, experience as a log, case studies as man pages at
+  `/terminal/work/:slug`
+- **`/classic` — Classic edition** — the original design: animated
+  `vardhan build --ai` terminal, neural-network hero, project grid, GitHub stats,
+  skills, education timeline and contact form
+
+You can switch editions from any page.
 
 ## ✨ Highlights
 

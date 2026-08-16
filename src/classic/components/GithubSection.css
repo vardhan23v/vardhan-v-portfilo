@@ -1,15 +1,15 @@
-.gh-card {
+.classic-root .gh-card {
   padding: 34px;
 }
 
-.gh-stats {
+.classic-root .gh-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
   margin-bottom: 26px;
 }
 
-.gh-stat {
+.classic-root .gh-stat {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -20,23 +20,23 @@
   border: 1px solid var(--border);
 }
 
-.gh-stat svg {
+.classic-root .gh-stat svg {
   color: var(--accent-2);
   margin-bottom: 6px;
 }
 
-.gh-stat strong {
+.classic-root .gh-stat strong {
   font-family: var(--font-display);
   font-size: 26px;
   letter-spacing: -0.02em;
 }
 
-.gh-stat span {
+.classic-root .gh-stat span {
   color: var(--text-faint);
   font-size: 13px;
 }
 
-.gh-stat-link a {
+.classic-root .gh-stat-link a {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -46,29 +46,29 @@
   transition: color 0.18s ease;
 }
 
-.gh-stat-link a:hover {
+.classic-root .gh-stat-link a:hover {
   color: var(--accent-2);
 }
 
-.gh-live-note {
+.classic-root .gh-live-note {
   margin: -8px 0 18px;
   font-size: 13px;
   color: var(--text-faint);
 }
 
-.gh-live-note a {
+.classic-root .gh-live-note a {
   color: var(--accent-2);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
-.gh-repos {
+.classic-root .gh-repos {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
   gap: 14px;
 }
 
-.gh-repo {
+.classic-root .gh-repo {
   display: flex;
   flex-direction: column;
   padding: 20px 22px;
@@ -78,20 +78,20 @@
   transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 }
 
-.gh-repo:hover {
+.classic-root .gh-repo:hover {
   transform: translateY(-3px);
   border-color: var(--border-strong);
   background: rgba(255, 255, 255, 0.055);
 }
 
-.gh-repo-top {
+.classic-root .gh-repo-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
 }
 
-.gh-repo-name {
+.classic-root .gh-repo-name {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -104,12 +104,12 @@
   white-space: nowrap;
 }
 
-.gh-repo-name svg {
+.classic-root .gh-repo-name svg {
   flex-shrink: 0;
   color: var(--text-dim);
 }
 
-.gh-repo-star {
+.classic-root .gh-repo-star {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -118,11 +118,11 @@
   flex-shrink: 0;
 }
 
-.gh-repo-star svg {
+.classic-root .gh-repo-star svg {
   color: #facc15;
 }
 
-.gh-repo-desc {
+.classic-root .gh-repo-desc {
   margin-top: 10px;
   color: var(--text-dim);
   font-size: 13px;
@@ -134,7 +134,7 @@
   overflow: hidden;
 }
 
-.gh-repo-lang {
+.classic-root .gh-repo-lang {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -144,7 +144,7 @@
   color: var(--text-dim);
 }
 
-.gh-repo-lang::before {
+.classic-root .gh-repo-lang::before {
   content: "";
   width: 9px;
   height: 9px;
@@ -153,16 +153,16 @@
   box-shadow: 0 0 8px var(--lc);
 }
 
-.gh-cta {
+.classic-root .gh-cta {
   margin-top: 30px;
   text-align: center;
 }
 
 @media (max-width: 760px) {
-  .gh-card {
+  .classic-root .gh-card {
     padding: 24px 20px;
   }
-  .gh-stats {
+  .classic-root .gh-stats {
     grid-template-columns: repeat(2, 1fr);
   }
 }

@@ -1,11 +1,11 @@
-.edu-grid {
+.classic-root .edu-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 56px;
   align-items: start;
 }
 
-.edu-timeline {
+.classic-root .edu-timeline {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -13,7 +13,7 @@
   padding-left: 30px;
 }
 
-.edu-timeline::before {
+.classic-root .edu-timeline::before {
   content: "";
   position: absolute;
   left: 7px;
@@ -24,11 +24,11 @@
   opacity: 0.5;
 }
 
-.edu-item {
+.classic-root .edu-item {
   position: relative;
 }
 
-.edu-dot {
+.classic-root .edu-dot {
   position: absolute;
   left: -28px;
   top: 24px;
@@ -39,11 +39,11 @@
   box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15), 0 0 14px rgba(56, 189, 248, 0.5);
 }
 
-.edu-card {
+.classic-root .edu-card {
   padding: 22px 26px;
 }
 
-.edu-head {
+.classic-root .edu-head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -51,38 +51,38 @@
   flex-wrap: wrap;
 }
 
-.edu-card h3 {
+.classic-root .edu-card h3 {
   font-size: 17.5px;
 }
 
-.edu-period {
+.classic-root .edu-period {
   font-family: var(--font-mono);
   font-size: 12px;
   color: var(--text-faint);
   white-space: nowrap;
 }
 
-.edu-degree {
+.classic-root .edu-degree {
   margin-top: 7px;
   color: var(--accent-2);
   font-size: 14.5px;
   font-weight: 500;
 }
 
-.edu-detail {
+.classic-root .edu-detail {
   margin-top: 6px;
   color: var(--text-dim);
   font-size: 13.5px;
 }
 
 /* Certifications */
-.cert-grid {
+.classic-root .cert-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
 }
 
-.cert-card {
+.classic-root .cert-card {
   display: flex;
   align-items: center;
   gap: 13px;
@@ -94,13 +94,13 @@
   transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
 }
 
-.cert-card:hover {
+.classic-root .cert-card:hover {
   transform: translateX(3px);
   border-color: rgba(52, 211, 153, 0.4);
   background: var(--surface-hover);
 }
 
-.cert-icon {
+.classic-root .cert-icon {
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
@@ -114,7 +114,7 @@
 }
 
 @media (max-width: 900px) {
-  .edu-grid {
+  .classic-root .edu-grid {
     grid-template-columns: 1fr;
     gap: 48px;
   }

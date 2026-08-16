@@ -1,25 +1,25 @@
-.contact-wrap {
+.classic-root .contact-wrap {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 48px;
   align-items: start;
 }
 
-.contact-desc {
+.classic-root .contact-desc {
   margin-top: 14px;
   color: var(--text-dim);
   font-size: 16px;
   max-width: 460px;
 }
 
-.contact-channels {
+.classic-root .contact-channels {
   margin-top: 34px;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.contact-channel {
+.classic-root .contact-channel {
   display: flex;
   align-items: center;
   gap: 15px;
@@ -30,13 +30,13 @@
   transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
 }
 
-.contact-channel:hover {
+.classic-root .contact-channel:hover {
   transform: translateX(4px);
   border-color: rgba(56, 189, 248, 0.4);
   background: var(--surface-hover);
 }
 
-.contact-channel-icon {
+.classic-root .contact-channel-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -49,7 +49,7 @@
   flex-shrink: 0;
 }
 
-.contact-channel-label {
+.classic-root .contact-channel-label {
   display: block;
   font-size: 12px;
   text-transform: uppercase;
@@ -57,7 +57,7 @@
   color: var(--text-faint);
 }
 
-.contact-channel-value {
+.classic-root .contact-channel-value {
   display: block;
   font-size: 14.5px;
   font-weight: 500;
@@ -65,31 +65,30 @@
   margin-top: 2px;
 }
 
-.contact-form {
+.classic-root .contact-form {
   padding: 30px 32px;
 }
 
-.form-row {
+.classic-root .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
 
-.form-field {
+.classic-root .form-field {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-bottom: 18px;
 }
 
-.form-field label {
+.classic-root .form-field label {
   font-size: 13.5px;
   font-weight: 600;
   color: var(--text-dim);
 }
 
-.form-field input,
-.form-field textarea {
+.classic-root .form-field input, .classic-root .form-field textarea {
   width: 100%;
   font-family: inherit;
   font-size: 15px;
@@ -101,35 +100,33 @@
   transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
 }
 
-.form-field textarea {
+.classic-root .form-field textarea {
   resize: vertical;
   min-height: 120px;
 }
 
-.form-field input::placeholder,
-.form-field textarea::placeholder {
+.classic-root .form-field input::placeholder, .classic-root .form-field textarea::placeholder {
   color: var(--text-faint);
 }
 
-.form-field input:focus,
-.form-field textarea:focus {
+.classic-root .form-field input:focus, .classic-root .form-field textarea:focus {
   outline: none;
   border-color: var(--accent);
   background: rgba(124, 108, 255, 0.05);
   box-shadow: 0 0 0 3px rgba(124, 108, 255, 0.15);
 }
 
-.form-submit {
+.classic-root .form-submit {
   width: 100%;
 }
 
-.form-note {
+.classic-root .form-note {
   margin-top: 14px;
   font-size: 13.5px;
   color: var(--green);
 }
 
-.form-legal {
+.classic-root .form-legal {
   margin-top: 10px;
   font-size: 12px;
   color: var(--text-faint);
@@ -137,14 +134,14 @@
 }
 
 @media (max-width: 900px) {
-  .contact-wrap {
+  .classic-root .contact-wrap {
     grid-template-columns: 1fr;
     gap: 40px;
   }
 }
 
 @media (max-width: 560px) {
-  .form-row {
+  .classic-root .form-row {
     grid-template-columns: 1fr;
     gap: 0;
   }

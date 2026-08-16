@@ -1,10 +1,10 @@
-.skills-grid {
+.classic-root .skills-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 20px;
 }
 
-.skill-cat {
+.classic-root .skill-cat {
   padding: 26px 28px;
   border-radius: var(--radius);
   background: var(--surface);
@@ -12,19 +12,19 @@
   transition: transform 0.22s ease, border-color 0.22s ease;
 }
 
-.skill-cat:hover {
+.classic-root .skill-cat:hover {
   transform: translateY(-3px);
   border-color: rgba(124, 108, 255, 0.3);
 }
 
-.skill-cat-header {
+.classic-root .skill-cat-header {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 20px;
 }
 
-.skill-cat-icon {
+.classic-root .skill-cat-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -36,17 +36,17 @@
   border: 1px solid rgba(56, 189, 248, 0.2);
 }
 
-.skill-cat h3 {
+.classic-root .skill-cat h3 {
   font-size: 17.5px;
 }
 
-.skill-chips {
+.classic-root .skill-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 9px;
 }
 
-.skill-chip {
+.classic-root .skill-chip {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -60,14 +60,14 @@
   transition: transform 0.16s ease, border-color 0.16s ease, color 0.16s ease, background 0.16s ease;
 }
 
-.skill-chip:hover {
+.classic-root .skill-chip:hover {
   transform: translateY(-2px);
   color: var(--text);
   border-color: rgba(124, 108, 255, 0.45);
   background: rgba(124, 108, 255, 0.08);
 }
 
-.skill-chip-glyph {
+.classic-root .skill-chip-glyph {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -84,14 +84,14 @@
 }
 
 /* Exploring */
-.skill-exploring {
+.classic-root .skill-exploring {
   background:
     radial-gradient(120% 140% at 100% 0%, rgba(124, 108, 255, 0.12), transparent 55%),
     var(--surface);
   border-color: rgba(124, 108, 255, 0.22);
 }
 
-.exploring-list {
+.classic-root .exploring-list {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -100,13 +100,13 @@
   gap: 13px;
 }
 
-.exploring-list li {
+.classic-root .exploring-list li {
   display: flex;
   gap: 12px;
   align-items: flex-start;
 }
 
-.exploring-dot {
+.classic-root .exploring-dot {
   flex-shrink: 0;
   width: 8px;
   height: 8px;
@@ -117,20 +117,20 @@
   animation: tpulse 2.2s ease-in-out infinite;
 }
 
-.exploring-list strong {
+.classic-root .exploring-list strong {
   display: block;
   font-size: 15px;
   font-family: var(--font-display);
   font-weight: 600;
 }
 
-.exploring-list span {
+.classic-root .exploring-list span {
   font-size: 13px;
   color: var(--text-faint);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .exploring-dot {
+  .classic-root .exploring-dot {
     animation: none;
   }
 }

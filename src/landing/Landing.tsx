@@ -20,11 +20,12 @@ export function Landing() {
           <h1 className="landing-title">
             Same work.
             <br />
-            <span className="landing-grad">Two vibes.</span>
+            <span className="landing-grad">Four vibes.</span>
           </h1>
           <p className="landing-sub">
-            Every project, every milestone — presented twice. A hacker's shell
-            or a clean classic. Pick a lane, switch anytime.
+            Every project, every milestone — rendered in four styles: a
+            hacker&rsquo;s shell, a clean classic, a quiet paper, a glass
+            aurora. Pick a lane, switch anytime.
           </p>
         </header>
 

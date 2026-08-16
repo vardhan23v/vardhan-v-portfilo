@@ -1,0 +1,58 @@
+import puppeteer from "puppeteer-core";
+
+const b = await puppeteer.launch({
+  executablePath: "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
+  headless: true,
+  args: ["--no-sandbox"],
+});
+const p = await b.newPage();
+const base = "https://vardhan-v-portfilo.vercel.app";
+let f = 0;
+const chk = (l, c) => {
+  if (!c) {
+    console.log("FAIL:", l);
+    f++;
+  }
+};
+const txt = (sel) =>
+  p.evaluate((s) => (document.querySelector(s)?.textContent ?? "").replace(/\s+/g, " "), sel);
+const bodyTxt = () => p.evaluate(() => document.body.innerText.replace(/\s+/g, " "));
+
+await p.goto(base + "/", { waitUntil: "networkidle0" });
+await p.waitForSelector(".edition-grid", { timeout: 10000 });
+chk("h1", await p.evaluate(() => /One\s*portfolio\.\s*Four\s*interfaces\./.test(document.querySelector("h1")?.textContent ?? "")));
+chk("what", (await bodyTxt()).includes("I build AI-powered products and full-stack systems."));
+chk("bar", (await bodyTxt()).includes("keyboard: tab + enter"));
+
+await p.goto(base + "/paper", { waitUntil: "networkidle0" });
+await p.waitForSelector(".paper-eng-btn", { timeout: 10000 });
+chk(
+  "paper order",
+  await p.evaluate(() => {
+    const t = document.querySelector("#work")?.innerText || "";
+    return t.indexOf("Extension AI") < t.indexOf("DriveNest") && !t.includes("Campus Compass");
+  })
+);
+await p.evaluate(() => document.querySelector(".paper-eng-btn").click());
+await p.waitForSelector(".paper-eng-body", { timeout: 5000 });
+chk(
+  "paper expander opens",
+  await p.evaluate(() => document.querySelector(".paper-eng-btn").getAttribute("aria-expanded") === "true")
+);
+
+await p.goto(base + "/aurora", { waitUntil: "networkidle0" });
+await p.waitForSelector(".au-card-featured", { timeout: 10000 });
+await p.evaluate(() => document.querySelector(".au-eng-btn").click());
+await p.waitForSelector(".au-eng-body", { timeout: 5000 });
+chk("aurora expander opens", await p.evaluate(() => !!document.querySelector(".au-eng-body")));
+
+await p.goto(base + "/terminal", { waitUntil: "networkidle0" });
+await p.waitForFunction(() => document.querySelector(".terminal-root") && !document.querySelector(".boot"), { timeout: 20000 });
+chk("terminal prompt", (await bodyTxt()).includes("SELECTED_PROJECTS"));
+
+await p.goto(base + "/classic", { waitUntil: "networkidle0" });
+await p.waitForSelector(".hero", { timeout: 10000 });
+chk("classic alive", (await bodyTxt()).includes("vardhan build --ai"));
+
+console.log(f === 0 ? "LIVE PRODUCTION CHECK PASS" : f + " FAILURES");
+await b.close();

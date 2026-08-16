@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://vardhan23v.dev/sitemap.xml

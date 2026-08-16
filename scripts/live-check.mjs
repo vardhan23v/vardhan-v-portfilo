@@ -25,7 +25,7 @@ chk("what", (await bodyTxt()).includes("I build AI-powered products and full-sta
 chk("bar", (await bodyTxt()).includes("keyboard: tab + enter"));
 chk("cta primary", await p.evaluate(() => document.body.innerText.includes("View selected work")));
 chk("cta github", await p.evaluate(() => !!document.querySelector('a[href="https://github.com/vardhan23v"][target="_blank"]')));
-chk("pipeline", await p.evaluate(() => document.body.innerText.includes("frontend") && document.body.innerText.includes("llm")));
+chk("pipeline", await p.evaluate(() => (document.querySelector(".landing-pipeline")?.textContent ?? "").includes("frontend") && (document.querySelector(".landing-pipeline")?.textContent ?? "").includes("product")));
 
 await p.goto(base + "/paper", { waitUntil: "networkidle0" });
 await p.waitForSelector(".paper-eng-btn", { timeout: 10000 });

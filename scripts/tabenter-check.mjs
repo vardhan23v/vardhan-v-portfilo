@@ -32,7 +32,7 @@ const tabTo = async (cf) => {
   );
 };
 
-await tabTo(2); // Term card
+await tabTo(4); // CTA(0) GitHub(1) Resume(2) Term card(3) = 4 tabs
 await p.keyboard.press("Enter");
 await p.waitForFunction(() => location.pathname === "/terminal", { timeout: 8000 });
 chk("tab+enter -> /terminal", true);

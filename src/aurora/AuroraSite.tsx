@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { Link } from "react-router-dom";
 import { featuredProjects, type Project } from "../classic/data/projects";
 import { experience } from "../classic/data/experience";
@@ -69,9 +70,7 @@ export function AuroraSite() {
             <a href="#about">About</a>
             <a href="#contact">Contact</a>
           </div>
-          <Link to="/" className="aurora-editions">
-            ↺ editions
-          </Link>
+          <InterfaceSwitcher current="aurora" />
         </nav>
 
         <header className="aurora-hero">

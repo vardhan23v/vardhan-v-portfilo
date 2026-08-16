@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { Link } from "react-router-dom";
 import { featuredProjects, type Project } from "../classic/data/projects";
 import { experience } from "../classic/data/experience";
@@ -61,9 +62,7 @@ export function PaperSite() {
           <a href="#about">About</a>
           <a href="#contact">Contact</a>
         </div>
-        <Link to="/" className="paper-nav-editions">
-          ↺ editions
-        </Link>
+        <InterfaceSwitcher current="paper" />
       </nav>
 
       <main className="paper-main" id="paper-main">

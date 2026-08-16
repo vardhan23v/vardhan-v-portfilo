@@ -647,3 +647,23 @@
     transition-duration: 0.001s !important;
   }
 }
+/* ---------- Interface switcher ---------- */
+
+.aurora-root .iswitcher {
+  --sw-bg: var(--glass);
+  --sw-border: var(--glass-border);
+  --sw-text: var(--ink);
+  --sw-dim: var(--ink-2);
+  --sw-num: var(--ink-3);
+  --sw-accent: var(--violet);
+  --sw-active-bg: rgba(167, 139, 250, 0.16);
+}
+
+@media (max-width: 900px) {
+  .aurora-root .iswitcher {
+    border: none;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}

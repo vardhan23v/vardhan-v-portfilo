@@ -490,3 +490,23 @@
     transition-duration: 0.001s !important;
   }
 }
+/* ---------- Interface switcher ---------- */
+
+.paper-root .iswitcher {
+  --sw-bg: rgba(250, 248, 244, 0.85);
+  --sw-border: var(--rule);
+  --sw-text: var(--ink);
+  --sw-dim: var(--ink-2);
+  --sw-num: var(--ink-3);
+  --sw-accent: var(--accent);
+  --sw-active-bg: rgba(190, 75, 42, 0.09);
+}
+
+@media (max-width: 900px) {
+  .paper-root .iswitcher {
+    border: none;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}

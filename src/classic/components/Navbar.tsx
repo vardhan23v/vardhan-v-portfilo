@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { site } from "../data/site";
 import { Icon } from "../lib/icons";
 import "./Navbar.css";
+import { InterfaceSwitcher } from "../../interface-switcher/InterfaceSwitcher";
 
 const links = [
   { label: "About", href: "#about" },
@@ -53,6 +54,7 @@ export function Navbar() {
         </nav>
 
         <div className="nav-actions">
+          <InterfaceSwitcher current="classic" />
           <div className="nav-socials">
             <a href={site.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
               <Icon.github width={19} height={19} />

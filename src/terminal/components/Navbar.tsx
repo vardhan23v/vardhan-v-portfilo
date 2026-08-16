@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { InterfaceSwitcher } from "../../interface-switcher/InterfaceSwitcher";
 import { site } from "../data/site";
 
 const links = [
@@ -46,6 +47,7 @@ export function Navbar() {
           ))}
         </nav>
 
+        <InterfaceSwitcher current="terminal" />
         <time className="nav-clock" dateTime={now.toISOString()}>
           {clock}
         </time>

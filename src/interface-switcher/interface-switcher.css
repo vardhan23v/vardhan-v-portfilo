@@ -1,0 +1,66 @@
+/* Shared interface switcher — themed per edition via --sw-* tokens.
+   Each edition root defines its own token values (see edition css files). */
+
+.iswitcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--sw-border);
+  border-radius: 999px;
+  background: var(--sw-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.iswitcher-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-family: var(--mono, var(--font-mono, ui-monospace, monospace));
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  color: var(--sw-dim);
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.iswitcher-item:hover {
+  color: var(--sw-text);
+}
+
+.iswitcher-num {
+  font-size: 10px;
+  color: var(--sw-num);
+}
+
+.iswitcher-item--active {
+  color: var(--sw-text);
+  background: var(--sw-active-bg);
+}
+
+.iswitcher-item--active .iswitcher-num {
+  color: var(--sw-accent);
+}
+
+.iswitcher-item:focus-visible {
+  outline: 2px solid var(--sw-accent);
+  outline-offset: 1px;
+}
+
+@media (max-width: 720px) {
+  .iswitcher-name {
+    display: none;
+  }
+  .iswitcher-item {
+    padding: 5px 8px;
+  }
+  .iswitcher {
+    gap: 1px;
+    padding: 3px 2px;
+  }
+}

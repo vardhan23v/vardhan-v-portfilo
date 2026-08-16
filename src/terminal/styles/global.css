@@ -1650,3 +1650,24 @@
   overflow-x: hidden;
   min-height: 100vh;
 }
+
+/* ---------- Interface switcher ---------- */
+
+.terminal-root .iswitcher {
+  --sw-bg: rgba(10, 16, 12, 0.72);
+  --sw-border: var(--line-2);
+  --sw-text: var(--ink);
+  --sw-dim: var(--ink-2);
+  --sw-num: var(--ink-3);
+  --sw-accent: var(--green);
+  --sw-active-bg: rgba(54, 229, 124, 0.1);
+}
+
+@media (max-width: 900px) {
+  .terminal-root .iswitcher {
+    border: none;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}

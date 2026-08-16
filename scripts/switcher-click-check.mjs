@@ -1,0 +1,12 @@
+import puppeteer from "puppeteer-core";
+const b = await puppeteer.launch({ executablePath: "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser", headless: true, args: ["--no-sandbox"] });
+const p = await b.newPage();
+await p.goto("http://localhost:4173/classic", { waitUntil: "networkidle0" });
+await p.waitForSelector(".iswitcher", { timeout: 10000 });
+await p.evaluate(() => [...document.querySelectorAll(".iswitcher-item")].find(a => a.textContent.includes("Paper")).click());
+await p.waitForFunction(() => location.pathname === "/paper", { timeout: 8000 });
+const paperActive = await p.evaluate(() => !!document.querySelector(".iswitcher-item--active") && document.querySelector(".iswitcher-item--active").getAttribute("title") === "Paper");
+await p.evaluate(() => [...document.querySelectorAll(".iswitcher-item")].find(a => a.textContent.includes("Terminal")).click());
+await p.waitForFunction(() => location.pathname === "/terminal", { timeout: 8000 });
+console.log(paperActive && new URL(p.url()).pathname === "/terminal" ? "SWITCHER CLICK-NAV PASS (classic->paper->terminal, active updates)" : "FAIL");
+await b.close();

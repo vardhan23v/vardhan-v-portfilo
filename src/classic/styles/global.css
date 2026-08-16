@@ -321,3 +321,27 @@
   overflow-x: hidden;
   min-height: 100vh;
 }
+
+/* ---------- Interface switcher ---------- */
+
+.classic-root .iswitcher {
+  --sw-bg: rgba(255, 255, 255, 0.05);
+  --sw-border: rgba(255, 255, 255, 0.13);
+  --sw-text: #e8eaf6;
+  --sw-dim: #9aa1b9;
+  --sw-num: #646b85;
+  --sw-accent: #7c6cff;
+  --sw-active-bg: rgba(124, 108, 255, 0.16);
+}
+
+@media (max-width: 900px) {
+  .classic-root .nav-actions {
+    gap: 8px;
+  }
+  .classic-root .iswitcher {
+    border: none;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}

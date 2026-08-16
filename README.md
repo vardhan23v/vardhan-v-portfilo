@@ -4,7 +4,7 @@
 
 **Generative AI Developer & Full-Stack Developer**
 
-<img src="docs/screenshot-hero.png" alt="Portfolio hero — editorial dark layout with build console" width="720" />
+<img src="docs/screenshot-hero.png" alt="Portfolio hero — CRT terminal with interactive shell" width="720" />
 
 [![Live Site](https://img.shields.io/badge/Live%20Site-vardhan--v--portfilo.vercel.app-a8a8b3?style=flat-square&logo=vercel&logoColor=white)](https://vardhan-v-portfilo.vercel.app)
 [![GitHub](https://img.shields.io/badge/GitHub-vardhan23v-a8a8b3?style=flat-square&logo=github&logoColor=white)](https://github.com/vardhan23v)
@@ -12,25 +12,27 @@
 
 </div>
 
-A production portfolio designed to feel like it was engineered by someone who cares about
-software quality — editorial layout, restrained motion, one accent color, and real
-engineering storytelling. **The work speaks louder than the effects.**
+A portfolio that behaves like a terminal because it was built by someone who lives in one.
+CRT boot screen, phosphor-green on near-black, scanlines, a real interactive command shell,
+and case studies rendered as man pages. **No template. No glassmorphism. Just a shell.**
 
 ## Highlights
 
-- **Hero** — editorial headline with a `build-product` console and a frontend → API → data →
-  LLM → product stack strip
-- **Selected Work** — five case-study showcases (Extension AI, AI Code Reviewer,
-  CareerForge Pro, Vard AI, DisasterMind AI) with asymmetric layouts, system diagrams, and
-  Problem / Approach / Technology / Outcome detail rows
-- **Case-study pages** — `/work/:slug` with The Problem, The Approach, Architecture,
-  Engineering Decisions, Outcome, and What I Learned — grounded in the actual repositories
-- **Experience** — factual 2026 timeline (OxCode, FlyRank AI, Zetheta, Zaalima)
-- **How I work** — a five-step Understand → Design → Build → Test → Ship process
-- **Technologies I work with** — spec-style grouped lists, no percentage bars
-- **Open source & experiments** — live GitHub API rows with a static fallback, no stats
-  dashboard
-- **Contact** — channels plus a mailto-fallback form, no fake backend
+- **CRT boot sequence** — power-on log lines, skippable, plays once per session
+- **Interactive terminal** — type `help`, `whoami`, `ls`, `work`, `cat about.txt`,
+  `uptime`, `clear`… it runs, scrolls to sections, and never takes itself too seriously
+- **Selected Work** — `ls -l ./work/` listing of five case studies (Extension AI,
+  AI Code Reviewer, CareerForge Pro, Vard AI, DisasterMind AI) with LIVE/SOURCE badges
+- **Case-study pages** — `/work/:slug` rendered as `vim README.md`-style man pages:
+  the_problem, the_approach, architecture tree, engineering_decisions as commits,
+  outcome, what_i_learned
+- **Experience** — `tail -f ~/experience.log` — factual 2026 timeline (OxCode,
+  FlyRank AI, Zetheta, Zaalima) plus education and certs
+- **How I work** — a five-stage shell pipeline: understand | design | build | test | ship
+- **Technologies** — `tree ~/skills` filesystem tree, no percentage bars
+- **Open source** — `git remote -v` listing from the live GitHub API with static fallback
+- **Contact** — a `sendmail`-style mail session that opens your mail client
+- **Footer** — live uptime counter, UTC clock, `exit status: 0`
 
 ## Stack
 
@@ -38,8 +40,8 @@ engineering storytelling. **The work speaks louder than the effects.**
 | --- | --- |
 | Framework | Vite, React 19, TypeScript |
 | Routing | react-router-dom (`/work/:slug` case studies) |
-| Styling | Hand-written CSS, design tokens, no UI library |
-| Animation | IntersectionObserver reveals, 150–300 ms transitions, reduced-motion support |
+| Styling | Hand-written CSS — CRT scanlines, phosphor palette, no UI library |
+| Animation | Boot sequence, scroll reveals, animated cursor; reduced-motion support |
 | Data | GitHub REST API with graceful static fallback |
 | Deployment | Vercel (auto-deploy on push, SPA rewrite in `vercel.json`) |
 
@@ -58,9 +60,9 @@ npm run preview    # serve the production build
 public/          # favicon, robots.txt, sitemap.xml, resume/ (add resume.pdf), work/ screenshots
 src/
   data/          # ALL content — case studies, experience, tech, repos
-  components/    # one component per section + WorkDetail, Console, WorkDiagram
+  components/    # one component per section + WorkDetail, Hero (interactive shell), Boot
   hooks/         # useReveal (scroll reveal)
-  styles/        # global design system
+  styles/        # terminal design system (CRT, windows, prompts)
 vercel.json      # SPA rewrite for case-study routes
 ```
 

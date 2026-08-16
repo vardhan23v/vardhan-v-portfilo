@@ -1,29 +1,40 @@
 import { process } from "../data/experience";
 import { Reveal } from "../hooks/useReveal";
-import "./Process.css";
 
 export function Process() {
   return (
-    <section className="process" id="process" aria-label="How I work">
+    <section className="section" id="process" aria-labelledby="proc-title">
       <div className="container">
-        <Reveal>
-          <header className="section-head">
-            <span className="section-index">03 — How I work</span>
-            <h2 className="section-title">A consistent path, from brief to shipped.</h2>
-          </header>
-        </Reveal>
+        <div className="shell">
+          <Reveal>
+            <div className="shell-head">
+              <span className="cmdline">
+                <span className="dollar">$</span> sh ./how_i_work.sh --pipeline
+              </span>
+              <h2 className="shell-title" id="proc-title">
+                HOW_I_WORK <span className="dim">// 5 stages</span>
+              </h2>
+            </div>
+          </Reveal>
 
-        <div className="process-row">
-          {process.map((p, i) => (
-            <Reveal key={p.step} className="process-step">
-              <div className="process-step-head">
-                <span className="process-num">{p.step}</span>
-                {i < process.length - 1 && <span className="process-connector" aria-hidden="true" />}
-              </div>
-              <h3 className="process-label">{p.label}</h3>
-              <p className="process-text">{p.text}</p>
-            </Reveal>
-          ))}
+          <Reveal>
+            <div className="pipe-grid" role="list" aria-label="My process, five stages">
+              {process.map((s) => (
+                <div className="pipe-node" role="listitem" key={s.step}>
+                  <div className="pipe-step">{s.step}</div>
+                  <div className="pipe-label">
+                    {s.label.toLowerCase()}
+                    <span className="bracket">/</span>
+                  </div>
+                  <div className="pipe-text">{s.text.toLowerCase()}</div>
+                </div>
+              ))}
+            </div>
+            <div className="pipe-ok">
+              <span className="ok">●</span>
+              <span>pipeline status: healthy — order matters, shortcuts don't last.</span>
+            </div>
+          </Reveal>
         </div>
       </div>
     </section>

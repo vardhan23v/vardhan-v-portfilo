@@ -1,114 +1,87 @@
 import { useEffect, useState } from "react";
-import { site } from "../data/site";
 import { fallbackRepos } from "../data/tech";
 import { Reveal } from "../hooks/useReveal";
-import "./OpenSource.css";
 
-const colors: Record<string, string> = {
-  JavaScript: "#f1e05a",
-  TypeScript: "#3178c6",
-  HTML: "#e34c26",
-  CSS: "#563d7c",
-  Python: "#3572a5",
-};
+const GITHUB_API = "https://api.github.com/users/vardhan23v/repos?sort=updated&per_page=8&type=public";
 
-function Arrow() {
-  return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path d="M3 8h9M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
+type Repo = { name: string; description: string; language: string | null; url: string };
 
-interface RepoRow {
-  name: string;
-  description: string;
-  language: string;
-  url: string;
-}
+type ApiRepo = { name: string; description: string; language: string | null; html_url: string };
 
 export function OpenSource() {
-  const [repos, setRepos] = useState<RepoRow[]>(fallbackRepos);
+  const [repos, setRepos] = useState<Repo[] | null>(null);
+  const [err, setErr] = useState(false);
 
   useEffect(() => {
-    const ac = new AbortController();
-    const timer = setTimeout(() => ac.abort(), 7000);
-    (async () => {
-      try {
-        const res = await fetch(
-          `https://api.github.com/users/${site.githubUser}/repos?sort=pushed&per_page=100`,
-          { signal: ac.signal }
-        );
-        if (!res.ok) throw new Error("github api");
-        const all = (await res.json()) as {
-          name: string;
-          description: string | null;
-          language: string | null;
-          fork: boolean;
-          stargazers_count: number;
-          html_url: string;
-        }[];
-        if (all.length === 0) throw new Error("empty");
-        const top = all
-          .filter((r) => !r.fork)
-          .sort((a, b) => b.stargazers_count - a.stargazers_count || a.name.localeCompare(b.name))
-          .slice(0, 6)
-          .map((r) => ({
-            name: r.name,
-            description: r.description?.split("\n")[0] ?? "No description provided.",
-            language: r.language ?? "Unknown",
-            url: r.html_url,
-          }));
-        setRepos(top);
-      } catch {
-        /* fallback list stands */
-      }
-    })();
-    return () => {
-      clearTimeout(timer);
-      ac.abort();
-    };
+    const ctrl = new AbortController();
+    fetch(GITHUB_API, { signal: ctrl.signal })
+      .then((r) => {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      })
+      .then((d: ApiRepo[]) =>
+        setRepos(
+          d
+            .filter((x) => x.name !== "vardhan-v-portfilo")
+            .map(({ name, description, language, html_url }) => ({ name, description, language, url: html_url }))
+        )
+      )
+      .catch(() => setErr(true));
+    return () => ctrl.abort();
   }, []);
 
-  return (
-    <section id="open-source">
-      <div className="container">
-        <Reveal>
-          <header className="section-head">
-            <span className="section-index">06 — Open source & experiments</span>
-            <h2 className="section-title">Most projects start as experiments.</h2>
-            <p className="section-sub">
-              They evolve into working products. Every repository on my GitHub is public —
-              including the ones still failing in interesting ways.
-            </p>
-          </header>
-        </Reveal>
+  const list = repos ?? fallbackRepos;
+  const line = repos ? "live · api.github.com" : err ? "api unreachable · static mirror" : "fetching · api.github.com";
 
-        <div className="oss-list">
-          {repos.map((r) => (
-            <a key={r.name} href={r.url} target="_blank" rel="noopener noreferrer" className="oss-row">
-              <div className="oss-name">
-                <span className="oss-lang" style={{ "--lc": colors[r.language] ?? "#818cf8" } as React.CSSProperties} aria-hidden="true" />
-                {r.name}
-              </div>
-              <div className="oss-desc">{r.description}</div>
-              <div className="oss-meta">
-                <span className="oss-lang-label">{r.language}</span>
-                <span className="oss-ext" aria-hidden="true">
-                  ↗
+  return (
+    <section className="section" id="opensource" aria-labelledby="os-title">
+      <div className="container">
+        <div className="shell">
+          <Reveal>
+            <div className="shell-head">
+              <span className="cmdline">
+                <span className="dollar">$</span> git remote -v <span className="bracket"># ./repos/</span>
+              </span>
+              <h2 className="shell-title" id="os-title">
+                OPEN_SOURCE <span className="dim">// all public</span>
+              </h2>
+            </div>
+            <p className="shell-sub">
+              <span className="chip">github.com/vardhan23v</span> — everything is public. consistent state.
+            </p>
+          </Reveal>
+
+          <Reveal>
+            <div className="term">
+              <div className="term-bar" aria-hidden="true">
+                <span className="term-dot r" />
+                <span className="term-dot a" />
+                <span className="term-dot g" />
+                <span className="term-title">
+                  <b>vardhan@folio</b>:~$ remote -v <span className="bracket">[{line}]</span>
                 </span>
               </div>
-            </a>
-          ))}
+              <div className="term-body">
+                <div className="remote-list">
+                  {list.map((r) => (
+                    <div className="remote-item" key={r.name}>
+                      <span className="remote-name">{r.name}</span>
+                      <span className="rl">
+                        {r.description ? r.description : "(no description)"}
+                      </span>
+                      <span className="remote-lang">{r.language ?? "—"}</span>
+                      <span className="remote-url">
+                        <a href={r.url} target="_blank" rel="noopener noreferrer" className="tlink">
+                          {r.url.replace("https://", "")}
+                        </a>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Reveal>
         </div>
-
-        <Reveal>
-          <p className="oss-more">
-            <a href={site.github} target="_blank" rel="noopener noreferrer" className="link-arrow">
-              Explore everything on GitHub <Arrow />
-            </a>
-          </p>
-        </Reveal>
       </div>
     </section>
   );

@@ -1,35 +1,70 @@
-import { experience } from "../data/experience";
+import { certifications, education, experience } from "../data/experience";
 import { Reveal } from "../hooks/useReveal";
-import "./Experience.css";
 
 export function Experience() {
   return (
-    <section id="experience">
+    <section className="section" id="experience" aria-labelledby="exp-title">
       <div className="container">
-        <Reveal>
-          <header className="section-head">
-            <span className="section-index">02 — Experience</span>
-            <h2 className="section-title">Internships and product communities.</h2>
-          </header>
-        </Reveal>
+        <div className="shell">
+          <Reveal>
+            <div className="shell-head">
+              <span className="cmdline">
+                <span className="dollar">$</span> tail -f ~/experience.log
+              </span>
+              <h2 className="shell-title" id="exp-title">
+                EXPERIENCE_LOG <span className="dim">// 2026</span>
+              </h2>
+            </div>
+            <p className="shell-sub">factual, current, and still taking input. nothing inflated.</p>
+          </Reveal>
 
-        <div className="exp-list">
-          {experience.map((e) => (
-            <Reveal as="article" key={e.company} className="exp-row">
-              <div className="exp-main">
-                <div className="exp-role">
-                  <span className="exp-company">{e.company}</span>
-                  <span className="exp-role-name"> — {e.role}</span>
-                </div>
-                <ul className="exp-points">
-                  {e.points.map((p) => (
-                    <li key={p}>{p}</li>
-                  ))}
-                </ul>
+          <Reveal>
+            <div className="term">
+              <div className="term-bar" aria-hidden="true">
+                <span className="term-dot r" />
+                <span className="term-dot a" />
+                <span className="term-dot g" />
+                <span className="term-title">
+                  <b>vardhan@folio</b>:~/log$ cat experience.log
+                </span>
               </div>
-              <div className="exp-period">{e.period}</div>
-            </Reveal>
-          ))}
+              <div className="term-body">
+                <div className="exp-list">
+                  {experience.map((e) => (
+                    <div className="exp-item" key={e.company}>
+                      <div className="exp-headln">
+                        [{e.period}] <b>INFO</b> role_registered
+                      </div>
+                      <div className="exp-role">{e.role}</div>
+                      <div className="exp-company">
+                        @ {e.company} <span className="bracket">·</span> {e.period}
+                      </div>
+                      <ul className="exp-points">
+                        {e.points.map((pt, i) => (
+                          <li key={i}>{pt}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="edu-box">
+                  <h3>education &amp; certs</h3>
+                  <div className="edu-meta">
+                    <span className="school">
+                      {education.degree} — {education.school}
+                    </span>
+                    <span className="dim">{education.period}</span>
+                  </div>
+                  <ul className="cert-list">
+                    {certifications.map((c) => (
+                      <li key={c}>{c}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </Reveal>
         </div>
       </div>
     </section>

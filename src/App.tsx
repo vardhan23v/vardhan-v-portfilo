@@ -1,10 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { Boot } from "./components/Boot";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import { Hero } from "./components/Hero";
-import { Principles } from "./components/Principles";
-import { SelectedWork } from "./components/SelectedWork";
+import { Work } from "./components/Work";
 import { Experience } from "./components/Experience";
 import { Process } from "./components/Process";
 import { Tech } from "./components/Tech";
@@ -35,8 +35,7 @@ function Home() {
   return (
     <>
       <Hero />
-      <Principles />
-      <SelectedWork />
+      <Work />
       <Experience />
       <Process />
       <Tech />
@@ -48,8 +47,26 @@ function Home() {
 }
 
 export default function App() {
+  const [booting, setBooting] = useState(() => {
+    try {
+      return !sessionStorage.getItem("folio.booted");
+    } catch {
+      return true;
+    }
+  });
+
+  const handleBootDone = () => {
+    try {
+      sessionStorage.setItem("folio.booted", "1");
+    } catch {
+      /* ignore */
+    }
+    setBooting(false);
+  };
+
   return (
     <BrowserRouter>
+      {booting && <Boot onDone={handleBootDone} />}
       <ScrollManager />
       <a href="#main" className="skip-link">
         Skip to content

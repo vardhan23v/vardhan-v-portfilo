@@ -76,6 +76,32 @@ export function Landing() {
               </span>
             </div>
           </Link>
+
+          <Link to="/paper" className="edition-card ed-paper">
+            <div className="mini-paper" aria-hidden="true">
+              <div className="mp-name">
+                Sree Vardhan
+                <br />
+                <span className="mp-it">Vardhan V.</span>
+              </div>
+              <div className="mp-rule" />
+              <div className="mp-line" />
+              <div className="mp-line short" />
+            </div>
+            <div className="ed-meta">
+              <span className="ed-num" aria-hidden="true">
+                03
+              </span>
+              <h2>Paper</h2>
+              <p>
+                Light editorial — serif headlines, magazine layout, quiet and
+                readable. The same work, beautifully printed.
+              </p>
+              <span className="ed-cta">
+                Open the paper <span aria-hidden="true">→</span>
+              </span>
+            </div>
+          </Link>
         </div>
 
         <p className="landing-note">switch editions from any page</p>

@@ -102,6 +102,30 @@ export function Landing() {
               </span>
             </div>
           </Link>
+
+          <Link to="/aurora" className="edition-card ed-aurora">
+            <div className="mini-aurora" aria-hidden="true">
+              <span className="ma-blob pink" />
+              <span className="ma-blob cyan" />
+              <div className="ma-name">
+                Sree Vardhan <span className="ma-it">V.</span>
+              </div>
+              <div className="ma-chip">glass · light · gradient</div>
+            </div>
+            <div className="ed-meta">
+              <span className="ed-num" aria-hidden="true">
+                04
+              </span>
+              <h2>Aurora</h2>
+              <p>
+                Glassmorphism — frosted panels floating over drifting pastel
+                auroras. Premium, soft, luminous.
+              </p>
+              <span className="ed-cta">
+                Step into the light <span aria-hidden="true">→</span>
+              </span>
+            </div>
+          </Link>
         </div>
 
         <p className="landing-note">switch editions from any page</p>

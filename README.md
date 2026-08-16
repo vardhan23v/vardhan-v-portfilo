@@ -32,6 +32,11 @@ The site opens on an **edition picker** — one portfolio, two skins, same real 
   `vardhan build --ai` terminal, neural-network hero, project grid, GitHub stats,
   skills, education timeline and contact form
 
+- **`/paper` — Paper edition** — light editorial: Fraunces serif headlines,
+  magazine overlines, hairline rules, quiet and readable
+- **`/aurora` — Aurora edition** — glassmorphism: frosted panels, drifting
+  pastel aurora blobs, gradient text, premium and luminous
+
 You can switch editions from any page.
 
 ## ✨ Highlights

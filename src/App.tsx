@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
-import { Boot } from "./components/Boot";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import { Hero } from "./components/Hero";
@@ -47,26 +46,13 @@ function Home() {
 }
 
 export default function App() {
-  const [booting, setBooting] = useState(() => {
-    try {
-      return !sessionStorage.getItem("folio.booted");
-    } catch {
-      return true;
-    }
-  });
-
-  const handleBootDone = () => {
-    try {
-      sessionStorage.setItem("folio.booted", "1");
-    } catch {
-      /* ignore */
-    }
-    setBooting(false);
-  };
-
   return (
     <BrowserRouter>
-      {booting && <Boot onDone={handleBootDone} />}
+      <div className="bg-scene" aria-hidden="true">
+        <div className="blob blob-1" />
+        <div className="blob blob-2" />
+        <div className="blob blob-3" />
+      </div>
       <ScrollManager />
       <a href="#main" className="skip-link">
         Skip to content

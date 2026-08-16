@@ -1,40 +1,38 @@
 import { process } from "../data/experience";
 import { Reveal } from "../hooks/useReveal";
 
+const steps = [
+  "Understand",
+  "Design",
+  "Build",
+  "Test",
+  "Ship",
+];
+
 export function Process() {
   return (
     <section className="section" id="process" aria-labelledby="proc-title">
       <div className="container">
-        <div className="shell">
-          <Reveal>
-            <div className="shell-head">
-              <span className="cmdline">
-                <span className="dollar">$</span> sh ./how_i_work.sh --pipeline
-              </span>
-              <h2 className="shell-title" id="proc-title">
-                HOW_I_WORK <span className="dim">// 5 stages</span>
-              </h2>
-            </div>
-          </Reveal>
+        <Reveal>
+          <div className="sec-head" style={{ marginBottom: 40 }}>
+            <span className="eyebrow">process</span>
+            <h2 className="sec-title" id="proc-title">
+              How I work
+            </h2>
+            <p className="sec-sub">Five stages, in order. Shortcuts don't survive production.</p>
+          </div>
+        </Reveal>
 
-          <Reveal>
-            <div className="pipe-grid" role="list" aria-label="My process, five stages">
-              {process.map((s) => (
-                <div className="pipe-node" role="listitem" key={s.step}>
-                  <div className="pipe-step">{s.step}</div>
-                  <div className="pipe-label">
-                    {s.label.toLowerCase()}
-                    <span className="bracket">/</span>
-                  </div>
-                  <div className="pipe-text">{s.text.toLowerCase()}</div>
-                </div>
-              ))}
-            </div>
-            <div className="pipe-ok">
-              <span className="ok">●</span>
-              <span>pipeline status: healthy — order matters, shortcuts don't last.</span>
-            </div>
-          </Reveal>
+        <div className="proc-grid" role="list" aria-label="My process, five stages">
+          {process.map((s, i) => (
+            <Reveal key={s.step}>
+              <div className="proc-card" role="listitem">
+                <div className="proc-step">{s.step}</div>
+                <h3>{steps[i]}</h3>
+                <p>{s.text}</p>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </div>
     </section>

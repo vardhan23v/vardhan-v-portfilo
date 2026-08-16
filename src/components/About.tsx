@@ -1,73 +1,85 @@
+import { certifications, education } from "../data/experience";
 import { site } from "../data/site";
 import { Reveal } from "../hooks/useReveal";
 
-const GIT = `Git · GitHub · Vercel · Postman · VS Code`;
+const facts = [
+  { label: "Based in", value: site.location },
+  { label: "Currently", value: "AI + full-stack development" },
+  { label: "Studying", value: `${education.degree} — ${education.school}` },
+  { label: "Certifications", value: `${certifications.length} completed` },
+];
+
+const principles = [
+  { icon: "◈", text: "Understand the problem before choosing the stack." },
+  { icon: "✚", text: "Build the smallest useful version, then let usage drive the rest." },
+  { icon: "❋", text: "Reliability beats features — fallbacks, tests, honest failure states." },
+];
 
 export function About() {
   return (
     <section className="section" id="about" aria-labelledby="about-title">
       <div className="container">
-        <div className="shell">
+        <Reveal>
+          <div className="sec-head" style={{ marginBottom: 44 }}>
+            <span className="eyebrow">about</span>
+            <h2 className="sec-title" id="about-title">
+              A builder, not a spectator
+            </h2>
+          </div>
+        </Reveal>
+
+        <div className="about-grid">
           <Reveal>
-            <div className="shell-head">
-              <span className="cmdline">
-                <span className="dollar">$</span> cat ~/about.txt
-              </span>
-              <h2 className="shell-title" id="about-title">
-                WHOAMI <span className="dim">// 0041</span>
-              </h2>
+            <div>
+              <p className="about-text">
+                I'm {site.fullName}, a Computer Science undergraduate at {education.school}. I work across the
+                whole stack — interfaces, APIs, databases, and the LLM layer on top of it — and I ship what I
+                build. My rule of thumb:{" "}
+                <strong className="grad">the demo works before the design is praised.</strong>
+              </p>
+              <p className="about-text" style={{ marginTop: 14 }}>
+                Lately I've been deep in AI product engineering: multi-provider LLM fallback chains,
+                deterministic multi-agent simulations, streaming assistants with server-side auth, and
+                extensions generated end-to-end by language models. Everything I learn lands in{" "}
+                <a className="tlink" href="#work">
+                  public repos
+                </a>
+                .
+              </p>
+
+              <ul className="about-principles">
+                {principles.map((pr) => (
+                  <li key={pr.text}>
+                    <span className="pi" aria-hidden="true">
+                      {pr.icon}
+                    </span>
+                    {pr.text}
+                  </li>
+                ))}
+              </ul>
             </div>
           </Reveal>
 
           <Reveal>
-            <div className="term">
-              <div className="term-bar" aria-hidden="true">
-                <span className="term-dot r" />
-                <span className="term-dot a" />
-                <span className="term-dot g" />
-                <span className="term-title">
-                  <b>vardhan@folio</b>:~$ whoami &amp;&amp; cat about.txt
-                </span>
-              </div>
-              <div className="term-body">
-                <div className="cmdline">
-                  <span className="dollar">$</span> whoami <span className="bracket"># prints what it says on the tin</span>
+            <div className="about-facts">
+              {facts.map((f) => (
+                <div className="about-fact" key={f.label}>
+                  <div className="fl">{f.label}</div>
+                  <div className="fv">{f.value}</div>
                 </div>
-                <p className={"plain-ln"} style={{ margin: "6px 0 16px", fontSize: 14 }}>
-                  <span className="prompt">uid=1000(vardhan)</span> gid=1000(developer) groups=1000(builder)
-                </p>
-
-                <p className={"plain-ln"} style={{ fontSize: 13 }}>
-                  computer science undergraduate at nmam institute of technology. I build across the whole
-                  stack — interfaces, APIs, databases, and the LLM layer on top — and I ship what I build.
-                  my rule of thumb:{" "}
-                  <span className={"plain-ln"} style={{ color: "var(--green)" }}>
-                    the demo works before the design is praised.
-                  </span>
-                </p>
-
-                <p className={"plain-ln"} style={{ fontSize: 13, marginTop: 12 }}>
-                  lately I have been compiling: ai products with real fallback chains, deterministic
-                  multi-agent simulations, streaming assistants with server-side auth, and chrome
-                  extensions generated end-to-end by llms. more in <a className="tlink" href="#work">./work/</a>.
-                </p>
-
-                <p className={"plain-ln"} style={{ fontSize: 13, marginTop: 12 }}>
-                  principles that survive code review:
-                </p>
-                <ul className="exp-points" style={{ marginTop: 6 }}>
-                  <li>understand the problem before picking the stack.</li>
-                  <li>build the smallest useful thing, then let usage drive the rest.</li>
-                  <li>reliability beats features — fallbacks, tests, and honest failure states.</li>
-                </ul>
-
-                <hr className="sep" />
-                <div className="cmdline">
-                  <span className="dollar">$</span> cat ~/about.txt --meta
-                  <br />
-                  <span style={{ color: "var(--amber)" }}>environment:</span> {site.location} ·{" "}
-                  <span style={{ color: "var(--amber)" }}>editor:</span> vs code ·{" "}
-                  <span style={{ color: "var(--amber)" }}>toolbelt:</span> {GIT}
+              ))}
+              <div className="about-fact">
+                <div className="fl">Connect</div>
+                <div className="fv" style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+                  <a className="tlink" href={site.github} target="_blank" rel="noopener noreferrer">
+                    GitHub
+                  </a>
+                  <a className="tlink" href={site.linkedin} target="_blank" rel="noopener noreferrer">
+                    LinkedIn
+                  </a>
+                  <a className="tlink" href={`mailto:${site.email}`}>
+                    {site.email}
+                  </a>
                 </div>
               </div>
             </div>

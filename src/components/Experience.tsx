@@ -5,67 +5,61 @@ export function Experience() {
   return (
     <section className="section" id="experience" aria-labelledby="exp-title">
       <div className="container">
-        <div className="shell">
-          <Reveal>
-            <div className="shell-head">
-              <span className="cmdline">
-                <span className="dollar">$</span> tail -f ~/experience.log
-              </span>
-              <h2 className="shell-title" id="exp-title">
-                EXPERIENCE_LOG <span className="dim">// 2026</span>
-              </h2>
-            </div>
-            <p className="shell-sub">factual, current, and still taking input. nothing inflated.</p>
-          </Reveal>
+        <Reveal>
+          <div className="sec-head" style={{ marginBottom: 44 }}>
+            <span className="eyebrow">experience</span>
+            <h2 className="sec-title" id="exp-title">
+              Where I've been working
+            </h2>
+            <p className="sec-sub">
+              Factual, current, and growing. No inflated titles — the work is the evidence.
+            </p>
+          </div>
+        </Reveal>
 
-          <Reveal>
-            <div className="term">
-              <div className="term-bar" aria-hidden="true">
-                <span className="term-dot r" />
-                <span className="term-dot a" />
-                <span className="term-dot g" />
-                <span className="term-title">
-                  <b>vardhan@folio</b>:~/log$ cat experience.log
-                </span>
-              </div>
-              <div className="term-body">
-                <div className="exp-list">
-                  {experience.map((e) => (
-                    <div className="exp-item" key={e.company}>
-                      <div className="exp-headln">
-                        [{e.period}] <b>INFO</b> role_registered
-                      </div>
-                      <div className="exp-role">{e.role}</div>
-                      <div className="exp-company">
-                        @ {e.company} <span className="bracket">·</span> {e.period}
-                      </div>
-                      <ul className="exp-points">
-                        {e.points.map((pt, i) => (
-                          <li key={i}>{pt}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="edu-box">
-                  <h3>education &amp; certs</h3>
-                  <div className="edu-meta">
-                    <span className="school">
-                      {education.degree} — {education.school}
+        <Reveal>
+          <div className="exp-list">
+            {experience.map((e) => (
+              <div className="exp-item" key={e.company}>
+                <div className="exp-card">
+                  <div className="exp-period">{e.period}</div>
+                  <div className="exp-role">{e.role}</div>
+                  <div className="exp-company">
+                    {e.company} <span style={{ color: "var(--text-3)" }}>—</span>{" "}
+                    <span className="badge-src" style={{ fontSize: 11 }}>
+                      ACTIVE
                     </span>
-                    <span className="dim">{education.period}</span>
                   </div>
-                  <ul className="cert-list">
-                    {certifications.map((c) => (
-                      <li key={c}>{c}</li>
+                  <ul className="exp-points">
+                    {e.points.map((pt, i) => (
+                      <li key={i}>{pt}</li>
                     ))}
                   </ul>
                 </div>
               </div>
+            ))}
+          </div>
+        </Reveal>
+
+        <Reveal>
+          <div className="edu-panel">
+            <div className="edu-card">
+              <h3>Education</h3>
+              <div className="big">{education.degree}</div>
+              <div className="dim">
+                {education.school} · {education.period}
+              </div>
             </div>
-          </Reveal>
-        </div>
+            <div className="edu-card">
+              <h3>Certifications</h3>
+              <ul className="cert-list">
+                {certifications.map((c) => (
+                  <li key={c}>{c}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </Reveal>
       </div>
     </section>
   );

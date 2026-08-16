@@ -1,43 +1,40 @@
 import { techGroups } from "../data/tech";
 import { Reveal } from "../hooks/useReveal";
 
+const groupColors = ["#818cf8", "#22d3ee", "#34d399", "#fbbf24", "#f472b6", "#a78bfa"];
+
 export function Tech() {
   return (
     <section className="section" id="tech" aria-labelledby="tech-title">
       <div className="container">
-        <div className="shell">
-          <Reveal>
-            <div className="shell-head">
-              <span className="cmdline">
-                <span className="dollar">$</span> tree ~/skills
-              </span>
-              <h2 className="shell-title" id="tech-title">
-                SKILLS.TREE <span className="dim">// tools i actually use</span>
-              </h2>
-            </div>
-          </Reveal>
+        <Reveal>
+          <div className="sec-head" style={{ marginBottom: 40 }}>
+            <span className="eyebrow">toolbox</span>
+            <h2 className="sec-title" id="tech-title">
+              Technologies I work with
+            </h2>
+            <p className="sec-sub">Grouped by where they sit in the stack — no percentage bars, just tools.</p>
+          </div>
+        </Reveal>
 
-          <Reveal>
-            <div className="tree" role="list" aria-label="Technology stack tree">
-              <span className="tree-root">~/skills</span>
-              {techGroups.map((g, gi) => (
-                <div key={g.label} role="listitem">
-                  <span className="tree-branch">
-                    {gi === techGroups.length - 1 ? "└── " : "├── "}
-                  </span>
-                  <span className="tree-dir">{g.label.toLowerCase()}/</span>
-                  <span className="tree-file">
-                    {g.items.map((it, ii) => (
-                      <span key={it}>
-                        {ii > 0 && <span className="tree-branch"> · </span>}
-                        {it}
-                      </span>
-                    ))}
-                  </span>
+        <div className="tech-grid">
+          {techGroups.map((g, gi) => (
+            <Reveal key={g.label}>
+              <div className="tech-card">
+                <h3>
+                  <span className="tc" style={{ background: groupColors[gi % groupColors.length], color: groupColors[gi % groupColors.length] }} aria-hidden="true" />
+                  {g.label}
+                </h3>
+                <div className="tech-chips">
+                  {g.items.map((it) => (
+                    <span className="chip" key={it}>
+                      {it}
+                    </span>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </Reveal>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </div>
     </section>

@@ -2,6 +2,30 @@ import { useState } from "react";
 import { site } from "../data/site";
 import { Reveal } from "../hooks/useReveal";
 
+const channels = [
+  {
+    label: "Email",
+    value: site.email,
+    href: `mailto:${site.email}`,
+    icon: "✉",
+    bg: "linear-gradient(135deg, #a78bfa, #6366f1)",
+  },
+  {
+    label: "GitHub",
+    value: "github.com/vardhan23v",
+    href: site.github,
+    icon: "⌥",
+    bg: "linear-gradient(135deg, #34d399, #0d9488)",
+  },
+  {
+    label: "LinkedIn",
+    value: "linkedin.com/in/vardhan-v23",
+    href: site.linkedin,
+    icon: "◈",
+    bg: "linear-gradient(135deg, #22d3ee, #3b82f6)",
+  },
+];
+
 export function Contact() {
   const [from, setFrom] = useState("");
   const [subject, setSubject] = useState("");
@@ -10,110 +34,85 @@ export function Contact() {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const target = `mailto:${site.email}?subject=${encodeURIComponent(subject || "hello from your site")}&body=${encodeURIComponent(
-      `${body}\n\n— ${from} (via vardhan-v-portfilo.vercel.app)`
-    )}`;
-    window.location.href = target;
+    window.location.href = `mailto:${site.email}?subject=${encodeURIComponent(
+      subject || "Hello from your portfolio"
+    )}&body=${encodeURIComponent(`${body}\n\n— ${from}`)}`;
     setSent(true);
-    setTimeout(() => setSent(false), 3500);
+    setTimeout(() => setSent(false), 4500);
   };
 
   return (
     <section className="section" id="contact" aria-labelledby="contact-title">
       <div className="container">
-        <div className="shell">
-          <Reveal>
-            <div className="shell-head">
-              <span className="cmdline">
-                <span className="dollar">$</span> sudo ./sendmail --to vardhan
-              </span>
-              <h2 className="shell-title" id="contact-title">
-                CONTACT_OPS <span className="dim">// ack required</span>
-              </h2>
-            </div>
-            <p className="shell-sub">
-              one shell prompt away. respond time: usually within a day, exit status: 0.
+        <Reveal>
+          <div className="sec-head" style={{ marginBottom: 44 }}>
+            <span className="eyebrow">contact</span>
+            <h2 className="sec-title" id="contact-title">
+              Let's build something
+            </h2>
+            <p className="sec-sub">
+              Open to internships, freelance, and interesting problems. I usually reply within a day.
             </p>
+          </div>
+        </Reveal>
+
+        <div className="contact-grid">
+          <Reveal>
+            <div className="contact-ch">
+              {channels.map((c) => (
+                <a key={c.label} href={c.href} target={c.href.startsWith("mailto") ? undefined : "_blank"} rel="noopener noreferrer">
+                  <span className="ci" style={{ background: c.bg }} aria-hidden="true">
+                    {c.icon}
+                  </span>
+                  <span>
+                    <span className="cn">{c.label}</span>
+                    <span className="chd">{c.value}</span>
+                  </span>
+                </a>
+              ))}
+            </div>
           </Reveal>
 
           <Reveal>
-            <div className="term">
-              <div className="term-bar" aria-hidden="true">
-                <span className="term-dot r" />
-                <span className="term-dot a" />
-                <span className="term-dot g" />
-                <span className="term-title">
-                  <b>vardhan@folio</b>:~$ mail --interactive
-                </span>
-              </div>
-              <div className="term-body">
-                <form className="mail-form" onSubmit={onSubmit}>
-                  <div className="mail-row">
-                    <label className="lbl" htmlFor="cf-from">
-                      from:
-                    </label>
-                    <input
-                      id="cf-from"
-                      className="mail-input"
-                      value={from}
-                      onChange={(e) => setFrom(e.target.value)}
-                      placeholder="you@somewhere.com"
-                      autoComplete="email"
-                    />
-                  </div>
-                  <div className="mail-row">
-                    <label className="lbl" htmlFor="cf-subject">
-                      subject:
-                    </label>
-                    <input
-                      id="cf-subject"
-                      className="mail-input"
-                      value={subject}
-                      onChange={(e) => setSubject(e.target.value)}
-                      placeholder="hello human / want to build something"
-                    />
-                  </div>
-                  <div className="mail-row">
-                    <label className="lbl" htmlFor="cf-body">
-                      body:
-                    </label>
-                    <textarea
-                      id="cf-body"
-                      className="mail-input"
-                      value={body}
-                      onChange={(e) => setBody(e.target.value)}
-                      placeholder="type your message… cargo, not clutter."
-                    />
-                  </div>
-                  <div className="mail-actions">
-                    <button type="submit" className="btn btn-solid">
-                      send via mail client
-                    </button>
-                    <span className="bracket" style={{ fontSize: 12 }}>
-                      {sent ? "> message staged — your mail app should have opened ✓" : "note: opens your mail app"}
-                    </span>
-                  </div>
-                </form>
-
-                <div className="contact-channels">
-                  <div>
-                    <span className="ch">$ tty </span>
-                    <a href={site.linkedin} target="_blank" rel="noopener noreferrer">
-                      linkedin.com/in/vardhan-v23
-                    </a>
-                  </div>
-                  <div>
-                    <span className="ch">$ ping </span>
-                    <a href={site.github} target="_blank" rel="noopener noreferrer">
-                      github.com/vardhan23v
-                    </a>
-                  </div>
-                  <div>
-                    <span className="ch">$ whois </span>
-                    <a href={`mailto:${site.email}`}>{site.email}</a>
-                  </div>
+            <div className="mail-panel">
+              <form className="mail-form" onSubmit={onSubmit}>
+                <div className="field">
+                  <label htmlFor="cf-from">Your name or email</label>
+                  <input
+                    id="cf-from"
+                    value={from}
+                    onChange={(e) => setFrom(e.target.value)}
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                  />
                 </div>
-              </div>
+                <div className="field">
+                  <label htmlFor="cf-subject">Subject</label>
+                  <input
+                    id="cf-subject"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder="Want to build something together"
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor="cf-body">Message</label>
+                  <textarea
+                    id="cf-body"
+                    value={body}
+                    onChange={(e) => setBody(e.target.value)}
+                    placeholder="Tell me about the problem, the stack, and the timeline."
+                  />
+                </div>
+                <button type="submit" className="btn btn-primary">
+                  Send message
+                </button>
+                <span className="mail-hint" role="status">
+                  {sent
+                    ? "✓ Your mail client should have opened with the message ready to send."
+                    : "Opens your mail client — no backend, no spam, no tracking."}
+                </span>
+              </form>
             </div>
           </Reveal>
         </div>

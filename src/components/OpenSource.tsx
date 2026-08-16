@@ -8,6 +8,26 @@ type Repo = { name: string; description: string; language: string | null; url: s
 
 type ApiRepo = { name: string; description: string; language: string | null; html_url: string };
 
+const langColor: Record<string, string> = {
+  JavaScript: "#fbbf24",
+  TypeScript: "#38bdf8",
+  Python: "#34d399",
+  Shell: "#a3a3b8",
+  HTML: "#f97316",
+  CSS: "#818cf8",
+};
+
+const nameColors = [
+  "linear-gradient(135deg, #a78bfa, #6366f1)",
+  "linear-gradient(135deg, #22d3ee, #3b82f6)",
+  "linear-gradient(135deg, #34d399, #0d9488)",
+  "linear-gradient(135deg, #f472b6, #db2777)",
+  "linear-gradient(135deg, #fbbf24, #f97316)",
+  "linear-gradient(135deg, #818cf8, #d946ef)",
+];
+
+const initial = (name: string) => name.slice(0, 1).toUpperCase();
+
 export function OpenSource() {
   const [repos, setRepos] = useState<Repo[] | null>(null);
   const [err, setErr] = useState(false);
@@ -31,56 +51,67 @@ export function OpenSource() {
   }, []);
 
   const list = repos ?? fallbackRepos;
-  const line = repos ? "live · api.github.com" : err ? "api unreachable · static mirror" : "fetching · api.github.com";
+  const status = repos
+    ? "Live from the GitHub API"
+    : err
+      ? "GitHub API unreachable — showing static mirror"
+      : "Fetching from GitHub API…";
 
   return (
     <section className="section" id="opensource" aria-labelledby="os-title">
       <div className="container">
-        <div className="shell">
+        <div className="sec-row">
           <Reveal>
-            <div className="shell-head">
-              <span className="cmdline">
-                <span className="dollar">$</span> git remote -v <span className="bracket"># ./repos/</span>
+            <div className="sec-head">
+              <span className="eyebrow">
+                <span className="dot" aria-hidden="true" />
+                open source
               </span>
-              <h2 className="shell-title" id="os-title">
-                OPEN_SOURCE <span className="dim">// all public</span>
+              <h2 className="sec-title" id="os-title">
+                Everything is public
               </h2>
+              <p className="sec-sub">
+                Newest repositories first — pull requests welcome. <span style={{ color: "var(--text-3)" }}>{status}</span>
+              </p>
             </div>
-            <p className="shell-sub">
-              <span className="chip">github.com/vardhan23v</span> — everything is public. consistent state.
-            </p>
           </Reveal>
+        </div>
 
-          <Reveal>
-            <div className="term">
-              <div className="term-bar" aria-hidden="true">
-                <span className="term-dot r" />
-                <span className="term-dot a" />
-                <span className="term-dot g" />
-                <span className="term-title">
-                  <b>vardhan@folio</b>:~$ remote -v <span className="bracket">[{line}]</span>
-                </span>
-              </div>
-              <div className="term-body">
-                <div className="remote-list">
-                  {list.map((r) => (
-                    <div className="remote-item" key={r.name}>
-                      <span className="remote-name">{r.name}</span>
-                      <span className="rl">
-                        {r.description ? r.description : "(no description)"}
-                      </span>
-                      <span className="remote-lang">{r.language ?? "—"}</span>
-                      <span className="remote-url">
-                        <a href={r.url} target="_blank" rel="noopener noreferrer" className="tlink">
-                          {r.url.replace("https://", "")}
-                        </a>
-                      </span>
-                    </div>
-                  ))}
+        <div className="repo-grid">
+          {list.map((r, i) => (
+            <Reveal key={r.name}>
+              <a className="repo-card" href={r.url} target="_blank" rel="noopener noreferrer">
+                <div className="repo-top">
+                  <span className="repo-name">
+                    <span className="fi" style={{ background: nameColors[i % nameColors.length] }} aria-hidden="true">
+                      {initial(r.name)}
+                    </span>
+                    {r.name}
+                  </span>
+                  <span className="tlink" style={{ fontSize: 13 }}>
+                    open ↗
+                  </span>
                 </div>
-              </div>
-            </div>
-          </Reveal>
+                <p className="repo-desc">{r.description || "No description yet."}</p>
+                <div className="repo-meta">
+                  {r.language && (
+                    <span className="lang">
+                      <span
+                        className="ld"
+                        style={{
+                          background: langColor[r.language] ?? "#a3a3b8",
+                          color: langColor[r.language] ?? "#a3a3b8",
+                        }}
+                        aria-hidden="true"
+                      />
+                      {r.language}
+                    </span>
+                  )}
+                  <span>public</span>
+                </div>
+              </a>
+            </Reveal>
+          ))}
         </div>
       </div>
     </section>

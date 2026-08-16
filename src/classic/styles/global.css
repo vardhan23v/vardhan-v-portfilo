@@ -26,6 +26,10 @@
 }
 
 .classic-root {
+  animation: cfade 0.35s ease both;
+}
+
+.classic-root {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--nav-h) + 8px);
   -webkit-text-size-adjust: 100%;
@@ -111,7 +115,7 @@
   position: absolute;
   border-radius: 50%;
   filter: blur(110px);
-  opacity: 0.5;
+  opacity: 0.38;
 }
 
 .classic-root .bg-glow::before {
@@ -216,12 +220,12 @@
 .classic-root .btn-primary {
   background: linear-gradient(120deg, var(--accent), #6d5cff 45%, #4c8dff);
   color: #fff;
-  box-shadow: 0 6px 28px rgba(110, 92, 255, 0.32);
+  box-shadow: 0 6px 24px rgba(110, 92, 255, 0.2);
 }
 
 .classic-root .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 34px rgba(110, 92, 255, 0.45);
+  box-shadow: 0 10px 30px rgba(110, 92, 255, 0.28);
 }
 
 .classic-root .btn-ghost {

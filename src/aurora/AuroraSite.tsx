@@ -1,9 +1,51 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { featuredProjects } from "../classic/data/projects";
+import { featuredProjects, type Project } from "../classic/data/projects";
 import { experience } from "../classic/data/experience";
 import { skillCategories } from "../classic/data/skills";
 import { site } from "../classic/data/site";
 import "./styles/aurora.css";
+
+export const auroraProjects = featuredProjects.filter((p) => p.slug !== "campus-compass");
+
+export function AuroraDetails({ p }: { p: Project }) {
+  const [open, setOpen] = useState(false);
+  const ctrl = `au-eng-${p.slug}`;
+  return (
+    <div className="au-eng">
+      <button
+        type="button"
+        className="au-eng-btn"
+        aria-expanded={open}
+        aria-controls={ctrl}
+        onClick={() => setOpen(!open)}
+      >
+        <span>engineering details</span>
+        <span aria-hidden="true">{open ? "−" : "→"}</span>
+      </button>
+      {open && (
+        <div className="au-eng-body" id={ctrl}>
+          <div>
+            <span className="au-eng-label">the problem</span>
+            <p>{p.problem}</p>
+          </div>
+          <div>
+            <span className="au-eng-label">what it does</span>
+            <ul>
+              {p.features.slice(0, 4).map((f) => (
+                <li key={f}>{f}</li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <span className="au-eng-label">stack</span>
+            <p>{p.tech.join(" · ")}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function AuroraSite() {
   return (
@@ -72,8 +114,8 @@ export function AuroraSite() {
             <span className="tag">built &amp; shipped</span>
           </div>
           <div className="aurora-grid">
-            {featuredProjects.map((p) => (
-              <article className="au-card" key={p.slug}>
+            {auroraProjects.map((p, i) => (
+              <article className={`au-card ${i === 0 ? "au-card-featured" : ""}`} key={p.slug}>
                 <h3 className="au-card-name">{p.name}</h3>
                 <p className="au-card-tagline">{p.tagline}</p>
                 <div className="au-card-tech">
@@ -91,6 +133,7 @@ export function AuroraSite() {
                     </a>
                   )}
                 </div>
+                <AuroraDetails p={p} />
               </article>
             ))}
           </div>

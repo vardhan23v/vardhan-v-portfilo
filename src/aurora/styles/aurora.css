@@ -53,7 +53,7 @@
   position: absolute;
   border-radius: 50%;
   filter: blur(95px);
-  opacity: 0.55;
+  opacity: 0.4;
   will-change: transform;
 }
 
@@ -177,7 +177,7 @@
 
 .aurora-hero {
   padding: 88px 0 64px;
-  animation: auin 0.6s ease both;
+  animation: auin 0.35s ease both;
 }
 
 .aurora-eyebrow {
@@ -315,7 +315,15 @@
 .aurora-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 18px;
+  gap: 14px;
+}
+
+.au-card-featured {
+  grid-column: 1 / -1;
+}
+
+.au-card-featured .au-card-name {
+  font-size: 26px;
 }
 
 .au-card {
@@ -383,6 +391,71 @@
 
 .au-card-links a:hover {
   color: #f0abfc;
+}
+
+.au-card-links {
+  display: flex;
+  gap: 16px;
+  margin-top: 18px;
+  font-size: 13px;
+  font-weight: 600;
+  border-top: 1px solid var(--glass-border);
+  padding-top: 16px;
+  margin-bottom: 0;
+}
+
+.au-eng-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 14px;
+  margin-left: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  transition: color 0.2s ease;
+}
+
+.au-eng-btn:hover {
+  color: #f0abfc;
+}
+
+.au-eng-body {
+  margin-top: 16px;
+  padding: 16px 18px;
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  display: grid;
+  gap: 14px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+
+.au-eng-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 5px;
+}
+
+.au-eng-body ul {
+  margin: 0;
+  padding-left: 17px;
+}
+
+.au-eng-body li + li {
+  margin-top: 3px;
 }
 
 /* ---------- experience ---------- */

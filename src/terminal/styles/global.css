@@ -22,7 +22,7 @@
   --radius: 10px;
   --max-w: 1080px;
   --nav-h: 58px;
-  --glow: 0 0 18px rgba(54, 229, 124, 0.35);
+  --glow: 0 0 14px rgba(54, 229, 124, 0.22);
 }
 
 .terminal-root *, .terminal-root *::before, .terminal-root *::after {
@@ -38,6 +38,10 @@
   .terminal-root {
     scroll-behavior: auto;
   }
+}
+
+.terminal-root {
+  animation: tfade 0.3s ease both;
 }
 
 .terminal-root {
@@ -60,7 +64,7 @@
   z-index: 60;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at center, transparent 52%, rgba(0, 0, 0, 0.5) 100%),
+    radial-gradient(ellipse at center, transparent 52%, rgba(0, 0, 0, 0.32) 100%),
     radial-gradient(ellipse at 20% -10%, rgba(54, 229, 124, 0.06), transparent 45%);
 }
 
@@ -77,17 +81,22 @@
     transparent 1px,
     transparent 3px
   );
-  opacity: 0.6;
+  opacity: 0.32;
   animation: crt-flicker 5s infinite steps(1);
 }
 
+@keyframes tfade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @keyframes crt-flicker {
-  0%, 100% { opacity: 0.6; }
-  10% { opacity: 0.55; }
-  32% { opacity: 0.62; }
-  45% { opacity: 0.5; }
-  71% { opacity: 0.58; }
-  88% { opacity: 0.54; }
+  0%, 100% { opacity: 0.32; }
+  10% { opacity: 0.3; }
+  32% { opacity: 0.34; }
+  45% { opacity: 0.29; }
+  71% { opacity: 0.31; }
+  88% { opacity: 0.3; }
 }
 
 .terminal-root ::selection {

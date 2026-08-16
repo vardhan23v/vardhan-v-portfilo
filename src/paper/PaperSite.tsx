@@ -1,9 +1,51 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { featuredProjects } from "../classic/data/projects";
+import { featuredProjects, type Project } from "../classic/data/projects";
 import { experience } from "../classic/data/experience";
 import { skillCategories } from "../classic/data/skills";
 import { site } from "../classic/data/site";
 import "./styles/paper.css";
+
+export const paperProjects = featuredProjects.filter((p) => p.slug !== "campus-compass");
+
+export function EngineeringDetails({ p }: { p: Project }) {
+  const [open, setOpen] = useState(false);
+  const ctrl = `eng-${p.slug}`;
+  return (
+    <div className="paper-eng">
+      <button
+        type="button"
+        className="paper-eng-btn"
+        aria-expanded={open}
+        aria-controls={ctrl}
+        onClick={() => setOpen(!open)}
+      >
+        <span>engineering details</span>
+        <span aria-hidden="true">{open ? "−" : "→"}</span>
+      </button>
+      {open && (
+        <div className="paper-eng-body" id={ctrl}>
+          <div>
+            <span className="paper-eng-label">the problem</span>
+            <p>{p.problem}</p>
+          </div>
+          <div>
+            <span className="paper-eng-label">what it does</span>
+            <ul>
+              {p.features.slice(0, 4).map((f) => (
+                <li key={f}>{f}</li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <span className="paper-eng-label">stack</span>
+            <p>{p.tech.join(" · ")}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function PaperSite() {
   return (
@@ -60,9 +102,9 @@ export function PaperSite() {
           <p className="paper-overline" id="paper-work-title">
             Selected work
           </p>
-          {featuredProjects.map((p, i) => (
-            <article className="paper-work-item" key={p.slug}>
-              <span className="paper-work-num" aria-hidden="true">
+          {paperProjects.map((p, i) => (
+            <article className={`paper-work-item ${i % 2 === 1 ? "paper-work-item--alt" : ""}`} key={p.slug}>
+              <span className={`paper-work-num ${i % 2 === 1 ? "paper-work-num--right" : ""}`} aria-hidden="true">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <div>
@@ -83,6 +125,7 @@ export function PaperSite() {
                     </a>
                   )}
                 </div>
+                <EngineeringDetails p={p} />
               </div>
             </article>
           ))}

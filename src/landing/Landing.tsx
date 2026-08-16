@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { site } from "../classic/data/site";
 
 const terminalLines = [
@@ -56,10 +57,11 @@ export function Landing() {
 
         <div className="edition-bar">
           <span className="edition-bar-label">four interfaces</span>
-          <span className="edition-bar-hint">
-            keyboard: tab + enter · press <kbd>1</kbd>–<kbd>4</kbd> · switch from any page
-          </span>
+          <InterfaceSwitcher current="landing" />
         </div>
+        <p className="edition-bar-hint">
+          keyboard: tab + enter · press <kbd>1</kbd>–<kbd>4</kbd> — switch from any page
+        </p>
 
         <div className="edition-grid" id="editions" role="list" aria-label="Portfolio interfaces — choose an edition">
           <Link to="/terminal" className="edition-card ed-term" aria-label="Open the Terminal interface" role="listitem">

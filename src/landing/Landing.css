@@ -213,6 +213,9 @@ h1, h2, h3, p {
 }
 
 .edition-bar-hint {
+  display: block;
+  text-align: center;
+  margin-top: 10px;
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.08em;
@@ -592,5 +595,28 @@ h1, h2, h3, p {
     animation-duration: 0.001s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001s !important;
+  }
+}
+/* ---------- Interface switcher (landing theme) ---------- */
+
+.landing-root .iswitcher {
+  --sw-bg: rgba(255, 255, 255, 0.05);
+  --sw-border: rgba(255, 255, 255, 0.13);
+  --sw-text: #eef0f8;
+  --sw-dim: #a3a6bc;
+  --sw-num: #686c86;
+  --sw-accent: #7c6cff;
+  --sw-active-bg: rgba(124, 108, 255, 0.16);
+}
+
+@media (max-width: 720px) {
+  .landing-root .edition-bar {
+    margin-top: 48px;
+  }
+  .landing-root .iswitcher {
+    border: none;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 }

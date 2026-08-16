@@ -23,8 +23,10 @@ technologies.
 The site opens on an **edition picker** — one portfolio, two skins, same real work:
 
 - **`/terminal` — Terminal edition** — retro CRT/hacker theme: boot sequence,
-  interactive command shell in the hero (`help`, `whoami`, `ls`, `cat about.txt`…),
-  work as `ls -l ./work/`, experience as a log, case studies as man pages at
+  interactive command shell in the hero with ↑/↓ history, Tab completion and a
+  `` ` `` global focus shortcut (`help`, `whoami`, `ls`, `cat about.txt`,
+  `cat skills.tree`, `neofetch`, `cowsay`, `matrix`, `ping`…), work as
+  `ls -l ./work/`, experience as a log, case studies as man pages at
   `/terminal/work/:slug`
 - **`/classic` — Classic edition** — the original design: animated
   `vardhan build --ai` terminal, neural-network hero, project grid, GitHub stats,

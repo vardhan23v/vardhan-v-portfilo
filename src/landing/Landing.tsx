@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { site } from "../classic/data/site";
 
@@ -10,6 +11,10 @@ const terminalLines = [
 ];
 
 export function Landing() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="landing-root">
       <div className="landing-bg" aria-hidden="true">
@@ -18,10 +23,10 @@ export function Landing() {
       </div>
 
       <main className="landing-main">
-        <div className="landing-head">
+        <header className="landing-head">
           <span className="landing-eyebrow">
             <span className="landing-dot" aria-hidden="true" />
-            portfolio v2 · two editions
+            sree vardhan v · portfolio <b className="landing-v">v3</b>
           </span>
           <h1 className="landing-title">
             One portfolio.
@@ -29,10 +34,31 @@ export function Landing() {
             <span className="landing-grad">Pick your vibe.</span>
           </h1>
           <p className="landing-sub">
-            {site.name} — {site.title}. The same work, the same
-            projects, rendered in two very different skins. Choose the one that feels like you.
+            {site.name} — {site.title}. Same work, same projects, two very
+            different skins. Choose the one that feels like you — switch anytime
+            from any page.
           </p>
-        </div>
+          <nav className="landing-quick" aria-label="Quick links">
+            <a href={site.github} target="_blank" rel="noopener noreferrer">
+              <span className="q-ic" aria-hidden="true">
+                GH
+              </span>
+              github.com/vardhan23v
+            </a>
+            <a href={site.linkedin} target="_blank" rel="noopener noreferrer">
+              <span className="q-ic" aria-hidden="true">
+                IN
+              </span>
+              vardhan-v23
+            </a>
+            <a href={site.resume} download>
+              <span className="q-ic" aria-hidden="true">
+                CV
+              </span>
+              résumé
+            </a>
+          </nav>
+        </header>
 
         <div className="edition-grid">
           <Link to="/terminal" className="edition-card ed-term">
@@ -44,23 +70,26 @@ export function Landing() {
                   <span className="md g" />
                   <span className="mini-title">vardhan — build.sh</span>
                 </div>
-                <div className="mini-body">
+                <div className="mini-body" aria-hidden="true">
                   {terminalLines.map((l, i) => (
-                    <div key={i} className={l.cls}>
+                    <div key={i} className={`l-line ${l.cls}`}>
                       {l.p}
                     </div>
                   ))}
-                  <div className="l-cursor" aria-hidden="true" />
+                  <div className="l-cursor" />
                 </div>
               </div>
             </div>
             <div className="ed-meta">
+              <span className="ed-num" aria-hidden="true">
+                01
+              </span>
               <h2>
                 Terminal <span className="ed-badge">hacker</span>
               </h2>
               <p>
-                CRT scanlines, phosphor green, a fully interactive shell you can type commands
-                into, and case studies rendered as man pages.
+                CRT scanlines, phosphor green, a fully interactive shell you can
+                type commands into, and case studies rendered as man pages.
               </p>
               <span className="ed-cta">
                 Enter the shell <span aria-hidden="true">→</span>
@@ -72,6 +101,9 @@ export function Landing() {
             <div className="ed-preview">
               <div className="mini-classic">
                 <div className="mc-glow" aria-hidden="true" />
+                <span className="mc-orb o1" aria-hidden="true" />
+                <span className="mc-orb o2" aria-hidden="true" />
+                <span className="mc-orb o3" aria-hidden="true" />
                 <div className="mc-name">
                   VARDHAN<span className="mc-dot">.</span>V
                 </div>
@@ -84,12 +116,15 @@ export function Landing() {
               </div>
             </div>
             <div className="ed-meta">
+              <span className="ed-num" aria-hidden="true">
+                02
+              </span>
               <h2>
                 Classic <span className="ed-badge">original</span>
               </h2>
               <p>
-                The original design — animated build terminal, neural-network hero, project
-                grid, GitHub stats, and the full journey timeline.
+                The original design — animated build terminal, neural-network
+                hero, project grid, GitHub stats, and the full journey timeline.
               </p>
               <span className="ed-cta">
                 Open the original <span aria-hidden="true">→</span>
@@ -99,15 +134,13 @@ export function Landing() {
         </div>
 
         <div className="landing-note">
-          Same content, same projects, same person. No wrong answer —
-          you can switch editions from any page.
+          Same content, same projects, same person. No wrong answer — switch
+          editions from any page.
         </div>
       </main>
 
       <footer className="landing-foot">
-<span>
-            © 2026 {site.name} · Built with React + TypeScript
-          </span>
+        <span>© 2026 {site.name} · Built with React + TypeScript</span>
         <span className="landing-links">
           <a href={site.github} target="_blank" rel="noopener noreferrer">
             GitHub

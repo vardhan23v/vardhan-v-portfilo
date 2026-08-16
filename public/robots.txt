@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://vardhan23v.dev/sitemap.xml
+Sitemap: https://vardhan-v-portfilo.vercel.app/sitemap.xml

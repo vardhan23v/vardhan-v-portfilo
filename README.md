@@ -34,6 +34,8 @@ The site opens on an **edition picker** — one portfolio, two skins, same real 
   magazine overlines, hairline rules, quiet and readable
 - **`/aurora` — Aurora edition** — glassmorphism: frosted panels, drifting
   pastel aurora blobs, gradient text, premium and luminous
+- **`/forge` — Forge edition** — editorial dark: Kanit headlines, a live build
+  pipeline visual, scroll-drifting marquee, and stacked sticky project cards
 
 You can switch editions from any page.
 

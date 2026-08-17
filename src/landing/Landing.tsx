@@ -43,12 +43,12 @@ export function Landing() {
           <h1 className="landing-title">
             One portfolio.
             <br />
-            <span className="landing-grad">Four interfaces.</span>
+            <span className="landing-grad">Five interfaces.</span>
           </h1>
           <p className="landing-what">I build AI-powered products and full-stack systems.</p>
           <p className="landing-sub">
             Computer Science undergraduate focused on Generative AI, full-stack
-            development, and developer tooling. One body of work, four ways to
+            development, and developer tooling. One body of work, five ways to
             experience it — pick a lane, switch anytime.
           </p>
 
@@ -78,11 +78,11 @@ export function Landing() {
         </header>
 
         <div className="edition-bar">
-          <span className="edition-bar-label">four interfaces</span>
+          <span className="edition-bar-label">five interfaces</span>
           <InterfaceSwitcher current="landing" />
         </div>
         <p className="edition-bar-hint">
-          keyboard: tab + enter · press <kbd>1</kbd>–<kbd>4</kbd> — switch from any page
+          keyboard: tab + enter · press <kbd>1</kbd>–<kbd>5</kbd> — switch from any page
         </p>
 
         <div className="edition-grid" id="editions" role="list" aria-label="Portfolio interfaces — choose an edition">
@@ -180,6 +180,40 @@ export function Landing() {
               </p>
               <span className="ed-cta">
                 Step into the light <span aria-hidden="true">→</span>
+              </span>
+            </div>
+          </EditionCard>
+
+          <EditionCard to="/forge" label="Open the Forge interface" className="ed-forge">
+            <div className="mini-forge" aria-hidden="true">
+              <div className="mf-name">
+                Sree Vardhan <span className="mf-dot">V.</span>
+              </div>
+              <div className="mf-rule" />
+              <div className="mf-head">Where code meets intelligence.</div>
+              <div className="mf-pipe">
+                <span>frontend</span>
+                <i>→</i>
+                <span>api</span>
+                <i>→</i>
+                <span>database</span>
+                <i>→</i>
+                <span>llm</span>
+                <i>→</i>
+                <span>product</span>
+              </div>
+            </div>
+            <div className="ed-meta">
+              <span className="ed-num" aria-hidden="true">
+                05
+              </span>
+              <h2>Forge</h2>
+              <p>
+                Editorial dark — Kanit headlines, stacked project cards, and a
+                quiet premium engineering tone.
+              </p>
+              <span className="ed-cta">
+                Enter the forge <span aria-hidden="true">→</span>
               </span>
             </div>
           </EditionCard>

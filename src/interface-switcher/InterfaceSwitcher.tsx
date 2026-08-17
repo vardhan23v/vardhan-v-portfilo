@@ -6,6 +6,7 @@ const editionRoutes = [
   { num: "02", label: "Classic", to: "/classic", key: "classic" },
   { num: "03", label: "Paper", to: "/paper", key: "paper" },
   { num: "04", label: "Aurora", to: "/aurora", key: "aurora" },
+  { num: "05", label: "Forge", to: "/forge", key: "forge" },
 ];
 
 export function InterfaceSwitcher({ current }: { current: string }) {

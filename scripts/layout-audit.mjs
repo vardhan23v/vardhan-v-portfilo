@@ -5,7 +5,7 @@ import { join } from "node:path";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const base = process.env.BASE || "http://localhost:4173";
-const routes = ["/", "/terminal", "/classic", "/paper", "/aurora"];
+const routes = ["/", "/terminal", "/classic", "/paper", "/aurora", "/forge"];
 const viewports = [
   [1440, 900],
   [390, 844],

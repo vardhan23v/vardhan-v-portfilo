@@ -20,7 +20,7 @@ const bodyTxt = () => p.evaluate(() => document.body.innerText.replace(/\s+/g, "
 
 await p.goto(base + "/", { waitUntil: "networkidle0" });
 await p.waitForSelector(".edition-grid", { timeout: 10000 });
-chk("h1", await p.evaluate(() => /One\s*portfolio\.\s*Four\s*interfaces\./.test(document.querySelector("h1")?.textContent ?? "")));
+chk("h1", await p.evaluate(() => /One\s*portfolio\.\s*Five\s*interfaces\./.test(document.querySelector("h1")?.textContent ?? "")));
 chk("what", (await bodyTxt()).includes("I build AI-powered products and full-stack systems."));
 chk("bar", (await bodyTxt()).includes("keyboard: tab + enter"));
 chk("cta primary", await p.evaluate(() => document.body.innerText.includes("View selected work")));
@@ -56,6 +56,25 @@ await p.waitForSelector(".au-ft", { timeout: 10000 });
 await p.evaluate(() => document.querySelector(".au-eng-btn").click());
 await p.waitForSelector(".au-eng-body", { timeout: 5000 });
 chk("aurora expander opens", await p.evaluate(() => !!document.querySelector(".au-eng-body")));
+
+await p.goto(base + "/forge", { waitUntil: "networkidle0" });
+await p.waitForSelector(".forge-root", { timeout: 10000 });
+chk(
+  "forge hero heading",
+  await p.evaluate(() => /Where\s*code\s*meets\s*intelligence\./.test(document.querySelector(".fg-hero-heading")?.textContent ?? ""))
+);
+chk(
+  "forge pipeline",
+  await p.evaluate(() => (document.querySelector(".fg-pipe-foot")?.textContent ?? "").includes("product"))
+);
+chk(
+  "forge work stack",
+  await p.evaluate(() => document.querySelectorAll(".fg-proj-wrap").length === 6)
+);
+chk(
+  "forge contact pill",
+  await p.evaluate(() => /Let's\s*build\s*something\./.test(document.querySelector(".fg-contact .fg-heading")?.textContent ?? ""))
+);
 
 await p.goto(base + "/terminal", { waitUntil: "networkidle0" });
 await p.waitForFunction(() => document.querySelector(".terminal-root") && !document.querySelector(".boot"), { timeout: 20000 });

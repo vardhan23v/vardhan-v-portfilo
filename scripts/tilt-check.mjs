@@ -42,7 +42,7 @@ const center = await p.evaluate(() => {
   const el = document.querySelector(".edition-card");
   return { rx: el.style.getPropertyValue("--rx"), ry: el.style.getPropertyValue("--ry") };
 });
-chk("center => near-zero tilt", Math.abs(parseFloat(center.rx)) < 0.5 && Math.abs(parseFloat(center.ry)) < 0.5);
+chk("center => near-zero tilt", (Math.abs(parseFloat(center.rx) || 0) < 0.5 && Math.abs(parseFloat(center.ry) || 0) < 0.5));
 await p.mouse.move(10, 10);
 await sleep(400);
 const reset = await p.evaluate(() => {

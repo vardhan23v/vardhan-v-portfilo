@@ -1,6 +1,7 @@
 import { useEffect, useState, type CSSProperties, type MouseEvent } from "react";
 import { Link } from "react-router-dom";
 import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
+import { LiquidButton, MetalButton } from "../components/ui/LiquidButton";
 import { featuredProjects, type Project } from "../classic/data/projects";
 import { experience } from "../classic/data/experience";
 import { skillCategories } from "../classic/data/skills";
@@ -189,9 +190,9 @@ function Hero() {
           technologies with Generative AI to turn ideas into useful software.
         </p>
         <div className="fg-ctas fg-enter" style={{ "--d": "0.5s" } as CSSProperties}>
-          <a className="fg-btn fg-btn-primary" href="#work">
+          <LiquidButton variant="default" size="xxl" className="fg-lb-hero" href="#work">
             View selected work <span aria-hidden="true">→</span>
-          </a>
+          </LiquidButton>
           <a className="fg-btn" href={site.github} target="_blank" rel="noopener noreferrer">
             GitHub <span aria-hidden="true">↗</span>
           </a>
@@ -390,9 +391,9 @@ function Contact() {
         <h2 className="fg-heading hero-heading">Let&rsquo;s build something.</h2>
         <p className="fg-subhead">Have an idea, project, or opportunity? Let&rsquo;s talk.</p>
         <div className="fg-ctas fg-ctas-center">
-          <a className="fg-btn fg-btn-cta" href={`mailto:${site.email}`}>
+          <MetalButton variant="gold" className="fg-lb-contact" href={`mailto:${site.email}`}>
             Contact me
-          </a>
+          </MetalButton>
           <a className="fg-btn" href={site.github} target="_blank" rel="noopener noreferrer">
             GitHub <span aria-hidden="true">↗</span>
           </a>

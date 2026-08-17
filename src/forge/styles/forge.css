@@ -329,6 +329,17 @@
   background: linear-gradient(123deg, #18011f 7%, #b600a8 37%, #7621b0 72%, #be4c00 100%);
 }
 
+/* liquid glass hero CTA (shared-ui theme) */
+
+.fg-lb-hero {
+  --lb-primary: var(--fg-cyan);
+  font-family: var(--fg-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0 28px;
+}
+
 /* ---------- hero pipeline panel ---------- */
 
 .fg-pipe {

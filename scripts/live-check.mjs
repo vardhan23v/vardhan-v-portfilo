@@ -30,6 +30,14 @@ chk("pipeline", await p.evaluate(() => (document.querySelector(".landing-pipelin
 await p.goto(base + "/paper", { waitUntil: "networkidle0" });
 await p.waitForSelector(".paper-eng-btn", { timeout: 10000 });
 chk(
+  "paper resume button readable",
+  await p.evaluate(() => {
+    const btn = document.querySelector(".paper-btn-primary");
+    const cs = getComputedStyle(btn);
+    return cs.color !== cs.backgroundColor && btn.getBoundingClientRect().width > 100;
+  })
+);
+chk(
   "paper order",
   await p.evaluate(() => {
     const t = document.querySelector("#work")?.innerText || "";

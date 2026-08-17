@@ -199,14 +199,15 @@
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-.paper-btn-primary {
+.paper-root .paper-btn-primary {
   background: var(--ink);
   color: var(--paper);
 }
 
-.paper-btn-primary:hover {
+.paper-root .paper-btn-primary:hover {
   background: var(--accent);
   border-color: var(--accent);
+  color: var(--paper);
 }
 
 .paper-btn-ghost:hover {

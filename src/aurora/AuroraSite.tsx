@@ -180,7 +180,7 @@ function CopyEmail() {
   );
 }
 
-const ORB_SIZE = 340;
+const ORB_SIZE = 220;
 const ORB_HALF = ORB_SIZE / 2;
 
 function AuroraCursor() {

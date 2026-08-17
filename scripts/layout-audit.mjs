@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const base = process.env.BASE || "http://localhost:4173";
 const routes = ["/", "/terminal", "/classic", "/paper", "/aurora"];
 const viewports = [
   [1440, 900],
@@ -27,7 +28,7 @@ for (const [w, h] of viewports) {
   const p = await b.newPage();
   await p.setViewport({ width: w, height: h });
   for (const route of routes) {
-    await p.goto("http://localhost:4173" + route, { waitUntil: "networkidle0" });
+    await p.goto(base + route, { waitUntil: "networkidle0" });
     await sleep(2000);
     const audit = await p.evaluate(() => {
       const vw = document.documentElement.clientWidth;

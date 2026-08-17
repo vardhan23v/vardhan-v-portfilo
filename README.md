@@ -4,8 +4,6 @@
 
 **Generative AI Developer & Full-Stack Developer**
 
-<img src="docs/screenshot-hero.png" alt="Portfolio landing — choose between the Terminal and Classic editions" width="720" />
-
 [![Live Site](https://img.shields.io/badge/Live%20Site-vardhan--v--portfilo.vercel.app-38bdf8?style=flat-square&logo=vercel&logoColor=white)](https://vardhan-v-portfilo.vercel.app)
 [![GitHub](https://img.shields.io/badge/GitHub-vardhan23v-7c6cff?style=flat-square&logo=github&logoColor=white)](https://github.com/vardhan23v)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-vardhan--v23-0a66c2?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/vardhan-v23)
@@ -72,7 +70,6 @@ Bundle is ~73 kB gzipped — no icon libraries, no animation frameworks, no bloa
 ```
 .
 ├── public/            # favicon, robots.txt, sitemap.xml, resume/ (drop resume.pdf here)
-├── docs/              # README screenshots
 └── src/
     ├── data/          # ALL content — projects, experience, skills, education, certs
     ├── components/    # one component per section + Navbar, Footer, Terminal

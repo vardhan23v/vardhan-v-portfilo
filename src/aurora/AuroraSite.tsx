@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { useTilt } from "../hooks/useTilt";
 import { Link } from "react-router-dom";
@@ -180,6 +180,74 @@ function CopyEmail() {
   );
 }
 
+const ORB_SIZE = 340;
+const ORB_HALF = ORB_SIZE / 2;
+
+function AuroraCursor() {
+  const orbRef = useRef<HTMLDivElement | null>(null);
+  const [enabled] = useState(() => {
+    if (typeof window === "undefined") return false;
+    if (!window.matchMedia("(pointer: fine)").matches) return false;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
+    return true;
+  });
+
+  useEffect(() => {
+    if (!enabled) return;
+    const orb = orbRef.current;
+    if (!orb) return;
+    const core = orb.firstElementChild as HTMLElement | null;
+    let tx = -ORB_HALF, ty = -ORB_HALF, x = -ORB_HALF, y = -ORB_HALF;
+    let raf = 0;
+    let hidden = true;
+
+    const frame = () => {
+      x += (tx - x) * 0.18;
+      y += (ty - y) * 0.18;
+      orb.style.transform = `translate3d(${x - ORB_HALF}px, ${y - ORB_HALF}px, 0)`;
+      raf = Math.abs(tx - x) > 0.1 || Math.abs(ty - y) > 0.1 ? requestAnimationFrame(frame) : 0;
+    };
+
+    const onMove = (e: MouseEvent) => {
+      tx = e.clientX;
+      ty = e.clientY;
+      if (hidden) {
+        hidden = false;
+        orb.classList.remove("au-orb-hidden");
+        x = tx;
+        y = ty;
+      }
+      if (!raf) raf = requestAnimationFrame(frame);
+    };
+    const onOver = (e: MouseEvent) => {
+      const t = e.target as Element | null;
+      const hot = !!t && !!t.closest("a, button, .au-card, .au-ft, .au-filter, .au-eng-btn");
+      if (core) core.classList.toggle("au-orb-hot", hot);
+    };
+    const onLeave = () => {
+      hidden = true;
+      orb.classList.add("au-orb-hidden");
+    };
+
+    window.addEventListener("mousemove", onMove, { passive: true });
+    document.addEventListener("mouseover", onOver, { passive: true });
+    document.addEventListener("mouseleave", onLeave);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseover", onOver);
+      document.removeEventListener("mouseleave", onLeave);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [enabled]);
+
+  if (!enabled) return null;
+  return (
+    <div className="au-orb" ref={orbRef} aria-hidden="true">
+      <div className="au-orb-core" />
+    </div>
+  );
+}
+
 export function AuroraSite() {
   const [filter, setFilter] = useState<Filter>("all");
   const [active, setActive] = useState("work");
@@ -222,6 +290,7 @@ export function AuroraSite() {
 
   return (
     <div className="aurora-root">
+      <AuroraCursor />
       <div className="aurora-scrollbar" aria-hidden="true" />
       <div className="aurora-bg" aria-hidden="true">
         <div className="au-glow au-glow-purple" />

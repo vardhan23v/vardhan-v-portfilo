@@ -1285,6 +1285,43 @@
   border-color: rgba(52, 211, 153, 0.45) !important;
 }
 
+/* ---------- cursor orb ---------- */
+
+.au-orb {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 340px;
+  height: 340px;
+  z-index: 30;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.au-orb-core {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(167, 139, 250, 0.2) 0%,
+    rgba(99, 102, 241, 0.12) 36%,
+    rgba(56, 189, 248, 0.06) 60%,
+    transparent 72%
+  );
+  opacity: 0.85;
+  transition: transform 0.35s ease, opacity 0.3s ease;
+}
+
+.au-orb-core.au-orb-hot {
+  transform: scale(1.4);
+  opacity: 1;
+}
+
+.au-orb-hidden .au-orb-core {
+  opacity: 0;
+}
+
 /* ---------- back to top ---------- */
 
 .au-top {

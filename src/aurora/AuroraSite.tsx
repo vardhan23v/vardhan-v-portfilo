@@ -78,22 +78,17 @@ function FeaturedProject({ p }: { p: Project }) {
           <AuroraDetails p={p} />
         </div>
         <div className="au-ft-visual" aria-hidden="true">
-          <div className="au-visual-chrome">
-            <span className="au-ch-dot au-ch-dot-pink" />
-            <span className="au-ch-dot au-ch-dot-violet" />
-            <span className="au-ch-dot au-ch-dot-cyan" />
-            <span className="au-visual-path">{p.slug}.tsx</span>
-            <span className="au-visual-build">▶ build</span>
+          <div className="au-ft-bloom" style={{ "--pa1": p.accent[0] } as React.CSSProperties} />
+          <div className="au-ft-beam au-ft-beam-a" />
+          <div className="au-ft-beam au-ft-beam-b" />
+          <div className="au-ft-core">
+            <span className="au-ft-glyph">{p.emoji}</span>
+            <span className="au-ft-vname">{p.name}</span>
+            <span className="au-ft-vcap">
+              {p.slug} · v1.0 · prod
+            </span>
           </div>
-          <div className="au-visual-lines">
-            <span>&gt; {p.slug}.build()</span>
-            <span>&gt; llm.connect(&quot;gemini&quot;)</span>
-            <span>&gt; manifest.v3.configure()</span>
-            <span className="au-visual-ok">&gt; ✓ shipped to production</span>
-          </div>
-          <div className="au-visual-status">
-            <i className="au-sys-dot" /> deployment live
-          </div>
+          <span className="au-ft-vtag">featured</span>
         </div>
       </article>
     </div>
@@ -186,10 +181,15 @@ export function AuroraSite() {
               </span>
             </div>
             <div className="au-sys-list">
+              <span className="au-sys-rail" />
               {["React", "Node.js", "Database", "LLM", "Product"].map((s, i) => (
                 <div className="au-sys-row" key={s}>
                   <span className={`au-sys-name${i === 4 ? " au-sys-name-last" : ""}`}>{s}</span>
-                  <span className="au-sys-arrow">{i === 4 ? "●" : "↓"}</span>
+                  {i === 4 ? (
+                    <span className="au-sys-chip">deployed</span>
+                  ) : (
+                    <span className="au-sys-mark" />
+                  )}
                 </div>
               ))}
             </div>

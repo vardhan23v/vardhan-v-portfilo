@@ -52,7 +52,7 @@ chk(
 );
 
 await p.goto(base + "/aurora", { waitUntil: "networkidle0" });
-await p.waitForSelector(".au-card-featured", { timeout: 10000 });
+await p.waitForSelector(".au-ft", { timeout: 10000 });
 await p.evaluate(() => document.querySelector(".au-eng-btn").click());
 await p.waitForSelector(".au-eng-body", { timeout: 5000 });
 chk("aurora expander opens", await p.evaluate(() => !!document.querySelector(".au-eng-body")));

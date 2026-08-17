@@ -73,7 +73,7 @@ chk(
 );
 chk(
   "forge contact pill",
-  await p.evaluate(() => /Let's\s*build\s*something\./.test(document.querySelector(".fg-contact .fg-heading")?.textContent ?? ""))
+  await p.evaluate(() => /Let.*build something\./.test(document.querySelector(".fg-contact .fg-heading")?.textContent ?? ""))
 );
 
 await p.goto(base + "/terminal", { waitUntil: "networkidle0" });

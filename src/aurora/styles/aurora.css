@@ -212,9 +212,15 @@
   padding: 104px 0 128px;
 }
 
-.au-hero-copy {
-  animation: auin 0.4s ease both;
+.au-hero-copy > * {
+  animation: auin 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+.au-hero-copy > *:nth-child(1) { animation-delay: 0.02s; }
+.au-hero-copy > *:nth-child(2) { animation-delay: 0.1s; }
+.au-hero-copy > *:nth-child(3) { animation-delay: 0.18s; }
+.au-hero-copy > *:nth-child(4) { animation-delay: 0.26s; }
+.au-hero-copy > *:nth-child(5) { animation-delay: 0.34s; }
 
 .aurora-eyebrow {
   display: inline-flex;
@@ -239,6 +245,7 @@
   border-radius: 50%;
   background: var(--mint);
   box-shadow: 0 0 12px rgba(52, 211, 153, 0.9);
+  animation: aupulse 3.2s ease-in-out infinite;
 }
 
 .aurora-title {
@@ -320,6 +327,15 @@
 .aurora-btn-solid:hover {
   background: linear-gradient(120deg, rgba(244, 114, 182, 1), rgba(167, 139, 250, 1));
   box-shadow: 0 20px 46px -18px rgba(244, 114, 182, 0.55);
+}
+
+.aurora-btn span {
+  display: inline-block;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.aurora-btn:hover span {
+  transform: translate(3px, -1px);
 }
 
 /* hero visual — build system panel */
@@ -648,6 +664,7 @@
     transparent 80%
   );
   filter: blur(14px);
+  animation: aubeam1 15s ease-in-out infinite alternate;
 }
 
 .au-ft-beam-b {
@@ -658,6 +675,17 @@
     transparent 64%
   );
   filter: blur(18px);
+  animation: aubeam2 19s ease-in-out infinite alternate;
+}
+
+@keyframes aubeam1 {
+  from { transform: translateX(-4%); }
+  to { transform: translateX(4%); }
+}
+
+@keyframes aubeam2 {
+  from { transform: translateX(3%) translateY(-2%); }
+  to { transform: translateX(-3%) translateY(2%); }
 }
 
 .au-ft-core {
@@ -962,6 +990,14 @@
   border-bottom: none;
 }
 
+.au-exp-row {
+  transition: background 0.25s ease;
+}
+
+.au-exp-row:hover {
+  background: linear-gradient(90deg, rgba(167, 139, 250, 0.07), rgba(255, 255, 255, 0.02) 60%, transparent);
+}
+
 .au-exp-dot {
   position: absolute;
   left: 0;
@@ -1188,6 +1224,26 @@
     animation-timeline: view();
     animation-range: entry 8% entry 34%;
   }
+
+  .aurora-scrollbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    z-index: 50;
+    transform-origin: 0 50%;
+    background: linear-gradient(90deg, var(--violet), var(--pink), var(--cyan));
+    box-shadow: 0 0 14px rgba(167, 139, 250, 0.6);
+    animation: ausp 1s linear both;
+    animation-timeline: scroll();
+    pointer-events: none;
+  }
+}
+
+@keyframes ausp {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
 
 /* ---------- responsive ---------- */
@@ -1278,6 +1334,9 @@
   }
   .au-reveal {
     animation: none !important;
+  }
+  .aurora-scrollbar {
+    display: none;
   }
 }
 

@@ -126,6 +126,7 @@ function AuroraCard({ p, n }: { p: Project; n: string }) {
 export function AuroraSite() {
   return (
     <div className="aurora-root">
+      <div className="aurora-scrollbar" aria-hidden="true" />
       <div className="aurora-bg" aria-hidden="true">
         <div className="au-glow au-glow-purple" />
         <div className="au-glow au-glow-blue" />

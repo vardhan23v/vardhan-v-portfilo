@@ -318,7 +318,11 @@
   gap: 14px;
 }
 
-.au-card-featured {
+.au-tilt {
+  display: flex;
+}
+
+.au-tilt-featured {
   grid-column: 1 / -1;
 }
 
@@ -334,12 +338,14 @@
   padding: 26px;
   display: flex;
   flex-direction: column;
+  transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  will-change: transform;
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.3s ease,
     box-shadow 0.35s ease, background 0.3s ease;
 }
 
 .au-card:hover {
-  transform: translateY(-5px);
+  transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-5px);
   border-color: rgba(255, 255, 255, 0.28);
   background: rgba(255, 255, 255, 0.1);
   box-shadow: 0 30px 60px -28px rgba(0, 0, 0, 0.8), 0 0 44px -18px rgba(167, 139, 250, 0.4);

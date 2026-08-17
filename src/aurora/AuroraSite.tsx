@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
+import { useTilt } from "../hooks/useTilt";
 import { Link } from "react-router-dom";
 import { featuredProjects, type Project } from "../classic/data/projects";
 import { experience } from "../classic/data/experience";
@@ -44,6 +45,34 @@ export function AuroraDetails({ p }: { p: Project }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function AuroraCard({ p, featured }: { p: Project; featured: boolean }) {
+  const ref = useTilt<HTMLDivElement>(5, ".au-card");
+  return (
+    <div ref={ref} className={`au-tilt ${featured ? "au-tilt-featured" : ""}`}>
+      <article className={`au-card ${featured ? "au-card-featured" : ""}`}>
+      <h3 className="au-card-name">{p.name}</h3>
+      <p className="au-card-tagline">{p.tagline}</p>
+      <div className="au-card-tech">
+        {p.tech.slice(0, 5).map((t) => (
+          <span key={t}>{t}</span>
+        ))}
+      </div>
+      <div className="au-card-links">
+        <a href={p.github} target="_blank" rel="noopener noreferrer">
+          github ↗
+        </a>
+        {p.live && (
+          <a href={p.live} target="_blank" rel="noopener noreferrer">
+            live demo ↗
+          </a>
+        )}
+      </div>
+      <AuroraDetails p={p} />
+      </article>
     </div>
   );
 }
@@ -114,26 +143,7 @@ export function AuroraSite() {
           </div>
           <div className="aurora-grid">
             {auroraProjects.map((p, i) => (
-              <article className={`au-card ${i === 0 ? "au-card-featured" : ""}`} key={p.slug}>
-                <h3 className="au-card-name">{p.name}</h3>
-                <p className="au-card-tagline">{p.tagline}</p>
-                <div className="au-card-tech">
-                  {p.tech.slice(0, 5).map((t) => (
-                    <span key={t}>{t}</span>
-                  ))}
-                </div>
-                <div className="au-card-links">
-                  <a href={p.github} target="_blank" rel="noopener noreferrer">
-                    github ↗
-                  </a>
-                  {p.live && (
-                    <a href={p.live} target="_blank" rel="noopener noreferrer">
-                      live demo ↗
-                    </a>
-                  )}
-                </div>
-                <AuroraDetails p={p} />
-              </article>
+              <AuroraCard key={p.slug} p={p} featured={i === 0} />
             ))}
           </div>
         </section>

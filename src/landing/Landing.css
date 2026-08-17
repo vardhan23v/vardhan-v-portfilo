@@ -247,35 +247,42 @@ h1, h2, h3, p {
   margin-top: 22px;
 }
 
+.edition-tilt {
+  display: flex;
+}
+
 .edition-card {
   display: flex;
   flex-direction: column;
+  flex: 1;
   border-radius: 16px;
   border: 1px solid var(--border);
   background: var(--card);
   padding: 22px;
+  transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
   transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  animation: lfade 0.4s ease both;
+  animation: lfade 0.4s ease backwards;
+  will-change: transform;
 }
 
-.edition-card:nth-child(1) {
+.ed-term {
   animation-delay: 0.05s;
 }
 
-.edition-card:nth-child(2) {
+.ed-classic {
   animation-delay: 0.1s;
 }
 
-.edition-card:nth-child(3) {
+.ed-paper {
   animation-delay: 0.15s;
 }
 
-.edition-card:nth-child(4) {
+.ed-aurora {
   animation-delay: 0.2s;
 }
 
 .edition-card:hover {
-  transform: translateY(-3px);
+  transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-3px);
   border-color: var(--border-2);
   box-shadow: 0 18px 40px -22px rgba(0, 0, 0, 0.8);
 }

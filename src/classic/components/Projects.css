@@ -19,11 +19,13 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
   transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  will-change: transform;
 }
 
 .classic-root .project-card:hover {
-  transform: translateY(-5px);
+  transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-5px);
   border-color: color-mix(in srgb, var(--pa1) 45%, transparent);
   box-shadow:
     0 24px 60px rgba(0, 0, 0, 0.45),

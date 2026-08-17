@@ -1,7 +1,29 @@
-import { useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
+import { useTilt } from "../hooks/useTilt";
 import { site } from "../classic/data/site";
+
+function EditionCard({
+  to,
+  label,
+  className,
+  children,
+}: {
+  to: string;
+  label: string;
+  className: string;
+  children: ReactNode;
+}) {
+  const ref = useTilt<HTMLDivElement>(6, ".edition-card");
+  return (
+    <div ref={ref} className="edition-tilt" role="listitem">
+      <Link to={to} className={`edition-card ${className}`} aria-label={label}>
+        {children}
+      </Link>
+    </div>
+  );
+}
 
 const terminalLines = [
   { p: "$ vardhan build --ai", cls: "l-prompt" },
@@ -64,7 +86,7 @@ export function Landing() {
         </p>
 
         <div className="edition-grid" id="editions" role="list" aria-label="Portfolio interfaces — choose an edition">
-          <Link to="/terminal" className="edition-card ed-term" aria-label="Open the Terminal interface" role="listitem">
+          <EditionCard to="/terminal" label="Open the Terminal interface" className="ed-term">
             <div className="mini-term" aria-hidden="true">
               <div className="mini-body">
                 {terminalLines.map((l, i) => (
@@ -88,9 +110,9 @@ export function Landing() {
                 Enter the shell <span aria-hidden="true">→</span>
               </span>
             </div>
-          </Link>
+          </EditionCard>
 
-          <Link to="/classic" className="edition-card ed-classic" aria-label="Open the Classic interface" role="listitem">
+          <EditionCard to="/classic" label="Open the Classic interface" className="ed-classic">
             <div className="mini-classic" aria-hidden="true">
               <div className="mc-name">
                 VARDHAN<span className="mc-dot">.</span>V
@@ -110,9 +132,9 @@ export function Landing() {
                 Open the original <span aria-hidden="true">→</span>
               </span>
             </div>
-          </Link>
+          </EditionCard>
 
-          <Link to="/paper" className="edition-card ed-paper" aria-label="Open the Paper interface" role="listitem">
+          <EditionCard to="/paper" label="Open the Paper interface" className="ed-paper">
             <div className="mini-paper" aria-hidden="true">
               <div className="mp-name">
                 Sree Vardhan
@@ -136,9 +158,9 @@ export function Landing() {
                 Open the paper <span aria-hidden="true">→</span>
               </span>
             </div>
-          </Link>
+          </EditionCard>
 
-          <Link to="/aurora" className="edition-card ed-aurora" aria-label="Open the Aurora interface" role="listitem">
+          <EditionCard to="/aurora" label="Open the Aurora interface" className="ed-aurora">
             <div className="mini-aurora" aria-hidden="true">
               <span className="ma-blob pink" />
               <span className="ma-blob cyan" />
@@ -160,7 +182,7 @@ export function Landing() {
                 Step into the light <span aria-hidden="true">→</span>
               </span>
             </div>
-          </Link>
+          </EditionCard>
         </div>
 
         <p className="landing-note">switch editions from any page</p>

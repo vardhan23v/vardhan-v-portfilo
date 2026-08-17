@@ -1,6 +1,7 @@
 import type { Project } from "../data/projects";
 import { featuredProjects, otherProjects } from "../data/projects";
 import { SectionHead } from "./SectionHead";
+import { useTilt } from "../../hooks/useTilt";
 import { Reveal } from "../hooks/useReveal";
 import { Icon } from "../lib/icons";
 import { site } from "../data/site";
@@ -8,17 +9,19 @@ import "./Projects.css";
 
 function ProjectCard({ project }: { project: Project }) {
   const [a1, a2, a3] = project.accent;
+  const ref = useTilt<HTMLDivElement>(4, ".project-card");
   return (
-    <article
-      className={`project-card card ${project.highlight ? "project-card-featured" : ""}`}
-      style={
-        {
-          "--pa1": a1,
-          "--pa2": a2,
-          "--pa3": a3,
-        } as React.CSSProperties
-      }
-    >
+    <div ref={ref}>
+      <article
+        className={`project-card card ${project.highlight ? "project-card-featured" : ""}`}
+        style={
+          {
+            "--pa1": a1,
+            "--pa2": a2,
+            "--pa3": a3,
+          } as React.CSSProperties
+        }
+      >
       <div className="project-visual" aria-hidden="true">
         <div className="project-chrome">
           <span className="terminal-dot terminal-dot-r" />
@@ -76,6 +79,7 @@ function ProjectCard({ project }: { project: Project }) {
         </div>
       </div>
     </article>
+    </div>
   );
 }
 

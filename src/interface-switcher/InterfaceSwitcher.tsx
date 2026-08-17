@@ -7,6 +7,7 @@ const editionRoutes = [
   { num: "03", label: "Paper", to: "/paper", key: "paper" },
   { num: "04", label: "Aurora", to: "/aurora", key: "aurora" },
   { num: "05", label: "Forge", to: "/forge", key: "forge" },
+  { num: "06", label: "Cosmos", to: "/cosmos", key: "cosmos" },
 ];
 
 export function InterfaceSwitcher({ current }: { current: string }) {

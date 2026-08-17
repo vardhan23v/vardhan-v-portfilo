@@ -8,9 +8,10 @@ import { WorkDetail } from "./terminal/components/WorkDetail";
 import { PaperSite } from "./paper/PaperSite";
 import { AuroraSite } from "./aurora/AuroraSite";
 import { ForgeSite } from "./forge/ForgeSite";
+import { CosmosSite } from "./cosmos/CosmosSite";
 import "./landing/Landing.css";
 
-const interfaceRoutes = ["/terminal", "/classic", "/paper", "/aurora", "/forge"];
+const interfaceRoutes = ["/terminal", "/classic", "/paper", "/aurora", "/forge", "/cosmos"];
 
 function InterfaceShortcuts() {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ function InterfaceShortcuts() {
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
       const n = Number(e.key);
-      if (n >= 1 && n <= 5 && interfaceRoutes[n - 1]) {
+      if (n >= 1 && n <= 6 && interfaceRoutes[n - 1]) {
         navigate(interfaceRoutes[n - 1]);
       }
     };
@@ -42,6 +43,7 @@ export default function App() {
         <Route path="/paper" element={<PaperSite />} />
         <Route path="/aurora" element={<AuroraSite />} />
         <Route path="/forge" element={<ForgeSite />} />
+        <Route path="/cosmos" element={<CosmosSite />} />
         <Route path="/terminal" element={<TerminalLayout />}>
           <Route index element={<TerminalHome />} />
           <Route path="work/:slug" element={<WorkDetail />} />

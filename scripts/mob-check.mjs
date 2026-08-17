@@ -5,7 +5,7 @@ const p = await b.newPage();
 let bad = 0;
 for (const [w, h] of [[375, 812], [390, 844], [768, 1024], [1024, 768], [1440, 900]]) {
   await p.setViewport({ width: w, height: h });
-  for (const route of ["/", "/paper", "/aurora", "/classic", "/terminal", "/forge"]) {
+  for (const route of ["/", "/paper", "/aurora", "/classic", "/terminal", "/forge", "/cosmos"]) {
     await p.goto("http://localhost:4173" + route, { waitUntil: "networkidle0" });
     await sleep(300);
     if (route !== "/terminal") await p.waitForFunction(() => !document.querySelector(".boot"), { timeout: 5000 }).catch(() => {});

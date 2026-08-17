@@ -5,7 +5,7 @@ import { join } from "node:path";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const base = process.env.BASE || "http://localhost:4173";
-const routes = ["/", "/terminal", "/classic", "/paper", "/aurora", "/forge"];
+const routes = ["/", "/terminal", "/classic", "/paper", "/aurora", "/forge", "/cosmos"];
 const viewports = [
   [1440, 900],
   [390, 844],
@@ -66,9 +66,9 @@ for (const [w, h] of viewports) {
     for (const i of audit.issues) {
       chk(`${w}px ${route}: ${i}`, false);
     }
-    // switcher present
+    // switcher present (cosmos is intentionally immersive: editions via footer link + shortcuts)
     const hasSw = await p.evaluate(() => !!document.querySelector(".iswitcher"));
-    chk(`${w}px ${route}: switcher present`, hasSw);
+    if (route !== "/cosmos") chk(`${w}px ${route}: switcher present`, hasSw);
     // no horizontal scroll
     const hScroll = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     chk(`${w}px ${route}: no h-scroll (got +${hScroll})`, hScroll <= 0);

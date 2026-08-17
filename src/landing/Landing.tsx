@@ -43,12 +43,12 @@ export function Landing() {
           <h1 className="landing-title">
             One portfolio.
             <br />
-            <span className="landing-grad">Five interfaces.</span>
+            <span className="landing-grad">Six interfaces.</span>
           </h1>
           <p className="landing-what">I build AI-powered products and full-stack systems.</p>
           <p className="landing-sub">
             Computer Science undergraduate focused on Generative AI, full-stack
-            development, and developer tooling. One body of work, five ways to
+            development, and developer tooling. One body of work, six ways to
             experience it — pick a lane, switch anytime.
           </p>
 
@@ -78,11 +78,11 @@ export function Landing() {
         </header>
 
         <div className="edition-bar">
-          <span className="edition-bar-label">five interfaces</span>
+          <span className="edition-bar-label">six interfaces</span>
           <InterfaceSwitcher current="landing" />
         </div>
         <p className="edition-bar-hint">
-          keyboard: tab + enter · press <kbd>1</kbd>–<kbd>5</kbd> — switch from any page
+          keyboard: tab + enter · press <kbd>1</kbd>–<kbd>6</kbd> — switch from any page
         </p>
 
         <div className="edition-grid" id="editions" role="list" aria-label="Portfolio interfaces — choose an edition">
@@ -214,6 +214,30 @@ export function Landing() {
               </p>
               <span className="ed-cta">
                 Enter the forge <span aria-hidden="true">→</span>
+              </span>
+            </div>
+          </EditionCard>
+
+          <EditionCard to="/cosmos" label="Open the Cosmos interface" className="ed-cosmos">
+            <div className="mini-cosmos" aria-hidden="true">
+              <div className="mc-orb" />
+              <i className="mc-star s1" />
+              <i className="mc-star s2" />
+              <i className="mc-star s3" />
+              <div className="mc-sil" />
+              <div className="mc-horizon" />
+            </div>
+            <div className="ed-meta">
+              <span className="ed-num" aria-hidden="true">
+                06
+              </span>
+              <h2>Cosmos</h2>
+              <p>
+                Cinematic night-sky — editorial typography, a celestial backdrop,
+                and a silhouette at the edge of the digital universe.
+              </p>
+              <span className="ed-cta">
+                Step into the sky <span aria-hidden="true">→</span>
               </span>
             </div>
           </EditionCard>

@@ -23,10 +23,12 @@ export function AuroraDetails({ p }: { p: Project }) {
         onClick={() => setOpen(!open)}
       >
         <span>engineering details</span>
-        <span aria-hidden="true">{open ? "−" : "→"}</span>
+        <span className={`au-eng-arrow${open ? " open" : ""}`} aria-hidden="true">
+          →
+        </span>
       </button>
-      {open && (
-        <div className="au-eng-body" id={ctrl}>
+      <div className={`au-eng-wrap${open ? " open" : ""}`} id={ctrl}>
+        <div className="au-eng-body">
           <div>
             <span className="au-eng-label">the problem</span>
             <p>{p.problem}</p>
@@ -44,7 +46,7 @@ export function AuroraDetails({ p }: { p: Project }) {
             <p>{p.tech.join(" · ")}</p>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -52,8 +54,11 @@ export function AuroraDetails({ p }: { p: Project }) {
 function AuroraCard({ p, featured }: { p: Project; featured: boolean }) {
   const ref = useTilt<HTMLDivElement>(5, ".au-card");
   return (
-    <div ref={ref} className={`au-tilt ${featured ? "au-tilt-featured" : ""}`}>
-      <article className={`au-card ${featured ? "au-card-featured" : ""}`}>
+    <div ref={ref} className={`au-tilt${featured ? " au-tilt-featured" : ""} au-reveal`}>
+      <article
+        className={`au-card ${featured ? "au-card-featured" : ""}`}
+        style={{ "--pa1": p.accent[0] } as React.CSSProperties}
+      >
       <h3 className="au-card-name">{p.name}</h3>
       <p className="au-card-tagline">{p.tagline}</p>
       <div className="au-card-tech">
@@ -137,7 +142,7 @@ export function AuroraSite() {
         </header>
 
         <section className="aurora-section" id="work" aria-labelledby="aurora-work-title">
-          <div className="aurora-head">
+          <div className="aurora-head au-reveal">
             <h2 id="aurora-work-title">Selected work</h2>
             <span className="tag">built &amp; shipped</span>
           </div>
@@ -153,13 +158,13 @@ export function AuroraSite() {
           id="experience"
           aria-labelledby="aurora-exp-title"
         >
-          <div className="aurora-head">
+          <div className="aurora-head au-reveal">
             <h2 id="aurora-exp-title">Experience</h2>
             <span className="tag">the log</span>
           </div>
           <div className="au-exp-list">
             {experience.map((e) => (
-              <div className="au-exp-row" key={e.company}>
+              <div className="au-exp-row au-reveal" key={e.company}>
                 <div>
                   <div className="au-exp-role">{e.role}</div>
                   <div className="au-exp-company">{e.company}</div>
@@ -171,11 +176,11 @@ export function AuroraSite() {
         </section>
 
         <section className="aurora-section" id="about" aria-labelledby="aurora-about-title">
-          <div className="aurora-head">
+          <div className="aurora-head au-reveal">
             <h2 id="aurora-about-title">About</h2>
             <span className="tag">whoami</span>
           </div>
-          <div className="au-glass-panel">
+          <div className="au-glass-panel au-reveal">
             <div className="au-prose">
               <p>
                 {site.name} — a Generative AI developer and full-stack engineer
@@ -202,7 +207,7 @@ export function AuroraSite() {
         </section>
 
         <section className="aurora-section" id="contact" aria-labelledby="aurora-contact-title">
-          <div className="au-contact">
+          <div className="au-contact au-reveal">
             <h2 id="aurora-contact-title">
               Let&rsquo;s build something <span className="grad">beautiful.</span>
             </h2>

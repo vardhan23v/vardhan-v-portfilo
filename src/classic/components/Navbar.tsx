@@ -5,12 +5,16 @@ import "./Navbar.css";
 import { InterfaceSwitcher } from "../../interface-switcher/InterfaceSwitcher";
 
 const links = [
-  { label: "About", href: "#about" },
-  { label: "Projects", href: "#projects" },
+  { label: "Work", href: "#projects" },
   { label: "Experience", href: "#experience" },
+  { label: "About", href: "#about" },
+  { label: "Contact", href: "#contact" },
+];
+
+const mobileLinks = [
+  ...links,
   { label: "Skills", href: "#skills" },
   { label: "Certifications", href: "#certifications" },
-  { label: "Contact", href: "#contact" },
 ];
 
 export function Navbar() {
@@ -80,7 +84,7 @@ export function Navbar() {
 
       <div id="mobile-menu" className={`nav-mobile ${open ? "nav-mobile-open" : ""}`}>
         <nav aria-label="Mobile">
-          {links.map((l, i) => (
+          {mobileLinks.map((l, i) => (
             <a
               key={l.href}
               href={l.href}

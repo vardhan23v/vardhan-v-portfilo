@@ -6,6 +6,8 @@ import { featuredProjects, type Project } from "../classic/data/projects";
 import { experience } from "../classic/data/experience";
 import { skillCategories } from "../classic/data/skills";
 import { site } from "../classic/data/site";
+import { Icon } from "../classic/lib/icons";
+import { ExpandableTabs, type ExpandableTabItem } from "../components/ui/expandable-tabs";
 import "./styles/aurora.css";
 
 export const auroraProjects = featuredProjects.filter((p) => p.slug !== "campus-compass");
@@ -19,12 +21,19 @@ const FILTERS: { id: Filter; label: string }[] = [
   { id: "tools", label: "Dev tools" },
 ];
 
-const NAVIDS = [
-  ["work", "Work"],
-  ["experience", "Experience"],
-  ["about", "About"],
-  ["contact", "Contact"],
-] as const;
+const NAV_TABS: ExpandableTabItem[] = [
+  { type: "tab", title: "Home", icon: <Icon.home width={16} height={16} />, value: "home" },
+  { type: "tab", title: "About", icon: <Icon.user width={16} height={16} />, value: "about" },
+  {
+    type: "tab",
+    title: "Experience",
+    icon: <Icon.briefcase width={16} height={16} />,
+    value: "experience",
+  },
+  { type: "separator" },
+  { type: "tab", title: "Projects", icon: <Icon.folderKanban width={16} height={16} />, value: "work" },
+  { type: "tab", title: "Contact", icon: <Icon.mail width={16} height={16} />, value: "contact" },
+];
 
 function catOf(p: Project): Exclude<Filter, "all"> {
   if (p.slug === "extension-ai") return "tools";
@@ -250,23 +259,39 @@ function AuroraCursor() {
 
 export function AuroraSite() {
   const [filter, setFilter] = useState<Filter>("all");
-  const [active, setActive] = useState("work");
+  const [selected, setSelected] = useState<number | null>(0);
   const [showTop, setShowTop] = useState(false);
   const ist = useIstTime();
 
   useEffect(() => {
     const obs = new IntersectionObserver(
       (entries) => {
-        for (const e of entries) if (e.isIntersecting) setActive(e.target.id);
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          const i = NAV_TABS.findIndex((t) => t.type === "tab" && t.value === e.target.id);
+          if (i >= 0) setSelected(i);
+        }
       },
       { rootMargin: "-40% 0px -55% 0px" }
     );
-    for (const [id] of NAVIDS) {
-      const el = document.getElementById(id);
+    for (const t of NAV_TABS) {
+      if (t.type !== "tab" || !t.value) continue;
+      const el = document.getElementById(t.value);
       if (el) obs.observe(el);
     }
     return () => obs.disconnect();
   }, []);
+
+  const handleSelect = (i: number | null) => {
+    setSelected(i);
+    if (i === null) return;
+    const t = NAV_TABS[i];
+    if (t.type !== "tab" || !t.value) return;
+    const el = document.getElementById(t.value);
+    if (!el) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  };
 
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 700);
@@ -304,17 +329,17 @@ export function AuroraSite() {
             {site.name}
             <span className="dot">.</span>
           </Link>
-          <div className="aurora-nav-links">
-            {NAVIDS.map(([id, label]) => (
-              <a key={id} href={`#${id}`} className={active === id ? "is-active" : ""}>
-                {label}
-              </a>
-            ))}
-          </div>
+          <ExpandableTabs
+            className="aurora-nav-tabs"
+            tabs={NAV_TABS}
+            selected={selected}
+            onSelect={handleSelect}
+            activeColor="au-nav-tab-active"
+          />
           <InterfaceSwitcher current="aurora" />
         </nav>
 
-        <header className="aurora-hero">
+        <header className="aurora-hero" id="home">
           <div className="au-hero-copy">
             <p className="aurora-eyebrow">
               <span className="glow-dot" aria-hidden="true" />

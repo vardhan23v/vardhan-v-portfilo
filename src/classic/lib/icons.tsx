@@ -178,6 +178,19 @@ export const Icon = {
       <path d="M4 21c0-4 3.6-6 8-6s8 2 8 6" />
     </svg>
   ),
+  home: (p: SVGProps<SVGSVGElement>) => (
+    <svg {...base} {...p} aria-hidden="true">
+      <path d="m3 11 9-8 9 8" />
+      <path d="M5 9.5V21h14V9.5" />
+      <path d="M10 21v-6h4v6" />
+    </svg>
+  ),
+  folderKanban: (p: SVGProps<SVGSVGElement>) => (
+    <svg {...base} {...p} aria-hidden="true">
+      <path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" />
+      <path d="M8.5 11.5v4M12 11.5v4M15.5 11.5v4" />
+    </svg>
+  ),
 } as const;
 
 export type IconName = keyof typeof Icon;

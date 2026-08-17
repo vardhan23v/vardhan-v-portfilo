@@ -202,6 +202,14 @@
   transform: scaleX(1);
 }
 
+.aurora-nav-links a.is-active {
+  color: var(--ink);
+}
+
+.aurora-nav-links a.is-active::after {
+  transform: scaleX(1);
+}
+
 /* ---------- hero ---------- */
 
 .aurora-hero {
@@ -457,16 +465,101 @@
 }
 
 .au-sys-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   margin-top: 18px;
   font-size: 11px;
   letter-spacing: 0.08em;
   color: var(--ink-3);
 }
 
+.au-sys-clock {
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- tech marquee ---------- */
+
+.au-marquee {
+  overflow: hidden;
+  margin: -56px 0 8px;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+.au-marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: aumarq 38s linear infinite;
+}
+
+.au-marquee-group {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+@keyframes aumarq {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
 /* ---------- sections ---------- */
 
 .aurora-section {
   padding: 64px 0 104px;
+}
+
+/* ---------- project filters ---------- */
+
+.au-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: -8px 0 26px;
+}
+
+.au-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.au-filter:hover {
+  border-color: var(--glass-border-2);
+  color: var(--ink);
+}
+
+.au-filter.is-active {
+  background: rgba(167, 139, 250, 0.16);
+  border-color: rgba(167, 139, 250, 0.5);
+  color: var(--ink);
+}
+
+.au-filter-count {
+  font-size: 10px;
+  color: var(--ink-3);
+}
+
+.au-filter.is-active .au-filter-count {
+  color: var(--violet);
 }
 
 .aurora-head {
@@ -1180,6 +1273,62 @@
 .au-contact .aurora-actions {
   justify-content: center;
   margin-top: 30px;
+}
+
+.au-copy {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.au-copied {
+  color: var(--mint) !important;
+  border-color: rgba(52, 211, 153, 0.45) !important;
+}
+
+/* ---------- back to top ---------- */
+
+.au-top {
+  position: fixed;
+  right: 26px;
+  bottom: 26px;
+  z-index: 45;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  background: rgba(10, 10, 24, 0.6);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.au-top.is-show {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.au-top:hover {
+  border-color: var(--glass-border-2);
+  color: var(--ink);
+}
+
+@media (max-width: 560px) {
+  .au-top {
+    right: 16px;
+    bottom: 16px;
+  }
 }
 
 /* ---------- footer ---------- */

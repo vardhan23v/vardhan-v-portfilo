@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { useTilt } from "../hooks/useTilt";
 import { Link } from "react-router-dom";
@@ -9,6 +9,45 @@ import { site } from "../classic/data/site";
 import "./styles/aurora.css";
 
 export const auroraProjects = featuredProjects.filter((p) => p.slug !== "campus-compass");
+
+type Filter = "all" | "ai" | "full-stack" | "tools";
+
+const FILTERS: { id: Filter; label: string }[] = [
+  { id: "all", label: "All" },
+  { id: "ai", label: "AI" },
+  { id: "full-stack", label: "Full-stack" },
+  { id: "tools", label: "Dev tools" },
+];
+
+const NAVIDS = [
+  ["work", "Work"],
+  ["experience", "Experience"],
+  ["about", "About"],
+  ["contact", "Contact"],
+] as const;
+
+function catOf(p: Project): Exclude<Filter, "all"> {
+  if (p.slug === "extension-ai") return "tools";
+  if (p.slug === "ai-code-reviewer" || p.slug.endsWith("-ai")) return "ai";
+  return "full-stack";
+}
+
+function useIstTime() {
+  const [t, setT] = useState("");
+  useEffect(() => {
+    const fmt = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Kolkata",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+    const tick = () => setT(fmt.format(new Date()));
+    tick();
+    const id = setInterval(tick, 30000);
+    return () => clearInterval(id);
+  }, []);
+  return t;
+}
 
 export function AuroraDetails({ p }: { p: Project }) {
   const [open, setOpen] = useState(false);
@@ -57,7 +96,7 @@ function FeaturedProject({ p }: { p: Project }) {
     <div ref={ref} className="au-ft-tilt au-reveal">
       <article className="au-ft" style={{ "--pa1": p.accent[0] } as React.CSSProperties}>
         <div className="au-ft-copy">
-          <span className="au-rank">Project 01</span>
+          <span className="au-rank">Project 01 · flagship</span>
           <h3 className="au-ft-name">{p.name}</h3>
           <p className="au-ft-tagline">{p.tagline}</p>
           <div className="au-card-tech">
@@ -123,7 +162,64 @@ function AuroraCard({ p, n }: { p: Project; n: string }) {
   );
 }
 
+function CopyEmail() {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(site.email);
+    } catch {
+      /* clipboard unavailable — fall back silently */
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button type="button" className={`aurora-btn au-copy${copied ? " au-copied" : ""}`} onClick={copy}>
+      {copied ? "copied ✓" : "copy email"}
+    </button>
+  );
+}
+
 export function AuroraSite() {
+  const [filter, setFilter] = useState<Filter>("all");
+  const [active, setActive] = useState("work");
+  const [showTop, setShowTop] = useState(false);
+  const ist = useIstTime();
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) if (e.isIntersecting) setActive(e.target.id);
+      },
+      { rootMargin: "-40% 0px -55% 0px" }
+    );
+    for (const [id] of NAVIDS) {
+      const el = document.getElementById(id);
+      if (el) obs.observe(el);
+    }
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setShowTop(window.scrollY > 700);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const featured = auroraProjects[0];
+  const counts = auroraProjects.reduce(
+    (m, p) => {
+      m[catOf(p)]++;
+      return m;
+    },
+    { ai: 0, "full-stack": 0, tools: 0 } as Record<Exclude<Filter, "all">, number>
+  );
+  const shown = auroraProjects.slice(1).filter((p) => filter === "all" || catOf(p) === filter);
+  const showFeatured = filter === "all" || catOf(featured) === filter;
+
+  const stackStrip = skillCategories.flatMap((c) => c.items.map((i) => i.name));
+
   return (
     <div className="aurora-root">
       <div className="aurora-scrollbar" aria-hidden="true" />
@@ -140,10 +236,11 @@ export function AuroraSite() {
             <span className="dot">.</span>
           </Link>
           <div className="aurora-nav-links">
-            <a href="#work">Work</a>
-            <a href="#experience">Experience</a>
-            <a href="#about">About</a>
-            <a href="#contact">Contact</a>
+            {NAVIDS.map(([id, label]) => (
+              <a key={id} href={`#${id}`} className={active === id ? "is-active" : ""}>
+                {label}
+              </a>
+            ))}
           </div>
           <InterfaceSwitcher current="aurora" />
         </nav>
@@ -194,9 +291,19 @@ export function AuroraSite() {
                 </div>
               ))}
             </div>
-            <div className="au-sys-foot">react → node → database → llm → product</div>
+            <div className="au-sys-foot">
+              <span>react → node → database → llm → product</span>
+              <span className="au-sys-clock">ist {ist}</span>
+            </div>
           </div>
         </header>
+
+        <div className="au-marquee au-reveal" aria-hidden="true">
+          <div className="au-marquee-track">
+            <span className="au-marquee-group">{stackStrip.join("  ·  ")}  ·  </span>
+            <span className="au-marquee-group">{stackStrip.join("  ·  ")}  ·  </span>
+          </div>
+        </div>
 
         <section className="aurora-section" id="work" aria-labelledby="aurora-work-title">
           <div className="aurora-head au-reveal">
@@ -209,12 +316,30 @@ export function AuroraSite() {
             </div>
             <span className="tag">built &amp; shipped</span>
           </div>
-          <FeaturedProject p={auroraProjects[0]} />
-          <div className="aurora-grid">
-            {auroraProjects.slice(1).map((p, i) => (
-              <AuroraCard key={p.slug} p={p} n={String(i + 2).padStart(2, "0")} />
+          <div className="au-filters" role="group" aria-label="Filter projects by category">
+            {FILTERS.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                className={`au-filter${filter === f.id ? " is-active" : ""}`}
+                aria-pressed={filter === f.id}
+                onClick={() => setFilter(f.id)}
+              >
+                {f.label}
+                <span className="au-filter-count">
+                  {f.id === "all" ? auroraProjects.length : counts[f.id]}
+                </span>
+              </button>
             ))}
           </div>
+          {showFeatured && <FeaturedProject p={featured} />}
+          {shown.length > 0 && (
+            <div className="aurora-grid">
+              {shown.map((p) => (
+                <AuroraCard key={p.slug} p={p} n={String(auroraProjects.indexOf(p) + 1).padStart(2, "0")} />
+              ))}
+            </div>
+          )}
         </section>
 
         <section className="aurora-section" id="experience" aria-labelledby="aurora-exp-title">
@@ -296,6 +421,7 @@ export function AuroraSite() {
               <a className="aurora-btn aurora-btn-solid" href={`mailto:${site.email}`}>
                 {site.email}
               </a>
+              <CopyEmail />
             </div>
           </div>
         </section>
@@ -311,6 +437,20 @@ export function AuroraSite() {
           </span>
         </footer>
       </div>
+
+      <button
+        type="button"
+        className={`au-top${showTop ? " is-show" : ""}`}
+        aria-label="Back to top"
+        onClick={() =>
+          window.scrollTo({
+            top: 0,
+            behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+          })
+        }
+      >
+        ↑ top
+      </button>
     </div>
   );
 }

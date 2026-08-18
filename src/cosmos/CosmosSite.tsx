@@ -297,6 +297,20 @@ function Constellation() {
           </g>
         ))}
       </svg>
+      <div className="co-cc-list">
+        {CLUSTERS.map((c) => (
+          <div className={`co-cc-cluster ${c.cls}`} key={c.label}>
+            <span className="co-cc-name">{c.label}</span>
+            <span className="co-cc-chips">
+              {c.nodes.map((n) => (
+                <span className="co-cc-chip" key={n.name}>
+                  {n.name}
+                </span>
+              ))}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -315,7 +329,7 @@ function CosmosNav({ active, go }: { active: string; go: (id: string) => void })
 
   return (
     <>
-      <header className="co-nav">
+      <nav className="co-nav" aria-label="Primary">
         <span className="co-nav-mark">
           SREE VARDHAN <b>V.</b>
         </span>
@@ -343,7 +357,7 @@ function CosmosNav({ active, go }: { active: string; go: (id: string) => void })
         >
           {open ? <X size={16} /> : <Menu size={16} />}
         </button>
-      </header>
+      </nav>
 
       {open && (
         <nav className="co-nav-mobile" aria-label="Primary mobile">
@@ -398,9 +412,12 @@ export function CosmosSite() {
     <MotionConfig reducedMotion="user">
       <div className="co-root">
         <CelestialBackdrop />
+        <a className="co-skip" href="#projects">
+          Skip to content
+        </a>
         <CosmosNav active={active} go={go} />
 
-        <div className="co-frame">
+        <main className="co-frame">
           <section className="co-hero" id="home">
             <motion.div className="co-hero-inner" style={{ y: heroY }}>
               <motion.div
@@ -580,7 +597,7 @@ export function CosmosSite() {
               <Constellation />
             </motion.div>
           </section>
-        </div>
+        </main>
 
         <section className="co-contact" id="contact">
           <div className="co-contact-glow" aria-hidden="true" />

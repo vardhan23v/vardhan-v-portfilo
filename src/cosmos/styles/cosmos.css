@@ -256,6 +256,97 @@
   animation: sl-ring 80s linear infinite;
 }
 
+.sl-orb-ring-c {
+  inset: -1%;
+  border: 3px dashed rgba(245, 201, 95, 0.3);
+  animation: sl-ring 55s linear infinite reverse;
+}
+
+.sl-orb-swirl {
+  position: absolute;
+  inset: -30%;
+  animation: sl-ring 160s linear infinite;
+}
+
+.sl-orb-swirl svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.sl-orb-swirl path {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.sl-orb-swirl path:nth-child(1) {
+  stroke: rgba(245, 201, 95, 0.5);
+  stroke-width: 5;
+}
+
+.sl-orb-swirl path:nth-child(2) {
+  stroke: rgba(255, 217, 120, 0.4);
+  stroke-width: 3.5;
+}
+
+.sl-orb-swirl path:nth-child(3) {
+  stroke: rgba(233, 185, 79, 0.35);
+  stroke-width: 2.5;
+}
+
+.sl-orb-swirl path:nth-child(4) {
+  stroke: rgba(245, 201, 95, 0.25);
+  stroke-width: 1.5;
+}
+
+.sl-gs-wrap {
+  position: absolute;
+  inset: 0;
+}
+
+.sl-gs {
+  position: absolute;
+  pointer-events: none;
+  filter: drop-shadow(0 0 16px rgba(245, 201, 95, 0.4));
+  animation: sl-drift var(--sd) ease-in-out infinite alternate;
+}
+
+.sl-gs svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: sl-ring var(--rot) linear infinite;
+}
+
+.sl-gs-ring {
+  fill: none;
+  stroke: rgba(233, 185, 79, 0.55);
+  stroke-width: 4;
+  stroke-dasharray: 12 10;
+}
+
+.sl-gs-ring2 {
+  fill: none;
+  stroke: rgba(245, 201, 95, 0.3);
+  stroke-width: 2;
+  stroke-dasharray: 30 26;
+}
+
+.sl-gs-arc {
+  fill: none;
+  stroke: rgba(255, 217, 120, 0.5);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.sl-gs-core {
+  fill: rgba(255, 217, 120, 0.95);
+}
+
+.sl-gs-center {
+  fill: #fff6dc;
+}
+
 .sl-orbs {
   position: absolute;
   inset: 0;
@@ -382,11 +473,11 @@
 }
 
 .sl-title-gold {
-  background: linear-gradient(90deg, #ffd978, #e9b94f 60%, #f5c95f);
+  background: linear-gradient(93deg, #6fb0e3 0%, #e9d9a8 36%, #ffd978 64%, #f5c95f 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  text-shadow: 0 0 42px rgba(245, 201, 95, 0.25);
+  text-shadow: 0 0 42px rgba(245, 201, 95, 0.22);
 }
 
 .sl-lede {
@@ -1372,7 +1463,76 @@
     letter-spacing: 0.22em;
   }
 
-  .sl-orb {
+.sl-swirls path:nth-child(8) {
+  stroke: var(--color-sl-blue3);
+  stroke-width: 16;
+  opacity: 0.16;
+  animation-duration: 120s;
+}
+
+.sl-swirls path:nth-child(9) {
+  stroke: var(--color-sl-blue2);
+  stroke-width: 30;
+  opacity: 0.1;
+}
+
+.sl-swirls path:nth-child(10) {
+  stroke: rgba(52, 125, 184, 0.85);
+  stroke-width: 38;
+  opacity: 0.08;
+  animation-duration: 105s;
+}
+
+.sl-swirls path:nth-child(11) {
+  stroke: var(--color-sl-gold3);
+  stroke-width: 14;
+  opacity: 0.09;
+}
+
+.sl-swirls path:nth-child(12) {
+  stroke: var(--color-sl-blue1);
+  stroke-width: 44;
+  opacity: 0.09;
+  animation-duration: 140s;
+}
+
+.sl-swirls path:nth-child(13) {
+  stroke: var(--color-sl-blue3);
+  stroke-width: 10;
+  opacity: 0.22;
+  stroke-dasharray: 26 14;
+  animation-duration: 150s;
+}
+
+.sl-swirls path:nth-child(14) {
+  stroke: var(--color-sl-gold3);
+  stroke-width: 8;
+  opacity: 0.14;
+  animation-duration: 120s;
+}
+
+.sl-swirls path:nth-child(15) {
+  stroke: rgba(22, 75, 135, 0.9);
+  stroke-width: 34;
+  opacity: 0.12;
+}
+
+.sl-swirls path:nth-child(16) {
+  stroke: var(--color-sl-blue2);
+  stroke-width: 26;
+  opacity: 0.1;
+  animation-duration: 130s;
+}
+
+.sl-swirls path:nth-child(17) {
+  stroke: rgba(233, 185, 79, 0.75);
+  stroke-width: 6;
+  opacity: 0.16;
+  stroke-dasharray: 18 12;
+  animation-duration: 115s;
+}
+
+.sl-orb {
     top: 14%;
     right: 10%;
     width: clamp(190px, 54vw, 300px);
@@ -1382,6 +1542,20 @@
   .sl-orb-mini:nth-child(3),
   .sl-orb-mini:nth-child(5) {
     display: none;
+  }
+
+  .sl-gs:nth-child(3) {
+    display: none;
+  }
+
+  .sl-gs:nth-child(1) {
+    width: 88px !important;
+    height: 88px !important;
+  }
+
+  .sl-gs:nth-child(4) {
+    width: 66px !important;
+    height: 66px !important;
   }
 
   .sl-swirls path:nth-child(3),
@@ -1487,7 +1661,9 @@
   .sl-stars i,
   .sl-cue span,
   .sl-contact-glow,
-  .sl-cst-flow {
+  .sl-cst-flow,
+  .sl-gs *,
+  .sl-orb-swirl * {
     animation: none !important;
   }
 

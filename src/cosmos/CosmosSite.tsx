@@ -57,6 +57,20 @@ const ORBS: { top: string; size: number; o: number; d: number; left?: string; ri
   { top: "30%", right: "13%", size: 12, o: 0.85, d: 21 },
 ];
 
+const GOGH_STARS: {
+  size: number;
+  top: string;
+  left?: string;
+  right?: string;
+  d: number;
+  rot: number;
+}[] = [
+  { size: 120, top: "19%", left: "8%", d: 15, rot: 240 },
+  { size: 72, top: "41%", left: "28%", d: 17, rot: 190 },
+  { size: 60, top: "13%", right: "25%", d: 13, rot: 260 },
+  { size: 92, top: "60%", left: "15%", d: 16, rot: 215 },
+];
+
 const CONST_CLUSTERS = [
   {
     label: "GENERATIVE AI",
@@ -119,6 +133,50 @@ function CelestialField() {
   );
 }
 
+function GoghStar({
+  size,
+  top,
+  left,
+  right,
+  d,
+  rot,
+}: {
+  size: number;
+  top: string;
+  left?: string;
+  right?: string;
+  d: number;
+  rot: number;
+}) {
+  return (
+    <div
+      className="sl-gs"
+      style={
+        {
+          width: size,
+          height: size,
+          top,
+          ...(left !== undefined ? { left } : { right }),
+          "--sd": `${d}s`,
+          "--rot": `${rot}s`,
+        } as unknown as CSSProperties
+      }
+    >
+      <svg viewBox="0 0 100 100" role="presentation">
+        <circle cx="50" cy="50" r="42" className="sl-gs-ring" />
+        <circle cx="50" cy="50" r="31" className="sl-gs-ring2" />
+        <path d="M90 22 a29 29 0 0 1 7 17" className="sl-gs-arc" />
+        <path d="M95 60 a29 29 0 0 1 -9 18" className="sl-gs-arc" />
+        <path d="M64 95 a29 29 0 0 1 -21 3" className="sl-gs-arc" />
+        <path d="M8 58 a29 29 0 0 1 8 -21" className="sl-gs-arc" />
+        <path d="M36 8 a29 29 0 0 1 22 -3" className="sl-gs-arc" />
+        <circle cx="50" cy="50" r="13" className="sl-gs-core" />
+        <circle cx="50" cy="50" r="5.5" className="sl-gs-center" />
+      </svg>
+    </div>
+  );
+}
+
 function HeroSky() {
   return (
     <div className="sl-hero-bg" aria-hidden="true">
@@ -131,11 +189,43 @@ function HeroSky() {
           <path d="M-60 710 C 300 550, 820 570, 1230 770" />
           <path d="M240 385 C 410 300, 630 325, 800 435" />
           <path d="M940 60 C 1080 20, 1260 40, 1360 150" />
+          <path d="M1180 120 C 1300 40, 1420 70, 1440 180" />
+          <path d="M-40 300 C 140 230, 340 260, 480 350" />
+          <path d="M60 460 C 220 390, 420 420, 560 500" />
+          <path d="M1100 430 C 1240 360, 1360 400, 1430 500" />
+          <path d="M1152 180 a152 152 0 1 1 -2 0" />
+          <path d="M1280 240 a76 76 0 1 1 -2 0" />
+          <path d="M1090 300 a210 210 0 1 1 2 0" />
+          <path d="M990 120 C 1010 210, 960 280, 890 320" />
+          <path d="M430 -30 C 560 60, 590 170, 520 260" />
+          <path d="M150 130 C 260 220, 300 330, 250 420" />
         </svg>
       </div>
       <div className="sl-orb">
         <i className="sl-orb-ring sl-orb-ring-a" />
         <i className="sl-orb-ring sl-orb-ring-b" />
+        <i className="sl-orb-ring sl-orb-ring-c" />
+        <div className="sl-orb-swirl">
+          <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid meet" role="presentation">
+            <path d="M100 8 a92 92 0 0 1 92 92" />
+            <path d="M100 20 a80 80 0 0 1 80 80" />
+            <path d="M100 34 a66 66 0 0 1 66 66" />
+            <path d="M100 48 a52 52 0 0 1 52 52" />
+          </svg>
+        </div>
+      </div>
+      <div className="sl-gs-wrap">
+        {GOGH_STARS.map((s, i) => (
+          <GoghStar
+            key={i}
+            size={s.size}
+            top={s.top}
+            left={s.left}
+            right={s.right}
+            d={s.d}
+            rot={s.rot}
+          />
+        ))}
       </div>
       <div className="sl-orbs">
         {ORBS.map((o, i) => (
@@ -177,6 +267,50 @@ function HeroLandscape() {
           fill="#061226"
         />
         <path d="M560 340 L622 290 L712 290 L772 340 Z" fill="#020711" />
+        <path d="M120 340 C 118 296, 124 258, 130 232 C 116 252, 102 292, 96 340 Z" fill="#020711" />
+        <path d="M1330 340 C 1332 302, 1326 268, 1318 244 C 1332 262, 1346 298, 1352 340 Z" fill="#020711" />
+        <path d="M470 340 C 468 318, 472 296, 476 284 C 466 296, 458 318, 456 340 Z" fill="#020711" />
+        <path d="M1040 340 C 1042 322, 1038 304, 1034 294 C 1044 306, 1050 324, 1052 340 Z" fill="#020711" />
+        <path d="M200 262 L214 250 L228 262 L214 246 Z" fill="#0A1E3B" />
+        <path d="M214 250 L214 240" stroke="#FFD978" strokeWidth="2.4" strokeLinecap="round" opacity="0.9" />
+        <path d="M202 253 L202 245" stroke="#FFF0B0" strokeWidth="1.8" strokeLinecap="round" opacity="0.7" />
+        <path d="M226 253 L226 247" stroke="#FFD978" strokeWidth="1.6" strokeLinecap="round" opacity="0.7" />
+        <path d="M1240 224 L1254 212 L1268 224 L1254 208 Z" fill="#0A1E3B" />
+        <path d="M1254 212 L1254 202" stroke="#FFD978" strokeWidth="2.4" strokeLinecap="round" opacity="0.9" />
+        <path d="M1242 215 L1242 207" stroke="#FFF0B0" strokeWidth="1.8" strokeLinecap="round" opacity="0.7" />
+        <path d="M1266 215 L1266 209" stroke="#FFD978" strokeWidth="1.6" strokeLinecap="round" opacity="0.7" />
+        <path
+          d="M60 318 C 220 296, 400 308, 560 302"
+          stroke="#020711"
+          strokeWidth="7"
+          fill="none"
+          opacity="0.6"
+          strokeLinecap="round"
+        />
+        <path
+          d="M880 322 C 1040 302, 1240 314, 1410 306"
+          stroke="#020711"
+          strokeWidth="8"
+          fill="none"
+          opacity="0.6"
+          strokeLinecap="round"
+        />
+        <path
+          d="M180 332 C 300 316, 460 326, 620 322"
+          stroke="#0A1E3B"
+          strokeWidth="5"
+          fill="none"
+          opacity="0.5"
+          strokeLinecap="round"
+        />
+        <path
+          d="M960 334 C 1100 318, 1280 328, 1430 322"
+          stroke="#0A1E3B"
+          strokeWidth="5"
+          fill="none"
+          opacity="0.5"
+          strokeLinecap="round"
+        />
         <circle cx="480" cy="214" r="2" fill="#FFD978" opacity="0.95" />
         <circle cx="480" cy="214" r="7" fill="#FFD978" opacity="0.18" />
         <circle cx="905" cy="196" r="2" fill="#FFD978" opacity="0.9" />
@@ -184,6 +318,8 @@ function HeroLandscape() {
         <circle cx="1150" cy="238" r="1.6" fill="#FFF0B0" opacity="0.85" />
         <circle cx="300" cy="250" r="1.6" fill="#FFF0B0" opacity="0.8" />
         <circle cx="622" cy="266" r="1.5" fill="#FFD978" opacity="0.8" />
+        <circle cx="1010" cy="252" r="1.5" fill="#FFF0B0" opacity="0.75" />
+        <circle cx="130" cy="300" r="1.5" fill="#FFD978" opacity="0.7" />
       </svg>
     </div>
   );

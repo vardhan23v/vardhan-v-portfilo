@@ -20,7 +20,7 @@ const bodyTxt = () => p.evaluate(() => document.body.innerText.replace(/\s+/g, "
 
 await p.goto(base + "/", { waitUntil: "networkidle0" });
 await p.waitForSelector(".edition-grid", { timeout: 10000 });
-chk("h1", await p.evaluate(() => /One\s*portfolio\.\s*Six\s*interfaces\./.test(document.querySelector("h1")?.textContent ?? "")));
+chk("h1", await p.evaluate(() => /One\s*portfolio\.\s*Five\s*interfaces\./.test(document.querySelector("h1")?.textContent ?? "")));
 chk("what", (await bodyTxt()).includes("I build AI-powered products and full-stack systems."));
 chk("bar", (await bodyTxt()).includes("keyboard: tab + enter"));
 chk("cta primary", await p.evaluate(() => document.body.innerText.includes("View selected work")));
@@ -74,29 +74,6 @@ chk(
 chk(
   "forge contact pill",
   await p.evaluate(() => /Let.*build something\./.test(document.querySelector(".fg-contact .fg-heading")?.textContent ?? ""))
-);
-
-await p.goto(base + "/cosmos", { waitUntil: "networkidle0" });
-await p.waitForSelector(".sl-nav", { timeout: 10000 });
-chk(
-  "cosmos nav",
-  await p.evaluate(() => document.querySelectorAll(".sl-nav-links button").length === 4)
-);
-chk(
-  "cosmos hero",
-  await p.evaluate(() => /BuildingIntelligenceintosoftware\./.test((document.querySelector(".sl-title")?.textContent ?? "").replace(/\s+/g, "")))
-);
-chk(
-  "cosmos landscape",
-  await p.evaluate(() => !!document.querySelector(".sl-landscape svg") && !!document.querySelector(".sl-sil svg"))
-);
-chk(
-  "cosmos featured",
-  await p.evaluate(() => document.querySelector(".sl-fp-name")?.textContent.toUpperCase() === "EXTENSION AI" && document.querySelector(".sl-featured") !== null)
-);
-chk(
-  "cosmos constellation",
-  await p.evaluate(() => document.querySelectorAll(".sl-cst-node").length === 12)
 );
 
 await p.goto(base + "/terminal", { waitUntil: "networkidle0" });

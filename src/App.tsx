@@ -8,10 +8,9 @@ import { WorkDetail } from "./terminal/components/WorkDetail";
 import { PaperSite } from "./paper/PaperSite";
 import { AuroraSite } from "./aurora/AuroraSite";
 import { ForgeSite } from "./forge/ForgeSite";
-import { CosmosSite } from "./cosmos/CosmosSite";
 import "./landing/Landing.css";
 
-const interfaceRoutes = ["/terminal", "/classic", "/paper", "/aurora", "/forge", "/cosmos"];
+const interfaceRoutes = ["/terminal", "/classic", "/paper", "/aurora", "/forge"];
 
 function InterfaceShortcuts() {
   const navigate = useNavigate();
@@ -43,7 +42,6 @@ export default function App() {
         <Route path="/paper" element={<PaperSite />} />
         <Route path="/aurora" element={<AuroraSite />} />
         <Route path="/forge" element={<ForgeSite />} />
-        <Route path="/cosmos" element={<CosmosSite />} />
         <Route path="/terminal" element={<TerminalLayout />}>
           <Route index element={<TerminalHome />} />
           <Route path="work/:slug" element={<WorkDetail />} />

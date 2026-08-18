@@ -1181,87 +1181,131 @@
   color: var(--color-co-ink2);
 }
 
-/* ---------- constellation ---------- */
+/* ---------- solar system ---------- */
 
-.co-constellation {
-  position: relative;
+.co-solar {
   margin: 44px 0 0;
-  border: 1px solid rgba(97, 218, 255, 0.12);
-  border-radius: 22px;
-  background:
-    radial-gradient(70% 80% at 32% 50%, rgba(18, 59, 112, 0.32), transparent 62%),
-    radial-gradient(70% 80% at 70% 50%, rgba(11, 30, 58, 0.72), transparent 64%),
-    rgba(5, 9, 20, 0.45);
-  overflow: hidden;
 }
 
-.co-constellation svg {
-  display: block;
-  width: 100%;
-  height: auto;
+.co-solar-map {
+  position: relative;
+  width: min(100%, 720px);
+  aspect-ratio: 1;
+  margin: 0 auto;
 }
 
-.co-cl-line {
-  stroke: rgba(97, 218, 255, 0.22);
-  stroke-width: 1;
+.co-solar-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
 }
 
-.co-cl-line-flow {
-  stroke: rgba(139, 124, 255, 0.3);
-  stroke-dasharray: 2 9;
-  animation: co-flow 36s linear infinite;
+.co-sun {
+  width: 54px;
+  height: 54px;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 38% 32%, #fff6dd, #f5c76a 58%, #8a5a12 100%);
+  box-shadow:
+    0 0 42px rgba(245, 199, 106, 0.55),
+    0 0 110px rgba(245, 199, 106, 0.22);
+  animation: co-sun-pulse 5.5s ease-in-out infinite;
 }
 
-@keyframes co-flow {
-  from { stroke-dashoffset: 0; }
-  to { stroke-dashoffset: -44; }
+@keyframes co-sun-pulse {
+  50% {
+    box-shadow:
+      0 0 58px rgba(245, 199, 106, 0.78),
+      0 0 150px rgba(245, 199, 106, 0.32);
+  }
 }
 
-.co-cl-core {
-  stroke: rgba(245, 199, 106, 0.55);
-  stroke-width: 1.2;
-}
-
-.co-cl-halo {
-  fill: url(#coHalo);
-}
-
-.co-cl-node {
-  stroke: rgba(255, 255, 255, 0.82);
-}
-
-.co-cl-cyan .co-cl-node { fill: url(#coCyanNode); stroke: rgba(97, 218, 255, 0.7); }
-.co-cl-violet .co-cl-node { fill: url(#coVioNode); stroke: rgba(139, 124, 255, 0.6); }
-.co-cl-gold .co-cl-node { fill: url(#coGoldNode); stroke: rgba(245, 199, 106, 0.7); }
-
-.co-cl-label {
-  font-family: var(--font-co-mono);
-  font-size: 11px;
-  letter-spacing: 0.3em;
-  fill: rgba(244, 247, 250, 0.6);
-  text-anchor: middle;
-}
-
-.co-cl-main {
+.co-sun-name {
+  margin-top: 12px;
   font-family: var(--font-co-display);
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.34em;
-  text-anchor: middle;
+  letter-spacing: 0.38em;
+  text-indent: 0.38em;
+  color: #ffe9b8;
+  white-space: nowrap;
 }
 
-.co-cl-gold .co-cl-main {
-  fill: #ffe9b8;
+.co-orbit-wrap {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: var(--orb);
+  height: var(--orb);
+  transform: rotate(var(--angle));
 }
 
-.co-cl-cyan .co-cl-main {
-  fill: #c9f0ff;
+.co-orbit {
+  width: 100%;
+  height: 100%;
+  border: 1px dashed rgba(97, 218, 255, 0.18);
+  border-radius: 9999px;
+  animation: co-orbit-spin var(--speed) linear infinite;
 }
 
-/* constellation mobile fallback (svg text too small at narrow widths) */
+@keyframes co-orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
-.co-cc-list {
-  display: none;
+.co-planet {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  translate: -50% -50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: co-orbit-spin-rev var(--speed) linear infinite;
+}
+
+@keyframes co-orbit-spin-rev {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.co-planet-body {
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 35% 30%, #ffffff, var(--p-c1) 58%, var(--p-c2) 100%);
+  box-shadow: 0 0 14px var(--p-glow);
+}
+
+.co-planet-name {
+  margin-top: 7px;
+  font-family: var(--font-co-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: var(--p-c1);
+  white-space: nowrap;
+}
+
+.co-ss-gold { --p-c1: #f5c76a; --p-c2: #6e4a10; --p-glow: rgba(245, 199, 106, 0.55); }
+.co-ss-cyan { --p-c1: #61daff; --p-c2: #0f4d68; --p-glow: rgba(97, 218, 255, 0.55); }
+.co-ss-violet { --p-c1: #9c8fff; --p-c2: #33276e; --p-glow: rgba(139, 124, 255, 0.55); }
+.co-ss-green { --p-c1: #5eea8a; --p-c2: #11612f; --p-glow: rgba(94, 234, 138, 0.5); }
+.co-ss-coral { --p-c1: #ff9d6b; --p-c2: #6e2f0e; --p-glow: rgba(255, 157, 107, 0.5); }
+.co-ss-ice { --p-c1: #9ad7ff; --p-c2: #21496b; --p-glow: rgba(154, 215, 255, 0.5); }
+
+.co-ss-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 18px;
 }
 
 .co-cc-cluster {
@@ -1277,14 +1321,6 @@
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.3em;
-}
-
-.co-cc-gold .co-cc-name {
-  color: #ffe9b8;
-}
-
-.co-cc-cyan .co-cc-name {
-  color: #c9f0ff;
 }
 
 .co-cc-chips {
@@ -1318,10 +1354,19 @@
   box-shadow: 0 0 8px var(--color-co-cyan);
 }
 
-.co-cc-gold .co-cc-chip::before {
-  background: var(--color-co-gold);
-  box-shadow: 0 0 8px var(--color-co-gold);
-}
+.co-ss-gold .co-cc-name { color: #ffe9b8; }
+.co-ss-cyan .co-cc-name { color: #c9f0ff; }
+.co-ss-violet .co-cc-name { color: #d4cdff; }
+.co-ss-green .co-cc-name { color: #bdf5cd; }
+.co-ss-coral .co-cc-name { color: #ffd6bd; }
+.co-ss-ice .co-cc-name { color: #d2ecff; }
+
+.co-ss-gold .co-cc-chip::before { background: #f5c76a; box-shadow: 0 0 8px #f5c76a; }
+.co-ss-cyan .co-cc-chip::before { background: #61daff; box-shadow: 0 0 8px #61daff; }
+.co-ss-violet .co-cc-chip::before { background: #8b7cff; box-shadow: 0 0 8px #8b7cff; }
+.co-ss-green .co-cc-chip::before { background: #5eea8a; box-shadow: 0 0 8px #5eea8a; }
+.co-ss-coral .co-cc-chip::before { background: #ff9d6b; box-shadow: 0 0 8px #ff9d6b; }
+.co-ss-ice .co-cc-chip::before { background: #9ad7ff; box-shadow: 0 0 8px #9ad7ff; }
 
 /* ---------- contact ---------- */
 
@@ -1557,14 +1602,18 @@
     display: none;
   }
 
-  .co-constellation svg {
-    display: none;
+  .co-sun {
+    width: 42px;
+    height: 42px;
   }
 
-  .co-cc-list {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+  .co-planet-body {
+    width: 12px;
+    height: 12px;
+  }
+
+  .co-planet-name {
+    display: none;
   }
 
   .co-cc-cluster {
@@ -1609,7 +1658,7 @@
     gap: 4px;
   }
 
-  .co-cc-list {
+  .co-ss-list {
     grid-template-columns: 1fr;
   }
 }
@@ -1622,12 +1671,10 @@
   .co-orb *,
   .co-stars i,
   .co-cue span,
-  .co-plive i {
+  .co-plive i,
+  .co-orbit,
+  .co-planet,
+  .co-sun {
     animation: none !important;
-  }
-
-  .co-cl-line-flow {
-    animation: none !important;
-    stroke-dasharray: none;
   }
 }

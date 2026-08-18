@@ -53,40 +53,66 @@ const PANEL_ROWS = [
   ["BUILD", "SHIPPED", "co-pst-shipped"],
 ] as const;
 
-type Cluster = {
+type Planet = {
   label: string;
-  cx: number;
-  cy: number;
+  orbit: string;
+  speed: number;
+  angle: number;
   cls: string;
-  nodes: { name: string; x: number; y: number }[];
+  techs: string[];
 };
 
-const CLUSTERS: Cluster[] = [
+const skill = (label: string) =>
+  skillCategories.find((c) => c.label === label)!.items.map((i) => i.name);
+
+const PLANETS: Planet[] = [
   {
-    label: "GENERATIVE AI",
-    cx: 250,
-    cy: 230,
-    cls: "co-cl-gold",
-    nodes: [
-      { name: "Gemini", x: 118, y: 92 },
-      { name: "Claude", x: 66, y: 244 },
-      { name: "Groq", x: 146, y: 372 },
-      { name: "AI Agents", x: 296, y: 392 },
-    ],
+    label: "AI / LLM",
+    orbit: "22%",
+    speed: 26,
+    angle: 0,
+    cls: "co-ss-gold",
+    techs: skill("AI / LLM"),
   },
   {
-    label: "FULL STACK",
-    cx: 650,
-    cy: 230,
-    cls: "co-cl-cyan",
-    nodes: [
-      { name: "React", x: 660, y: 82 },
-      { name: "TypeScript", x: 820, y: 120 },
-      { name: "Node.js", x: 856, y: 250 },
-      { name: "Express.js", x: 786, y: 368 },
-      { name: "MongoDB", x: 650, y: 398 },
-      { name: "PostgreSQL", x: 488, y: 344 },
-    ],
+    label: "Frontend",
+    orbit: "34%",
+    speed: 38,
+    angle: 60,
+    cls: "co-ss-cyan",
+    techs: skill("Frontend"),
+  },
+  {
+    label: "Backend",
+    orbit: "46%",
+    speed: 52,
+    angle: 120,
+    cls: "co-ss-violet",
+    techs: skill("Backend"),
+  },
+  {
+    label: "Databases",
+    orbit: "58%",
+    speed: 66,
+    angle: 180,
+    cls: "co-ss-green",
+    techs: skill("Databases"),
+  },
+  {
+    label: "Languages",
+    orbit: "70%",
+    speed: 84,
+    angle: 240,
+    cls: "co-ss-coral",
+    techs: skill("Languages"),
+  },
+  {
+    label: "Tools",
+    orbit: "82%",
+    speed: 106,
+    angle: 300,
+    cls: "co-ss-ice",
+    techs: skill("Tools"),
   },
 ];
 
@@ -244,67 +270,43 @@ function ProjectCard({ p, n, index }: { p: (typeof projects)[number]; n: string;
   );
 }
 
-function Constellation() {
+function SolarSystem() {
   return (
-    <div className="co-constellation" role="img" aria-label="Technology constellation. Generative AI mapped to Gemini, Claude, Groq and AI agents; full stack mapped to React, TypeScript, Node.js, Express.js, MongoDB and PostgreSQL.">
-      <svg viewBox="0 0 900 460" role="presentation">
-        <defs>
-          <radialGradient id="coHalo" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#61daff" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#61daff" stopOpacity="0" />
-          </radialGradient>
-          <radialGradient id="coCyanNode" cx="38%" cy="32%" r="70%">
-            <stop offset="0%" stopColor="#eafbff" />
-            <stop offset="100%" stopColor="#61daff" />
-          </radialGradient>
-          <radialGradient id="coVioNode" cx="38%" cy="32%" r="70%">
-            <stop offset="0%" stopColor="#ece9ff" />
-            <stop offset="100%" stopColor="#8b7cff" />
-          </radialGradient>
-          <radialGradient id="coGoldNode" cx="38%" cy="32%" r="70%">
-            <stop offset="0%" stopColor="#fff8e8" />
-            <stop offset="100%" stopColor="#f5c76a" />
-          </radialGradient>
-        </defs>
-
-        <line
-          x1="310"
-          y1="230"
-          x2="560"
-          y2="230"
-          className="co-cl-line-flow"
-          strokeDasharray="2 9"
-        />
-
-        {CLUSTERS.map((c) => (
-          <g key={c.label} className={c.cls}>
-            {c.nodes.map((n) => (
-              <line key={n.name} x1={c.cx} y1={c.cy} x2={n.x} y2={n.y} className="co-cl-line" />
-            ))}
-            <circle cx={c.cx} cy={c.cy} r="30" className="co-cl-halo" />
-            <circle cx={c.cx} cy={c.cy} r="19" stroke="rgba(245,199,106,0.5)" strokeWidth="1" fill="none" />
-            {c.nodes.map((n) => (
-              <g key={n.name}>
-                <circle cx={n.x} cy={n.y} r="9" className="co-cl-node" />
-                <text x={n.x} y={n.y + 27} className="co-cl-label">
-                  {n.name}
-                </text>
-              </g>
-            ))}
-            <text x={c.cx} y={c.cy + 5} className="co-cl-main">
-              {c.label}
-            </text>
-          </g>
+    <div
+      className="co-solar"
+      role="img"
+      aria-label={`The system — an AI and full-stack core orbited by six technology planets. ${PLANETS.map(
+        (p) => `${p.label} with ${p.techs.join(", ")}`
+      ).join("; ")}.`}
+    >
+      <div className="co-solar-map" aria-hidden="true">
+        <div className="co-solar-core">
+          <span className="co-sun" />
+          <span className="co-sun-name">THE SYSTEM</span>
+        </div>
+        {PLANETS.map((p) => (
+          <div
+            className="co-orbit-wrap"
+            key={p.label}
+            style={{ "--orb": p.orbit, "--angle": `${p.angle}deg` } as CSSProperties}
+          >
+            <div className="co-orbit" style={{ "--speed": `${p.speed}s` } as CSSProperties}>
+              <div className={`co-planet ${p.cls}`}>
+                <span className="co-planet-body" />
+                <span className="co-planet-name">{p.label}</span>
+              </div>
+            </div>
+          </div>
         ))}
-      </svg>
-      <div className="co-cc-list">
-        {CLUSTERS.map((c) => (
-          <div className={`co-cc-cluster ${c.cls}`} key={c.label}>
-            <span className="co-cc-name">{c.label}</span>
+      </div>
+      <div className="co-ss-list">
+        {PLANETS.map((p) => (
+          <div className={`co-cc-cluster ${p.cls}`} key={p.label}>
+            <span className="co-cc-name">{p.label.toUpperCase()}</span>
             <span className="co-cc-chips">
-              {c.nodes.map((n) => (
-                <span className="co-cc-chip" key={n.name}>
-                  {n.name}
+              {p.techs.map((t) => (
+                <span className="co-cc-chip" key={t}>
+                  {t}
                 </span>
               ))}
             </span>
@@ -405,8 +407,6 @@ export function CosmosSite() {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
   };
-
-  const stack = skillCategories.map((c) => c.items.map((i) => i.name)).flat();
 
   return (
     <MotionConfig reducedMotion="user">
@@ -589,12 +589,13 @@ export function CosmosSite() {
               <p className="co-label">04 · the system</p>
               <h2 className="co-h2">The system</h2>
               <p className="co-sub">
-                The two constellations I build with — {stack.join(" · ")}.
+                One core — AI × full stack — with six planets orbiting it. The stack I build
+                with every day.
               </p>
             </motion.div>
 
             <motion.div {...reveal(0.06)}>
-              <Constellation />
+              <SolarSystem />
             </motion.div>
           </section>
         </main>

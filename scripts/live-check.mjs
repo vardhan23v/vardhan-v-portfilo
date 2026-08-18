@@ -95,8 +95,17 @@ chk(
   await p.evaluate(() => document.querySelector(".co-fmark")?.textContent.toUpperCase() === "EXTENSION AI" && document.querySelector(".co-featured") !== null)
 );
 chk(
-  "cosmos constellation",
-  await p.evaluate(() => document.querySelectorAll(".co-cl-node").length === 10)
+  "cosmos solar system",
+  await p.evaluate(() => {
+    const n = document.querySelectorAll(".co-orbit").length;
+    const planets = document.querySelectorAll(".co-planet").length;
+    const legend = document.querySelectorAll(".co-ss-list .co-cc-cluster").length;
+    const chips = document.querySelectorAll(".co-ss-list .co-cc-chip").length;
+    const orbit = document.querySelector(".co-orbit");
+    const spinning = orbit ? getComputedStyle(orbit).animationName === "co-orbit-spin" : false;
+    const sun = !!document.querySelector(".co-sun");
+    return n === 6 && planets === 6 && legend === 6 && chips === 31 && spinning && sun;
+  })
 );
 
 await p.goto(base + "/terminal", { waitUntil: "networkidle0" });

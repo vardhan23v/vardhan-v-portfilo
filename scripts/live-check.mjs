@@ -77,35 +77,26 @@ chk(
 );
 
 await p.goto(base + "/cosmos", { waitUntil: "networkidle0" });
-await p.waitForSelector(".co-nav", { timeout: 10000 });
+await p.waitForSelector(".sl-nav", { timeout: 10000 });
 chk(
   "cosmos nav",
-  await p.evaluate(() => document.querySelectorAll(".co-nav-links button").length === 5)
+  await p.evaluate(() => document.querySelectorAll(".sl-nav-links button").length === 4)
 );
 chk(
   "cosmos hero",
-  await p.evaluate(() => /BuildingIntelligenceinto\s*software\./.test((document.querySelector(".co-title")?.textContent ?? "").replace(/\s+/g, "")))
+  await p.evaluate(() => /BuildingIntelligenceintosoftware\./.test((document.querySelector(".sl-title")?.textContent ?? "").replace(/\s+/g, "")))
 );
 chk(
-  "cosmos panel",
-  await p.evaluate(() => document.querySelectorAll(".co-panel-row").length === 5)
+  "cosmos landscape",
+  await p.evaluate(() => !!document.querySelector(".sl-landscape svg") && !!document.querySelector(".sl-sil svg"))
 );
 chk(
   "cosmos featured",
-  await p.evaluate(() => document.querySelector(".co-fmark")?.textContent.toUpperCase() === "EXTENSION AI" && document.querySelector(".co-featured") !== null)
+  await p.evaluate(() => document.querySelector(".sl-fp-name")?.textContent.toUpperCase() === "EXTENSION AI" && document.querySelector(".sl-featured") !== null)
 );
 chk(
-  "cosmos solar system",
-  await p.evaluate(() => {
-    const n = document.querySelectorAll(".co-orbit").length;
-    const planets = document.querySelectorAll(".co-planet").length;
-    const legend = document.querySelectorAll(".co-ss-list .co-cc-cluster").length;
-    const chips = document.querySelectorAll(".co-ss-list .co-cc-chip").length;
-    const orbit = document.querySelector(".co-orbit");
-    const spinning = orbit ? getComputedStyle(orbit).animationName === "co-orbit-spin" : false;
-    const sun = !!document.querySelector(".co-sun");
-    return n === 6 && planets === 6 && legend === 6 && chips === 31 && spinning && sun;
-  })
+  "cosmos constellation",
+  await p.evaluate(() => document.querySelectorAll(".sl-cst-node").length === 12)
 );
 
 await p.goto(base + "/terminal", { waitUntil: "networkidle0" });

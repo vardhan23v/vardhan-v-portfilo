@@ -1,10 +1,15 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
-import { motion, MotionConfig, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  MotionConfig,
+  useMotionValueEvent,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import { ArrowUpRight, Mail, Menu, X } from "lucide-react";
 import { featuredProjects } from "../classic/data/projects";
 import { experience } from "../classic/data/experience";
-import { skillCategories } from "../classic/data/skills";
 import { site } from "../classic/data/site";
 import { Icon } from "../classic/lib/icons";
 import "./styles/cosmos.css";
@@ -12,15 +17,14 @@ import "./styles/cosmos.css";
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const reveal = (delay = 0) => ({
-  initial: { opacity: 0, y: 26 },
+  initial: { opacity: 0, y: 22 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-70px" },
-  transition: { duration: 0.75, delay, ease: EASE },
+  viewport: { once: true, margin: "-80px" },
+  transition: { duration: 0.8, delay, ease: EASE },
 });
 
 const SECTIONS = [
-  { id: "home", label: "Home" },
-  { id: "projects", label: "Projects" },
+  { id: "work", label: "Projects" },
   { id: "journey", label: "Experience" },
   { id: "stack", label: "Stack" },
   { id: "contact", label: "Contact" },
@@ -34,106 +38,68 @@ function seeded(seed: number): () => number {
   return () => (((s = (s * 16807) % 2147483647) % 1000) / 1000);
 }
 
-const rnd = seeded(20260817);
-const STARS = Array.from({ length: 44 }, (_, i) => ({
-  left: `${(rnd() * 100).toFixed(2)}%`,
-  top: `${(rnd() * 100).toFixed(2)}%`,
-  size: `${(1 + rnd() * 2.1).toFixed(2)}px`,
-  o: (0.22 + rnd() * 0.58).toFixed(2),
-  d: `${(3.5 + rnd() * 5).toFixed(2)}s`,
+const rnd = seeded(20260818);
+const STARS = Array.from({ length: 34 }, (_, i) => ({
+  left: `${(2 + rnd() * 88).toFixed(2)}%`,
+  top: `${(2 + rnd() * 82).toFixed(2)}%`,
+  size: `${(1 + rnd() * 1.6).toFixed(2)}px`,
+  o: (0.35 + rnd() * 0.55).toFixed(2),
+  d: `${(3 + rnd() * 5).toFixed(2)}s`,
   del: `${(rnd() * 6).toFixed(2)}s`,
-  cls: i % 11 === 0 ? "co-star-gold" : i % 7 === 0 ? "co-star-cyan" : "",
+  gold: i % 5 === 0,
 }));
 
-const PANEL_ROWS = [
-  ["AI SYSTEM", "ONLINE", "co-pst-online"],
-  ["LLM PIPELINE", "ACTIVE", "co-pst-active"],
-  ["API", "CONNECTED", "co-pst-connect"],
-  ["DATABASE", "READY", "co-pst-ready"],
-  ["BUILD", "SHIPPED", "co-pst-shipped"],
-] as const;
-
-type Planet = {
-  label: string;
-  orbit: string;
-  speed: number;
-  angle: number;
-  cls: string;
-  techs: string[];
-};
-
-const skill = (label: string) =>
-  skillCategories.find((c) => c.label === label)!.items.map((i) => i.name);
-
-const PLANETS: Planet[] = [
-  {
-    label: "AI / LLM",
-    orbit: "22%",
-    speed: 26,
-    angle: 0,
-    cls: "co-ss-gold",
-    techs: skill("AI / LLM"),
-  },
-  {
-    label: "Frontend",
-    orbit: "34%",
-    speed: 38,
-    angle: 60,
-    cls: "co-ss-cyan",
-    techs: skill("Frontend"),
-  },
-  {
-    label: "Backend",
-    orbit: "46%",
-    speed: 52,
-    angle: 120,
-    cls: "co-ss-violet",
-    techs: skill("Backend"),
-  },
-  {
-    label: "Databases",
-    orbit: "58%",
-    speed: 66,
-    angle: 180,
-    cls: "co-ss-green",
-    techs: skill("Databases"),
-  },
-  {
-    label: "Languages",
-    orbit: "70%",
-    speed: 84,
-    angle: 240,
-    cls: "co-ss-coral",
-    techs: skill("Languages"),
-  },
-  {
-    label: "Tools",
-    orbit: "82%",
-    speed: 106,
-    angle: 300,
-    cls: "co-ss-ice",
-    techs: skill("Tools"),
-  },
+const ORBS: { top: string; size: number; o: number; d: number; left?: string; right?: string }[] = [
+  { top: "21%", left: "11%", size: 34, o: 0.8, d: 13 },
+  { top: "36%", right: "26%", size: 20, o: 0.7, d: 17 },
+  { top: "13%", left: "40%", size: 15, o: 0.55, d: 19 },
+  { top: "62%", left: "5%", size: 26, o: 0.45, d: 15 },
+  { top: "30%", right: "13%", size: 12, o: 0.85, d: 21 },
 ];
 
-function CelestialBackdrop() {
+const CONST_CLUSTERS = [
+  {
+    label: "GENERATIVE AI",
+    cx: 250,
+    cy: 230,
+    gold: true,
+    nodes: [
+      { name: "Gemini", x: 118, y: 92 },
+      { name: "Claude", x: 66, y: 244 },
+      { name: "Groq", x: 146, y: 372 },
+      { name: "AI Agents", x: 296, y: 392 },
+    ],
+  },
+  {
+    label: "FULL STACK",
+    cx: 650,
+    cy: 230,
+    gold: false,
+    nodes: [
+      { name: "React", x: 660, y: 82 },
+      { name: "TypeScript", x: 820, y: 120 },
+      { name: "Node.js", x: 856, y: 250 },
+      { name: "Express", x: 786, y: 368 },
+      { name: "MongoDB", x: 650, y: 398 },
+      { name: "PostgreSQL", x: 488, y: 344 },
+    ],
+  },
+] as const;
+
+const CONST_EXTRA = [
+  { name: "Python", x: 372, y: 118 },
+  { name: "Java", x: 344, y: 336 },
+] as const;
+
+function CelestialField() {
   return (
-    <div className="co-bg" aria-hidden="true">
-      <div className="co-bg-sky" />
-      <div className="co-swirl co-swirl-a" />
-      <div className="co-swirl co-swirl-b" />
-      <div className="co-swirl co-swirl-c" />
-      <div className="co-swirl co-swirl-d" />
-      <div className="co-streak co-streak-a" />
-      <div className="co-streak co-streak-b" />
-      <div className="co-orb co-orb-gold" />
-      <div className="co-orb co-orb-cyan" />
-      <div className="co-orb co-orb-violet" />
-      <div className="co-stars">
+    <div className="sl-sky" aria-hidden="true">
+      <div className="sl-sky-base" />
+      <div className="sl-stars">
         {STARS.map((s, i) => (
           <i
             key={i}
-            className={s.cls}
+            className={s.gold ? "sl-star-gold" : ""}
             style={
               {
                 left: s.left,
@@ -147,177 +113,131 @@ function CelestialBackdrop() {
           />
         ))}
       </div>
-      <div className="co-noise" />
+      <div className="sl-vignette" />
+      <div className="sl-noise" />
     </div>
   );
 }
 
-function SystemPanel() {
+function HeroSky() {
   return (
-    <div className="co-panel" aria-hidden="true">
-      <div className="co-panel-head">
-        <span>SYSTEM STATUS</span>
-        <span className="co-plive">
-          <i /> LIVE
-        </span>
+    <div className="sl-hero-bg" aria-hidden="true">
+      <div className="sl-swirls">
+        <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" role="presentation">
+          <path d="M280 190 C 520 60, 900 95, 1190 250" />
+          <path d="M330 270 C 560 150, 920 175, 1170 315" />
+          <path d="M700 -50 C 920 20, 1180 35, 1430 190" />
+          <path d="M90 560 C 380 420, 780 490, 1090 650" />
+          <path d="M-60 710 C 300 550, 820 570, 1230 770" />
+          <path d="M240 385 C 410 300, 630 325, 800 435" />
+          <path d="M940 60 C 1080 20, 1260 40, 1360 150" />
+        </svg>
       </div>
-      {PANEL_ROWS.map(([name, status, cls]) => (
-        <div className="co-panel-row" key={name}>
-          <span>{name}</span>
-          <span className={`co-pst ${cls}`}>
-            <i /> {status}
-          </span>
-        </div>
-      ))}
+      <div className="sl-orb">
+        <i className="sl-orb-ring sl-orb-ring-a" />
+        <i className="sl-orb-ring sl-orb-ring-b" />
+      </div>
+      <div className="sl-orbs">
+        {ORBS.map((o, i) => (
+          <i
+            key={i}
+            className="sl-orb-mini"
+            style={
+              {
+                top: o.top,
+                ...(o.left !== undefined ? { left: o.left } : { right: o.right }),
+                "--o": o.o,
+                "--s": `${o.size}px`,
+                "--d": `${o.d}s`,
+              } as unknown as CSSProperties
+            }
+          />
+        ))}
+      </div>
+      <div className="sl-horizon-glow" />
+    </div>
+  );
+}
+
+function HeroLandscape() {
+  return (
+    <div className="sl-landscape" aria-hidden="true">
+      <svg viewBox="0 0 1440 340" preserveAspectRatio="none" role="presentation">
+        <path
+          d="M0 210 C 240 150, 480 200, 720 160 S 1200 140, 1440 190 L1440 340 L0 340 Z"
+          fill="#102E59"
+          opacity="0.5"
+        />
+        <path
+          d="M0 250 C 300 200, 620 240, 960 210 S 1300 210, 1440 250 L1440 340 L0 340 Z"
+          fill="#0A1E3B"
+        />
+        <path
+          d="M0 305 C 260 262, 560 292, 860 276 S 1280 272, 1440 296 L1440 340 L0 340 Z"
+          fill="#061226"
+        />
+        <path d="M560 340 L622 290 L712 290 L772 340 Z" fill="#020711" />
+        <circle cx="480" cy="214" r="2" fill="#FFD978" opacity="0.95" />
+        <circle cx="480" cy="214" r="7" fill="#FFD978" opacity="0.18" />
+        <circle cx="905" cy="196" r="2" fill="#FFD978" opacity="0.9" />
+        <circle cx="905" cy="196" r="7" fill="#FFD978" opacity="0.16" />
+        <circle cx="1150" cy="238" r="1.6" fill="#FFF0B0" opacity="0.85" />
+        <circle cx="300" cy="250" r="1.6" fill="#FFF0B0" opacity="0.8" />
+        <circle cx="622" cy="266" r="1.5" fill="#FFD978" opacity="0.8" />
+      </svg>
     </div>
   );
 }
 
 function Silhouette() {
   return (
-    <div className="co-stage" aria-hidden="true">
-      <div className="co-horizon" />
-      <svg className="co-sil" viewBox="0 0 240 260" role="presentation">
-        <defs>
-          <radialGradient id="coSilGlow" cx="50%" cy="100%" r="72%">
-            <stop offset="0%" stopColor="#f5c76a" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="#f5c76a" stopOpacity="0" />
-          </radialGradient>
-          <linearGradient id="coSilBody" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#0c1a30" />
-            <stop offset="100%" stopColor="#050b18" />
-          </linearGradient>
-        </defs>
-        <ellipse cx="120" cy="236" rx="92" ry="24" fill="url(#coSilGlow)" />
-        <circle cx="120" cy="62" r="21" fill="url(#coSilBody)" />
-        <path
-          d="M151 112 L120 99 L89 112 L81 252 L159 252 Z"
-          fill="url(#coSilBody)"
-          stroke="rgba(97,218,255,0.28)"
-          strokeWidth="1"
-        />
-        <path d="M89 112 L120 99" stroke="rgba(97,218,255,0.4)" strokeWidth="1.4" fill="none" />
-        <path d="M101 52 a20 20 0 0 1 34 -2" stroke="rgba(97,218,255,0.35)" strokeWidth="1.2" fill="none" />
-        <circle cx="182" cy="58" r="4" fill="#f5c76a" opacity="0.95" />
-        <circle cx="182" cy="58" r="12" fill="none" stroke="rgba(245,199,106,0.35)" strokeWidth="1" />
-        <path d="M158 40 h14 M170 28 v12" stroke="rgba(245,199,106,0.5)" strokeWidth="1.2" />
-        <path d="M60 118 h18 M69 109 v18" stroke="rgba(97,218,255,0.35)" strokeWidth="1.1" />
+    <div className="sl-sil" aria-hidden="true">
+      <svg viewBox="0 0 180 240" role="presentation">
+        <g transform="rotate(-7 90 140)">
+          <circle cx="90" cy="52" r="21" fill="#020711" />
+          <path
+            d="M151 118 L120 106 L89 120 L81 252 L159 252 L151 118 Z"
+            fill="#020711"
+            stroke="rgba(2,7,17,0.9)"
+            strokeWidth="1"
+          />
+          <path
+            d="M91 30 a20 19 0 0 1 28 -4"
+            stroke="rgba(245,201,95,0.5)"
+            strokeWidth="1.6"
+            fill="none"
+          />
+          <path
+            d="M132 96 a38 46 0 0 1 14 16"
+            stroke="rgba(245,201,95,0.3)"
+            strokeWidth="1.4"
+            fill="none"
+          />
+        </g>
       </svg>
     </div>
   );
 }
 
-function ExtVisual() {
+function MiniScene() {
   return (
-    <div className="co-ext" aria-hidden="true">
-      <div className="co-ext-bar">
-        <i />
-        <i />
-        <i />
-        <span className="co-ext-url">extension-ai · manifest v3</span>
-      </div>
-      <div className="co-ext-body">
-        <div className="co-ext-pane">
-          <span className="co-ext-prompt">&gt; build a tab manager</span>
-          <br />
-          <span>…generates manifest.json · popup · content script</span>
-        </div>
-        <div className="co-ext-pane">
-          <span className="co-ext-ok">✓ working extension</span>
-          <br />
-          <span className="co-ext-ok">✓ live preview rendered</span>
-          <br />
-          <span className="co-ext-tag">ZIP READY</span>
-        </div>
-      </div>
+    <div className="sl-scene" aria-hidden="true">
+      <div className="sl-scene-orb" />
+      <div className="sl-scene-swirl" />
+      <div className="sl-scene-hills" />
     </div>
   );
 }
 
-function ProjectCard({ p, n, index }: { p: (typeof projects)[number]; n: string; index: number }) {
-  return (
-    <motion.article className="co-card" {...reveal(index * 0.08)}>
-      <div
-        className="co-card-visual"
-        aria-hidden="true"
-        style={{ "--ca": p.accent[0], "--ca-glow": `${p.accent[0]}38` } as CSSProperties}
-      >
-        <div className="co-cv-orb" />
-        <span className="co-cv-num">{n} // MISSION</span>
-        <span className="co-cv-name">{p.name.toUpperCase()}</span>
-      </div>
-      <div className="co-card-body">
-        <span className="co-card-num">{n}</span>
-        <h3>{p.name}</h3>
-        <p>{p.tagline}</p>
-        <ul className="co-chips" aria-label={`${p.name} technologies`}>
-          {p.tech.map((t) => (
-            <li key={t}>{t}</li>
-          ))}
-        </ul>
-        <div className="co-cardlinks co-cardlinks--push">
-          <a href={p.github} target="_blank" rel="noopener noreferrer">
-            GitHub <ArrowUpRight size={13} />
-          </a>
-          {p.live && (
-            <a href={p.live} target="_blank" rel="noopener noreferrer">
-              Live demo <ArrowUpRight size={13} />
-            </a>
-          )}
-        </div>
-      </div>
-    </motion.article>
-  );
-}
-
-function SolarSystem() {
-  return (
-    <div
-      className="co-solar"
-      role="img"
-      aria-label={`The system — an AI and full-stack core orbited by six technology planets. ${PLANETS.map(
-        (p) => `${p.label} with ${p.techs.join(", ")}`
-      ).join("; ")}.`}
-    >
-      <div className="co-solar-map" aria-hidden="true">
-        <div className="co-solar-core">
-          <span className="co-sun" />
-          <span className="co-sun-name">THE SYSTEM</span>
-        </div>
-        {PLANETS.map((p) => (
-          <div
-            className="co-orbit-wrap"
-            key={p.label}
-            style={{ "--orb": p.orbit, "--angle": `${p.angle}deg` } as CSSProperties}
-          >
-            <div className="co-orbit" style={{ "--speed": `${p.speed}s` } as CSSProperties}>
-              <div className={`co-planet ${p.cls}`}>
-                <span className="co-planet-body" />
-                <span className="co-planet-name">{p.label}</span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="co-ss-list">
-        {PLANETS.map((p) => (
-          <div className={`co-cc-cluster ${p.cls}`} key={p.label}>
-            <span className="co-cc-name">{p.label.toUpperCase()}</span>
-            <span className="co-cc-chips">
-              {p.techs.map((t) => (
-                <span className="co-cc-chip" key={t}>
-                  {t}
-                </span>
-              ))}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function CosmosNav({ active, go }: { active: string; go: (id: string) => void }) {
+function StarlightNav({
+  active,
+  go,
+  scrolled,
+}: {
+  active: string;
+  go: (id: string) => void;
+  scrolled: boolean;
+}) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -331,12 +251,11 @@ function CosmosNav({ active, go }: { active: string; go: (id: string) => void })
 
   return (
     <>
-      <nav className="co-nav" aria-label="Primary">
-        <span className="co-nav-mark">
-          SREE VARDHAN <b>V.</b>
+      <nav className={`sl-nav${scrolled ? " is-scrolled" : ""}`} aria-label="Primary">
+        <span className="sl-nav-name">
+          Sree Vardhan <b>V.</b>
         </span>
-        <span className="co-nav-divider" aria-hidden="true" />
-        <ul className="co-nav-links">
+        <ul className="sl-nav-links">
           {SECTIONS.map((s) => (
             <li key={s.id}>
               <button
@@ -352,17 +271,17 @@ function CosmosNav({ active, go }: { active: string; go: (id: string) => void })
         </ul>
         <button
           type="button"
-          className="co-nav-burger"
+          className="sl-nav-burger"
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
         >
-          {open ? <X size={16} /> : <Menu size={16} />}
+          {open ? <X size={15} /> : <Menu size={15} />}
         </button>
       </nav>
 
       {open && (
-        <nav className="co-nav-mobile" aria-label="Primary mobile">
+        <nav className="sl-nav-mobile" aria-label="Primary mobile">
           {SECTIONS.map((s) => (
             <button
               key={s.id}
@@ -382,10 +301,130 @@ function CosmosNav({ active, go }: { active: string; go: (id: string) => void })
   );
 }
 
+function FeaturedProject({ p }: { p: (typeof projects)[number] }) {
+  return (
+    <article className="sl-featured">
+      <div className="sl-featured-frame">
+        <MiniScene />
+        <span className="sl-fp-num">01</span>
+        <span className="sl-fp-name">EXTENSION AI</span>
+        <span className="sl-fp-cat">PRODUCT ENGINEERING · MANIFEST V3</span>
+      </div>
+      <div className="sl-featured-meta">
+        <h3>{p.name}</h3>
+        <p>
+          An AI-powered platform that turns natural-language prompts into working Chrome
+          extensions.
+        </p>
+        <ul className="sl-chips" aria-label={`${p.name} technologies`}>
+          {p.tech.map((t) => (
+            <li key={t}>{t}</li>
+          ))}
+        </ul>
+        <div className="sl-links">
+          <a href={p.github} target="_blank" rel="noopener noreferrer">
+            GitHub <ArrowUpRight size={13} />
+          </a>
+          {p.live && (
+            <a href={p.live} target="_blank" rel="noopener noreferrer">
+              Live demo <ArrowUpRight size={13} />
+            </a>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function ProjectEntry({ p, n, index }: { p: (typeof projects)[number]; n: string; index: number }) {
+  return (
+    <motion.article className="sl-entry" {...reveal(index * 0.06)}>
+      <div className="sl-entry-frame">
+        <MiniScene />
+      </div>
+      <div className="sl-entry-body">
+        <span className="sl-entry-num">{n}</span>
+        <h3>{p.name}</h3>
+        <p>{p.tagline}</p>
+        <a href={p.github} target="_blank" rel="noopener noreferrer">
+          GitHub <ArrowUpRight size={12} />
+        </a>
+      </div>
+      <span className="sl-entry-arrow" aria-hidden="true">
+        ↗
+      </span>
+    </motion.article>
+  );
+}
+
+function Constellation() {
+  return (
+    <div
+      className="sl-constellation"
+      role="img"
+      aria-label="Technology constellation. Generative AI: Gemini, Claude, Groq and AI Agents. Full stack: React, TypeScript, Node.js, Express, MongoDB and PostgreSQL. Additional languages: Python and Java."
+    >
+      <svg viewBox="0 0 900 460" role="presentation">
+        <line x1="310" y1="230" x2="560" y2="230" className="sl-cst-flow" />
+        {CONST_CLUSTERS.map((c) => (
+          <g key={c.label} className={c.gold ? "sl-cst-gold" : "sl-cst-blue"}>
+            {c.nodes.map((n) => (
+              <line key={n.name} x1={c.cx} y1={c.cy} x2={n.x} y2={n.y} className="sl-cst-line" />
+            ))}
+            <circle cx={c.cx} cy={c.cy} r="4" className="sl-cst-core" />
+            {c.nodes.map((n) => (
+              <g key={n.name}>
+                <circle cx={n.x} cy={n.y} r="2.6" className="sl-cst-node" />
+                <text x={n.x} y={n.y + 22} className="sl-cst-label">
+                  {n.name}
+                </text>
+              </g>
+            ))}
+            <text x={c.cx} y={c.cy + 18} className="sl-cst-main">
+              {c.label}
+            </text>
+          </g>
+        ))}
+        {CONST_EXTRA.map((n) => (
+          <g key={n.name} className="sl-cst-dim">
+            <circle cx={n.x} cy={n.y} r="2.2" className="sl-cst-node" />
+            <text x={n.x} y={n.y + 22} className="sl-cst-label">
+              {n.name}
+            </text>
+          </g>
+        ))}
+      </svg>
+      <div className="sl-cst-list">
+        {[...CONST_CLUSTERS, { label: "MORE", gold: true, nodes: CONST_EXTRA }].map((c) => (
+          <div className={`sl-cst-card${c.gold ? " is-gold" : ""}`} key={c.label}>
+            <span className="sl-cst-card-name">{c.label}</span>
+            <span className="sl-cst-card-chips">
+              {c.nodes.map((n) => (
+                <span className="sl-cst-chip" key={n.name}>
+                  {n.name}
+                </span>
+              ))}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function CosmosSite() {
-  const [active, setActive] = useState("home");
+  const [active, setActive] = useState("work");
+  const [scrolled, setScrolled] = useState(false);
   const { scrollY } = useScroll();
-  const heroY = useTransform(scrollY, [0, 900], [0, 120]);
+  const heroRef = useRef<HTMLElement | null>(null);
+
+  const heroProg = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const skyY = useTransform(heroProg.scrollYProgress, [0, 1], [0, 150]);
+  const hillsY = useTransform(heroProg.scrollYProgress, [0, 1], [0, -70]);
+  const heroFade = useTransform(heroProg.scrollYProgress, [0, 0.7], [1, 0]);
+  const heroUp = useTransform(heroProg.scrollYProgress, [0, 0.7], [0, -40]);
+
+  useMotionValueEvent(scrollY, "change", (v) => setScrolled(v > 40));
 
   useEffect(() => {
     const obs = new IntersectionObserver(
@@ -410,224 +449,201 @@ export function CosmosSite() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="co-root">
-        <CelestialBackdrop />
-        <a className="co-skip" href="#projects">
+      <div className="sl-root">
+        <div className="sl-sky-layer">
+          <motion.div style={{ y: skyY }}>
+            <CelestialField />
+          </motion.div>
+        </div>
+        <a className="sl-skip" href="#work">
           Skip to content
         </a>
-        <CosmosNav active={active} go={go} />
+        <StarlightNav active={active} go={go} scrolled={scrolled} />
 
-        <main className="co-frame">
-          <section className="co-hero" id="home">
-            <motion.div className="co-hero-inner" style={{ y: heroY }}>
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
+        <main>
+          <section className="sl-hero" id="home" ref={heroRef}>
+            <motion.div className="sl-hero-bg" style={{ y: skyY }}>
+              <HeroSky />
+            </motion.div>
+            <motion.div className="sl-hero-copy" style={{ opacity: heroFade, y: heroUp }}>
+              <motion.p
+                className="sl-eyebrow"
+                initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.9, delay: 0.15, ease: EASE }}
+                transition={{ duration: 0.9, delay: 0.1, ease: EASE }}
               >
-                <p className="co-eyebrow">
-                  <span className="co-dot" />
-                  <span>
-                    <b>Sree Vardhan V.</b> — Generative AI Developer
-                  </span>
-                </p>
-                <h1 className="co-title">
-                  Building
-                  <br />
-                  <span className="co-grad">Intelligence</span>
-                  <br />
-                  into software.
-                </h1>
-                <p className="co-lede">
-                  I build AI-powered products and full-stack systems, combining modern web
-                  technologies with Generative AI to turn ideas into useful software.
-                </p>
-                <div className="co-actions">
-                  <a className="co-btn co-btn-solid" href="#projects" onClick={(e) => {
+                <span className="sl-eyebrow-name">Sree Vardhan V.</span>
+                <span className="sl-eyebrow-role">— Generative AI Developer</span>
+              </motion.p>
+              <motion.h1
+                className="sl-title"
+                initial={{ opacity: 0, y: 22 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.22, ease: EASE }}
+              >
+                Building
+                <br />
+                <span className="sl-title-gold">Intelligence</span>
+                <br />
+                into software.
+              </motion.h1>
+              <motion.p
+                className="sl-lede"
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, delay: 0.4, ease: EASE }}
+              >
+                I build AI-powered products and full-stack systems, combining modern web
+                technologies with Generative AI to turn ideas into useful software.
+              </motion.p>
+              <motion.div
+                className="sl-actions"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, delay: 0.52, ease: EASE }}
+              >
+                <a
+                  className="sl-btn sl-btn-gold"
+                  href="#work"
+                  onClick={(e) => {
                     e.preventDefault();
-                    go("projects");
-                  }}>
-                    View selected work <ArrowUpRight size={15} />
-                  </a>
-                  <a className="co-btn" href={site.github} target="_blank" rel="noopener noreferrer">
-                    GitHub <ArrowUpRight size={15} />
-                  </a>
-                </div>
+                    go("work");
+                  }}
+                >
+                  View selected work <ArrowUpRight size={15} />
+                </a>
+                <a className="sl-btn" href={site.github} target="_blank" rel="noopener noreferrer">
+                  GitHub <ArrowUpRight size={15} />
+                </a>
               </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.9, delay: 0.32, ease: EASE }}
+              <motion.p
+                className="sl-meta"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1.2, delay: 0.72 }}
               >
-                <SystemPanel />
-              </motion.div>
+                AI SYSTEMS · FULL-STACK · GENERATIVE AI · PRODUCT ENGINEERING
+              </motion.p>
             </motion.div>
 
+            <motion.div className="sl-landscape-layer" style={{ y: hillsY }}>
+              <HeroLandscape />
+            </motion.div>
             <Silhouette />
-            <div className="co-cue" aria-hidden="true">
+            <div className="sl-cue" aria-hidden="true">
               <span />
-              scroll to explore
+              scroll
             </div>
           </section>
 
-          <section className="co-section" id="projects">
+          <section className="sl-section" id="work">
             <motion.div {...reveal()}>
-              <p className="co-label">01 · the work</p>
-              <h2 className="co-h2">
-                Selected <span className="co-grad">missions</span>
+              <p className="sl-label">01 · the work</p>
+              <h2 className="sl-h2">
+                Selected <span className="sl-gold">work</span>
               </h2>
-              <p className="co-sub">
-                Real products, real repos — AI tooling, full-stack systems, and
-                developer utilities that shipped.
-              </p>
             </motion.div>
 
-            <motion.div className="co-featured" {...reveal(0.08)}>
-              <ExtVisual />
-              <div>
-                <span className="co-fnum">01</span>
-                <h3 className="co-fmark">{featured.name}</h3>
-                <p className="co-fdesc">
-                  An AI-powered platform that turns natural-language prompts into working
-                  Chrome extensions — generated, previewed, and packaged in one flow.
-                </p>
-                <ul className="co-chips" aria-label={`${featured.name} technologies`}>
-                  {featured.tech.map((t) => (
-                    <li key={t}>{t}</li>
-                  ))}
-                </ul>
-                <div className="co-cardlinks">
-                  <a href={featured.github} target="_blank" rel="noopener noreferrer">
-                    GitHub <ArrowUpRight size={14} />
-                  </a>
-                  {featured.live && (
-                    <a href={featured.live} target="_blank" rel="noopener noreferrer">
-                      Live app <ArrowUpRight size={14} />
-                    </a>
-                  )}
-                </div>
-              </div>
+            <motion.div {...reveal(0.06)}>
+              <FeaturedProject p={featured} />
             </motion.div>
 
-            <div className="co-grid">
+            <div className="sl-entries">
               {rest.map((p, i) => (
-                <ProjectCard key={p.slug} p={p} n={String(i + 2).padStart(2, "0")} index={i % 2} />
+                <ProjectEntry key={p.slug} p={p} n={String(i + 2).padStart(2, "0")} index={i % 2} />
               ))}
             </div>
           </section>
 
-          <section className="co-section" id="journey">
+          <section className="sl-section" id="journey">
             <motion.div {...reveal()}>
-              <p className="co-label">02 · the journey</p>
-              <h2 className="co-h2">Journey</h2>
-              <p className="co-sub">
-                Shipping software and learning how AI products move from prototype to production.
-              </p>
+              <p className="sl-label">02 · the journey</p>
+              <h2 className="sl-h2">Journey</h2>
             </motion.div>
 
-            <ol className="co-timeline">
+            <ol className="sl-timeline">
               {experience.map((e, i) => (
-                <li className="co-tl-item" key={`${e.company}-${i}`} style={{ "--tl-accent": e.accent } as CSSProperties}>
-                  <span className="co-tl-dot" aria-hidden="true" />
-                  <motion.div {...reveal(i * 0.06)}>
-                    <div className="co-tl-role">{e.role}</div>
-                    <div className="co-tl-co">{e.company}</div>
-                    <div className="co-tl-period">{e.period}</div>
-                    <ul className="co-tl-points">
-                      {e.points.map((pt) => (
-                        <li key={pt}>{pt}</li>
-                      ))}
-                    </ul>
+                <li className="sl-tl-item" key={`${e.company}-${i}`}>
+                  <span className="sl-tl-dot" aria-hidden="true" />
+                  <motion.div {...reveal(i * 0.05)}>
+                    <div className="sl-tl-role">{e.role}</div>
+                    <div className="sl-tl-co">{e.company}</div>
+                    <div className="sl-tl-period">{e.period}</div>
+                    <p className="sl-tl-line">{e.points[0]}</p>
                   </motion.div>
                 </li>
               ))}
             </ol>
           </section>
 
-          <section className="co-section" id="profile">
+          <section className="sl-section sl-profile" id="profile">
             <motion.div {...reveal()}>
-              <p className="co-label">03 · profile</p>
-              <h2 className="co-h2">Profile</h2>
-            </motion.div>
-
-            <div className="co-profile">
-              <motion.div className="co-prose" {...reveal(0.06)}>
+              <p className="sl-label">03 · profile</p>
+              <h2 className="sl-h2">Profile</h2>
+              <div className="sl-prose">
                 <p>
-                  I&rsquo;m a <strong>Computer Science undergraduate</strong> focused on Generative
-                  AI, full-stack development, and building useful software products.
+                  I&rsquo;m a Computer Science undergraduate focused on Generative AI,
+                  full-stack development, and building useful software products.
                 </p>
                 <p>
                   I enjoy working across the stack — from React interfaces and Node.js APIs to
-                  databases and LLM integrations. Most of my learning happens through building
-                  and shipping real projects.
+                  databases and LLM integrations.
                 </p>
-              </motion.div>
-              <motion.dl className="co-meta" {...reveal(0.12)}>
-                <div className="co-meta-row">
-                  <dt>Location</dt>
-                  <dd>Kurnool, India</dd>
-                </div>
-                <div className="co-meta-row">
-                  <dt>Education</dt>
-                  <dd>NMAM Institute of Technology</dd>
-                </div>
-                <div className="co-meta-row">
-                  <dt>Focus</dt>
-                  <dd>Generative AI · Full Stack · Developer Tools</dd>
-                </div>
-                <div className="co-meta-row">
-                  <dt>Voice</dt>
-                  <dd>{site.tagline}</dd>
-                </div>
-              </motion.dl>
-            </div>
+              </div>
+              <p className="sl-prose-meta">
+                KURNOOL, INDIA · NMAM INSTITUTE OF TECHNOLOGY · GENERATIVE AI / FULL STACK / DEV
+                TOOLS
+              </p>
+            </motion.div>
           </section>
 
-          <section className="co-section" id="stack">
+          <section className="sl-section" id="stack">
             <motion.div {...reveal()}>
-              <p className="co-label">04 · the system</p>
-              <h2 className="co-h2">The system</h2>
-              <p className="co-sub">
-                One core — AI × full stack — with six planets orbiting it. The stack I build
-                with every day.
-              </p>
+              <p className="sl-label">04 · the system</p>
+              <h2 className="sl-h2">
+                The <span className="sl-gold">system</span>
+              </h2>
+              <p className="sl-sub">The stars I build with.</p>
             </motion.div>
 
             <motion.div {...reveal(0.06)}>
-              <SolarSystem />
+              <Constellation />
             </motion.div>
           </section>
         </main>
 
-        <section className="co-contact" id="contact">
-          <div className="co-contact-glow" aria-hidden="true" />
+        <section className="sl-contact" id="contact">
+          <div className="sl-contact-glow" aria-hidden="true" />
+          <div className="sl-contact-hills" aria-hidden="true" />
           <motion.div {...reveal()}>
-            <h2>
+            <p className="sl-label">05 · the invitation</p>
+            <h2 className="sl-contact-title">
               Let&rsquo;s build
               <br />
-              <span className="co-grad">something</span>
+              <span>something</span>
               <br />
-              <span className="co-grad-gold">intelligent.</span>
+              <span className="sl-gold">intelligent.</span>
             </h2>
-            <p>Have an idea, project, or opportunity? Let&rsquo;s build something useful.</p>
-            <div className="co-actions">
-              <a className="co-btn co-btn-solid co-btn-gold" href={`mailto:${site.email}`}>
+            <p className="sl-contact-sub">
+              Have an idea, project, or opportunity? Let&rsquo;s build something useful.
+            </p>
+            <div className="sl-actions">
+              <a className="sl-btn sl-btn-gold" href={`mailto:${site.email}`}>
                 Contact me <ArrowUpRight size={15} />
               </a>
-              <a className="co-btn" href={site.github} target="_blank" rel="noopener noreferrer">
+              <a className="sl-btn" href={site.github} target="_blank" rel="noopener noreferrer">
                 GitHub <ArrowUpRight size={15} />
               </a>
             </div>
           </motion.div>
         </section>
 
-        <div className="co-frame">
-          <footer className="co-foot">
-            <span>
-              <span className="co-foot-name">{site.name}.</span> Generative AI Developer
+        <div className="sl-frame">
+          <footer className="sl-foot">
+            <span className="sl-foot-name">
+              Sree Vardhan V. <span>Generative AI Developer</span>
             </span>
-            <span className="co-foot-links">
+            <span className="sl-foot-links">
               <a href={site.github} target="_blank" rel="noopener noreferrer">
                 <Icon.github width={12} height={12} /> GitHub
               </a>

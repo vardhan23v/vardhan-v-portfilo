@@ -62,6 +62,20 @@ h1, h2, h3, p {
   flex-direction: column;
 }
 
+.landing-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 10000;
+  background: linear-gradient(90deg, #7c6cff, #a78bfa 55%, #7c6cff);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  will-change: transform;
+  pointer-events: none;
+}
+
 .landing-main {
   flex: 1;
   width: 100%;
@@ -75,6 +89,7 @@ h1, h2, h3, p {
 
 .landing-head {
   animation: lfade 0.5s ease both;
+  will-change: opacity, transform;
 }
 
 .landing-eyebrow {
@@ -157,17 +172,19 @@ h1, h2, h3, p {
   font-weight: 600;
   letter-spacing: 0.01em;
   text-decoration: none;
+  transform: translateY(0) translate(var(--mx, 0px), var(--my, 0px));
   transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+  will-change: transform;
 }
 
 .l-cta:hover {
   color: var(--text);
   border-color: rgba(255, 255, 255, 0.22);
-  transform: translateY(-1px);
+  transform: translateY(-1px) translate(var(--mx, 0px), var(--my, 0px));
 }
 
 .l-cta:active {
-  transform: translateY(0) scale(0.98);
+  transform: translateY(0) scale(0.98) translate(var(--mx, 0px), var(--my, 0px));
 }
 
 .l-cta-primary:active {
@@ -703,6 +720,19 @@ h1, h2, h3, p {
   font-size: 12.5px;
   letter-spacing: 0.06em;
   color: var(--text-3);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.landing-note:not(.is-in),
+.landing-foot:not(.is-in) {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.landing-note.is-in,
+.landing-foot.is-in {
+  opacity: 1;
+  transform: none;
 }
 
 .landing-foot {
@@ -717,6 +747,7 @@ h1, h2, h3, p {
   flex-wrap: wrap;
   font-size: 13px;
   color: var(--text-3);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .landing-links {
@@ -773,6 +804,10 @@ h1, h2, h3, p {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .landing-progress {
+    display: none;
+  }
+
   *,
   *::before,
   *::after {

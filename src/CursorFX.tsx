@@ -46,13 +46,25 @@ export function CursorFX() {
       ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
       raf = requestAnimationFrame(tick);
     };
-
-    window.addEventListener("mousemove", onMove, { passive: true });
+window.addEventListener("mousemove", onMove, { passive: true });
     document.addEventListener("mouseover", onOver, { passive: true });
+
+    let pulseTimer = 0;
+    const onClick = () => {
+      fx.classList.remove("cur-pulse");
+      void fx.offsetWidth;
+      fx.classList.add("cur-pulse");
+      window.clearTimeout(pulseTimer);
+      pulseTimer = window.setTimeout(() => fx.classList.remove("cur-pulse"), 450);
+    };
+    document.addEventListener("mousedown", onClick, { passive: true });
+
     raf = requestAnimationFrame(tick);
     return () => {
       window.removeEventListener("mousemove", onMove);
       document.removeEventListener("mouseover", onOver);
+      document.removeEventListener("mousedown", onClick);
+      window.clearTimeout(pulseTimer);
       cancelAnimationFrame(raf);
     };
   }, []);

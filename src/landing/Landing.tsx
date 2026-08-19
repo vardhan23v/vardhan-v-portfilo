@@ -43,7 +43,7 @@ export function Landing() {
   }, []);
 
   useEffect(() => {
-    const els = document.querySelectorAll(".edition-tilt");
+    const els = document.querySelectorAll(".edition-tilt, [data-land-reveal]");
     const io = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
@@ -53,14 +53,63 @@ export function Landing() {
           }
         }
       },
-      { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
+      { threshold: 0.15, rootMargin: "0px 0px -4% 0px" }
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
   }, []);
 
+  useEffect(() => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const head = document.querySelector<HTMLElement>(".landing-head");
+    const bar = document.querySelector<HTMLElement>(".landing-progress");
+
+    const onScroll = () => {
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - doc.clientHeight;
+      if (bar) bar.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
+      if (head && !reduced) {
+        const y = Math.min(window.scrollY, 500);
+        head.style.opacity = String(1 - y / 460);
+        head.style.transform = `translateY(${y * 0.18}px)`;
+      }
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+    const magnet = (btn: HTMLElement) => {
+      const onMove = (e: MouseEvent) => {
+        const r = btn.getBoundingClientRect();
+        if (r.width === 0) return;
+        const dx = (e.clientX - (r.left + r.width / 2)) / r.width;
+        const dy = (e.clientY - (r.top + r.height / 2)) / r.height;
+        btn.style.setProperty("--mx", `${(dx * 10).toFixed(2)}px`);
+        btn.style.setProperty("--my", `${(dy * 7).toFixed(2)}px`);
+      };
+      const reset = () => {
+        btn.style.removeProperty("--mx");
+        btn.style.removeProperty("--my");
+      };
+      btn.addEventListener("mousemove", onMove);
+      btn.addEventListener("mouseleave", reset);
+      return () => {
+        btn.removeEventListener("mousemove", onMove);
+        btn.removeEventListener("mouseleave", reset);
+      };
+    };
+    const buttons = document.querySelectorAll<HTMLElement>(".l-cta");
+    const cleanups = [...buttons].map(magnet);
+    return () => cleanups.forEach((f) => f());
+  }, []);
+
   return (
     <div className="landing-root">
+      <div className="landing-progress" aria-hidden="true" />
       <main className="landing-main">
         <header className="landing-head">
           <p className="landing-eyebrow">sree vardhan v — generative-ai · full-stack</p>
@@ -243,10 +292,10 @@ export function Landing() {
           </EditionCard>
         </div>
 
-        <p className="landing-note">switch editions from any page</p>
+        <p className="landing-note" data-land-reveal>switch editions from any page</p>
       </main>
 
-      <footer className="landing-foot">
+      <footer className="landing-foot" data-land-reveal>
         <span>© 2026 {site.name}</span>
         <span className="landing-links">
           <a href={site.github} target="_blank" rel="noopener noreferrer">

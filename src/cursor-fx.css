@@ -55,6 +55,15 @@
   opacity: 0.3;
 }
 
+.cur-fx.cur-pulse .cur-ring-inner {
+  animation: cur-pulse 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes cur-pulse {
+  0% { transform: scale(1.6); opacity: 1; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
 .cur-fx[data-cur="term"] { --cur-accent: #36e57c; }
 .cur-fx[data-cur="classic"] { --cur-accent: #c9c3ff; }
 .cur-fx[data-cur="paper"] { --cur-accent: #be4b2a; }

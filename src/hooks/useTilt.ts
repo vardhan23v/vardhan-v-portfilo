@@ -17,11 +17,15 @@ export function useTilt<T extends HTMLElement>(maxDeg = 6, target?: string) {
       const py = (e.clientY - r.top) / r.height - 0.5;
       targetEl.style.setProperty("--rx", (-py * maxDeg).toFixed(2) + "deg");
       targetEl.style.setProperty("--ry", (px * maxDeg).toFixed(2) + "deg");
+      targetEl.style.setProperty("--mx", ((px + 0.5) * 100).toFixed(1) + "%");
+      targetEl.style.setProperty("--my", ((py + 0.5) * 100).toFixed(1) + "%");
     };
 
     const onLeave = () => {
       targetEl.style.removeProperty("--rx");
       targetEl.style.removeProperty("--ry");
+      targetEl.style.removeProperty("--mx");
+      targetEl.style.removeProperty("--my");
     };
 
     el.addEventListener("mousemove", onMove);

@@ -42,7 +42,7 @@ for (const [w, h] of viewports) {
         const s = getComputedStyle(el);
         if (s.position === "fixed") continue;
         const cls = el.className?.toString?.() || "";
-        if (/au-blob|hero-neural|bg-grid|bg-glow/.test(cls)) continue;
+        if (/au-blob|hero-neural|bg-grid|bg-glow|cur-ring|cur-dot|cur-fx/.test(cls)) continue;
         let clipped = false;
         let a = el.parentElement;
         while (a) {

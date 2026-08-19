@@ -2,23 +2,31 @@ import { type ReactNode, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { useTilt } from "../hooks/useTilt";
+import { CursorFX } from "./CursorFX";
 import { site } from "../classic/data/site";
 
 function EditionCard({
   to,
   label,
   className,
+  cursor,
   children,
 }: {
   to: string;
   label: string;
   className: string;
+  cursor: string;
   children: ReactNode;
 }) {
   const ref = useTilt<HTMLDivElement>(6, ".edition-card");
   return (
     <div ref={ref} className="edition-tilt" role="listitem">
-      <Link to={to} className={`edition-card ${className}`} aria-label={label}>
+      <Link
+        to={to}
+        className={`edition-card ${className}`}
+        aria-label={label}
+        data-cursor={cursor}
+      >
         {children}
       </Link>
     </div>
@@ -35,8 +43,26 @@ export function Landing() {
     window.scrollTo(0, 0);
   }, []);
 
+  useEffect(() => {
+    const els = document.querySelectorAll(".edition-tilt");
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            e.target.classList.add("is-in");
+            io.unobserve(e.target);
+          }
+        }
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
   return (
     <div className="landing-root">
+      <CursorFX />
       <main className="landing-main">
         <header className="landing-head">
           <p className="landing-eyebrow">sree vardhan v — generative-ai · full-stack</p>
@@ -86,7 +112,7 @@ export function Landing() {
         </p>
 
         <div className="edition-grid" id="editions" role="list" aria-label="Portfolio interfaces — choose an edition">
-          <EditionCard to="/terminal" label="Open the Terminal interface" className="ed-term">
+          <EditionCard to="/terminal" label="Open the Terminal interface" className="ed-term" cursor="term">
             <div className="mini-term" aria-hidden="true">
               <div className="mini-body">
                 {terminalLines.map((l, i) => (
@@ -112,7 +138,7 @@ export function Landing() {
             </div>
           </EditionCard>
 
-          <EditionCard to="/classic" label="Open the Classic interface" className="ed-classic">
+          <EditionCard to="/classic" label="Open the Classic interface" className="ed-classic" cursor="classic">
             <div className="mini-classic" aria-hidden="true">
               <div className="mc-name">
                 VARDHAN<span className="mc-dot">.</span>V
@@ -134,7 +160,7 @@ export function Landing() {
             </div>
           </EditionCard>
 
-          <EditionCard to="/paper" label="Open the Paper interface" className="ed-paper">
+          <EditionCard to="/paper" label="Open the Paper interface" className="ed-paper" cursor="paper">
             <div className="mini-paper" aria-hidden="true">
               <div className="mp-name">
                 Sree Vardhan
@@ -160,7 +186,7 @@ export function Landing() {
             </div>
           </EditionCard>
 
-          <EditionCard to="/aurora" label="Open the Aurora interface" className="ed-aurora">
+          <EditionCard to="/aurora" label="Open the Aurora interface" className="ed-aurora" cursor="aurora">
             <div className="mini-aurora" aria-hidden="true">
               <span className="ma-blob pink" />
               <span className="ma-blob cyan" />
@@ -184,7 +210,7 @@ export function Landing() {
             </div>
           </EditionCard>
 
-          <EditionCard to="/forge" label="Open the Forge interface" className="ed-forge">
+          <EditionCard to="/forge" label="Open the Forge interface" className="ed-forge" cursor="forge">
             <div className="mini-forge" aria-hidden="true">
               <div className="mf-name">
                 Sree Vardhan <span className="mf-dot">V.</span>

@@ -50,6 +50,20 @@
     radial-gradient(900px 480px at 8% 24%, rgba(167, 139, 250, 0.06), transparent 60%);
 }
 
+.fg-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 60;
+  pointer-events: none;
+  background: linear-gradient(90deg, #7dd3fc, #a78bfa 55%, #c4b5fd);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  will-change: transform;
+}
+
 .forge-main {
   position: relative;
   z-index: 1;
@@ -149,6 +163,7 @@
 }
 
 .fg-nav-links a {
+  position: relative;
   font-family: var(--fg-mono);
   font-size: 11.5px;
   letter-spacing: 0.12em;
@@ -158,8 +173,27 @@
   transition: color 0.2s ease;
 }
 
-.fg-nav-links a:hover {
+.fg-nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--fg-cyan), transparent 80%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fg-nav-links a:hover,
+.fg-nav-links a.is-active {
   color: var(--fg-text);
+}
+
+.fg-nav-links a:hover::after,
+.fg-nav-links a.is-active::after {
+  transform: scaleX(1);
 }
 
 .fg-nav-links .fg-nav-gh {
@@ -369,6 +403,14 @@
   gap: 12px;
   padding: 12px 20px;
   font-family: var(--fg-mono);
+  opacity: 0;
+  animation: fgenter 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  animation-delay: calc(0.45s + var(--i, 0) * 0.09s);
+  transition: background 0.2s ease;
+}
+
+.fg-pipe-row:hover {
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .fg-pipe-row:not(:last-child) {
@@ -458,6 +500,11 @@
   font-size: 12.5px;
   letter-spacing: 0.08em;
   color: var(--fg-text);
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.fg-marquee-item:hover {
+  border-color: color-mix(in srgb, var(--fg-cyan) 45%, transparent);
 }
 
 .fg-marquee-item i {
@@ -510,6 +557,13 @@
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.015);
   text-align: left;
+  transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fg-meta-cell:hover {
+  border-color: var(--fg-line-2);
+  background: rgba(255, 255, 255, 0.035);
+  transform: translateY(-3px);
 }
 
 .fg-meta-cell dt {
@@ -543,12 +597,43 @@
   border: 1px solid var(--fg-line);
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.015);
-  transition: border-color 0.25s ease, background 0.25s ease;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1), transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.25s ease, background 0.25s ease;
+  transition-delay: calc(var(--i, 0) * 0.07s);
+}
+
+.fg-stack-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 24px;
+  right: 24px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--fg-cyan), transparent 70%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fg-stack.fg-in .fg-stack-card {
+  opacity: 1;
+  transform: none;
+}
+
+.fg-stack.fg-in .fg-stack-card:hover {
+  transform: translateY(-4px);
 }
 
 .fg-stack-card:hover {
   border-color: var(--fg-line-2);
   background: rgba(255, 255, 255, 0.03);
+  transition-delay: 0s;
+}
+
+.fg-stack-card:hover::after {
+  transform: scaleX(1);
 }
 
 .fg-stack-idx {
@@ -603,6 +688,21 @@
   left: 21px;
   width: 1px;
   background: linear-gradient(180deg, var(--fg-line-2), var(--fg-line), transparent);
+  transform: scaleY(var(--tl, 1));
+  transform-origin: top;
+  will-change: transform;
+}
+
+.fg-tl-item {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--i, 0) * 0.08s);
+}
+
+.fg-tl-item.fg-tl-in {
+  opacity: 1;
+  transform: none;
 }
 
 .fg-timeline-item {
@@ -717,7 +817,8 @@
   position: absolute;
   inset: 0;
   border-radius: var(--fg-radius);
-  background: linear-gradient(120deg, color-mix(in srgb, var(--pa1) 13%, transparent), transparent 42%);
+  background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 30%),
+    color-mix(in srgb, var(--pa1) 13%, transparent), transparent 62%);
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
@@ -994,7 +1095,9 @@
   }
 
   .fg-reveal,
-  .fg-enter {
+  .fg-enter,
+  .fg-stack-card,
+  .fg-tl-item {
     opacity: 1 !important;
     transform: none !important;
   }

@@ -106,6 +106,86 @@ function useMarqueeDrift() {
   }, []);
 }
 
+function useForgeScrollFX() {
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const bar = document.querySelector<HTMLElement>(".fg-progress");
+    const hero = document.querySelector<HTMLElement>(".fg-hero");
+    const tl = document.querySelector<HTMLElement>(".fg-timeline");
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const y = window.scrollY;
+      const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      if (bar) bar.style.transform = `scaleX(${Math.min(1, y / max)})`;
+      if (hero) {
+        hero.style.transform = `translateY(${y * 0.1}px)`;
+        hero.style.opacity = String(Math.max(0, 1 - y / 620));
+      }
+      if (tl) {
+        const r = tl.getBoundingClientRect();
+        const p = Math.min(1, Math.max(0, (window.innerHeight * 0.72 - r.top) / Math.max(1, r.height)));
+        tl.style.setProperty("--tl", String(p));
+      }
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+}
+
+function useForgeSpy() {
+  useEffect(() => {
+    const links = [
+      ...document.querySelectorAll<HTMLAnchorElement>(".fg-nav-links a[href^='#'], .fg-nav-panel a[href^='#']"),
+    ];
+    const ids = ["about", "experience", "work", "contact"];
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const active = `#${entry.target.id}`;
+          links.forEach((l) => l.classList.toggle("is-active", l.getAttribute("href") === active));
+        }
+      },
+      { rootMargin: "-35% 0px -55% 0px", threshold: 0 }
+    );
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (el) io.observe(el);
+    }
+    return () => io.disconnect();
+  }, []);
+}
+
+function useForgeTimelineReveal() {
+  useEffect(() => {
+    const els = Array.from(document.querySelectorAll(".fg-tl-item"));
+    if (!els.length) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            e.target.classList.add("fg-tl-in");
+            obs.unobserve(e.target);
+          }
+        }
+      },
+      { rootMargin: "0px 0px -12% 0px", threshold: 0.1 }
+    );
+    els.forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+}
+
 function ForgeNav() {
   const [open, setOpen] = useState(false);
   const links: [string, string][] = [
@@ -211,7 +291,7 @@ function Hero() {
           </div>
           <div className="fg-pipe-rows">
             {pipeline.map(([name, meta, color], i) => (
-              <div className="fg-pipe-row" key={name} style={{ "--pc": color } as CSSProperties}>
+              <div className="fg-pipe-row" key={name} style={{ "--pc": color, "--i": i } as CSSProperties}>
                 <span className="fg-pipe-idx">
                   {String(i + 1).padStart(2, "0")}
                 </span>
@@ -288,7 +368,7 @@ function Stack() {
         <h2 className="fg-heading hero-heading">Stack</h2>
         <div className="fg-stack-grid">
           {STACK.map((c, i) => (
-            <div className="fg-stack-card" key={c.label}>
+            <div className="fg-stack-card" key={c.label} style={{ "--i": i } as CSSProperties}>
               <span className="fg-stack-idx">{String(i + 1).padStart(2, "0")}</span>
               <h3>{c.label}</h3>
               <div className="fg-stack-items">
@@ -311,7 +391,7 @@ function Experience() {
         <h2 className="fg-heading hero-heading">Experience</h2>
         <ol className="fg-timeline">
           {experience.map((e, i) => (
-            <li className="fg-timeline-item" key={e.company}>
+            <li className="fg-timeline-item fg-tl-item" key={e.company} style={{ "--i": i } as CSSProperties}>
               <span className="fg-timeline-num">{String(i + 1).padStart(2, "0")}</span>
               <div className="fg-timeline-body">
                 <div className="fg-timeline-top">
@@ -334,9 +414,14 @@ function Experience() {
 }
 
 function ProjectCard({ p, i }: { p: (typeof FORGE_PROJECTS)[number]; i: number }) {
+  const onMove = (e: MouseEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
+    e.currentTarget.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
+  };
   return (
     <div className="fg-proj-wrap" style={{ "--i": i } as CSSProperties}>
-      <article className="fg-proj-card" style={{ "--pa1": p.accent[0] } as CSSProperties}>
+      <article className="fg-proj-card" style={{ "--pa1": p.accent[0] } as CSSProperties} onMouseMove={onMove}>
         <div className="fg-proj-top">
           <span className="fg-proj-num">{p.num}</span>
           <span className="fg-proj-cat" style={{ color: p.accent[0] }}>
@@ -408,6 +493,7 @@ function ForgeFooter() {
     <footer className="fg-foot">
       <span>Sree Vardhan <span className="fg-dot">V.</span></span>
       <span className="fg-foot-links">
+        <a href="#fg-top">Top <span aria-hidden="true">↑</span></a>
         <a href={site.github} target="_blank" rel="noopener noreferrer">
           GitHub
         </a>
@@ -423,14 +509,18 @@ function ForgeFooter() {
 export function ForgeSite() {
   useForgeReveals();
   useMarqueeDrift();
+  useForgeScrollFX();
+  useForgeSpy();
+  useForgeTimelineReveal();
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
   return (
-    <div className="forge-root" data-cursor-accent="forge">
+    <div className="forge-root" id="fg-top" data-cursor-accent="forge">
       <div className="fg-bg" aria-hidden="true" />
+      <div className="fg-progress" aria-hidden="true" />
       <main className="forge-main">
         <ForgeNav />
         <Hero />

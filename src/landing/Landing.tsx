@@ -9,12 +9,14 @@ function EditionCard({
   label,
   className,
   cursor,
+  keyNum,
   children,
 }: {
   to: string;
   label: string;
   className: string;
   cursor: string;
+  keyNum: string;
   children: ReactNode;
 }) {
   const ref = useTilt<HTMLDivElement>(6, ".edition-card");
@@ -26,6 +28,7 @@ function EditionCard({
         aria-label={label}
         data-cursor={cursor}
       >
+        <kbd className="ed-key" aria-hidden="true">{keyNum}</kbd>
         {children}
       </Link>
     </div>
@@ -148,6 +151,10 @@ export function Landing() {
             <i>→</i>
             <span>product</span>
           </div>
+
+          <div className="landing-scroll" aria-hidden="true">
+            <i />
+          </div>
         </header>
 
         <div className="edition-bar">
@@ -159,7 +166,7 @@ export function Landing() {
         </p>
 
         <div className="edition-grid" id="editions" role="list" aria-label="Portfolio interfaces — choose an edition">
-          <EditionCard to="/terminal" label="Open the Terminal interface" className="ed-term" cursor="term">
+          <EditionCard to="/terminal" label="Open the Terminal interface" className="ed-term" cursor="term" keyNum="1">
             <div className="mini-term" aria-hidden="true">
               <div className="mini-body">
                 {terminalLines.map((l, i) => (
@@ -185,7 +192,7 @@ export function Landing() {
             </div>
           </EditionCard>
 
-          <EditionCard to="/classic" label="Open the Classic interface" className="ed-classic" cursor="classic">
+          <EditionCard to="/classic" label="Open the Classic interface" className="ed-classic" cursor="classic" keyNum="2">
             <div className="mini-classic" aria-hidden="true">
               <div className="mc-name">
                 VARDHAN<span className="mc-dot">.</span>V
@@ -207,7 +214,7 @@ export function Landing() {
             </div>
           </EditionCard>
 
-          <EditionCard to="/paper" label="Open the Paper interface" className="ed-paper" cursor="paper">
+          <EditionCard to="/paper" label="Open the Paper interface" className="ed-paper" cursor="paper" keyNum="3">
             <div className="mini-paper" aria-hidden="true">
               <div className="mp-name">
                 Sree Vardhan
@@ -233,7 +240,7 @@ export function Landing() {
             </div>
           </EditionCard>
 
-          <EditionCard to="/aurora" label="Open the Aurora interface" className="ed-aurora" cursor="aurora">
+          <EditionCard to="/aurora" label="Open the Aurora interface" className="ed-aurora" cursor="aurora" keyNum="4">
             <div className="mini-aurora" aria-hidden="true">
               <span className="ma-blob pink" />
               <span className="ma-blob cyan" />
@@ -257,7 +264,7 @@ export function Landing() {
             </div>
           </EditionCard>
 
-          <EditionCard to="/forge" label="Open the Forge interface" className="ed-forge" cursor="forge">
+          <EditionCard to="/forge" label="Open the Forge interface" className="ed-forge" cursor="forge" keyNum="5">
             <div className="mini-forge" aria-hidden="true">
               <div className="mf-name">
                 Sree Vardhan <span className="mf-dot">V.</span>

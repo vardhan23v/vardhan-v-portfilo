@@ -1,8 +1,21 @@
-import { type ReactNode, useEffect } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
+import type { CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { useTilt } from "../hooks/useTilt";
 import { site } from "../classic/data/site";
+import { featuredProjects } from "../classic/data/projects";
+import { experience } from "../classic/data/experience";
+import { skillCategories } from "../classic/data/skills";
+
+const STATS = [
+  { value: featuredProjects.length, label: "shipped products", pad: true },
+  { value: 5, label: "interfaces, one portfolio", pad: true },
+  { value: experience.length, label: "roles & internships", pad: true },
+  { value: 31, label: "stack technologies", pad: true },
+];
+
+const SKILL_NAMES = [...new Set(skillCategories.flatMap((c) => c.items.map((i) => i.name)))];
 
 function EditionCard({
   to,
@@ -40,6 +53,44 @@ const terminalLines = [
   { p: "✓ shipped", cls: "l-ok" },
 ];
 
+function Stat({ value, label, pad }: { value: number; label: string; pad?: boolean }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0]?.isIntersecting) return;
+        io.disconnect();
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          el.textContent = pad ? String(value).padStart(2, "0") : String(value);
+          return;
+        }
+        const t0 = performance.now();
+        const dur = 1100;
+        const tick = (t: number) => {
+          const p = Math.min(1, (t - t0) / dur);
+          const eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = pad ? String(Math.round(eased * value)).padStart(2, "0") : String(Math.round(eased * value));
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      },
+      { threshold: 0.4 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [value, pad]);
+  return (
+    <div className="land-stat">
+      <span className="land-stat-num" ref={ref}>
+        0
+      </span>
+      <span className="land-stat-label">{label}</span>
+    </div>
+  );
+}
+
 export function Landing() {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -65,12 +116,8 @@ export function Landing() {
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const head = document.querySelector<HTMLElement>(".landing-head");
-    const bar = document.querySelector<HTMLElement>(".landing-progress");
 
     const onScroll = () => {
-      const doc = document.documentElement;
-      const max = doc.scrollHeight - doc.clientHeight;
-      if (bar) bar.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
       if (head && !reduced) {
         const y = Math.min(window.scrollY, 500);
         head.style.opacity = String(1 - y / 460);
@@ -112,7 +159,6 @@ export function Landing() {
 
   return (
     <div className="landing-root">
-      <div className="landing-progress" aria-hidden="true" />
       <main className="landing-main">
         <header className="landing-head">
           <p className="landing-eyebrow">sree vardhan v — generative-ai · full-stack</p>
@@ -157,12 +203,39 @@ export function Landing() {
           </div>
         </header>
 
+        <div className="land-marquee" aria-hidden="true">
+          <div className="land-marquee-track">
+            <span className="land-marquee-group">
+              {SKILL_NAMES.map((n) => (
+                <span className="land-marquee-item" key={n}>
+                  {n}
+                  <i />
+                </span>
+              ))}
+            </span>
+            <span className="land-marquee-group" aria-hidden="true">
+              {SKILL_NAMES.map((n) => (
+                <span className="land-marquee-item" key={n}>
+                  {n}
+                  <i />
+                </span>
+              ))}
+            </span>
+          </div>
+        </div>
+
+        <div className="land-stats" data-land-reveal>
+          {STATS.map((s) => (
+            <Stat key={s.label} value={s.value} label={s.label} pad={s.pad} />
+          ))}
+        </div>
+
         <div className="edition-bar">
           <span className="edition-bar-label">five interfaces</span>
           <InterfaceSwitcher current="landing" />
         </div>
         <p className="edition-bar-hint">
-          keyboard: tab + enter · press <kbd>1</kbd>–<kbd>5</kbd> — switch from any page
+          ⌘/ctrl + K — command palette · press <kbd>1</kbd>–<kbd>5</kbd> — switch from any page
         </p>
 
         <div className="edition-grid" id="editions" role="list" aria-label="Portfolio interfaces — choose an edition">
@@ -297,6 +370,33 @@ export function Landing() {
               </span>
             </div>
           </EditionCard>
+        </div>
+
+        <div className="land-projects" data-land-reveal>
+          <div className="land-projects-head">
+            <span className="land-projects-kicker">index</span>
+            <span className="land-projects-sub">shipped &amp; live</span>
+          </div>
+          <div className="land-projects-row">
+            {featuredProjects.map((p, i) => (
+              <a
+                key={p.slug}
+                className="land-project-item"
+                style={{ "--i": i, "--pa1": p.accent[0] } as CSSProperties}
+                href={p.live ?? p.github}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span className="lpi-emoji" aria-hidden="true">
+                  {p.emoji}
+                </span>
+                <span className="lpi-name">{p.name}</span>
+                <span className="lpi-arrow" aria-hidden="true">
+                  ↗
+                </span>
+              </a>
+            ))}
+          </div>
         </div>
 
         <p className="landing-note" data-land-reveal>switch editions from any page</p>

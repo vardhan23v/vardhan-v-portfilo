@@ -50,20 +50,6 @@
     radial-gradient(900px 480px at 8% 24%, rgba(167, 139, 250, 0.06), transparent 60%);
 }
 
-.fg-progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  z-index: 60;
-  pointer-events: none;
-  background: linear-gradient(90deg, #7dd3fc, #a78bfa 55%, #c4b5fd);
-  transform: scaleX(0);
-  transform-origin: 0 50%;
-  will-change: transform;
-}
-
 .forge-main {
   position: relative;
   z-index: 1;

@@ -9,6 +9,8 @@ import { PaperSite } from "./paper/PaperSite";
 import { AuroraSite } from "./aurora/AuroraSite";
 import { ForgeSite } from "./forge/ForgeSite";
 import { CursorFX } from "./CursorFX";
+import { ScrollChrome } from "./components/ScrollChrome";
+import { CommandPalette } from "./components/CommandPalette";
 import "./landing/Landing.css";
 
 const interfaceRoutes = ["/terminal", "/classic", "/paper", "/aurora", "/forge"];
@@ -38,6 +40,8 @@ export default function App() {
     <BrowserRouter>
       <CursorFX />
       <InterfaceShortcuts />
+      <ScrollChrome />
+      <CommandPalette />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/classic" element={<ClassicSite />} />

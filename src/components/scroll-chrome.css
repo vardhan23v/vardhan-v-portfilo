@@ -1,0 +1,55 @@
+.sc-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 10000;
+  pointer-events: none;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  will-change: transform;
+}
+
+.sc-top {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 9990;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--sc-accent, #7c6cff);
+  background: color-mix(in srgb, var(--sc-accent, #7c6cff) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sc-accent, #7c6cff) 45%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0;
+  transform: translateY(10px) scale(0.9);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease, background 0.25s ease, color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.sc-top.is-visible {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.sc-top:hover {
+  background: var(--sc-accent, #7c6cff);
+  color: #fff;
+  border-color: var(--sc-accent, #7c6cff);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-top {
+    transition: none;
+  }
+}

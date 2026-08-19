@@ -109,15 +109,12 @@ function useMarqueeDrift() {
 function useForgeScrollFX() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const bar = document.querySelector<HTMLElement>(".fg-progress");
     const hero = document.querySelector<HTMLElement>(".fg-hero");
     const tl = document.querySelector<HTMLElement>(".fg-timeline");
     let raf = 0;
     const update = () => {
       raf = 0;
       const y = window.scrollY;
-      const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-      if (bar) bar.style.transform = `scaleX(${Math.min(1, y / max)})`;
       if (hero) {
         hero.style.transform = `translateY(${y * 0.1}px)`;
         hero.style.opacity = String(Math.max(0, 1 - y / 620));
@@ -520,7 +517,6 @@ export function ForgeSite() {
   return (
     <div className="forge-root" id="fg-top" data-cursor-accent="forge">
       <div className="fg-bg" aria-hidden="true" />
-      <div className="fg-progress" aria-hidden="true" />
       <main className="forge-main">
         <ForgeNav />
         <Hero />

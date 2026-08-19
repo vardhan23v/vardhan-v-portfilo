@@ -22,7 +22,7 @@ await p.goto(base + "/", { waitUntil: "networkidle0" });
 await p.waitForSelector(".edition-grid", { timeout: 10000 });
 chk("h1", await p.evaluate(() => /One\s*portfolio\.\s*Five\s*interfaces\./.test(document.querySelector("h1")?.textContent ?? "")));
 chk("what", (await bodyTxt()).includes("I build AI-powered products and full-stack systems."));
-chk("bar", (await bodyTxt()).includes("keyboard: tab + enter"));
+chk("bar", (await bodyTxt()).includes("command palette"));
 chk("cta primary", await p.evaluate(() => document.body.innerText.includes("View selected work")));
 chk("cta github", await p.evaluate(() => !!document.querySelector('a[href="https://github.com/vardhan23v"][target="_blank"]')));
 chk("pipeline", await p.evaluate(() => (document.querySelector(".landing-pipeline")?.textContent ?? "").includes("frontend") && (document.querySelector(".landing-pipeline")?.textContent ?? "").includes("product")));

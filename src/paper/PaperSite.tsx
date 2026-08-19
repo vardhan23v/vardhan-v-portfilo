@@ -67,6 +67,28 @@ export function PaperSite() {
     return () => io.disconnect();
   }, []);
 
+  useEffect(() => {
+    const ids = ["work", "experience", "about", "contact"];
+    const links = [...document.querySelectorAll<HTMLAnchorElement>(".paper-nav-links a")];
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const link = links.find((l) => l.getAttribute("href") === `#${entry.target.id}`);
+          if (!link) return;
+          links.forEach((l) => l.classList.remove("is-active"));
+          link.classList.add("is-active");
+        }
+      },
+      { rootMargin: "-35% 0px -55% 0px", threshold: 0 }
+    );
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (el) io.observe(el);
+    }
+    return () => io.disconnect();
+  }, []);
+
   return (
     <div className="paper-root" data-cursor-accent="paper">
       <nav className="paper-nav" aria-label="Main">
@@ -96,7 +118,7 @@ export function PaperSite() {
             products — and ship them. Currently a computer science
             undergraduate building with AI + the full stack.
           </p>
-          <div className="paper-mast-actions" data-pp-reveal>
+          <div className="paper-mast-actions">
             <a className="paper-btn paper-btn-primary" href={site.resume} download>
               Download résumé ↓
             </a>
@@ -116,7 +138,7 @@ export function PaperSite() {
         </header>
 
         <section className="paper-section" id="work" aria-labelledby="paper-work-title">
-          <p className="paper-overline" id="paper-work-title">
+          <p className="paper-overline" id="paper-work-title" data-pp-reveal>
             Selected work
           </p>
           {paperProjects.map((p, i) => (
@@ -149,7 +171,7 @@ export function PaperSite() {
         </section>
 
         <section className="paper-section" id="experience" aria-labelledby="paper-exp-title">
-          <p className="paper-overline" id="paper-exp-title">
+          <p className="paper-overline" id="paper-exp-title" data-pp-reveal>
             Experience
           </p>
           {experience.map((e) => (
@@ -166,7 +188,7 @@ export function PaperSite() {
         </section>
 
         <section className="paper-section" id="about" aria-labelledby="paper-about-title">
-          <p className="paper-overline" id="paper-about-title">
+          <p className="paper-overline" id="paper-about-title" data-pp-reveal>
             About
           </p>
           <div className="paper-prose">
@@ -197,7 +219,7 @@ export function PaperSite() {
         </section>
 
         <section className="paper-section" id="contact" aria-labelledby="paper-contact-title">
-          <p className="paper-overline" id="paper-contact-title">
+          <p className="paper-overline" id="paper-contact-title" data-pp-reveal>
             Contact
           </p>
           <h2 className="paper-contact-head" data-pp-reveal>
@@ -228,6 +250,7 @@ export function PaperSite() {
             GitHub
           </a>
           <a href={`mailto:${site.email}`}>Email</a>
+          <a href="#paper-main">back to top ↑</a>
         </span>
       </footer>
     </div>

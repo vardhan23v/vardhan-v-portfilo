@@ -429,7 +429,7 @@ export function ForgeSite() {
   }, []);
 
   return (
-    <div className="forge-root">
+    <div className="forge-root" data-cursor-accent="forge">
       <div className="fg-bg" aria-hidden="true" />
       <main className="forge-main">
         <ForgeNav />

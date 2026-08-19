@@ -81,21 +81,6 @@
   color: var(--ink);
 }
 
-.paper-nav-editions {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--ink-3);
-  border: 1px solid var(--rule);
-  padding: 7px 12px;
-  border-radius: 999px;
-  transition: border-color 0.2s ease, color 0.2s ease;
-}
-
-.paper-nav-editions:hover {
-  border-color: var(--ink-3);
-  color: var(--ink);
-}
-
 /* ---------- sections ---------- */
 
 .paper-main {
@@ -222,6 +207,11 @@
   gap: 22px;
   padding: 30px 0;
   border-top: 1px solid var(--rule);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.paper-work-item:hover {
+  transform: translateX(6px);
 }
 
 .paper-work-item:last-child {
@@ -323,8 +313,21 @@
   padding-left: 18px;
   border-left: 1px solid var(--rule);
   display: grid;
-  gap: 16px;
+  grid-template-rows: 0fr;
+  opacity: 0;
   max-width: 620px;
+  transition: grid-template-rows 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+}
+
+.paper-eng-body.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.paper-eng-inner {
+  overflow: hidden;
+  display: grid;
+  gap: 16px;
   font-size: 14px;
   line-height: 1.7;
   color: var(--ink-2);
@@ -358,6 +361,11 @@
   padding: 20px 0;
   border-top: 1px solid var(--rule);
   align-items: baseline;
+  transition: padding-left 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+}
+
+.paper-exp-item:hover {
+  padding-left: 14px;
 }
 
 .paper-exp-role {
@@ -472,6 +480,25 @@
   to { opacity: 1; transform: none; }
 }
 
+/* ---------- scroll reveal ---------- */
+
+.paper-root [data-pp-reveal] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.paper-root [data-pp-reveal].pp-in {
+  opacity: 1;
+  transform: none;
+}
+
+.paper-root .paper-work-item:nth-child(2) { transition-delay: 0.05s; }
+.paper-root .paper-work-item:nth-child(3) { transition-delay: 0.1s; }
+.paper-root .paper-work-item:nth-child(4) { transition-delay: 0.15s; }
+.paper-root .paper-work-item:nth-child(5) { transition-delay: 0.1s; }
+
 @media (max-width: 720px) {
   .paper-masthead { padding: 64px 0 48px; }
   .paper-section { padding: 60px 0; }
@@ -483,12 +510,22 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .paper-root [data-pp-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
   .paper-root *,
   .paper-root *::before,
   .paper-root *::after {
     animation-duration: 0.001s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001s !important;
+  }
+
+  html {
+    scroll-behavior: auto;
   }
 }
 /* ---------- Interface switcher ---------- */

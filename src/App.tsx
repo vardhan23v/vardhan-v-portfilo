@@ -8,6 +8,7 @@ import { WorkDetail } from "./terminal/components/WorkDetail";
 import { PaperSite } from "./paper/PaperSite";
 import { AuroraSite } from "./aurora/AuroraSite";
 import { ForgeSite } from "./forge/ForgeSite";
+import { CursorFX } from "./CursorFX";
 import "./landing/Landing.css";
 
 const interfaceRoutes = ["/terminal", "/classic", "/paper", "/aurora", "/forge"];
@@ -35,6 +36,7 @@ function InterfaceShortcuts() {
 export default function App() {
   return (
     <BrowserRouter>
+      <CursorFX />
       <InterfaceShortcuts />
       <Routes>
         <Route path="/" element={<Landing />} />

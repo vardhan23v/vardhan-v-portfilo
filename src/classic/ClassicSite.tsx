@@ -12,7 +12,7 @@ import "./styles/global.css";
 
 export function ClassicSite() {
   return (
-    <div className="classic-root">
+    <div className="classic-root" data-cursor-accent="classic">
       <a href="#main" className="skip-link">
         Skip to content
       </a>

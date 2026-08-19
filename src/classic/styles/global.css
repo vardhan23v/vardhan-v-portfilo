@@ -29,6 +29,11 @@
   animation: cfade 0.35s ease both;
 }
 
+@keyframes cfade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .classic-root {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--nav-h) + 8px);
@@ -270,6 +275,7 @@
   transform: none;
 }
 
+.classic-root .reveal-d0 { transition-delay: 0s; }
 .classic-root .reveal-d1 { transition-delay: 0.08s; }
 .classic-root .reveal-d2 { transition-delay: 0.16s; }
 .classic-root .reveal-d3 { transition-delay: 0.24s; }

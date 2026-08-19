@@ -26,11 +26,17 @@
   text-decoration: none;
   white-space: nowrap;
   color: var(--sw-dim);
-  transition: color 0.2s ease, background 0.2s ease;
+  transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
 
 .iswitcher-item:hover {
   color: var(--sw-text);
+  background: color-mix(in srgb, var(--sw-text) 7%, transparent);
+  transform: translateY(-1px);
+}
+
+.iswitcher-item:active {
+  transform: translateY(0);
 }
 
 .iswitcher-num {
@@ -41,6 +47,7 @@
 .iswitcher-item--active {
   color: var(--sw-text);
   background: var(--sw-active-bg);
+  transform: none;
 }
 
 .iswitcher-item--active .iswitcher-num {

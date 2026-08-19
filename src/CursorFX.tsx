@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import "./cursor-fx.css";
 
 export function CursorFX() {
   const fxRef = useRef<HTMLDivElement>(null);
@@ -26,10 +27,16 @@ export function CursorFX() {
 
     const onOver = (e: MouseEvent) => {
       const t = e.target as HTMLElement;
+      const off = t.closest("[data-cursor-off]");
       const card = t.closest("[data-cursor]");
+      const accent = t.closest("[data-cursor-accent]");
       const interactive = t.closest("a, button, .iswitcher-item, [data-cursor]");
-      fx.classList.toggle("cur-interactive", !!interactive);
-      fx.setAttribute("data-cur", card ? card.getAttribute("data-cursor") || "" : "");
+      fx.classList.toggle("cur-hidden", !!off);
+      fx.classList.toggle("cur-interactive", !!interactive && !off);
+      fx.setAttribute(
+        "data-cur",
+        card ? card.getAttribute("data-cursor") || "" : accent ? accent.getAttribute("data-cursor-accent") || "" : ""
+      );
     };
 
     const tick = () => {

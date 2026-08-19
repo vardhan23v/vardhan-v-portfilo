@@ -2,7 +2,6 @@ import { type ReactNode, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { useTilt } from "../hooks/useTilt";
-import { CursorFX } from "./CursorFX";
 import { site } from "../classic/data/site";
 
 function EditionCard({
@@ -62,7 +61,6 @@ export function Landing() {
 
   return (
     <div className="landing-root">
-      <CursorFX />
       <main className="landing-main">
         <header className="landing-head">
           <p className="landing-eyebrow">sree vardhan v — generative-ai · full-stack</p>

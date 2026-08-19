@@ -61,8 +61,8 @@ export function Skills() {
 
         <div className="skills-grid">
           {skillCategories.map((cat, i) => (
-            <Reveal key={cat.label} as="div" className="skill-cat" delay={i % 3 ? "" : ""}>
-              <div className={"skill-cat-header" + (i % 3 === 0 ? " reveal-d0" : "")}>
+            <Reveal key={cat.label} as="div" className="skill-cat" delay={i % 3 === 0 ? "reveal-d0" : undefined}>
+              <div className="skill-cat-header">
                 <span className="skill-cat-icon" aria-hidden="true">
                   <CategoryGlyph icon={cat.icon} />
                 </span>

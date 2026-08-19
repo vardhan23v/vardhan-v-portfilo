@@ -41,7 +41,7 @@ export function TerminalLayout() {
   };
 
   return (
-    <div className="terminal-root">
+    <div className="terminal-root" data-cursor-accent="term">
       {booting && <Boot onDone={handleBootDone} />}
       <ScrollManager />
       <a href="#main" className="skip-link">

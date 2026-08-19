@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { Link } from "react-router-dom";
 import { featuredProjects, type Project } from "../classic/data/projects";
@@ -24,33 +24,51 @@ export function EngineeringDetails({ p }: { p: Project }) {
         <span>engineering details</span>
         <span aria-hidden="true">{open ? "−" : "→"}</span>
       </button>
-      {open && (
-        <div className="paper-eng-body" id={ctrl}>
-          <div>
-            <span className="paper-eng-label">the problem</span>
-            <p>{p.problem}</p>
-          </div>
-          <div>
-            <span className="paper-eng-label">what it does</span>
-            <ul>
-              {p.features.slice(0, 4).map((f) => (
-                <li key={f}>{f}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <span className="paper-eng-label">stack</span>
-            <p>{p.tech.join(" · ")}</p>
+      <div className={`paper-eng-body${open ? " is-open" : ""}`} id={ctrl}>
+          <div className="paper-eng-inner">
+            <div>
+              <span className="paper-eng-label">the problem</span>
+              <p>{p.problem}</p>
+            </div>
+            <div>
+              <span className="paper-eng-label">what it does</span>
+              <ul>
+                {p.features.slice(0, 4).map((f) => (
+                  <li key={f}>{f}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <span className="paper-eng-label">stack</span>
+              <p>{p.tech.join(" · ")}</p>
+            </div>
           </div>
         </div>
-      )}
     </div>
   );
 }
 
 export function PaperSite() {
+  useEffect(() => {
+    const els = document.querySelectorAll("[data-pp-reveal]");
+    if (!els.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("pp-in");
+            io.unobserve(entry.target);
+          }
+        }
+      },
+      { rootMargin: "0px 0px -6% 0px", threshold: 0.05 }
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <div className="paper-root">
+    <div className="paper-root" data-cursor-accent="paper">
       <nav className="paper-nav" aria-label="Main">
         <Link to="/" className="paper-wordmark">
           {site.name}
@@ -78,7 +96,7 @@ export function PaperSite() {
             products — and ship them. Currently a computer science
             undergraduate building with AI + the full stack.
           </p>
-          <div className="paper-mast-actions">
+          <div className="paper-mast-actions" data-pp-reveal>
             <a className="paper-btn paper-btn-primary" href={site.resume} download>
               Download résumé ↓
             </a>
@@ -102,7 +120,7 @@ export function PaperSite() {
             Selected work
           </p>
           {paperProjects.map((p, i) => (
-            <article className={`paper-work-item ${i % 2 === 1 ? "paper-work-item--alt" : ""}`} key={p.slug}>
+            <article data-pp-reveal className={`paper-work-item ${i % 2 === 1 ? "paper-work-item--alt" : ""}`} key={p.slug}>
               <span className={`paper-work-num ${i % 2 === 1 ? "paper-work-num--right" : ""}`} aria-hidden="true">
                 {String(i + 1).padStart(2, "0")}
               </span>
@@ -135,7 +153,7 @@ export function PaperSite() {
             Experience
           </p>
           {experience.map((e) => (
-            <div className="paper-exp-item" key={e.company}>
+            <div className="paper-exp-item" data-pp-reveal key={e.company}>
               <div>
                 <div className="paper-exp-role">{e.role}</div>
                 <div className="paper-exp-company">
@@ -168,7 +186,7 @@ export function PaperSite() {
           </div>
           <div className="paper-skills">
             {skillCategories.map((c) => (
-              <div className="paper-skill-line" key={c.label}>
+              <div className="paper-skill-line" data-pp-reveal key={c.label}>
                 <span className="paper-skill-label">{c.label}</span>
                 <span className="paper-skill-items">
                   {c.items.map((i) => i.name).join(", ")}
@@ -182,16 +200,16 @@ export function PaperSite() {
           <p className="paper-overline" id="paper-contact-title">
             Contact
           </p>
-          <h2 className="paper-contact-head">
+          <h2 className="paper-contact-head" data-pp-reveal>
             Let&rsquo;s build something{" "}
             <span className="it">interesting.</span>
           </h2>
-          <div className="paper-mast-actions">
+          <div className="paper-mast-actions" data-pp-reveal>
             <a className="paper-btn paper-btn-primary" href={`mailto:${site.email}`}>
               {site.email}
             </a>
           </div>
-          <p className="paper-mast-meta" style={{ marginTop: 20 }}>
+          <p className="paper-mast-meta" data-pp-reveal style={{ marginTop: 20 }}>
             <a href={site.github} target="_blank" rel="noopener noreferrer">
               github
             </a>

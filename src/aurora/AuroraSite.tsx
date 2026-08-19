@@ -314,7 +314,7 @@ export function AuroraSite() {
   const stackStrip = skillCategories.flatMap((c) => c.items.map((i) => i.name));
 
   return (
-    <div className="aurora-root">
+    <div className="aurora-root" data-cursor-off>
       <AuroraCursor />
       <div className="aurora-scrollbar" aria-hidden="true" />
       <div className="aurora-bg" aria-hidden="true">

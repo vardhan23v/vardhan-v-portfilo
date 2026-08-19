@@ -1,0 +1,69 @@
+/* ---------- Global Cursor FX ---------- */
+
+.cur-fx {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  --cur-accent: #7c6cff;
+}
+
+.cur-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--cur-accent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--cur-accent) 55%, transparent);
+  opacity: 0.9;
+  transition: opacity 0.25s ease, background 0.25s ease;
+}
+
+.cur-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  will-change: transform;
+}
+
+.cur-ring-inner {
+  position: absolute;
+  top: -17px;
+  left: -17px;
+  width: 34px;
+  height: 34px;
+  border-radius: 9999px;
+  border: 1.5px solid color-mix(in srgb, var(--cur-accent) 55%, transparent);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.28s ease,
+    background 0.28s ease;
+}
+
+.cur-fx.cur-hidden {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.cur-fx.cur-interactive .cur-ring-inner {
+  transform: scale(1.6);
+  border-color: color-mix(in srgb, var(--cur-accent) 90%, transparent);
+  background: color-mix(in srgb, var(--cur-accent) 8%, transparent);
+}
+
+.cur-fx.cur-interactive .cur-dot {
+  opacity: 0.3;
+}
+
+.cur-fx[data-cur="term"] { --cur-accent: #36e57c; }
+.cur-fx[data-cur="classic"] { --cur-accent: #c9c3ff; }
+.cur-fx[data-cur="paper"] { --cur-accent: #be4b2a; }
+.cur-fx[data-cur="aurora"] { --cur-accent: #f0abfc; }
+.cur-fx[data-cur="forge"] { --cur-accent: #7dd3fc; }
+.cur-fx[data-cur="landing"] { --cur-accent: #7c6cff; }
+
+@media (pointer: coarse) {
+  .cur-fx {
+    display: none;
+  }
+}

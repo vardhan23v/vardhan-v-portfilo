@@ -27,9 +27,11 @@ const FORGE_PROJECTS = featuredProjects.map((p, i) => ({
   cat: getCategory(p),
 }));
 
+const AI_TECHS = new Set(["Gemini", "Claude", "Groq", "MCP", "OpenAI", "Mistral", "Cohere"]);
+
 const ABOUT_PARAGRAPHS = [
-  "I'm a Computer Science undergraduate focused on Generative AI, full-stack development, and building useful software products.",
-  "I enjoy working across the stack — from React interfaces and Node.js APIs to databases and LLM integrations. Most of my learning happens through building, experimenting, and shipping real projects.",
+  "I'm a Computer Science undergraduate focused on Generative AI, full-stack development, and shipping useful software products.",
+  "I work across the stack — React interfaces, Node.js APIs, databases, and LLM integrations — and ship what I build.",
   "I'm especially interested in AI-powered developer tools, intelligent web applications, and agentic systems.",
 ];
 
@@ -90,8 +92,8 @@ function SectionEyebrow({ id, left }: { id: string; left?: boolean }) {
 
 const LEDES = [
   "Building AI-powered products that feel simple to use.",
-  "Shipping full-stack systems that solve real problems.",
-  "Turning raw ideas into shipped, working software.",
+  "Wiring LLM APIs, agents, and streaming into shipped software.",
+  "Turning raw ideas into shipped, working products.",
 ];
 
 function useLede() {
@@ -228,7 +230,7 @@ function useForgeSpy() {
     const links = [
       ...document.querySelectorAll<HTMLAnchorElement>(".fg-nav-links a[href^='#'], .fg-nav-panel a[href^='#']"),
     ];
-    const ids = ["about", "experience", "work", "contact"];
+    const ids = ["about", "stack", "experience", "work", "contact"];
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -271,6 +273,7 @@ function ForgeNav() {
   const [open, setOpen] = useState(false);
   const links: [string, string][] = [
     ["#about", "About"],
+    ["#stack", "Stack"],
     ["#experience", "Experience"],
     ["#work", "Projects"],
     ["#contact", "Contact"],
@@ -366,8 +369,8 @@ function Hero() {
           </span>
         </p>
         <p className="fg-description fg-enter" style={{ "--d": "0.4s" } as CSSProperties}>
-          I build AI-powered products and full-stack systems, combining modern web
-          technologies with Generative AI to turn ideas into useful software.
+          I design and ship AI-powered products — wiring LLM APIs, agents, and streaming
+          interfaces into full-stack systems that solve real problems.
         </p>
         <div className="fg-ctas fg-enter" style={{ "--d": "0.5s" } as CSSProperties}>
           <LiquidButton variant="default" size="xxl" className="fg-lb-hero" href="#work">
@@ -597,6 +600,8 @@ function ProjectCard({ p, i }: { p: (typeof FORGE_PROJECTS)[number]; i: number }
     e.currentTarget.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
     e.currentTarget.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
   };
+  const ai = p.tech.filter((t) => AI_TECHS.has(t));
+  const features = p.features.slice(0, 4);
   return (
     <div className="fg-proj-wrap" style={{ "--i": i } as CSSProperties}>
       <article className="fg-proj-card" style={{ "--pa1": p.accent[0] } as CSSProperties} onMouseMove={onMove}>
@@ -608,11 +613,30 @@ function ProjectCard({ p, i }: { p: (typeof FORGE_PROJECTS)[number]; i: number }
         </div>
         <h3 className="fg-proj-title">{p.name}</h3>
         <p className="fg-proj-desc">{p.tagline}</p>
-        <span className="fg-proj-emoji" aria-hidden="true">{p.emoji}</span>
+        <p className="fg-proj-problem">
+          <span className="fg-proj-label">problem</span>
+          {p.problem}
+        </p>
+        {features.length > 0 && (
+          <ul className="fg-proj-features">
+            {features.map((f) => (
+              <li key={f}>{f}</li>
+            ))}
+          </ul>
+        )}
+        {ai.length > 0 && (
+          <p className="fg-proj-ai">
+            <span className="fg-proj-label">ai engine</span>
+            {ai.join(" · ")}
+          </p>
+        )}
         <div className="fg-proj-tech">
-          {p.tech.slice(0, 6).map((t) => (
-            <span key={t}>{t}</span>
-          ))}
+          {p.tech
+            .filter((t) => !AI_TECHS.has(t))
+            .slice(0, 6)
+            .map((t) => (
+              <span key={t}>{t}</span>
+            ))}
         </div>
         <div className="fg-proj-links">
           <a href={p.github} target="_blank" rel="noopener noreferrer" className="fg-proj-link">
@@ -624,6 +648,7 @@ function ProjectCard({ p, i }: { p: (typeof FORGE_PROJECTS)[number]; i: number }
             </a>
           )}
         </div>
+        <span className="fg-proj-emoji" aria-hidden="true">{p.emoji}</span>
       </article>
     </div>
   );
@@ -663,6 +688,9 @@ function Contact() {
           <a className="fg-btn" href={site.github} target="_blank" rel="noopener noreferrer">
             GitHub <span aria-hidden="true">↗</span>
           </a>
+          <a className="fg-btn" href={site.linkedin} target="_blank" rel="noopener noreferrer">
+            LinkedIn <span aria-hidden="true">↗</span>
+          </a>
         </div>
       </div>
     </section>
@@ -696,6 +724,21 @@ export function ForgeSite() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    const prevTitle = document.title;
+    const meta = document.querySelector('meta[name="description"]');
+    const prevDesc = meta?.getAttribute("content") ?? null;
+    document.title = "Forge — Sree Vardhan V | Generative AI Developer";
+    meta?.setAttribute(
+      "content",
+      "Forge interface of Sree Vardhan V — Generative AI developer building LLM-powered products, developer tools, and full-stack systems."
+    );
+    return () => {
+      document.title = prevTitle;
+      if (meta && prevDesc !== null) meta.setAttribute("content", prevDesc);
+    };
   }, []);
 
   return (

@@ -41,12 +41,13 @@ interface RevealProps {
   delay?: string;
   className?: string;
   id?: string;
+  style?: React.CSSProperties;
 }
 
-export function Reveal({ children, as: Tag = "div", delay, className = "", id }: RevealProps) {
+export function Reveal({ children, as: Tag = "div", delay, className = "", id, style }: RevealProps) {
   const { ref, className: base } = useReveal<HTMLElement>(delay);
   return (
-    <Tag ref={ref} className={`${base} ${className}`.trim()} id={id}>
+    <Tag ref={ref} className={`${base} ${className}`.trim()} id={id} style={style}>
       {children}
     </Tag>
   );

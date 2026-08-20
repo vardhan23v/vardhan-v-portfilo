@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { Link } from "react-router-dom";
 import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { LiquidButton, MetalButton } from "../components/ui/LiquidButton";
@@ -57,6 +57,40 @@ function stackGroups() {
 }
 
 const STACK = stackGroups();
+
+const LEDES = [
+  "Building AI-powered products that feel simple to use.",
+  "Shipping full-stack systems that solve real problems.",
+  "Turning raw ideas into shipped, working software.",
+];
+
+function useLede() {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = window.setInterval(() => setIdx((v) => (v + 1) % LEDES.length), 4200);
+    return () => window.clearInterval(t);
+  }, []);
+  return idx;
+}
+
+function useGithubStats() {
+  const [stats, setStats] = useState<{ followers: number | null; repos: number | null }>({
+    followers: null,
+    repos: null,
+  });
+  useEffect(() => {
+    const ctrl = new AbortController();
+    fetch(`https://api.github.com/users/${site.githubUser}`, { signal: ctrl.signal })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((d: { followers: number; public_repos: number }) =>
+        setStats({ followers: d.followers, repos: d.public_repos })
+      )
+      .catch(() => setStats({ followers: null, repos: null }));
+    return () => ctrl.abort();
+  }, []);
+  return stats;
+}
 
 function useForgeReveals() {
   useEffect(() => {
@@ -240,6 +274,8 @@ function ForgeNav() {
 }
 
 function Hero() {
+  const ledeIdx = useLede();
+  const [trace, setTrace] = useState<number | null>(null);
   const pipeline: [string, string, string][] = [
     ["Frontend", "React · type-safe UI", "#7DD3FC"],
     ["API", "Node.js · REST", "#93C5FD"],
@@ -256,11 +292,14 @@ function Hero() {
         <p className="fg-name fg-enter" style={{ "--d": "0.08s" } as CSSProperties}>
           Sree Vardhan V.
         </p>
-        <h1 className="fg-hero-heading fg-enter" style={{ "--d": "0.16s" } as CSSProperties}>
+        <h1 className="fg-hero-heading fg-enter fg-glint" style={{ "--d": "0.16s" } as CSSProperties}>
           Where code meets intelligence.
         </h1>
-        <p className="fg-lede fg-enter" style={{ "--d": "0.3s" } as CSSProperties}>
-          Building AI-powered products that feel simple to use.
+        <span className="sr-only">Building AI-powered products that feel simple to use.</span>
+        <p className="fg-lede fg-enter" style={{ "--d": "0.3s" } as CSSProperties} aria-hidden="true">
+          <span key={ledeIdx} className="fg-lede-swap">
+            {LEDES[ledeIdx]}
+          </span>
         </p>
         <p className="fg-description fg-enter" style={{ "--d": "0.4s" } as CSSProperties}>
           I build AI-powered products and full-stack systems, combining modern web
@@ -287,8 +326,17 @@ function Hero() {
             </span>
           </div>
           <div className="fg-pipe-rows">
+            <div className="fg-pipe-pulse" aria-hidden="true" />
             {pipeline.map(([name, meta, color], i) => (
-              <div className="fg-pipe-row" key={name} style={{ "--pc": color, "--i": i } as CSSProperties}>
+              <div
+                className={`fg-pipe-row${
+                  trace !== null ? (i >= trace ? " is-downstream" : " is-dimmed") : ""
+                }`}
+                key={name}
+                style={{ "--pc": color, "--i": i } as CSSProperties}
+                onMouseEnter={() => setTrace(i)}
+                onMouseLeave={() => setTrace(null)}
+              >
                 <span className="fg-pipe-idx">
                   {String(i + 1).padStart(2, "0")}
                 </span>
@@ -302,6 +350,61 @@ function Hero() {
         </div>
       </div>
     </header>
+  );
+}
+
+function Stat({ value, label, accent }: { value: number; label: string; accent?: boolean }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let raf = 0;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0]?.isIntersecting) return;
+        obs.disconnect();
+        const t0 = performance.now();
+        const dur = 900;
+        const tick = (t: number) => {
+          const p = Math.min(1, (t - t0) / dur);
+          const eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = String(Math.round(value * eased));
+          if (p < 1) raf = requestAnimationFrame(tick);
+        };
+        raf = requestAnimationFrame(tick);
+      },
+      { threshold: 0.4 }
+    );
+    obs.observe(el);
+    return () => {
+      obs.disconnect();
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [value]);
+  return (
+    <div className="fg-stat">
+      <span className="fg-stat-value" ref={ref}>
+        {accent ? <em>0</em> : 0}
+      </span>
+      <span className="fg-stat-label">{label}</span>
+    </div>
+  );
+}
+
+function StatsStrip() {
+  const { followers, repos } = useGithubStats();
+  const items: { value: number; label: string; accent?: boolean }[] = [
+    { value: FORGE_PROJECTS.length, label: "shipped products" },
+    { value: STACK.length, label: "stack groups" },
+    { value: repos ?? 15, label: "public repos" },
+    { value: followers ?? 27, label: "github followers", accent: true },
+  ];
+  return (
+    <section className="fg-stats fg-reveal" aria-label="Live stats">
+      {items.map((it) => (
+        <Stat key={it.label} {...it} />
+      ))}
+    </section>
   );
 }
 
@@ -470,7 +573,7 @@ function Contact() {
   return (
     <section className="fg-section" id="contact">
       <div className="fg-contact fg-reveal">
-        <h2 className="fg-heading hero-heading">Let&rsquo;s build something.</h2>
+        <h2 className="fg-heading hero-heading fg-glint">Let&rsquo;s build something.</h2>
         <p className="fg-subhead">Have an idea, project, or opportunity? Let&rsquo;s talk.</p>
         <div className="fg-ctas fg-ctas-center">
           <MetalButton variant="gold" className="fg-lb-contact" href={`mailto:${site.email}`}>
@@ -487,7 +590,7 @@ function Contact() {
 
 function ForgeFooter() {
   return (
-    <footer className="fg-foot">
+    <footer className="fg-foot fg-reveal">
       <span>Sree Vardhan <span className="fg-dot">V.</span></span>
       <span className="fg-foot-links">
         <a href="#fg-top">Top <span aria-hidden="true">↑</span></a>
@@ -520,6 +623,7 @@ export function ForgeSite() {
       <main className="forge-main">
         <ForgeNav />
         <Hero />
+        <StatsStrip />
         <Marquee />
         <About />
         <Stack />

@@ -1,5 +1,6 @@
 import { techGroups } from "../data/tech";
 import { Reveal } from "../hooks/useReveal";
+import { TypeCmd } from "./TypeCmd";
 
 export function Tech() {
   return (
@@ -8,9 +9,7 @@ export function Tech() {
         <div className="shell">
           <Reveal>
             <div className="shell-head">
-              <span className="cmdline">
-                <span className="dollar">$</span> tree ~/skills
-              </span>
+              <TypeCmd cmd="tree ~/skills" />
               <h2 className="shell-title" id="tech-title">
                 SKILLS.TREE <span className="dim">// tools i actually use</span>
               </h2>
@@ -19,9 +18,9 @@ export function Tech() {
 
           <Reveal>
             <div className="tree" role="list" aria-label="Technology stack tree">
-              <span className="tree-root">~/skills</span>
+              <span className="tree-root" style={{ "--i": 0 } as React.CSSProperties}>~/skills</span>
               {techGroups.map((g, gi) => (
-                <div key={g.label} role="listitem">
+                <div key={g.label} role="listitem" style={{ "--i": gi + 1 } as React.CSSProperties}>
                   <span className="tree-branch">
                     {gi === techGroups.length - 1 ? "└── " : "├── "}
                   </span>

@@ -3,6 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { Boot } from "./components/Boot";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
+import { useSpotlight } from "./hooks/useSpotlight";
 import "./styles/global.css";
 
 function ScrollManager() {
@@ -23,6 +24,7 @@ function ScrollManager() {
 }
 
 export function TerminalLayout() {
+  useSpotlight();
   const [booting, setBooting] = useState(() => {
     try {
       return !sessionStorage.getItem("folio.booted");

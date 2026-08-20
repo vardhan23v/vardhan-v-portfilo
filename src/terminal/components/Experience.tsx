@@ -1,5 +1,6 @@
 import { certifications, education, experience } from "../data/experience";
 import { Reveal } from "../hooks/useReveal";
+import { TypeCmd } from "./TypeCmd";
 
 export function Experience() {
   return (
@@ -8,9 +9,7 @@ export function Experience() {
         <div className="shell">
           <Reveal>
             <div className="shell-head">
-              <span className="cmdline">
-                <span className="dollar">$</span> tail -f ~/experience.log
-              </span>
+              <TypeCmd cmd="tail -f ~/experience.log" />
               <h2 className="shell-title" id="exp-title">
                 EXPERIENCE_LOG <span className="dim">// 2026</span>
               </h2>
@@ -30,8 +29,8 @@ export function Experience() {
               </div>
               <div className="term-body">
                 <div className="exp-list">
-                  {experience.map((e) => (
-                    <div className="exp-item" key={e.company}>
+                  {experience.map((e, i) => (
+                    <div className="exp-item" key={e.company} style={{ "--i": i } as React.CSSProperties}>
                       <div className="exp-headln">
                         [{e.period}] <b>INFO</b> role_registered
                       </div>

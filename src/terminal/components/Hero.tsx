@@ -1,7 +1,78 @@
 import { useEffect, useRef, useState } from "react";
 import { site } from "../data/site";
 import { techGroups } from "../data/tech";
-import { experience, education, certifications, process } from "../data/experience";
+import { caseStudies } from "../data/work";
+import { certifications, experience, education, process } from "../data/experience";
+import { TypeText } from "./TypeCmd";
+
+function MatrixRain() {
+  const ref = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const hero = canvas.parentElement as HTMLElement | null;
+    if (!hero) return;
+
+    const CHARS = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜ0123456789ABCDEF";
+    const FONT = 14;
+    let cols = 0;
+    let drops: number[] = [];
+    let raf = 0;
+    let last = 0;
+    let inView = true;
+
+    const setup = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      canvas.width = Math.floor(hero.clientWidth * dpr);
+      canvas.height = Math.floor(hero.clientHeight * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      cols = Math.max(1, Math.floor(hero.clientWidth / FONT));
+      drops = Array.from({ length: cols }, () => Math.floor(Math.random() * -40));
+      ctx.fillStyle = "#050807";
+      ctx.fillRect(0, 0, hero.clientWidth, hero.clientHeight);
+    };
+
+    const step = (t: number) => {
+      raf = requestAnimationFrame(step);
+      if (!inView || t - last < 50) return;
+      last = t;
+      ctx.fillStyle = "rgba(5, 8, 7, 0.12)";
+      ctx.fillRect(0, 0, hero.clientWidth, hero.clientHeight);
+      ctx.font = `${FONT}px "JetBrains Mono", monospace`;
+      for (let i = 0; i < cols; i++) {
+        const ch = CHARS[Math.floor(Math.random() * CHARS.length)];
+        ctx.fillStyle = Math.random() < 0.08 ? "#8df5b8" : "rgba(54, 229, 124, 0.5)";
+        ctx.fillText(ch, i * FONT, drops[i] * FONT);
+        if (drops[i] * FONT > hero.clientHeight && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+    };
+
+    const io = new IntersectionObserver(
+      (es) => {
+        inView = es[0]?.isIntersecting ?? true;
+      },
+      { rootMargin: "200px" }
+    );
+    io.observe(hero);
+
+    setup();
+    raf = requestAnimationFrame(step);
+    window.addEventListener("resize", setup);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      io.disconnect();
+      window.removeEventListener("resize", setup);
+    };
+  }, []);
+
+  return <canvas ref={ref} className="matrix-canvas" aria-hidden="true" />;
+}
 
 type Line = { key: number; text: string; cls: string };
 
@@ -10,6 +81,42 @@ const K = () => ++keySeq;
 const L = (text: string, cls = "") => ({ key: K(), text, cls });
 
 const FILES = ["about.txt", "experience.log", "skills.tree", "how_i_work.sh"];
+
+const FORTUNES = [
+  "measure twice, ship once.",
+  "the best debugger is a clean room and a long walk.",
+  "if it works, it ships; if it ships, it scales; if it scales, you made it.",
+  "code is read more often than it is written.",
+  "automate the boring, delegate the impossible.",
+  "a fallback chain is a love letter to your users.",
+  "first make it work, then make it fast, then make it pretty.",
+  "prototype in a day, polish in a week, ship it forever.",
+];
+
+const MAN_PAGES: Record<string, string> = {
+  help: "list available commands",
+  whoami: "who is behind this terminal",
+  work: "selected projects",
+  cd: "change directory (try: cd work)",
+  experience: "work log",
+  tech: "technology stack",
+  tree: "alias for tech",
+  about: "the longer story",
+  opensource: "public repos",
+  contact: "how to reach me",
+  resume: "download résumé",
+  neofetch: "system info",
+  cowsay: "cow says hello",
+  matrix: "follow the white rabbit",
+  ping: "trace a packet",
+  banner: "print a box banner",
+  fortune: "random wisdom",
+  history: "session command history",
+  stats: "portfolio metrics",
+  ssh: "open a session",
+  curl: "fetch the portfolio",
+  clear: "wipe the session",
+};
 
 const COMMANDS = [
   "help",
@@ -68,7 +175,7 @@ function uptime() {
   return days > 0 ? `${days}d ${hours}h ${m}m` : `${hours}h ${m}m`;
 }
 
-function runCmd(raw: string): Line[] {
+function runCmd(raw: string, getHistory: () => string[]): Line[] {
   const parts = raw.trim().split(/\s+/);
   const cmd = parts[0] ?? "";
   const arg = raw.trim().slice(cmd.length).trim();
@@ -132,8 +239,15 @@ function runCmd(raw: string): Line[] {
       push("  cowsay [msg]             cow says hello");
       push("  matrix                   follow the white rabbit");
       push("  ping [host]              trace a packet");
+      push("  banner [text]            print a box banner");
+      push("  fortune                  random wisdom");
+      push("  history                  session command history");
+      push("  stats                    portfolio metrics");
+      push("  man <cmd>                manual page for a command");
+      push("  ssh / curl               open a session / fetch the portfolio");
       push("  uptime / date            terminal facts");
       push("  clear                    wipe the session", "dim");
+      push("  ctrl+l                   wipe the session too", "dim");
       push("  `                        focus this terminal from anywhere", "dim");
       push("  tab / ↑↓                 completion / command history", "dim");
       break;
@@ -272,6 +386,58 @@ function runCmd(raw: string): Line[] {
     case "uptime":
       push(`up ${uptime()}, load: building_products`, "green");
       break;
+    case "fortune":
+      push(`fortune: ${FORTUNES[Math.floor(Math.random() * FORTUNES.length)]}`, "amber");
+      break;
+    case "banner": {
+      const t = arg || "vardhan";
+      const rail = t.replace(/./g, "─");
+      push(`╭─${rail}─╮`, "green");
+      push(`│ ${t} │`, "green");
+      push(`╰─${rail}─╯`, "green");
+      break;
+    }
+    case "history": {
+      const h = getHistory();
+      if (h.length === 0) {
+        push("history: session is empty", "dim");
+        break;
+      }
+      h.forEach((c, i) => push(`${String(i + 1).padStart(3)}  ${c}`, "green"));
+      break;
+    }
+    case "stats": {
+      const skills = techGroups.reduce((s, g) => s + g.items.length, 0);
+      push("portfolio metrics", "cyan");
+      push(`projects shipped : ${caseStudies.length}`, "green");
+      push(`roles logged     : ${experience.length}`, "green");
+      push(`skills indexed   : ${skills}`, "green");
+      push(`certifications   : ${certifications.length}`, "green");
+      push("uptime: building products", "dim");
+      break;
+    }
+    case "man": {
+      if (arg && MAN_PAGES[arg]) push(`man ${arg}: ${MAN_PAGES[arg]}`, "green");
+      else if (arg) push(`man: no manual entry for ${arg}`, "red");
+      else {
+        push("usage: man <command>", "amber");
+        push("try: man work · man matrix · man banner", "dim");
+      }
+      break;
+    }
+    case "ssh":
+      push("ssh vardhan@folio", "dim");
+      push("connecting…", "dim");
+      push("welcome, operator. session established (session id: 0x1f44)", "green");
+      break;
+    case "curl":
+      push("HTTP/2 200", "green");
+      push("content-type: text/plain; charset=utf-8", "dim");
+      push("", "dim");
+      push(site.headline, "cyan");
+      push(site.subheadline, "dim");
+      push("status: accepting interesting problems", "amber");
+      break;
     case "date":
     case "time":
       push(new Date().toString().slice(0, 24), "amber");
@@ -324,6 +490,13 @@ export function Hero() {
   const heroRef = useRef<HTMLElement | null>(null);
   const historyRef = useRef<string[]>([]);
   const mounted = useRef(false);
+  const bootDelay = (() => {
+    try {
+      return sessionStorage.getItem("folio.booted") ? 250 : 1750;
+    } catch {
+      return 250;
+    }
+  })();
 
   useEffect(() => {
     if (!mounted.current) {
@@ -355,7 +528,7 @@ export function Hero() {
     const next: Line[] = [];
     for (const c of cmds) {
       next.push(L(`$ ${raw.trim()}`, "cmd"));
-      next.push(...runCmd(c));
+      next.push(...runCmd(c, () => historyRef.current));
       if (c === "clear" && cmds.length === 1) {
         setLines([]);
         setInput("");
@@ -385,6 +558,10 @@ export function Hero() {
   const onKey = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       submit(input);
+    } else if (e.key === "l" && e.ctrlKey) {
+      e.preventDefault();
+      setLines([]);
+      setInput("");
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       const h = historyRef.current;
@@ -411,6 +588,7 @@ export function Hero() {
 
   return (
     <section className="hero" aria-label="Introduction" ref={heroRef}>
+      <MatrixRain />
       <div className="container hero-grid">
         <div>
           <pre className="hero-banner" aria-hidden="true">
@@ -419,8 +597,11 @@ export function Hero() {
           </pre>
           <div className="hero-tag">generative-ai developer :: full-stack developer</div>
           <p className="hero-intro">
-            {site.fullName} — b.tech computer science @ nmam. I turn interfaces, APIs,
-            databases and LLM backends into working products, and I ship them.
+            <TypeText
+              text={`${site.fullName} — b.tech computer science @ nmam. I turn interfaces, APIs, databases and LLM backends into working products, and I ship them.`}
+              delay={bootDelay}
+              speed={16}
+            />
           </p>
 
           <div className="hero-chips" role="group" aria-label="Quick commands">

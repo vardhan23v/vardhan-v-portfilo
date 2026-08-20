@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { site } from "../data/site";
 import { Reveal } from "../hooks/useReveal";
+import { TypeCmd } from "./TypeCmd";
 
 export function Contact() {
   const [from, setFrom] = useState("");
@@ -24,9 +25,7 @@ export function Contact() {
         <div className="shell">
           <Reveal>
             <div className="shell-head">
-              <span className="cmdline">
-                <span className="dollar">$</span> sudo ./sendmail --to vardhan
-              </span>
+              <TypeCmd cmd="sudo ./sendmail --to vardhan" />
               <h2 className="shell-title" id="contact-title">
                 CONTACT_OPS <span className="dim">// ack required</span>
               </h2>

@@ -1,5 +1,6 @@
 import { site } from "../data/site";
 import { Reveal } from "../hooks/useReveal";
+import { TypeCmd } from "./TypeCmd";
 
 const GIT = `Git · GitHub · Vercel · Postman · VS Code`;
 
@@ -10,9 +11,7 @@ export function About() {
         <div className="shell">
           <Reveal>
             <div className="shell-head">
-              <span className="cmdline">
-                <span className="dollar">$</span> cat ~/about.txt
-              </span>
+              <TypeCmd cmd="cat ~/about.txt" />
               <h2 className="shell-title" id="about-title">
                 WHOAMI <span className="dim">// 0041</span>
               </h2>

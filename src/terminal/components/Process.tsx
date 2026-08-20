@@ -1,5 +1,6 @@
 import { process } from "../data/experience";
 import { Reveal } from "../hooks/useReveal";
+import { TypeCmd } from "./TypeCmd";
 
 export function Process() {
   return (
@@ -8,9 +9,7 @@ export function Process() {
         <div className="shell">
           <Reveal>
             <div className="shell-head">
-              <span className="cmdline">
-                <span className="dollar">$</span> sh ./how_i_work.sh --pipeline
-              </span>
+              <TypeCmd cmd="sh ./how_i_work.sh --pipeline" />
               <h2 className="shell-title" id="proc-title">
                 HOW_I_WORK <span className="dim">// 5 stages</span>
               </h2>
@@ -19,8 +18,8 @@ export function Process() {
 
           <Reveal>
             <div className="pipe-grid" role="list" aria-label="My process, five stages">
-              {process.map((s) => (
-                <div className="pipe-node" role="listitem" key={s.step}>
+              {process.map((s, i) => (
+                <div className="pipe-node" role="listitem" key={s.step} data-spot style={{ "--i": i } as React.CSSProperties}>
                   <div className="pipe-step">{s.step}</div>
                   <div className="pipe-label">
                     {s.label.toLowerCase()}

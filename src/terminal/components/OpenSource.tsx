@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { fallbackRepos } from "../data/tech";
 import { Reveal } from "../hooks/useReveal";
+import { TypeCmd } from "./TypeCmd";
 
 const GITHUB_API = "https://api.github.com/users/vardhan23v/repos?sort=updated&per_page=8&type=public";
 
@@ -39,9 +40,7 @@ export function OpenSource() {
         <div className="shell">
           <Reveal>
             <div className="shell-head">
-              <span className="cmdline">
-                <span className="dollar">$</span> git remote -v <span className="bracket"># ./repos/</span>
-              </span>
+              <TypeCmd cmd="git remote -v" suffix={<span className="bracket"> # ./repos/</span>} />
               <h2 className="shell-title" id="os-title">
                 OPEN_SOURCE <span className="dim">// all public</span>
               </h2>
@@ -63,8 +62,8 @@ export function OpenSource() {
               </div>
               <div className="term-body">
                 <div className="remote-list">
-                  {list.map((r) => (
-                    <div className="remote-item" key={r.name}>
+                  {list.map((r, i) => (
+                    <div className="remote-item" key={r.name} data-spot style={{ "--i": i } as React.CSSProperties}>
                       <span className="remote-name">{r.name}</span>
                       <span className="rl">
                         {r.description ? r.description : "(no description)"}

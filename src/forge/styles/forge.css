@@ -423,6 +423,13 @@
   letter-spacing: -0.02em;
 }
 
+.fg-hero-heading.fg-enter {
+  opacity: 0;
+  animation:
+    fgenter 0.7s cubic-bezier(0.25, 0.1, 0.25, 1) var(--d, 0s) forwards,
+    fg-head-shimmer 9s ease-in-out infinite;
+}
+
 .fg-lede {
   margin-top: 28px;
   font-size: clamp(17px, 2vw, 21px);

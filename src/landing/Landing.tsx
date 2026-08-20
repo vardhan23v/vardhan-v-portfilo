@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
@@ -12,10 +12,171 @@ const STATS = [
   { value: featuredProjects.length, label: "shipped products", pad: true },
   { value: 5, label: "interfaces, one portfolio", pad: true },
   { value: experience.length, label: "roles & internships", pad: true },
-  { value: 31, label: "stack technologies", pad: true },
+  { value: skillCategories.reduce((s, c) => s + c.items.length, 0), label: "stack technologies", pad: true },
 ];
 
 const SKILL_NAMES = [...new Set(skillCategories.flatMap((c) => c.items.map((i) => i.name)))];
+
+const STAGE_INTERVAL = 4200;
+
+const EDITIONS = [
+  {
+    to: "/terminal",
+    label: "Terminal",
+    url: "vardhan.dev/terminal",
+    tone: "term",
+    skin: (
+      <div className="stage-term" aria-hidden="true">
+        <p>$ vardhan build --ai</p>
+        <p className="dim">▸ initializing llm…</p>
+        <p className="dim">▸ wiring react + node…</p>
+        <p className="ok">✓ shipped <i /></p>
+      </div>
+    ),
+  },
+  {
+    to: "/classic",
+    label: "Classic",
+    url: "vardhan.dev/classic",
+    tone: "classic",
+    skin: (
+      <div className="stage-classic" aria-hidden="true">
+        <div className="sc-name">
+          VARDHAN<span className="sc-dot">.</span>V
+        </div>
+        <div className="sc-grid">
+          <span />
+          <span />
+          <span />
+          <span />
+        </div>
+      </div>
+    ),
+  },
+  {
+    to: "/paper",
+    label: "Paper",
+    url: "vardhan.dev/paper",
+    tone: "paper",
+    skin: (
+      <div className="stage-paper" aria-hidden="true">
+        <p className="sp-name">
+          Sree Vardhan
+          <br />
+          <em>Vardhan V.</em>
+        </p>
+        <div className="sp-rule" />
+        <p className="sp-line" />
+        <p className="sp-line short" />
+      </div>
+    ),
+  },
+  {
+    to: "/aurora",
+    label: "Aurora",
+    url: "vardhan.dev/aurora",
+    tone: "aurora",
+    skin: (
+      <div className="stage-aurora" aria-hidden="true">
+        <span className="sa-blob pink" />
+        <span className="sa-blob cyan" />
+        <p className="sa-name">
+          Sree Vardhan <em>V.</em>
+        </p>
+        <span className="sa-chip">generative-ai · full-stack</span>
+      </div>
+    ),
+  },
+  {
+    to: "/forge",
+    label: "Forge",
+    url: "vardhan.dev/forge",
+    tone: "forge",
+    skin: (
+      <div className="stage-forge" aria-hidden="true">
+        <p className="sf-name">
+          Sree Vardhan <span className="sf-dot">V.</span>
+        </p>
+        <div className="sf-rule" />
+        <p className="sf-head">Where code meets intelligence.</p>
+        <div className="sf-pipe">
+          <span>frontend</span><i>→</i><span>api</span><i>→</i><span>llm</span><i>→</i><span>ship</span>
+        </div>
+      </div>
+    ),
+  },
+];
+
+function EditionStage() {
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  useEffect(() => {
+    if (paused || reduced) return;
+    const t = window.setInterval(() => setIndex((i) => (i + 1) % EDITIONS.length), STAGE_INTERVAL);
+    return () => window.clearInterval(t);
+  }, [paused, reduced, index]);
+
+  const ed = EDITIONS[index];
+
+  return (
+    <div
+      className="stage-frame"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      tabIndex={0}
+      role="group"
+      aria-label="Live preview of the five portfolio editions. Use left and right arrows to switch."
+      onKeyDown={(e) => {
+        if (e.key === "ArrowRight") setIndex((i) => (i + 1) % EDITIONS.length);
+        if (e.key === "ArrowLeft") setIndex((i) => (i + EDITIONS.length - 1) % EDITIONS.length);
+      }}
+    >
+      <div className="stage-bar">
+        <span className="stage-dot r" />
+        <span className="stage-dot y" />
+        <span className="stage-dot g" />
+        <span className="stage-url" aria-hidden="true">{ed.url}</span>
+        <span className="stage-count" aria-hidden="true">
+          0{index + 1} / 05
+        </span>
+      </div>
+
+      <Link to={ed.to} className="stage-screen" aria-label={`Open the ${ed.label} interface`}>
+        {EDITIONS.map((s, i) => (
+          <div key={s.to} className={`stage-skin stage-${s.tone}${i === index ? " is-active" : ""}`}>
+            {s.skin}
+          </div>
+        ))}
+        <span className="stage-enter" aria-hidden="true">
+          enter {ed.label} →
+        </span>
+      </Link>
+
+      <div className="stage-foot">
+        <div className="stage-segments" role="tablist" aria-label="Choose edition preview">
+          {EDITIONS.map((s, i) => (
+            <button
+              key={s.to}
+              type="button"
+              role="tab"
+              aria-selected={i === index}
+              aria-label={`Preview ${s.label}`}
+              className={`stage-seg${i === index ? " is-active" : ""}`}
+              onClick={() => setIndex(i)}
+            >
+              <i key={i === index ? `${s.to}-${i}` : s.to} />
+            </button>
+          ))}
+        </div>
+        <span className="stage-tone" aria-hidden="true">
+          {ed.label.toLowerCase()}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 function EditionCard({
   to,
@@ -161,41 +322,49 @@ export function Landing() {
     <div className="landing-root">
       <main className="landing-main">
         <header className="landing-head">
-          <p className="landing-eyebrow">sree vardhan v — generative-ai · full-stack</p>
-          <h1 className="landing-title">
-            One portfolio.
-            <br />
-            <span className="landing-grad">Five interfaces.</span>
-          </h1>
-          <p className="landing-what">I build AI-powered products and full-stack systems.</p>
-          <p className="landing-sub">
-            Computer Science undergraduate focused on Generative AI, full-stack
-            development, and developer tooling. One body of work, five ways to
-            experience it — pick a lane, switch anytime.
-          </p>
+          <div className="hero-grid">
+            <div className="hero-copy">
+              <p className="landing-eyebrow">sree vardhan v — generative-ai · full-stack</p>
+              <h1 className="landing-title">
+                One portfolio.
+                <br />
+                <span className="landing-grad">Five interfaces.</span>
+              </h1>
+              <p className="landing-what">I build AI-powered products and full-stack systems.</p>
+              <p className="landing-sub">
+                Computer Science undergraduate focused on Generative AI, full-stack
+                development, and developer tooling. One body of work, five ways to
+                experience it — pick a lane, switch anytime.
+              </p>
 
-          <div className="landing-ctas">
-            <a className="l-cta l-cta-primary" href="#editions">
-              View selected work <span aria-hidden="true">→</span>
-            </a>
-            <a className="l-cta" href={site.github} target="_blank" rel="noopener noreferrer">
-              GitHub <span aria-hidden="true">↗</span>
-            </a>
-            <a className="l-cta" href={site.resume} target="_blank" rel="noopener noreferrer">
-              Resume <span aria-hidden="true">↗</span>
-            </a>
-          </div>
+              <div className="landing-ctas">
+                <a className="l-cta l-cta-primary" href="#editions">
+                  View selected work <span aria-hidden="true">→</span>
+                </a>
+                <a className="l-cta" href={site.github} target="_blank" rel="noopener noreferrer">
+                  GitHub <span aria-hidden="true">↗</span>
+                </a>
+                <a className="l-cta" href={site.resume} target="_blank" rel="noopener noreferrer">
+                  Resume <span aria-hidden="true">↗</span>
+                </a>
+              </div>
 
-          <div className="landing-pipeline" aria-hidden="true">
-            <span>frontend</span>
-            <i>→</i>
-            <span>api</span>
-            <i>→</i>
-            <span>database</span>
-            <i>→</i>
-            <span>llm</span>
-            <i>→</i>
-            <span>product</span>
+              <div className="landing-pipeline" aria-hidden="true">
+                <span>frontend</span>
+                <i>→</i>
+                <span>api</span>
+                <i>→</i>
+                <span>database</span>
+                <i>→</i>
+                <span>llm</span>
+                <i>→</i>
+                <span>product</span>
+              </div>
+            </div>
+
+            <div className="hero-stage">
+              <EditionStage />
+            </div>
           </div>
 
           <div className="landing-scroll" aria-hidden="true">

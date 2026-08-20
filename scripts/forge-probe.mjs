@@ -19,56 +19,63 @@ await new Promise((r) => setTimeout(r, 1200));
 
 const report = {};
 
-report.pulse = await page.evaluate(() => {
-  const pulse = document.querySelector(".fg-pipe-pulse");
-  return !!pulse && getComputedStyle(pulse, "::before").animationName === "fg-pipe-flow";
-});
-
-report.ledeSwaps = await page.evaluate(async () => {
-  const el = document.querySelector(".fg-lede .fg-lede-swap");
-  if (!el) return -1;
-  const first = el.textContent;
-  await new Promise((r) => setTimeout(r, 4400));
-  const now = document.querySelector(".fg-lede .fg-lede-swap");
-  return first !== now.textContent ? 1 : 0;
-});
-
-const rowBox = await page.evaluate(() => {
-  const r = document.querySelectorAll(".fg-pipe-row")[1];
-  const b = r.getBoundingClientRect();
-  return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
-});
-await page.mouse.move(rowBox.x, rowBox.y, { steps: 4 });
-await new Promise((r) => setTimeout(r, 300));
-report.trace = await page.evaluate(() =>
-  [...document.querySelectorAll(".fg-pipe-row")].map((r) => r.className)
-);
-await page.mouse.move(10, 10, { steps: 4 });
-await new Promise((r) => setTimeout(r, 200));
-report.traceCleared = await page.evaluate(() =>
-  [...document.querySelectorAll(".fg-pipe-row")].map((r) => r.className)
+report.eyebrows = await page.evaluate(() =>
+  [...document.querySelectorAll(".fg-sec-eyebrow")].map((e) => e.textContent.trim())
 );
 
-await page.evaluate(async () => {
-  document.querySelector(".fg-stats").scrollIntoView({ block: "center" });
-  await new Promise((r) => setTimeout(r, 1300));
-});
-report.stats = await page.evaluate(() => {
-  const labels = [...document.querySelectorAll(".fg-stat-label")].map((e) => e.textContent);
-  const values = [...document.querySelectorAll(".fg-stat-value")].map((e) => e.textContent.trim());
-  return { labels, values };
+report.context = await page.evaluate(() =>
+  [...document.querySelectorAll(".fg-context span")].map((e) => e.textContent)
+);
+
+report.shimmer = await page.evaluate(() => {
+  const h = document.querySelector(".fg-hero-heading");
+  return getComputedStyle(h).animationName;
 });
 
-report.glint = await page.evaluate(() => !!document.querySelector(".fg-hero-heading.fg-glint"));
-
-report.footerReveal = await page.evaluate(() => {
-  const f = document.querySelector(".fg-foot");
-  return f && f.classList.contains("fg-reveal");
+report.bgDrift = await page.evaluate(() => {
+  const bg = document.querySelector(".fg-bg");
+  return getComputedStyle(bg, "::before").animationName;
 });
+
+report.grid = await page.evaluate(() => !!document.querySelector(".fg-bg .fg-grid"));
+
+report.stackHues = await page.evaluate(() =>
+  [...document.querySelectorAll(".fg-stack-card")].map((c) => c.style.getPropertyValue("--hc"))
+);
+
+report.stackDescs = await page.evaluate(() =>
+  [...document.querySelectorAll(".fg-stack-desc")].map((e) => e.textContent)
+);
+
+report.emojiWatermarks = await page.evaluate(() =>
+  [...document.querySelectorAll(".fg-proj-emoji")].map((e) => e.textContent)
+);
+
+report.contactGlow = await page.evaluate(() =>
+  getComputedStyle(document.querySelector(".fg-contact"), "::before").animationName
+);
 
 report.hscroll = await page.evaluate(
   () => document.documentElement.scrollWidth - document.documentElement.clientWidth
 );
+
+await page.screenshot({ path: "/tmp/forge-hero.png" });
+await page.evaluate(() => {
+  document.querySelector("#stack").scrollIntoView();
+});
+await new Promise((r) => setTimeout(r, 900));
+await page.screenshot({ path: "/tmp/forge-stack.png" });
+await page.evaluate(() => {
+  document.querySelector("#work").scrollIntoView({ block: "start" });
+  window.scrollBy(0, 900);
+});
+await new Promise((r) => setTimeout(r, 900));
+await page.screenshot({ path: "/tmp/forge-work.png" });
+await page.evaluate(() => {
+  document.querySelector("#contact").scrollIntoView();
+});
+await new Promise((r) => setTimeout(r, 900));
+await page.screenshot({ path: "/tmp/forge-contact.png" });
 
 console.log(JSON.stringify(report, null, 2));
 console.log("ERRORS:", JSON.stringify(errors));

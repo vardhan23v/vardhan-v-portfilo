@@ -58,6 +58,36 @@ function stackGroups() {
 
 const STACK = stackGroups();
 
+const STACK_HUES = ["#7dd3fc", "#93c5fd", "#a78bfa", "#67e8f9", "#c4b5fd", "#86efac"];
+
+const STACK_CONTEXT: Record<string, string> = {
+  Languages: "the foundation",
+  Frontend: "interfaces that feel alive",
+  Backend: "APIs & systems",
+  Databases: "structured storage",
+  AI: "models wired into products",
+  Tools: "workflow force-multipliers",
+};
+
+const SECTION_META: Record<string, [string, string]> = {
+  about: ["01", "about"],
+  stack: ["02", "stack"],
+  experience: ["03", "experience"],
+  work: ["04", "selected work"],
+  contact: ["05", "contact"],
+};
+
+function SectionEyebrow({ id, left }: { id: string; left?: boolean }) {
+  const [idx, name] = SECTION_META[id];
+  return (
+    <p className={`fg-sec-eyebrow${left ? " fg-sec-eyebrow-left" : ""}`}>
+      <span className="fg-sec-idx">{idx}</span>
+      <span className="fg-sec-name">{name}</span>
+      <span className="fg-sec-rule" aria-hidden="true" />
+    </p>
+  );
+}
+
 const LEDES = [
   "Building AI-powered products that feel simple to use.",
   "Shipping full-stack systems that solve real problems.",
@@ -316,6 +346,11 @@ function Hero() {
             Resume <span aria-hidden="true">↗</span>
           </a>
         </div>
+        <div className="fg-context fg-enter" style={{ "--d": "0.58s" } as CSSProperties}>
+          <span>generative ai</span>
+          <span>full-stack engineering</span>
+          <span>agentic systems</span>
+        </div>
       </div>
       <div className="fg-hero-visual fg-enter" style={{ "--d": "0.34s" } as CSSProperties} aria-hidden="true">
         <div className="fg-pipe">
@@ -442,6 +477,7 @@ function About() {
   return (
     <section className="fg-section" id="about">
       <div className="fg-about fg-reveal">
+        <SectionEyebrow id="about" />
         <h2 className="fg-heading hero-heading">About me</h2>
         <div className="fg-prose">
           {ABOUT_PARAGRAPHS.map((p, i) => (
@@ -465,12 +501,14 @@ function Stack() {
   return (
     <section className="fg-section" id="stack">
       <div className="fg-stack fg-reveal">
+        <SectionEyebrow id="stack" left />
         <h2 className="fg-heading hero-heading">Stack</h2>
         <div className="fg-stack-grid">
           {STACK.map((c, i) => (
-            <div className="fg-stack-card" key={c.label} style={{ "--i": i } as CSSProperties}>
+            <div className="fg-stack-card" key={c.label} style={{ "--i": i, "--hc": STACK_HUES[i % STACK_HUES.length] } as CSSProperties}>
               <span className="fg-stack-idx">{String(i + 1).padStart(2, "0")}</span>
               <h3>{c.label}</h3>
+              <span className="fg-stack-desc">{STACK_CONTEXT[c.label] ?? ""}</span>
               <div className="fg-stack-items">
                 {c.items.map((name) => (
                   <span key={name}>{name}</span>
@@ -488,6 +526,7 @@ function Experience() {
   return (
     <section className="fg-section" id="experience">
       <div className="fg-exp fg-reveal">
+        <SectionEyebrow id="experience" left />
         <h2 className="fg-heading hero-heading">Experience</h2>
         <ol className="fg-timeline">
           {experience.map((e, i) => (
@@ -530,6 +569,7 @@ function ProjectCard({ p, i }: { p: (typeof FORGE_PROJECTS)[number]; i: number }
         </div>
         <h3 className="fg-proj-title">{p.name}</h3>
         <p className="fg-proj-desc">{p.tagline}</p>
+        <span className="fg-proj-emoji" aria-hidden="true">{p.emoji}</span>
         <div className="fg-proj-tech">
           {p.tech.slice(0, 6).map((t) => (
             <span key={t}>{t}</span>
@@ -554,6 +594,7 @@ function Work() {
   return (
     <section className="fg-section fg-work" id="work">
       <div className="fg-work-head fg-reveal">
+        <SectionEyebrow id="work" left />
         <h2 className="fg-heading hero-heading">Selected Work</h2>
         <p className="fg-subhead">
           A selection of AI-powered products, full-stack applications, and developer
@@ -573,6 +614,7 @@ function Contact() {
   return (
     <section className="fg-section" id="contact">
       <div className="fg-contact fg-reveal">
+        <SectionEyebrow id="contact" />
         <h2 className="fg-heading hero-heading fg-glint">Let&rsquo;s build something.</h2>
         <p className="fg-subhead">Have an idea, project, or opportunity? Let&rsquo;s talk.</p>
         <div className="fg-ctas fg-ctas-center">
@@ -619,7 +661,9 @@ export function ForgeSite() {
 
   return (
     <div className="forge-root" id="fg-top" data-cursor-accent="forge">
-      <div className="fg-bg" aria-hidden="true" />
+      <div className="fg-bg" aria-hidden="true">
+        <div className="fg-grid" />
+      </div>
       <main className="forge-main">
         <ForgeNav />
         <Hero />

@@ -14,6 +14,7 @@ const ACCENTS: Record<string, string> = {
 export function ScrollChrome() {
   const location = useLocation();
   const [accent, setAccent] = useState("#7c6cff");
+  const [showTop, setShowTop] = useState(false);
 
   useEffect(() => {
     const root = document.querySelector<HTMLElement>("[data-cursor-accent], [data-cursor-off]");
@@ -30,7 +31,9 @@ export function ScrollChrome() {
       const y = window.scrollY;
       const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
       if (bar) bar.style.transform = `scaleX(${Math.min(1, y / max)})`;
-      if (btn) btn.classList.toggle("is-visible", y > 500);
+      const vis = y > 500;
+      if (btn) btn.classList.toggle("is-visible", vis);
+      setShowTop(vis);
     };
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(update);
@@ -65,6 +68,8 @@ export function ScrollChrome() {
         style={{ "--sc-accent": accent } as CSSProperties}
         onClick={toTop}
         aria-label="Back to top"
+        tabIndex={showTop ? 0 : -1}
+        aria-hidden={!showTop}
       >
         ↑
       </button>

@@ -2,11 +2,11 @@ import { Link } from "react-router-dom";
 import "./interface-switcher.css";
 
 const editionRoutes = [
-  { num: "01", label: "Terminal", to: "/terminal", key: "terminal" },
-  { num: "02", label: "Classic", to: "/classic", key: "classic" },
-  { num: "03", label: "Paper", to: "/paper", key: "paper" },
-  { num: "04", label: "Aurora", to: "/aurora", key: "aurora" },
-  { num: "05", label: "Forge", to: "/forge", key: "forge" },
+  { num: "01", label: "Terminal", role: "Developer", to: "/terminal", key: "terminal" },
+  { num: "02", label: "Classic", role: "Professional", to: "/classic", key: "classic" },
+  { num: "03", label: "Paper", role: "Editorial", to: "/paper", key: "paper" },
+  { num: "04", label: "Aurora", role: "Visual", to: "/aurora", key: "aurora" },
+  { num: "05", label: "Forge", role: "Builder", to: "/forge", key: "forge" },
 ];
 
 export function InterfaceSwitcher({ current }: { current: string }) {
@@ -20,7 +20,7 @@ export function InterfaceSwitcher({ current }: { current: string }) {
             to={it.to}
             className={`iswitcher-item ${active ? "iswitcher-item--active" : ""}`}
             aria-current={active ? "true" : undefined}
-            title={it.label}
+            title={`${it.label} — ${it.role}`}
           >
             <span className="iswitcher-num" aria-hidden="true">
               {it.num}

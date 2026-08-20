@@ -70,7 +70,7 @@ export function Work() {
                           >
                             src
                           </a>
-                          <Link className="tlink-dim" to={`/work/${p.slug}`}>
+                          <Link className="tlink-dim" to={`/terminal/work/${p.slug}`}>
                             case-study
                           </Link>
                         </div>

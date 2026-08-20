@@ -15,7 +15,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const [now, setNow] = useState(() => new Date());
   const { pathname } = useLocation();
-  const onCase = pathname.startsWith("/work/");
+  const onCase = pathname.startsWith("/terminal/work/");
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);

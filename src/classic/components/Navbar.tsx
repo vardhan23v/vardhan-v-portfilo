@@ -14,7 +14,7 @@ const links = [
 const mobileLinks = [
   ...links,
   { label: "Skills", href: "#skills" },
-  { label: "Certifications", href: "#certifications" },
+  { label: "Education", href: "#education" },
 ];
 
 function NavClock() {
@@ -130,7 +130,12 @@ export function Navbar() {
         </div>
       </div>
 
-      <div id="mobile-menu" className={`nav-mobile ${open ? "nav-mobile-open" : ""}`}>
+      <div
+        id="mobile-menu"
+        className={`nav-mobile ${open ? "nav-mobile-open" : ""}`}
+        inert={!open}
+        aria-hidden={!open}
+      >
         <nav aria-label="Mobile">
           {mobileLinks.map((l, i) => (
             <a

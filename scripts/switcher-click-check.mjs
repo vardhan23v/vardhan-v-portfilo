@@ -5,7 +5,7 @@ await p.goto("http://localhost:4173/classic", { waitUntil: "networkidle0" });
 await p.waitForSelector(".iswitcher", { timeout: 10000 });
 await p.evaluate(() => [...document.querySelectorAll(".iswitcher-item")].find(a => a.textContent.includes("Paper")).click());
 await p.waitForFunction(() => location.pathname === "/paper", { timeout: 8000 });
-const paperActive = await p.evaluate(() => !!document.querySelector(".iswitcher-item--active") && document.querySelector(".iswitcher-item--active").getAttribute("title") === "Paper");
+const paperActive = await p.evaluate(() => !!document.querySelector(".iswitcher-item--active") && document.querySelector(".iswitcher-item--active").getAttribute("title") === "Paper — Editorial");
 await p.evaluate(() => [...document.querySelectorAll(".iswitcher-item")].find(a => a.textContent.includes("Terminal")).click());
 await p.waitForFunction(() => location.pathname === "/terminal", { timeout: 8000 });
 console.log(paperActive && new URL(p.url()).pathname === "/terminal" ? "SWITCHER CLICK-NAV PASS (classic->paper->terminal, active updates)" : "FAIL");

@@ -95,7 +95,9 @@ bloated deps.
     └── hooks/         # shared hooks
 ```
 
-All content lives in `src/classic/data/` and is shared across editions.
+Content lives in two places:
+- `src/classic/data/` — the shared source of truth for identity, projects, experience, skills, and certifications, used by Landing, Classic, Paper, Aurora, and Forge.
+- `src/terminal/data/` — the Terminal edition keeps its own case-study-rich data (man-page-style project entries, `how_i_work.sh` process stages) plus a small site profile that reuses the shared identity fields from `src/classic/data/site.ts`.
 
 ## 🚀 Getting Started
 

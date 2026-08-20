@@ -22,7 +22,8 @@ const chk = (l, c) => {
 
 await p.goto("http://localhost:4173/", { waitUntil: "networkidle0" });
 await p.waitForSelector(".edition-card", { timeout: 10000 });
-await sleep(1200);
+await p.evaluate(() => document.querySelector(".edition-card").scrollIntoView({ block: "center" }));
+await sleep(1000);
 const card = await p.evaluate(() => {
   const el = document.querySelector(".edition-card");
   const r = el.getBoundingClientRect();

@@ -4,13 +4,15 @@ import { site } from "../data/site";
 
 export function Footer() {
   const [clock, setClock] = useState(() => new Date());
+  const [uptime, setUptime] = useState(() => Math.floor(performance.now() / 60000));
 
   useEffect(() => {
-    const t = setInterval(() => setClock(new Date()), 1000);
+    const t = setInterval(() => {
+      setClock(new Date());
+      setUptime(Math.floor(performance.now() / 60000));
+    }, 1000);
     return () => clearInterval(t);
   }, []);
-
-  const uptime = Math.floor((Date.now() - performance.now()) / 60000);
 
   return (
     <footer className="footer">

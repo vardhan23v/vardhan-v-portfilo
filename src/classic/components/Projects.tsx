@@ -15,7 +15,6 @@ const CATEGORY: Record<string, "AI" | "full-stack"> = {
   "vard-ai": "AI",
   "disastermind-ai": "AI",
   drivenest: "full-stack",
-  "campus-compass": "full-stack",
 };
 
 type Filter = "all" | "AI" | "full-stack";
@@ -28,16 +27,26 @@ const FILTERS: { id: Filter; label: string }[] = [
 
 function Mark({ text, query }: { text: string; query: string }) {
   if (!query) return <>{text}</>;
+  const q = query.toLowerCase();
   const lower = text.toLowerCase();
-  const i = lower.indexOf(query);
-  if (i < 0) return <>{text}</>;
-  return (
-    <>
-      {text.slice(0, i)}
-      <mark className="project-hl">{text.slice(i, i + query.length)}</mark>
-      {text.slice(i + query.length)}
-    </>
-  );
+  const nodes: React.ReactNode[] = [];
+  let i = 0;
+  let key = 0;
+  while (i < text.length) {
+    const idx = lower.indexOf(q, i);
+    if (idx < 0) {
+      nodes.push(<span key={key++}>{text.slice(i)}</span>);
+      break;
+    }
+    if (idx > i) nodes.push(<span key={key++}>{text.slice(i, idx)}</span>);
+    nodes.push(
+      <mark className="project-hl" key={key++}>
+        {text.slice(idx, idx + q.length)}
+      </mark>
+    );
+    i = idx + q.length;
+  }
+  return <>{nodes}</>;
 }
 
 function ProjectCard({ project, query }: { project: Project; query: string }) {
@@ -186,13 +195,12 @@ export function Projects() {
             </span>
           </div>
 
-          <div className="project-filters" role="tablist" aria-label="Filter projects by category">
+          <div className="project-filters" role="group" aria-label="Filter projects by category">
             {FILTERS.map((f) => (
               <button
                 key={f.id}
                 type="button"
-                role="tab"
-                aria-selected={filter === f.id}
+                aria-pressed={filter === f.id}
                 className={`project-filter${filter === f.id ? " is-active" : ""}`}
                 onClick={() => setFilter(f.id)}
               >
@@ -207,7 +215,7 @@ export function Projects() {
           </div>
         </div>
 
-        <div className="projects-grid" key={`${filter}:${q}`}>
+        <div className="projects-grid">
           {visible.map((p, i) => (
             <Reveal
               key={p.slug}

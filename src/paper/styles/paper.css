@@ -5,7 +5,7 @@
 .paper-root {
   --ink: #1a1815;
   --ink-2: #4c4842;
-  --ink-3: #8a857c;
+  --ink-3: #6d6860;
   --paper: #faf8f4;
   --paper-2: #f3f0ea;
   --rule: rgba(26, 24, 21, 0.14);
@@ -45,6 +45,28 @@
 .paper-root :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
+}
+
+.paper-skip {
+  position: absolute;
+  left: -9999px;
+  top: 10px;
+  z-index: 20;
+  background: var(--accent);
+  color: #fff;
+  padding: 10px 16px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.paper-skip:focus {
+  left: 10px;
+}
+
+.paper-mast-meta-contact {
+  margin-top: 20px;
 }
 
 /* ---------- nav ---------- */
@@ -573,8 +595,8 @@
 .paper-root [data-pp-reveal] {
   opacity: 0;
   transform: translateY(16px);
-  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.6s var(--d, 0s) cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s var(--d, 0s) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .paper-root [data-pp-reveal].pp-in {
@@ -582,19 +604,33 @@
   transform: none;
 }
 
-.paper-root .paper-work-item:nth-child(2) { transition-delay: 0.05s; }
-.paper-root .paper-work-item:nth-child(3) { transition-delay: 0.1s; }
-.paper-root .paper-work-item:nth-child(4) { transition-delay: 0.15s; }
-.paper-root .paper-work-item:nth-child(5) { transition-delay: 0.1s; }
+.paper-root .paper-work-item:hover {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.6s var(--d, 0s) cubic-bezier(0.22, 1, 0.36, 1);
+}
 
 @media (max-width: 720px) {
   .paper-masthead { padding: 64px 0 48px; }
   .paper-section { padding: 60px 0; }
   .paper-work-item { grid-template-columns: 1fr; gap: 10px; }
-  .paper-work-num { display: none; }
+  .paper-work-num { font-size: 15px; }
   .paper-exp-item { grid-template-columns: 1fr; }
   .paper-skill-line { grid-template-columns: 1fr; gap: 4px; }
-  .paper-nav-links { display: none; }
+  .paper-nav {
+    padding: 18px 20px;
+    row-gap: 10px;
+  }
+  .paper-nav-links {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    gap: 20px;
+    padding-bottom: 4px;
+  }
+  .paper-nav-links::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

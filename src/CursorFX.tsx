@@ -19,24 +19,33 @@ export function CursorFX() {
     let rx = -100;
     let ry = -100;
     let raf = 0;
+    let off = false;
 
     const onMove = (e: MouseEvent) => {
       x = e.clientX;
       y = e.clientY;
+      if (!off && !raf) raf = requestAnimationFrame(tick);
     };
 
     const onOver = (e: MouseEvent) => {
       const t = e.target as HTMLElement;
-      const off = t.closest("[data-cursor-off]");
+      const offEl = t.closest("[data-cursor-off]");
       const card = t.closest("[data-cursor]");
       const accent = t.closest("[data-cursor-accent]");
       const interactive = t.closest("a, button, .iswitcher-item, [data-cursor]");
-      fx.classList.toggle("cur-hidden", !!off);
-      fx.classList.toggle("cur-interactive", !!interactive && !off);
+      fx.classList.toggle("cur-hidden", !!offEl);
+      fx.classList.toggle("cur-interactive", !!interactive && !offEl);
       fx.setAttribute(
         "data-cur",
         card ? card.getAttribute("data-cursor") || "" : accent ? accent.getAttribute("data-cursor-accent") || "" : ""
       );
+      off = !!offEl;
+      if (off && raf) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      } else if (!off && !raf) {
+        raf = requestAnimationFrame(tick);
+      }
     };
 
     const tick = () => {

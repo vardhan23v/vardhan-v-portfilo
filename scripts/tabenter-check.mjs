@@ -32,13 +32,26 @@ const tabTo = async (cf) => {
   );
 };
 
-await tabTo(4); // CTA(0) GitHub(1) Resume(2) Term card(3) = 4 tabs
+// Tab until the Terminal edition card link is focused (robust to tab-order changes).
+const tabToTerminal = async () => {
+  for (let i = 0; i < 40; i++) {
+    await p.keyboard.press("Tab");
+    const href = await p.evaluate(
+      () => document.activeElement?.getAttribute?.("href") || ""
+    );
+    if (href === "/terminal") return true;
+  }
+  return false;
+};
+
+chk("terminal card reachable by keyboard", await tabToTerminal());
 await p.keyboard.press("Enter");
 await p.waitForFunction(() => location.pathname === "/terminal", { timeout: 8000 });
 chk("tab+enter -> /terminal", true);
 
 await p.goto(base + "/", { waitUntil: "networkidle0" });
 await p.waitForSelector(".edition-grid", { timeout: 15000 });
+
 await tabTo(1); // "View selected work" CTA
 await p.keyboard.press("Enter");
 await new Promise((r) => setTimeout(r, 500));

@@ -10,7 +10,7 @@ import { Icon } from "../classic/lib/icons";
 import { ExpandableTabs, type ExpandableTabItem } from "../components/ui/expandable-tabs";
 import "./styles/aurora.css";
 
-export const auroraProjects = featuredProjects.filter((p) => p.slug !== "campus-compass");
+export const auroraProjects = featuredProjects;
 
 type Filter = "all" | "ai" | "full-stack" | "tools";
 
@@ -99,11 +99,11 @@ export function AuroraDetails({ p }: { p: Project }) {
   );
 }
 
-function AuroraStat({ value, label }: { value: number; label: string }) {
+function AuroraStat({ value, label }: { value: number | null; label: string }) {
   const ref = useRef<HTMLSpanElement | null>(null);
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || value === null) return;
     const io = new IntersectionObserver(
       (entries) => {
         if (!entries[0]?.isIntersecting) return;
@@ -130,7 +130,7 @@ function AuroraStat({ value, label }: { value: number; label: string }) {
   return (
     <div className="au-stat">
       <span className="au-stat-value" ref={ref}>
-        0
+        {value === null ? "—" : 0}
       </span>
       <span className="au-stat-label">{label}</span>
     </div>
@@ -234,84 +234,20 @@ function CopyEmail() {
     setTimeout(() => setCopied(false), 2000);
   };
   return (
-    <button type="button" className={`aurora-btn au-copy${copied ? " au-copied" : ""}`} onClick={copy}>
+    <button
+      type="button"
+      className={`aurora-btn au-copy${copied ? " au-copied" : ""}`}
+      onClick={copy}
+      aria-live="polite"
+    >
       {copied ? "copied ✓" : "copy email"}
     </button>
-  );
-}
-
-const ORB_SIZE = 220;
-const ORB_HALF = ORB_SIZE / 2;
-
-function AuroraCursor() {
-  const orbRef = useRef<HTMLDivElement | null>(null);
-  const [enabled] = useState(() => {
-    if (typeof window === "undefined") return false;
-    if (!window.matchMedia("(pointer: fine)").matches) return false;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
-    return true;
-  });
-
-  useEffect(() => {
-    if (!enabled) return;
-    const orb = orbRef.current;
-    if (!orb) return;
-    const core = orb.firstElementChild as HTMLElement | null;
-    let tx = -ORB_HALF, ty = -ORB_HALF, x = -ORB_HALF, y = -ORB_HALF;
-    let raf = 0;
-    let hidden = true;
-
-    const frame = () => {
-      x += (tx - x) * 0.18;
-      y += (ty - y) * 0.18;
-      orb.style.transform = `translate3d(${x - ORB_HALF}px, ${y - ORB_HALF}px, 0)`;
-      raf = Math.abs(tx - x) > 0.1 || Math.abs(ty - y) > 0.1 ? requestAnimationFrame(frame) : 0;
-    };
-
-    const onMove = (e: MouseEvent) => {
-      tx = e.clientX;
-      ty = e.clientY;
-      if (hidden) {
-        hidden = false;
-        orb.classList.remove("au-orb-hidden");
-        x = tx;
-        y = ty;
-      }
-      if (!raf) raf = requestAnimationFrame(frame);
-    };
-    const onOver = (e: MouseEvent) => {
-      const t = e.target as Element | null;
-      const hot = !!t && !!t.closest("a, button, .au-card, .au-ft, .au-filter, .au-eng-btn");
-      if (core) core.classList.toggle("au-orb-hot", hot);
-    };
-    const onLeave = () => {
-      hidden = true;
-      orb.classList.add("au-orb-hidden");
-    };
-
-    window.addEventListener("mousemove", onMove, { passive: true });
-    document.addEventListener("mouseover", onOver, { passive: true });
-    document.addEventListener("mouseleave", onLeave);
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      document.removeEventListener("mouseover", onOver);
-      document.removeEventListener("mouseleave", onLeave);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, [enabled]);
-
-  if (!enabled) return null;
-  return (
-    <div className="au-orb" ref={orbRef} aria-hidden="true">
-      <div className="au-orb-core" />
-    </div>
   );
 }
 
 export function AuroraSite() {
   const [filter, setFilter] = useState<Filter>("all");
   const [selected, setSelected] = useState<number | null>(0);
-  const [showTop, setShowTop] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const ist = useIstTime();
   const followers = useGithubFollowers();
@@ -348,7 +284,6 @@ export function AuroraSite() {
 
   useEffect(() => {
     const onScroll = () => {
-      setShowTop(window.scrollY > 700);
       setScrolled(window.scrollY > 24);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -372,13 +307,11 @@ export function AuroraSite() {
     { value: auroraProjects.length, label: "shipped products" },
     { value: experience.length, label: "roles & internships" },
     { value: skillCategories.reduce((s, c) => s + c.items.length, 0), label: "stack technologies" },
-    { value: followers ?? 27, label: "github followers" },
+    { value: followers, label: "github followers" },
   ];
 
   return (
     <div className="aurora-root" data-cursor-off>
-      <AuroraCursor />
-      <div className="aurora-scrollbar" aria-hidden="true" />
       <div className="aurora-bg" aria-hidden="true">
         <div className="au-glow au-glow-purple" />
         <div className="au-glow au-glow-blue" />
@@ -403,6 +336,9 @@ export function AuroraSite() {
 
         <header className="aurora-hero" id="home">
           <div className="au-hero-copy">
+            <p className="aurora-name">
+              Sree Vardhan <span className="aurora-grad">V.</span>
+            </p>
             <p className="aurora-eyebrow">
               <span className="glow-dot" aria-hidden="true" />
               generative ai · full-stack · product engineering
@@ -410,10 +346,11 @@ export function AuroraSite() {
             <h1 className="aurora-title">
               Where code meets <span className="aurora-grad">light.</span>
             </h1>
-            <p className="aurora-lede">I build AI-powered products and full-stack systems.</p>
+            <p className="aurora-lede">{site.tagline}</p>
             <p className="aurora-sub">
-              Computer Science undergraduate focused on Generative AI, full-stack
-              development, and developer tooling.
+              AI-powered products and full-stack systems, shipped end-to-end — from
+              LLM integration and agent tooling to the deployed app. Computer Science
+              undergraduate at NMAM Institute of Technology.
             </p>
             <div className="aurora-actions">
               <a className="aurora-btn aurora-btn-solid" href="#work">
@@ -557,7 +494,7 @@ export function AuroraSite() {
               <dl className="au-meta au-reveal">
                 <div className="au-meta-row">
                   <dt>Location</dt>
-                  <dd>Kurnool, India</dd>
+                  <dd>{site.location}</dd>
                 </div>
                 <div className="au-meta-row">
                   <dt>Education</dt>
@@ -594,10 +531,10 @@ export function AuroraSite() {
             </div>
             <div className="au-contact-links">
               <a href={site.linkedin} target="_blank" rel="noopener noreferrer">
-                <Icon.linkedin width={15} height={15} /> linkedin.com/in/vardhan-v23
+                <Icon.linkedin width={15} height={15} /> {site.linkedin.replace("https://www.", "")}
               </a>
               <a href={site.github} target="_blank" rel="noopener noreferrer">
-                <Icon.github width={15} height={15} /> github.com/vardhan23v
+                <Icon.github width={15} height={15} /> {site.github.replace("https://", "")}
               </a>
             </div>
           </div>
@@ -614,20 +551,6 @@ export function AuroraSite() {
           </span>
         </footer>
       </div>
-
-      <button
-        type="button"
-        className={`au-top${showTop ? " is-show" : ""}`}
-        aria-label="Back to top"
-        onClick={() =>
-          window.scrollTo({
-            top: 0,
-            behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
-          })
-        }
-      >
-        ↑ top
-      </button>
     </div>
   );
 }

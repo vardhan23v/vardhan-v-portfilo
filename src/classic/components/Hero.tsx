@@ -82,8 +82,9 @@ export function Hero() {
 
           <Reveal delay="reveal-d3">
             <p className="hero-desc">
-              Computer Science undergraduate building AI-powered web applications, developer
-              tools, and full-stack products.
+              Computer Science undergraduate who ships AI-powered products end-to-end —
+              from LLM integration to deployed app. Latest flagship: Extension AI, which
+              turns plain-English prompts into Chrome extensions.
             </p>
           </Reveal>
 

@@ -160,6 +160,18 @@ const COMMANDS = [
   "exit",
   "vim",
   "nano",
+  "man",
+  "ssh",
+  "curl",
+  "banner",
+  "fortune",
+  "history",
+  "stats",
+  "hello",
+  "hi",
+  "hey",
+  "rm",
+  "42",
 ];
 
 function scrollToSection(id: string) {
@@ -222,6 +234,7 @@ function runCmd(raw: string, getHistory: () => string[]): Line[] {
     case "":
       return [];
     case "help":
+    case "?":
       push("available commands:", "cyan");
       push("  help                     show this list");
       push("  whoami / me              who is behind this terminal");
@@ -448,8 +461,6 @@ function runCmd(raw: string, getHistory: () => string[]): Line[] {
       push("hello, visitor. type 'help' to see what I can do.", "green");
       break;
     case "rm":
-    case "rm -rf":
-    case "rm -rf /":
       push("nice try. nothing was deleted (exit status: 0).", "amber");
       push("this terminal is sandboxed; so is your ego.", "dim");
       break;
@@ -527,13 +538,13 @@ export function Hero() {
     }
     const next: Line[] = [];
     for (const c of cmds) {
-      next.push(L(`$ ${raw.trim()}`, "cmd"));
-      next.push(...runCmd(c, () => historyRef.current));
-      if (c === "clear" && cmds.length === 1) {
+      if (c === "clear") {
         setLines([]);
         setInput("");
-        return;
+        continue;
       }
+      next.push(L(`$ ${c}`, "cmd"));
+      next.push(...runCmd(c, () => historyRef.current));
     }
     if (next.length === 0) return;
     setLines((prev) => [...prev, ...next]);
@@ -591,9 +602,11 @@ export function Hero() {
       <MatrixRain />
       <div className="container hero-grid">
         <div>
+          <h1 className="visually-hidden">
+            {site.fullName} — {site.role}
+          </h1>
           <pre className="hero-banner" aria-hidden="true">
-            {`VARDHAN
-.V`}
+            {`VARDHAN.V`}
           </pre>
           <div className="hero-tag">generative-ai developer :: full-stack developer</div>
           <p className="hero-intro">
@@ -610,7 +623,7 @@ export function Hero() {
                 key={c}
                 type="button"
                 className="hero-quick"
-                onClick={() => submit(`${c} ; `)}
+                onClick={() => submit(c)}
               >
                 <b>$</b> {c}
               </button>

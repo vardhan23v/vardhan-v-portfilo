@@ -771,21 +771,6 @@ export function ForgeSite() {
     window.scrollTo(0, 0);
   }, []);
 
-  useEffect(() => {
-    const prevTitle = document.title;
-    const meta = document.querySelector('meta[name="description"]');
-    const prevDesc = meta?.getAttribute("content") ?? null;
-    document.title = "Forge — Sree Vardhan V | Generative AI Developer";
-    meta?.setAttribute(
-      "content",
-      "Forge interface of Sree Vardhan V — Generative AI developer building LLM-powered products, developer tools, and full-stack systems."
-    );
-    return () => {
-      document.title = prevTitle;
-      if (meta && prevDesc !== null) meta.setAttribute("content", prevDesc);
-    };
-  }, []);
-
   return (
     <div className="forge-root" id="fg-top" data-cursor-accent="forge">
       <div className="fg-bg" aria-hidden="true">

@@ -33,10 +33,18 @@ export function Boot({ onDone }: { onDone: () => void }) {
         onDone();
       }, 140 + LINES.length * 170 + 480)
     );
-    return () => {
-      timers.forEach(clearTimeout);
-      if (!doneRef.current) onDone();
+    return () => timers.forEach(clearTimeout);
+  }, [onDone]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Enter") return;
+      if (doneRef.current) return;
+      doneRef.current = true;
+      onDone();
     };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [onDone]);
 
   return (

@@ -7,7 +7,7 @@ import { skillCategories } from "../classic/data/skills";
 import { site } from "../classic/data/site";
 import "./styles/paper.css";
 
-export const paperProjects = featuredProjects.filter((p) => p.slug !== "campus-compass");
+export const paperProjects = featuredProjects;
 
 export function EngineeringDetails({ p }: { p: Project }) {
   const [open, setOpen] = useState(false);
@@ -50,6 +50,10 @@ export function EngineeringDetails({ p }: { p: Project }) {
 
 export function PaperSite() {
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     const els = document.querySelectorAll("[data-pp-reveal]");
     if (!els.length) return;
     const io = new IntersectionObserver(
@@ -91,6 +95,9 @@ export function PaperSite() {
 
   return (
     <div className="paper-root" data-cursor-accent="paper">
+      <a className="paper-skip" href="#paper-main">
+        Skip to content
+      </a>
       <nav className="paper-nav" aria-label="Main">
         <Link to="/" className="paper-wordmark">
           {site.name}
@@ -107,7 +114,7 @@ export function PaperSite() {
 
       <main className="paper-main" id="paper-main">
         <header className="paper-masthead">
-          <p className="paper-overline">Portfolio — Paper edition</p>
+          <p className="paper-overline">Generative AI developer · full-stack engineer</p>
           <h1 className="paper-mast-headline">
             Sree Vardhan
             <br />
@@ -138,16 +145,21 @@ export function PaperSite() {
         </header>
 
         <section className="paper-section" id="work" aria-labelledby="paper-work-title">
-          <p className="paper-overline" id="paper-work-title" data-pp-reveal>
+          <h2 className="paper-overline" id="paper-work-title" data-pp-reveal>
             Selected work
-          </p>
+          </h2>
           {paperProjects.map((p, i) => (
-            <article data-pp-reveal className={`paper-work-item ${i % 2 === 1 ? "paper-work-item--alt" : ""}`} key={p.slug}>
+            <article
+              data-pp-reveal
+              className={`paper-work-item ${i % 2 === 1 ? "paper-work-item--alt" : ""}`}
+              key={p.slug}
+              style={{ "--d": `${Math.min(i * 0.06, 0.3)}s` } as React.CSSProperties}
+            >
               <span className={`paper-work-num ${i % 2 === 1 ? "paper-work-num--right" : ""}`} aria-hidden="true">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <div>
-                <h2 className="paper-work-name">{p.name}</h2>
+                <h3 className="paper-work-name">{p.name}</h3>
                 <p className="paper-work-tagline">{p.tagline}</p>
                 <div className="paper-work-tech">
                   {p.tech.slice(0, 5).map((t) => (
@@ -171,16 +183,14 @@ export function PaperSite() {
         </section>
 
         <section className="paper-section" id="experience" aria-labelledby="paper-exp-title">
-          <p className="paper-overline" id="paper-exp-title" data-pp-reveal>
+          <h2 className="paper-overline" id="paper-exp-title" data-pp-reveal>
             Experience
-          </p>
+          </h2>
           {experience.map((e) => (
             <div className="paper-exp-item" data-pp-reveal key={e.company}>
               <div>
                 <div className="paper-exp-role">{e.role}</div>
-                <div className="paper-exp-company">
-                  {e.company} — {e.period.split("—")[0].trim()}
-                </div>
+                <div className="paper-exp-company">{e.company}</div>
               </div>
               <span className="paper-exp-period">{e.period}</span>
             </div>
@@ -188,9 +198,9 @@ export function PaperSite() {
         </section>
 
         <section className="paper-section" id="about" aria-labelledby="paper-about-title">
-          <p className="paper-overline" id="paper-about-title" data-pp-reveal>
+          <h2 className="paper-overline" id="paper-about-title" data-pp-reveal>
             About
-          </p>
+          </h2>
           <div className="paper-prose">
             <p>
               {site.name} — a Generative AI developer and full-stack
@@ -219,19 +229,19 @@ export function PaperSite() {
         </section>
 
         <section className="paper-section" id="contact" aria-labelledby="paper-contact-title">
-          <p className="paper-overline" id="paper-contact-title" data-pp-reveal>
+          <h2 className="paper-overline" id="paper-contact-title" data-pp-reveal>
             Contact
-          </p>
-          <h2 className="paper-contact-head" data-pp-reveal>
+          </h2>
+          <h3 className="paper-contact-head" data-pp-reveal>
             Let&rsquo;s build something{" "}
             <span className="it">interesting.</span>
-          </h2>
+          </h3>
           <div className="paper-mast-actions" data-pp-reveal>
             <a className="paper-btn paper-btn-primary" href={`mailto:${site.email}`}>
               {site.email}
             </a>
           </div>
-          <p className="paper-mast-meta" data-pp-reveal style={{ marginTop: 20 }}>
+          <p className="paper-mast-meta paper-mast-meta-contact" data-pp-reveal>
             <a href={site.github} target="_blank" rel="noopener noreferrer">
               github
             </a>

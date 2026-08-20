@@ -99,10 +99,61 @@ export function AuroraDetails({ p }: { p: Project }) {
   );
 }
 
+function AuroraStat({ value, label }: { value: number; label: string }) {
+  const ref = useRef<HTMLSpanElement | null>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0]?.isIntersecting) return;
+        io.disconnect();
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          el.textContent = String(value);
+          return;
+        }
+        const t0 = performance.now();
+        const dur = 1200;
+        const tick = (t: number) => {
+          const p = Math.min(1, (t - t0) / dur);
+          const eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = String(Math.round(eased * value));
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      },
+      { threshold: 0.4 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [value]);
+  return (
+    <div className="au-stat">
+      <span className="au-stat-value" ref={ref}>
+        0
+      </span>
+      <span className="au-stat-label">{label}</span>
+    </div>
+  );
+}
+
+function useGithubFollowers() {
+  const [n, setN] = useState<number | null>(null);
+  useEffect(() => {
+    const ctrl = new AbortController();
+    fetch(`https://api.github.com/users/${site.githubUser}`, { signal: ctrl.signal })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((d: { followers: number }) => setN(d.followers))
+      .catch(() => setN(null));
+    return () => ctrl.abort();
+  }, []);
+  return n;
+}
+
 function FeaturedProject({ p }: { p: Project }) {
   const ref = useTilt<HTMLDivElement>(4, ".au-ft");
   return (
-    <div ref={ref} className="au-ft-tilt au-reveal">
+    <div ref={ref} className="au-ft-tilt">
       <article className="au-ft" style={{ "--pa1": p.accent[0] } as React.CSSProperties}>
         <div className="au-ft-copy">
           <span className="au-rank">Project 01 · flagship</span>
@@ -143,10 +194,10 @@ function FeaturedProject({ p }: { p: Project }) {
   );
 }
 
-function AuroraCard({ p, n }: { p: Project; n: string }) {
+function AuroraCard({ p, n, i }: { p: Project; n: string; i: number }) {
   const ref = useTilt<HTMLDivElement>(5, ".au-card");
   return (
-    <div ref={ref} className="au-tilt au-reveal">
+    <div ref={ref} className="au-tilt" style={{ "--i": i } as React.CSSProperties}>
       <article className="au-card" style={{ "--pa1": p.accent[0] } as React.CSSProperties}>
         <span className="au-rank">{n}</span>
         <h3 className="au-card-name">{p.name}</h3>
@@ -261,7 +312,9 @@ export function AuroraSite() {
   const [filter, setFilter] = useState<Filter>("all");
   const [selected, setSelected] = useState<number | null>(0);
   const [showTop, setShowTop] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const ist = useIstTime();
+  const followers = useGithubFollowers();
 
   useEffect(() => {
     const obs = new IntersectionObserver(
@@ -294,7 +347,10 @@ export function AuroraSite() {
   };
 
   useEffect(() => {
-    const onScroll = () => setShowTop(window.scrollY > 700);
+    const onScroll = () => {
+      setShowTop(window.scrollY > 700);
+      setScrolled(window.scrollY > 24);
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
@@ -312,6 +368,12 @@ export function AuroraSite() {
   const showFeatured = filter === "all" || catOf(featured) === filter;
 
   const stackStrip = skillCategories.flatMap((c) => c.items.map((i) => i.name));
+  const statData = [
+    { value: auroraProjects.length, label: "shipped products" },
+    { value: experience.length, label: "roles & internships" },
+    { value: skillCategories.reduce((s, c) => s + c.items.length, 0), label: "stack technologies" },
+    { value: followers ?? 27, label: "github followers" },
+  ];
 
   return (
     <div className="aurora-root" data-cursor-off>
@@ -324,7 +386,7 @@ export function AuroraSite() {
       </div>
 
       <div className="aurora-inner">
-        <nav className="aurora-nav" aria-label="Main">
+        <nav className={`aurora-nav${scrolled ? " is-scrolled" : ""}`} aria-label="Main">
           <Link to="/" className="aurora-wordmark">
             {site.name}
             <span className="dot">.</span>
@@ -399,6 +461,12 @@ export function AuroraSite() {
           </div>
         </div>
 
+        <div className="aurora-stats au-reveal" aria-label="Portfolio stats">
+          {statData.map((s) => (
+            <AuroraStat key={s.label} value={s.value} label={s.label} />
+          ))}
+        </div>
+
         <section className="aurora-section" id="work" aria-labelledby="aurora-work-title">
           <div className="aurora-head au-reveal">
             <div>
@@ -426,14 +494,21 @@ export function AuroraSite() {
               </button>
             ))}
           </div>
-          {showFeatured && <FeaturedProject p={featured} />}
-          {shown.length > 0 && (
-            <div className="aurora-grid">
-              {shown.map((p) => (
-                <AuroraCard key={p.slug} p={p} n={String(auroraProjects.indexOf(p) + 1).padStart(2, "0")} />
-              ))}
-            </div>
-          )}
+          <div className="au-projects au-reveal">
+            {showFeatured && <FeaturedProject key={`ft-${filter}`} p={featured} />}
+            {shown.length > 0 && (
+              <div className="aurora-grid" key={filter}>
+                {shown.map((p) => (
+                  <AuroraCard
+                    key={p.slug}
+                    p={p}
+                    n={String(auroraProjects.indexOf(p) + 1).padStart(2, "0")}
+                    i={shown.indexOf(p)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </section>
 
         <section className="aurora-section" id="experience" aria-labelledby="aurora-exp-title">
@@ -517,10 +592,18 @@ export function AuroraSite() {
               </a>
               <CopyEmail />
             </div>
+            <div className="au-contact-links">
+              <a href={site.linkedin} target="_blank" rel="noopener noreferrer">
+                <Icon.linkedin width={15} height={15} /> linkedin.com/in/vardhan-v23
+              </a>
+              <a href={site.github} target="_blank" rel="noopener noreferrer">
+                <Icon.github width={15} height={15} /> github.com/vardhan23v
+              </a>
+            </div>
           </div>
         </section>
 
-        <footer className="aurora-foot">
+        <footer className="aurora-foot au-reveal">
           <span>© 2026 {site.name}</span>
           <span className="aurora-foot-links">
             <Link to="/">editions</Link>

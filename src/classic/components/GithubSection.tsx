@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { site } from "../data/site";
 import { SectionHead } from "./SectionHead";
 import { Reveal } from "../hooks/useReveal";
@@ -36,8 +36,54 @@ export function GithubSection() {
   const [repos, setRepos] = useState<RepoItem[]>(fallbackRepos);
   const [repoCount, setRepoCount] = useState(32);
   const [followers, setFollowers] = useState<string | null>(null);
-  const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [run, setRun] = useState(false);
+  const statsRef = useRef<HTMLDivElement>(null);
+  const followersNum = Number((followers ?? "30").replace(/[^0-9]/g, ""));
+
+  useEffect(() => {
+    const el = statsRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setRun(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.35 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  const totalStars = repos.reduce((sum, r) => sum + r.stars, 0);
+
+  const [display, setDisplay] = useState({ repos: 0, stars: 0, followers: 0 });
+
+  useEffect(() => {
+    if (!run) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setDisplay({ repos: repoCount, stars: totalStars, followers: followersNum });
+      return;
+    }
+    const targets = { repos: repoCount, stars: totalStars, followers: followersNum };
+    const t0 = performance.now();
+    const dur = 1200;
+    let raf = 0;
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - t0) / dur);
+      const e = 1 - Math.pow(1 - p, 3);
+      setDisplay({
+        repos: Math.round(e * targets.repos),
+        stars: Math.round(e * targets.stars),
+        followers: Math.round(e * targets.followers),
+      });
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [run, repoCount, totalStars, followersNum]);
 
   useEffect(() => {
     const ac = new AbortController();
@@ -80,10 +126,8 @@ export function GithubSection() {
             url: r.html_url,
           }));
         setRepos(top);
-        setLoaded(true);
       } catch {
         setFailed(true);
-        setLoaded(true);
       }
     })();
 
@@ -92,8 +136,6 @@ export function GithubSection() {
       ac.abort();
     };
   }, []);
-
-  const totalStars = repos.reduce((sum, r) => sum + r.stars, 0);
 
   return (
     <section id="github">
@@ -106,20 +148,20 @@ export function GithubSection() {
 
         <Reveal>
           <div className="gh-card card">
-            <div className="gh-stats">
+            <div className="gh-stats" ref={statsRef}>
               <div className="gh-stat">
                 <Icon.folder width={20} height={20} />
-                <strong>{loaded ? repoCount : "32"}</strong>
+                <strong>{display.repos}</strong>
                 <span>repositories</span>
               </div>
               <div className="gh-stat">
                 <Icon.star width={20} height={20} />
-                <strong>{totalStars}</strong>
+                <strong>{display.stars}</strong>
                 <span>stars earned</span>
               </div>
               <div className="gh-stat">
                 <Icon.user width={20} height={20} />
-                <strong>{followers ?? "30"}</strong>
+                <strong>{display.followers.toLocaleString("en-IN")}</strong>
                 <span>followers</span>
               </div>
               <div className="gh-stat gh-stat-link">

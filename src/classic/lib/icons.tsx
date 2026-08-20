@@ -133,6 +133,12 @@ export const Icon = {
       <path d="m5 12.5 4.5 4.5L19 7.5" />
     </svg>
   ),
+  copy: (p: SVGProps<SVGSVGElement>) => (
+    <svg {...base} {...p} aria-hidden="true">
+      <rect x="9" y="9" width="11" height="11" rx="2" />
+      <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+    </svg>
+  ),
   cert: (p: SVGProps<SVGSVGElement>) => (
     <svg {...base} {...p} aria-hidden="true">
       <circle cx="12" cy="9" r="5.5" />

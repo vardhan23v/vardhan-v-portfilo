@@ -35,6 +35,28 @@ export function Navbar() {
     };
   }, [open]);
 
+  useEffect(() => {
+    const navLinks = document.querySelectorAll<HTMLAnchorElement>(".classic-root .nav-links a");
+    const ids = [...navLinks]
+      .map((l) => l.getAttribute("href")?.slice(1))
+      .filter((id): id is string => Boolean(id));
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const active = `#${entry.target.id}`;
+          navLinks.forEach((l) => l.classList.toggle("is-active", l.getAttribute("href") === active));
+        }
+      },
+      { rootMargin: "-35% 0px -55% 0px", threshold: 0 }
+    );
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (el) io.observe(el);
+    }
+    return () => io.disconnect();
+  }, []);
+
   const close = () => setOpen(false);
 
   return (

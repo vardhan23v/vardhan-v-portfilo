@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Project } from "../data/projects";
 import { featuredProjects, otherProjects } from "../data/projects";
 import { SectionHead } from "./SectionHead";
@@ -7,9 +8,32 @@ import { Icon } from "../lib/icons";
 import { site } from "../data/site";
 import "./Projects.css";
 
+const CATEGORY: Record<string, "AI" | "full-stack"> = {
+  "extension-ai": "AI",
+  "ai-code-reviewer": "AI",
+  "careerforge-pro": "AI",
+  "vard-ai": "AI",
+  "disastermind-ai": "AI",
+  drivenest: "full-stack",
+  "campus-compass": "full-stack",
+};
+
+type Filter = "all" | "AI" | "full-stack";
+
+const FILTERS: { id: Filter; label: string }[] = [
+  { id: "all", label: "all" },
+  { id: "AI", label: "ai" },
+  { id: "full-stack", label: "full-stack" },
+];
+
 function ProjectCard({ project }: { project: Project }) {
   const [a1, a2, a3] = project.accent;
   const ref = useTilt<HTMLDivElement>(4, ".project-card");
+  const onMove = (e: React.MouseEvent<HTMLElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
+    e.currentTarget.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
+  };
   return (
     <div ref={ref}>
       <article
@@ -21,6 +45,7 @@ function ProjectCard({ project }: { project: Project }) {
             "--pa3": a3,
           } as React.CSSProperties
         }
+        onMouseMove={onMove}
       >
       <div className="project-visual" aria-hidden="true">
         <div className="project-chrome">
@@ -84,6 +109,10 @@ function ProjectCard({ project }: { project: Project }) {
 }
 
 export function Projects() {
+  const [filter, setFilter] = useState<Filter>("all");
+  const visible =
+    filter === "all" ? featuredProjects : featuredProjects.filter((p) => CATEGORY[p.slug] === filter);
+
   return (
     <section id="projects">
       <div className="container">
@@ -93,8 +122,28 @@ export function Projects() {
           sub="AI-powered developer tools, assistants, and full-stack apps — each one solving a real problem."
         />
 
-        <div className="projects-grid">
-          {featuredProjects.map((p, i) => (
+        <div className="project-filters" role="tablist" aria-label="Filter projects by category">
+          {FILTERS.map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              role="tab"
+              aria-selected={filter === f.id}
+              className={`project-filter${filter === f.id ? " is-active" : ""}`}
+              onClick={() => setFilter(f.id)}
+            >
+              {f.label}
+              <span className="project-filter-count">
+                {f.id === "all"
+                  ? featuredProjects.length
+                  : featuredProjects.filter((p) => CATEGORY[p.slug] === f.id).length}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        <div className="projects-grid" key={filter}>
+          {visible.map((p, i) => (
             <Reveal key={p.slug} as="div" className={p.highlight ? "project-wrap-featured" : ""} delay={i % 2 ? "reveal-d1" : undefined}>
               <ProjectCard project={p} />
             </Reveal>

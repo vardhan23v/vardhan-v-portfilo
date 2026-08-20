@@ -9,6 +9,35 @@ export function Contact() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const copyEmail = () => {
+    const done = () => {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    };
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(site.email).then(done, () => fallbackCopy(done));
+    } else {
+      fallbackCopy(done);
+    }
+  };
+
+  const fallbackCopy = (done: () => void) => {
+    const ta = document.createElement("textarea");
+    ta.value = site.email;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand("copy");
+      done();
+    } catch {
+      /* clipboard unavailable */
+    }
+    ta.remove();
+  };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -34,15 +63,24 @@ export function Contact() {
               </p>
 
               <div className="contact-channels">
-                <a href={`mailto:${site.email}`} className="contact-channel">
+                <div className="contact-channel">
                   <span className="contact-channel-icon">
                     <Icon.mail width={19} height={19} />
                   </span>
-                  <div>
+                  <a href={`mailto:${site.email}`} className="contact-channel-main">
                     <span className="contact-channel-label">Email</span>
                     <span className="contact-channel-value">{site.email}</span>
-                  </div>
-                </a>
+                  </a>
+                  <button
+                    type="button"
+                    className={`contact-copy-btn${copied ? " is-copied" : ""}`}
+                    onClick={copyEmail}
+                    aria-label={copied ? "Email address copied" : "Copy email address"}
+                  >
+                    {copied ? <Icon.check width={14} height={14} /> : <Icon.copy width={14} height={14} />}
+                    {copied ? "copied" : "copy"}
+                  </button>
+                </div>
                 <a href={site.linkedin} target="_blank" rel="noopener noreferrer" className="contact-channel">
                   <span className="contact-channel-icon">
                     <Icon.linkedin width={18} height={18} />

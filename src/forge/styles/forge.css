@@ -424,10 +424,11 @@
 }
 
 .fg-hero-heading.fg-enter {
-  opacity: 0;
+  opacity: 1;
   animation:
-    fgenter 0.7s cubic-bezier(0.25, 0.1, 0.25, 1) var(--d, 0s) forwards,
+    fgenter 0.7s cubic-bezier(0.25, 0.1, 0.25, 1) 0s both,
     fg-head-shimmer 9s ease-in-out infinite;
+  animation-delay: var(--d, 0s), 0s;
 }
 
 .fg-lede {

@@ -72,12 +72,20 @@ const STACK_CONTEXT: Record<string, string> = {
 };
 
 const SECTION_META: Record<string, [string, string]> = {
-  about: ["01", "about"],
+  work: ["01", "selected work"],
   stack: ["02", "stack"],
   experience: ["03", "experience"],
-  work: ["04", "selected work"],
+  about: ["04", "about"],
   contact: ["05", "contact"],
+  interfaces: ["06", "interfaces"],
 };
+
+const INTERFACES: { to: string; name: string; desc: string; key: string }[] = [
+  { to: "/terminal", name: "Terminal", desc: "interactive command shell", key: ">" },
+  { to: "/classic", name: "Classic", desc: "the original design", key: "⌘" },
+  { to: "/paper", name: "Paper", desc: "light editorial", key: "¶" },
+  { to: "/aurora", name: "Aurora", desc: "luminous glass", key: "✦" },
+];
 
 function SectionEyebrow({ id, left }: { id: string; left?: boolean }) {
   const [idx, name] = SECTION_META[id];
@@ -230,7 +238,7 @@ function useForgeSpy() {
     const links = [
       ...document.querySelectorAll<HTMLAnchorElement>(".fg-nav-links a[href^='#'], .fg-nav-panel a[href^='#']"),
     ];
-    const ids = ["about", "stack", "experience", "work", "contact"];
+    const ids = ["work", "stack", "experience", "about", "contact"];
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -272,10 +280,10 @@ function useForgeTimelineReveal() {
 function ForgeNav() {
   const [open, setOpen] = useState(false);
   const links: [string, string][] = [
-    ["#about", "About"],
+    ["#work", "Projects"],
     ["#stack", "Stack"],
     ["#experience", "Experience"],
-    ["#work", "Projects"],
+    ["#about", "About"],
     ["#contact", "Contact"],
   ];
   const go = (e: MouseEvent<HTMLAnchorElement>) => {
@@ -602,13 +610,21 @@ function ProjectCard({ p, i }: { p: (typeof FORGE_PROJECTS)[number]; i: number }
   };
   const ai = p.tech.filter((t) => AI_TECHS.has(t));
   const features = p.features.slice(0, 4);
+  const featured = p.highlight === true;
   return (
     <div className="fg-proj-wrap" style={{ "--i": i } as CSSProperties}>
-      <article className="fg-proj-card" style={{ "--pa1": p.accent[0] } as CSSProperties} onMouseMove={onMove}>
+      <article
+        className={`fg-proj-card${featured ? " fg-proj-featured" : ""}`}
+        style={{ "--pa1": p.accent[0] } as CSSProperties}
+        onMouseMove={onMove}
+      >
         <div className="fg-proj-top">
           <span className="fg-proj-num">{p.num}</span>
-          <span className="fg-proj-cat" style={{ color: p.accent[0] }}>
-            {p.cat}
+          <span className="fg-proj-topright">
+            {featured && <span className="fg-proj-badge">featured</span>}
+            <span className="fg-proj-cat" style={{ color: p.accent[0] }}>
+              {p.cat}
+            </span>
           </span>
         </div>
         <h3 className="fg-proj-title">{p.name}</h3>
@@ -662,7 +678,7 @@ function Work() {
         <h2 className="fg-heading hero-heading">Selected Work</h2>
         <p className="fg-subhead">
           A selection of AI-powered products, full-stack applications, and developer
-          tools I&rsquo;ve built.
+          tools — ordered by AI engineering relevance.
         </p>
       </div>
       <div className="fg-work-stack">
@@ -691,6 +707,35 @@ function Contact() {
           <a className="fg-btn" href={site.linkedin} target="_blank" rel="noopener noreferrer">
             LinkedIn <span aria-hidden="true">↗</span>
           </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Interfaces() {
+  return (
+    <section className="fg-section" id="interfaces">
+      <div className="fg-interfaces fg-reveal">
+        <SectionEyebrow id="interfaces" />
+        <h2 className="fg-heading hero-heading">Other interfaces</h2>
+        <p className="fg-subhead">
+          Five interfaces, one portfolio — every edition runs the same work through a
+          different design system. This is Forge; here are the rest.
+        </p>
+        <div className="fg-interfaces-grid">
+          {INTERFACES.map((it) => (
+            <Link to={it.to} className="fg-interface-card" key={it.to}>
+              <span className="fg-interface-key" aria-hidden="true">
+                {it.key}
+              </span>
+              <span className="fg-interface-name">{it.name}</span>
+              <span className="fg-interface-desc">{it.desc}</span>
+              <span className="fg-interface-arrow" aria-hidden="true">
+                ↗
+              </span>
+            </Link>
+          ))}
         </div>
       </div>
     </section>
@@ -751,11 +796,12 @@ export function ForgeSite() {
         <Hero />
         <StatsStrip />
         <Marquee />
-        <About />
+        <Work />
         <Stack />
         <Experience />
-        <Work />
+        <About />
         <Contact />
+        <Interfaces />
       </main>
       <ForgeFooter />
     </div>

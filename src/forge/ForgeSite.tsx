@@ -115,41 +115,7 @@ function useLede() {
 }
 
 function useGithubStats() {
-  const [stats, setStats] = useState<{ followers: number | null; repos: number | null }>(() => {
-    try {
-      const cached = sessionStorage.getItem("fg:gh");
-      if (cached) return JSON.parse(cached);
-    } catch {
-      /* ignore */
-    }
-    return { followers: null, repos: null };
-  });
-  useEffect(() => {
-    const cached = (() => {
-      try {
-        const c = sessionStorage.getItem("fg:gh");
-        return c ? JSON.parse(c) : null;
-      } catch {
-        return null;
-      }
-    })();
-    if (cached) return;
-    const ctrl = new AbortController();
-    fetch(`https://api.github.com/users/${site.githubUser}`, { signal: ctrl.signal })
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((d: { followers: number; public_repos: number }) => {
-        const next = { followers: d.followers, repos: d.public_repos };
-        try {
-          sessionStorage.setItem("fg:gh", JSON.stringify(next));
-        } catch {
-          /* ignore */
-        }
-        setStats(next);
-      })
-      .catch(() => setStats({ followers: null, repos: null }));
-    return () => ctrl.abort();
-  }, []);
-  return stats;
+  return { followers: 26, repos: 33 };
 }
 
 function useForgeReveals() {

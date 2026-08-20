@@ -1,38 +1,10 @@
-import { useEffect, useState } from "react";
 import { fallbackRepos } from "../data/tech";
 import { Reveal } from "../hooks/useReveal";
 import { TypeCmd } from "./TypeCmd";
 
-const GITHUB_API = "https://api.github.com/users/vardhan23v/repos?sort=updated&per_page=8&type=public";
-
-type Repo = { name: string; description: string; language: string | null; url: string };
-
-type ApiRepo = { name: string; description: string; language: string | null; html_url: string };
-
 export function OpenSource() {
-  const [repos, setRepos] = useState<Repo[] | null>(null);
-  const [err, setErr] = useState(false);
-
-  useEffect(() => {
-    const ctrl = new AbortController();
-    fetch(GITHUB_API, { signal: ctrl.signal })
-      .then((r) => {
-        if (!r.ok) throw new Error(String(r.status));
-        return r.json();
-      })
-      .then((d: ApiRepo[]) =>
-        setRepos(
-          d
-            .filter((x) => x.name !== "vardhan-v-portfilo")
-            .map(({ name, description, language, html_url }) => ({ name, description, language, url: html_url }))
-        )
-      )
-      .catch(() => setErr(true));
-    return () => ctrl.abort();
-  }, []);
-
-  const list = repos ?? fallbackRepos;
-  const line = repos ? "live · api.github.com" : err ? "api unreachable · static mirror" : "fetching · api.github.com";
+  const list = fallbackRepos;
+  const line = "static mirror · github.com/vardhan23v";
 
   return (
     <section className="section" id="opensource" aria-labelledby="os-title">

@@ -30,16 +30,12 @@ const languageColors: Record<string, string> = {
   Python: "#3572A5",
 };
 
-const PER_PAGE = 100;
-
 export function GithubSection() {
-  const [repos, setRepos] = useState<RepoItem[]>(fallbackRepos);
-  const [repoCount, setRepoCount] = useState(32);
-  const [followers, setFollowers] = useState<string | null>(null);
-  const [failed, setFailed] = useState(false);
   const [run, setRun] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
-  const followersNum = Number((followers ?? "30").replace(/[^0-9]/g, ""));
+  const repoCount = 33;
+  const followersNum = 26;
+  const repos = fallbackRepos;
 
   useEffect(() => {
     const el = statsRef.current;
@@ -85,58 +81,6 @@ export function GithubSection() {
     return () => cancelAnimationFrame(raf);
   }, [run, repoCount, totalStars, followersNum]);
 
-  useEffect(() => {
-    const ac = new AbortController();
-    const timeout = window.setTimeout(() => ac.abort(), 8000);
-
-    (async () => {
-      try {
-        const [userRes, repoRes] = await Promise.all([
-          fetch(`https://api.github.com/users/${site.githubUser}`, { signal: ac.signal }),
-          fetch(`https://api.github.com/users/${site.githubUser}/repos?sort=pushed&per_page=${PER_PAGE}`, {
-            signal: ac.signal,
-          }),
-        ]);
-        if (!userRes.ok || !repoRes.ok) throw new Error("github api failed");
-
-        const user = (await userRes.json()) as { public_repos: number; followers: number };
-        const all = (await repoRes.json()) as {
-          name: string;
-          description: string | null;
-          language: string | null;
-          stargazers_count: number;
-          fork: boolean;
-          html_url: string;
-        }[];
-
-        if (all.length === 0) throw new Error("no repos");
-
-        setRepoCount(user.public_repos);
-        setFollowers(user.followers.toLocaleString("en-IN"));
-        const top = all
-          .filter((r) => !r.fork)
-          .slice()
-          .sort((a, b) => b.stargazers_count - a.stargazers_count || a.name.localeCompare(b.name))
-          .slice(0, 6)
-          .map((r) => ({
-            name: r.name,
-            description: r.description ?? "No description provided.",
-            language: r.language ?? "Unknown",
-            stars: r.stargazers_count,
-            url: r.html_url,
-          }));
-        setRepos(top);
-      } catch {
-        setFailed(true);
-      }
-    })();
-
-    return () => {
-      window.clearTimeout(timeout);
-      ac.abort();
-    };
-  }, []);
-
   return (
     <section id="github">
       <div className="container">
@@ -171,16 +115,6 @@ export function GithubSection() {
                 </a>
               </div>
             </div>
-
-            {failed && (
-              <p className="gh-live-note">
-                Live GitHub stats unavailable right now — showing the latest snapshot.{" "}
-                <a href={site.github} target="_blank" rel="noopener noreferrer">
-                  Check GitHub
-                </a>{" "}
-                for current activity.
-              </p>
-            )}
 
             <div className="gh-repos">
               {repos.map((r, i) => (

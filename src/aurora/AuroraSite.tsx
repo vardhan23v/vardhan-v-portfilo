@@ -137,18 +137,7 @@ function AuroraStat({ value, label }: { value: number | null; label: string }) {
   );
 }
 
-function useGithubFollowers() {
-  const [n, setN] = useState<number | null>(null);
-  useEffect(() => {
-    const ctrl = new AbortController();
-    fetch(`https://api.github.com/users/${site.githubUser}`, { signal: ctrl.signal })
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((d: { followers: number }) => setN(d.followers))
-      .catch(() => setN(null));
-    return () => ctrl.abort();
-  }, []);
-  return n;
-}
+const GITHUB_FOLLOWERS = 26;
 
 function FeaturedProject({ p }: { p: Project }) {
   const ref = useTilt<HTMLDivElement>(4, ".au-ft");
@@ -250,7 +239,7 @@ export function AuroraSite() {
   const [selected, setSelected] = useState<number | null>(0);
   const [scrolled, setScrolled] = useState(false);
   const ist = useIstTime();
-  const followers = useGithubFollowers();
+  const followers = GITHUB_FOLLOWERS;
 
   useEffect(() => {
     const obs = new IntersectionObserver(

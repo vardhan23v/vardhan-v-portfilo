@@ -608,12 +608,12 @@
   display: flex;
   align-items: baseline;
   gap: 12px;
-  padding: 12px 20px;
+  padding: 15px 20px;
   font-family: var(--fg-mono);
   opacity: 0;
   animation: fgenter 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
   animation-delay: calc(0.45s + var(--i, 0) * 0.09s);
-  transition: background 0.2s ease;
+  transition: background 0.2s ease, opacity 0.25s ease;
 }
 
 .fg-pipe-row:hover {
@@ -630,7 +630,7 @@
 }
 
 .fg-pipe-name {
-  font-size: 13.5px;
+  font-size: 14.5px;
   letter-spacing: 0.06em;
   color: var(--pc, var(--fg-text));
 }
@@ -648,6 +648,11 @@
 }
 
 .fg-pipe-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
   padding: 14px 20px;
   border-top: 1px solid var(--fg-line);
   font-family: var(--fg-mono);
@@ -655,6 +660,18 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--fg-faint);
+}
+
+.fg-pipe-uptime {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--fg-cyan);
+}
+
+.fg-pipe-uptime .fg-pipe-dot {
+  width: 5px;
+  height: 5px;
 }
 
 /* ---------- stats strip ---------- */
@@ -1087,6 +1104,7 @@
 
 .fg-proj-card {
   position: relative;
+  isolation: isolate;
   padding: clamp(28px, 4vw, 52px);
   border: 1px solid rgba(215, 226, 234, 0.15);
   border-radius: var(--fg-radius);
@@ -1097,20 +1115,26 @@
 
 .fg-proj-emoji {
   position: absolute;
-  right: clamp(22px, 4vw, 52px);
-  bottom: 20px;
-  font-size: clamp(64px, 8vw, 112px);
+  right: 5%;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: clamp(90px, 12vw, 160px);
   line-height: 1;
-  opacity: 0.07;
-  filter: saturate(0.85);
+  opacity: 0.05;
+  z-index: 0;
   pointer-events: none;
   user-select: none;
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fg-proj-card > :not(.fg-proj-emoji) {
+  position: relative;
+  z-index: 1;
 }
 
 .fg-proj-card:hover .fg-proj-emoji {
-  transform: translateY(-6px) scale(1.06);
-  opacity: 0.13;
+  transform: translateY(-50%) translateY(-6px) scale(1.06);
+  opacity: 0.09;
 }
 
 .fg-proj-card::before {

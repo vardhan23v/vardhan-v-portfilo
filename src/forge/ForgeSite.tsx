@@ -105,17 +105,37 @@ function useLede() {
 }
 
 function useGithubStats() {
-  const [stats, setStats] = useState<{ followers: number | null; repos: number | null }>({
-    followers: null,
-    repos: null,
+  const [stats, setStats] = useState<{ followers: number | null; repos: number | null }>(() => {
+    try {
+      const cached = sessionStorage.getItem("fg:gh");
+      if (cached) return JSON.parse(cached);
+    } catch {
+      /* ignore */
+    }
+    return { followers: null, repos: null };
   });
   useEffect(() => {
+    const cached = (() => {
+      try {
+        const c = sessionStorage.getItem("fg:gh");
+        return c ? JSON.parse(c) : null;
+      } catch {
+        return null;
+      }
+    })();
+    if (cached) return;
     const ctrl = new AbortController();
     fetch(`https://api.github.com/users/${site.githubUser}`, { signal: ctrl.signal })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((d: { followers: number; public_repos: number }) =>
-        setStats({ followers: d.followers, repos: d.public_repos })
-      )
+      .then((d: { followers: number; public_repos: number }) => {
+        const next = { followers: d.followers, repos: d.public_repos };
+        try {
+          sessionStorage.setItem("fg:gh", JSON.stringify(next));
+        } catch {
+          /* ignore */
+        }
+        setStats(next);
+      })
       .catch(() => setStats({ followers: null, repos: null }));
     return () => ctrl.abort();
   }, []);
@@ -303,8 +323,22 @@ function ForgeNav() {
   );
 }
 
+function useUptime() {
+  const [secs, setSecs] = useState(0);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t0 = performance.now();
+    const id = window.setInterval(() => setSecs(Math.floor((performance.now() - t0) / 1000)), 1000);
+    return () => window.clearInterval(id);
+  }, []);
+  const m = String(Math.floor(secs / 60)).padStart(2, "0");
+  const s = String(secs % 60).padStart(2, "0");
+  return `${m}:${s}`;
+}
+
 function Hero() {
   const ledeIdx = useLede();
+  const uptime = useUptime();
   const [trace, setTrace] = useState<number | null>(null);
   const pipeline: [string, string, string][] = [
     ["Frontend", "React · type-safe UI", "#7DD3FC"],
@@ -381,7 +415,12 @@ function Hero() {
               </div>
             ))}
           </div>
-          <div className="fg-pipe-foot">frontend → api → database → llm → product</div>
+          <div className="fg-pipe-foot">
+            <span className="fg-pipe-path">frontend → api → database → llm → product</span>
+            <span className="fg-pipe-uptime">
+              <i className="fg-pipe-dot" /> uptime {uptime}
+            </span>
+          </div>
         </div>
       </div>
     </header>

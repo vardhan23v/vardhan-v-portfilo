@@ -91,6 +91,26 @@
   transition: opacity 0.3s ease;
 }
 
+.classic-root .project-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.06) 50%,
+    transparent 60%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.85s ease;
+}
+
+.classic-root .project-card:hover::after {
+  transform: translateX(120%);
+}
+
 .classic-root .project-card:hover::before {
   opacity: 1;
 }

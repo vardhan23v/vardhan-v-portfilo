@@ -24,6 +24,29 @@
   opacity: 0.5;
 }
 
+.classic-root .edu-timeline::after {
+  content: "";
+  position: absolute;
+  left: 6.5px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--accent-2), var(--accent));
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+  transform-origin: top;
+  transform: scaleY(0);
+  pointer-events: none;
+}
+
+@supports (animation-timeline: view()) {
+  .classic-root .edu-timeline::after {
+    animation: tldraw linear both;
+    animation-timeline: view();
+    animation-range: entry 8% cover 55%;
+  }
+}
+
 .classic-root .edu-item {
   position: relative;
 }

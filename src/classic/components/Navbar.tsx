@@ -17,6 +17,31 @@ const mobileLinks = [
   { label: "Certifications", href: "#certifications" },
 ];
 
+function NavClock() {
+  const [now, setNow] = useState("");
+
+  useEffect(() => {
+    const update = () => {
+      const d = new Date();
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mm = String(d.getMinutes()).padStart(2, "0");
+      const ss = String(d.getSeconds()).padStart(2, "0");
+      setNow(`${hh}:${mm}:${ss}`);
+    };
+    update();
+    const t = window.setInterval(update, 1000);
+    return () => window.clearInterval(t);
+  }, []);
+
+  return (
+    <span className="nav-clock" aria-hidden="true">
+      <Icon.clock width={12} height={12} />
+      <span>{now}</span>
+      <span className="nav-clock-zone">IST</span>
+    </span>
+  );
+}
+
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -80,6 +105,7 @@ export function Navbar() {
         </nav>
 
         <div className="nav-actions">
+          <NavClock />
           <InterfaceSwitcher current="classic" />
           <div className="nav-socials">
             <a href={site.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub">

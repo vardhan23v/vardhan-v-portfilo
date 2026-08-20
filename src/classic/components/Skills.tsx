@@ -73,7 +73,7 @@ export function Skills() {
                   <span
                     key={item.name}
                     className="skill-chip"
-                    style={{ transitionDelay: `${j * 30}ms` }}
+                    style={{ "--cd": `${j * 34}ms` } as React.CSSProperties}
                   >
                     <span className="skill-chip-glyph" aria-hidden="true">
                       {glyphFor(item.icon).glyph}

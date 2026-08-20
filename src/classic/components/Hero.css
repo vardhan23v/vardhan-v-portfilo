@@ -48,6 +48,22 @@
   font-weight: 500;
   color: var(--text-dim);
   letter-spacing: 0.01em;
+  min-height: 1.6em;
+}
+
+.classic-root .hero-type {
+  color: var(--text);
+}
+
+.classic-root .hero-type-cursor {
+  display: inline-block;
+  width: 2.5px;
+  height: 1.05em;
+  margin-left: 4px;
+  vertical-align: -0.15em;
+  background: var(--accent-2);
+  border-radius: 2px;
+  animation: tflash 0.9s steps(1) infinite;
 }
 
 .classic-root .hero-desc {
@@ -138,6 +154,23 @@
 .classic-root .hero-lines {
   width: 100%;
   height: 100%;
+}
+
+.classic-root .hero-lines path {
+  stroke-dasharray: 320;
+  stroke-dashoffset: 320;
+  animation: hlinedraw 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.classic-root .hero-lines path:nth-child(2) { animation-delay: 0.12s; }
+.classic-root .hero-lines path:nth-child(3) { animation-delay: 0.24s; }
+.classic-root .hero-lines path:nth-child(4) { animation-delay: 0.36s; }
+.classic-root .hero-lines path:nth-child(5) { animation-delay: 0.48s; }
+.classic-root .hero-lines path:nth-child(6) { animation-delay: 0.6s; }
+.classic-root .hero-lines path:nth-child(7) { animation-delay: 0.72s; }
+
+@keyframes hlinedraw {
+  to { stroke-dashoffset: 0; }
 }
 
 .classic-root .hero-node {
@@ -244,7 +277,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .classic-root .hero-availability-dot, .classic-root .hero-node, .classic-root .hero-float {
+  .classic-root .hero-availability-dot, .classic-root .hero-node, .classic-root .hero-float, .classic-root .hero-type-cursor {
+    animation: none;
+  }
+  .classic-root .hero-lines path {
+    stroke-dashoffset: 0;
     animation: none;
   }
   .classic-root .terminal {

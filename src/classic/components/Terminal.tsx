@@ -13,6 +13,7 @@ const steps = [
 export function Terminal() {
   const [visible, setVisible] = useState(0);
   const [typing, setTyping] = useState(false);
+  const [done, setDone] = useState(false);
   const started = useRef(false);
 
   useEffect(() => {
@@ -23,7 +24,10 @@ export function Terminal() {
       setVisible(idx);
       setTyping(step => !step);
       idx += 1;
-      if (idx > steps.length) window.clearInterval(timer);
+      if (idx > steps.length) {
+        window.clearInterval(timer);
+        window.setTimeout(() => setDone(true), 1200);
+      }
     }, 560);
     return () => window.clearInterval(timer);
   }, []);
@@ -35,8 +39,8 @@ export function Terminal() {
         <span className="terminal-dot terminal-dot-y" />
         <span className="terminal-dot terminal-dot-g" />
         <span className="terminal-title">vardhan — build.sh</span>
-        <span className="terminal-status" aria-hidden="true">
-          <span className="terminal-pulse" /> building
+        <span className={`terminal-status ${done ? "terminal-status-done" : ""}`} aria-hidden="true">
+          <span className="terminal-pulse" /> {done ? "deployed" : "building"}
         </span>
       </div>
       <div className="terminal-body">

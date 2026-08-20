@@ -1,8 +1,57 @@
+import { useEffect, useState } from "react";
 import { site } from "../data/site";
 import { Icon } from "../lib/icons";
 import { Terminal } from "./Terminal";
 import { Reveal } from "../hooks/useReveal";
 import "./Hero.css";
+
+const roles = [
+  "Generative AI Developer",
+  "Full-Stack Developer",
+  "AI Product Builder",
+];
+
+function useTypewriter(words: string[]) {
+  const [text, setText] = useState("");
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setText(words[0]);
+      return;
+    }
+    let word = 0;
+    let char = 0;
+    let deleting = false;
+    let timer: number;
+    const tick = () => {
+      const target = words[word];
+      if (!deleting) {
+        char += 1;
+        setText(target.slice(0, char));
+        if (char >= target.length) {
+          deleting = true;
+          timer = window.setTimeout(tick, 2200);
+        } else {
+          timer = window.setTimeout(tick, 58);
+        }
+      } else {
+        char -= 1;
+        setText(target.slice(0, char));
+        if (char <= 0) {
+          deleting = false;
+          word = (word + 1) % words.length;
+          timer = window.setTimeout(tick, 350);
+        } else {
+          timer = window.setTimeout(tick, 30);
+        }
+      }
+    };
+    timer = window.setTimeout(tick, 400);
+    return () => window.clearTimeout(timer);
+  }, [words]);
+
+  return text;
+}
 
 export function Hero() {
   return (
@@ -23,7 +72,12 @@ export function Hero() {
           </Reveal>
 
           <Reveal delay="reveal-d2">
-            <p className="hero-role">Generative AI Developer &amp; Full-Stack Developer</p>
+            <p className="hero-role">
+              <span className="hero-type" aria-label={roles.join(", ")}>
+                {useTypewriter(roles)}
+              </span>
+              <span className="hero-type-cursor" aria-hidden="true" />
+            </p>
           </Reveal>
 
           <Reveal delay="reveal-d3">

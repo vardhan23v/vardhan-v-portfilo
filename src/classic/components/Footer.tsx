@@ -1,5 +1,6 @@
 import { site } from "../data/site";
 import { Icon } from "../lib/icons";
+import { Reveal } from "../hooks/useReveal";
 import "./Footer.css";
 
 export function Footer() {
@@ -7,7 +8,7 @@ export function Footer() {
 
   return (
     <footer className="footer">
-      <div className="container footer-inner">
+      <Reveal as="div" className="container footer-inner">
         <div className="footer-brand">
           <a href="#top" className="nav-logo" aria-label="Back to top">
             <span className="nav-logo-mark" aria-hidden="true">
@@ -43,16 +44,16 @@ export function Footer() {
             <Icon.mail width={18} height={18} />
           </a>
         </div>
-      </div>
+      </Reveal>
 
-      <div className="container footer-bottom">
+      <Reveal as="div" delay="reveal-d1" className="container footer-bottom">
         <p>
           © {year} Sree Vardhan V · {site.location}
         </p>
         <p className="footer-made">
           Designed &amp; built by me · <span className="grad-text">no template involved</span>
         </p>
-      </div>
+      </Reveal>
     </footer>
   );
 }

@@ -252,9 +252,34 @@ export const caseStudies: CaseStudy[] = [
 
 export const otherWork = [
   {
+    name: "HPL Auction",
+    note: "Live cricket auction — Next.js 16, Socket.IO, Prisma, server-authoritative timer & purse engine. 6 teams, auctioneer console.",
+    url: "https://github.com/vardhan23v/hpl-auction",
+  },
+  {
+    name: "Apex Retail ERP",
+    note: "Inventory & billing for retail — POS with barcode, GST invoices (PDFKit), stock audit, analytics, RBAC.",
+    url: "https://github.com/vardhan23v/inventory-management",
+  },
+  {
+    name: "Dayflow HRMS",
+    note: "Employee directory, attendance, leave, payroll with PDF payslips, LinkedIn OAuth. TS monorepo on Vercel.",
+    url: "https://github.com/vardhan23v/Human-Resource-Management-System",
+  },
+  {
     name: "Campus Compass",
-    note: "College discovery and comparison — Next.js, PostgreSQL, Prisma, NextAuth.",
+    note: "College discovery and comparison — Next.js 16, PostgreSQL, Prisma, NextAuth.",
     url: "https://github.com/vardhan23v/campus-compass",
+  },
+  {
+    name: "SEM5 Learning Hub",
+    note: "Animated revision site — CNC, TOC, DS, OS with live SVG, automata simulators & CPU scheduler.",
+    url: "https://github.com/vardhan23v/sem5-learning-hub",
+  },
+  {
+    name: "SEM5",
+    note: "PDF reader & study hub for 5th sem — organized notes and PDFs with dark UI.",
+    url: "https://github.com/vardhan23v/sem5",
   },
   {
     name: "DriveNest",

@@ -27,16 +27,28 @@ export const techGroups = [
 
 export const fallbackRepos = [
   {
+    name: "hpl-auction",
+    description: "Live cricket auction — Next.js 16, Socket.IO, Prisma, server-authoritative timer & purse engine.",
+    language: "TypeScript",
+    url: "https://github.com/vardhan23v/hpl-auction",
+  },
+  {
+    name: "inventory-management",
+    description: "Apex Retail ERP — POS, barcode, GST invoices, stock audit, analytics, RBAC. React + Express + MySQL.",
+    language: "JavaScript",
+    url: "https://github.com/vardhan23v/inventory-management",
+  },
+  {
+    name: "Human-Resource-Management-System",
+    description: "Dayflow HRMS — attendance, leave, payroll with PDF payslips, LinkedIn OAuth. TS monorepo on Vercel.",
+    language: "TypeScript",
+    url: "https://github.com/vardhan23v/Human-Resource-Management-System",
+  },
+  {
     name: "extension-AI",
     description: "AI-powered Chrome extension generator — Gemini + Groq, Express, MongoDB, live preview, ZIP download.",
     language: "JavaScript",
     url: "https://github.com/vardhan23v/extension-AI",
-  },
-  {
-    name: "codereviewer",
-    description: "AI code review with structured feedback. Monaco editor, multi-provider LLM pipeline.",
-    language: "JavaScript",
-    url: "https://github.com/vardhan23v/codereviewer",
   },
   {
     name: "Vard-AI",
@@ -45,21 +57,9 @@ export const fallbackRepos = [
     url: "https://github.com/vardhan23v/Vard-AI",
   },
   {
-    name: "Disastermind-ai",
-    description: "Multi-agent emergency operations platform — deterministic simulation, tactical map, SITREP export.",
-    language: "TypeScript",
-    url: "https://github.com/vardhan23v/Disastermind-ai",
-  },
-  {
-    name: "campus-compass",
-    description: "College discovery and comparison — Next.js 16, PostgreSQL, Prisma, NextAuth.",
-    language: "TypeScript",
-    url: "https://github.com/vardhan23v/campus-compass",
-  },
-  {
-    name: "career-forge-pro",
-    description: "AI resume builder with provider fallback chain and ATS scoring, Express backend.",
+    name: "codereviewer",
+    description: "AI code review with structured feedback. Monaco editor, multi-provider LLM pipeline.",
     language: "JavaScript",
-    url: "https://github.com/vardhan23v/career-forge-pro",
+    url: "https://github.com/vardhan23v/codereviewer",
   },
 ];

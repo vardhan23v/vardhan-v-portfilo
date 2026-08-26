@@ -134,6 +134,66 @@ export const featuredProjects: Project[] = [
     accent: ["#22d3ee", "#38bdf8", "#67e8f9"],
     emoji: "🚗",
   },
+  {
+    name: "HPL Auction",
+    slug: "hpl-auction",
+    tagline: "Live cricket auction platform with real-time WebSocket bidding.",
+    problem:
+      "Running a live cricket auction means six teams bidding at once, a countdown that can't drift, and purses that must never go out of sync. HPL Auction makes it real-time — server-authoritative timer & purse engine, captain dashboards, and an auctioneer console.",
+    features: [
+      "Real-time WebSocket bidding",
+      "Server-authoritative timer",
+      "Purse engine & constraints",
+      "Auctioneer console",
+      "Captain dashboards",
+      "Live leaderboard",
+    ],
+    tech: ["Next.js 16", "Socket.IO", "Prisma", "MySQL", "Railway"],
+    github: "https://github.com/vardhan23v/hpl-auction",
+    live: "https://hpl-web-production.up.railway.app",
+    accent: ["#22c55e", "#16a34a", "#4ade80"],
+    emoji: "🏏",
+  },
+  {
+    name: "Apex Retail ERP",
+    slug: "apex-retail-erp",
+    tagline: "Inventory & billing ERP for retail stores — POS, GST invoices, stock audit.",
+    problem:
+      "Retail stores juggle stock, billing, and GST invoices across disconnected tools. Apex Retail ERP centralizes POS with barcode scanning, GST tax invoices via PDFKit, stock audit trails, analytics, and role-based access.",
+    features: [
+      "POS with barcode scanning",
+      "GST tax invoices (PDFKit)",
+      "Stock audit trail",
+      "Analytics dashboards",
+      "RBAC",
+      "Inventory management",
+    ],
+    tech: ["React", "Vite", "Express", "Sequelize", "MySQL", "PDFKit"],
+    github: "https://github.com/vardhan23v/inventory-management",
+    live: "https://inventory-management-mu-sandy.vercel.app",
+    accent: ["#0ea5e9", "#0284c7", "#38bdf8"],
+    emoji: "🧾",
+  },
+  {
+    name: "Dayflow HRMS",
+    slug: "dayflow-hrms",
+    tagline: "Employee directory, attendance, leave, and payroll with PDF payslips.",
+    problem:
+      "HR teams manage employees, attendance, leave, and payroll in spreadsheets. Dayflow HRMS brings them together — employee directory, attendance, time-off, payroll with PDF payslips, and LinkedIn OAuth — in a TypeScript monorepo deployed serverless.",
+    features: [
+      "Employee directory",
+      "Attendance & time-off",
+      "Payroll with PDF payslips",
+      "LinkedIn OAuth",
+      "Role-based dashboards",
+      "Serverless on Vercel",
+    ],
+    tech: ["TypeScript", "React", "Vite", "Express", "MySQL", "Vercel"],
+    github: "https://github.com/vardhan23v/Human-Resource-Management-System",
+    live: "https://frontend-iota-two-70.vercel.app",
+    accent: ["#8b5cf6", "#7c3aed", "#a78bfa"],
+    emoji: "👥",
+  },
 ];
 
 export interface MiniProject {
@@ -224,5 +284,29 @@ export const otherProjects: MiniProject[] = [
     tech: ["TypeScript", "WAI-ARIA"],
     github: "https://github.com/vardhan23v/playground",
     emoji: "🧪",
+  },
+  {
+    name: "Campus Compass",
+    description:
+      "College discovery & comparison for Indian students — search, filter, compare, and review with smart recommendations. Next.js 16, PostgreSQL, Prisma, NextAuth.",
+    tech: ["Next.js 16", "PostgreSQL", "Prisma", "NextAuth"],
+    github: "https://github.com/vardhan23v/campus-compass",
+    emoji: "🎓",
+  },
+  {
+    name: "SEM5 Learning Hub",
+    description:
+      "Animated revision site for B.Tech CSE Sem 5 Unit-I — 4 courses (CNC, TOC, DS, OS) with live SVG visualizations, automata simulators & CPU scheduler.",
+    tech: ["HTML", "SVG", "Visualization"],
+    github: "https://github.com/vardhan23v/sem5-learning-hub",
+    emoji: "🧠",
+  },
+  {
+    name: "SEM5",
+    description:
+      "PDF reader & study material hub for 5th semester engineering students — organized notes and PDFs with a dark UI.",
+    tech: ["HTML", "Dark UI", "PDF"],
+    github: "https://github.com/vardhan23v/sem5",
+    emoji: "📖",
   },
 ];

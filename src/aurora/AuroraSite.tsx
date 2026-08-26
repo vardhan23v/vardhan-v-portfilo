@@ -137,7 +137,7 @@ function AuroraStat({ value, label }: { value: number | null; label: string }) {
   );
 }
 
-const GITHUB_FOLLOWERS = 26;
+const GITHUB_FOLLOWERS = 31;
 
 function FeaturedProject({ p }: { p: Project }) {
   const ref = useTilt<HTMLDivElement>(4, ".au-ft");

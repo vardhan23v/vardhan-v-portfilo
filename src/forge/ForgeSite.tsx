@@ -15,6 +15,9 @@ const CATEGORY: Record<string, string> = {
   "vard-ai": "AI ASSISTANT",
   "disastermind-ai": "AI · EMERGENCY OPERATIONS",
   drivenest: "FULL-STACK · DATABASE",
+  "hpl-auction": "FULL-STACK · REAL-TIME",
+  "apex-retail-erp": "FULL-STACK · ERP",
+  "dayflow-hrms": "FULL-STACK · HRMS",
 };
 
 function getCategory(p: Project): string {
@@ -115,7 +118,7 @@ function useLede() {
 }
 
 function useGithubStats() {
-  return { followers: 26, repos: 33 };
+  return { followers: 31, repos: 39 };
 }
 
 function useForgeReveals() {

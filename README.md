@@ -47,11 +47,11 @@ Switch between editions from any page via the interface switcher.
 
 ## ✨ Highlights
 
-- **6 featured projects** — Extension AI, AI Code Reviewer, CareerForge Pro,
-  Vard AI, DisasterMind AI, DriveNest — each presented with the problem it solves,
+- **9 featured projects** — Extension AI, AI Code Reviewer, CareerForge Pro,
+  Vard AI, DisasterMind AI, DriveNest, HPL Auction, Apex Retail ERP, Dayflow HRMS — each presented with the problem it solves,
   key features, AI engine (Gemini / Claude / Groq / MCP where actually used),
   tech stack, GitHub + live demo links
-- **"Other things I've built"** — 10 more projects in a compact grid
+- **"Other things I've built"** — 13 more projects in a compact grid
 - **Experience timeline** — OxCode, FlyRank AI, Zetheta Algorithms, Zaalima Development
 - **Tech stack** — grouped categories with honest context, no fake percentage bars
 - **Live GitHub stats** — followers/repos via the GitHub REST API with a graceful
@@ -72,7 +72,7 @@ Switch between editions from any page via the interface switcher.
 | QA | Puppeteer-core headless check scripts |
 | Deployment | Vercel (auto-deploy on push) |
 
-~123 kB JS / ~30 kB CSS gzipped — no icon libraries, no animation frameworks, no
+~124 kB JS / ~30 kB CSS gzipped — no icon libraries, no animation frameworks, no
 bloated deps.
 
 ## 📁 Structure

@@ -14,12 +14,12 @@ interface RepoItem {
 }
 
 const fallbackRepos: RepoItem[] = [
+  { name: "hpl-auction", description: "Live cricket auction — Next.js 16, Socket.IO, Prisma, server-authoritative timer & purse engine.", language: "TypeScript", stars: 0, url: "https://github.com/vardhan23v/hpl-auction" },
+  { name: "inventory-management", description: "Apex Retail ERP — POS, GST invoices, stock audit, analytics, RBAC. React + Express + MySQL.", language: "JavaScript", stars: 0, url: "https://github.com/vardhan23v/inventory-management" },
+  { name: "Human-Resource-Management-System", description: "Dayflow HRMS — attendance, leave, payroll with PDF payslips, LinkedIn OAuth. TS monorepo.", language: "TypeScript", stars: 0, url: "https://github.com/vardhan23v/Human-Resource-Management-System" },
   { name: "extension-AI", description: "Build Chrome Extensions with plain-English prompts. Gemini 2.0 Flash & Groq Llama 3.3.", language: "JavaScript", stars: 2, url: "https://github.com/vardhan23v/extension-AI" },
-  { name: "codereviewer", description: "AI code review with structured feedback on bugs, quality, performance, and security.", language: "JavaScript", stars: 1, url: "https://github.com/vardhan23v/codereviewer" },
   { name: "Vard-AI", description: "Voice-first AI assistant with streaming (Groq), MCP tools, and Supabase auth.", language: "TypeScript", stars: 1, url: "https://github.com/vardhan23v/Vard-AI" },
-  { name: "Disastermind-ai", description: "Multi-agent AI emergency response platform with live tactical visualization.", language: "TypeScript", stars: 0, url: "https://github.com/vardhan23v/Disastermind-ai" },
-  { name: "campus-compass", description: "Full-stack college discovery and comparison platform. Next.js 16 + PostgreSQL.", language: "TypeScript", stars: 0, url: "https://github.com/vardhan23v/campus-compass" },
-  { name: "career-forge-pro", description: "AI-powered resume builder and career toolkit with Gemini.", language: "JavaScript", stars: 0, url: "https://github.com/vardhan23v/career-forge-pro" },
+  { name: "codereviewer", description: "AI code review with structured feedback on bugs, quality, performance, and security.", language: "JavaScript", stars: 1, url: "https://github.com/vardhan23v/codereviewer" },
 ];
 
 const languageColors: Record<string, string> = {
@@ -33,8 +33,8 @@ const languageColors: Record<string, string> = {
 export function GithubSection() {
   const [run, setRun] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
-  const repoCount = 33;
-  const followersNum = 26;
+  const repoCount = 39;
+  const followersNum = 31;
   const repos = fallbackRepos;
 
   useEffect(() => {

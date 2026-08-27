@@ -1,0 +1,424 @@
+/* ============================================================
+   MOTION ENHANCE — new animations across all 6 interfaces
+   Added per user request: Muse Spark / DeepSeek / Kimi stack
+   + Railway, Cloud MySQL, Cloudinary, MCP + fresh motion
+   Respects prefers-reduced-motion — all animations disabled there
+   ============================================================ */
+
+/* ---------- Global accent shimmer ---------- */
+@keyframes shimmer-sweep {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes float-gentle-reverse {
+  0%, 100% { transform: translateY(-4px); }
+  50% { transform: translateY(4px); }
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+@keyframes card-shine {
+  0% { transform: translateX(-120%) skewX(-12deg); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translateX(220%) skewX(-12deg); opacity: 0; }
+}
+@keyframes border-draw {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes text-reveal {
+  from { opacity: 0; transform: translateY(14px); clip-path: inset(0 100% 0 0); }
+  to { opacity: 1; transform: none; clip-path: inset(0 0 0 0); }
+}
+@keyframes morph-blob {
+  0%, 100% { border-radius: 60% 40% 55% 45% / 55% 60% 40% 45%; }
+  33% { border-radius: 45% 60% 50% 55% / 60% 45% 55% 40%; }
+  66% { border-radius: 55% 45% 60% 40% / 40% 55% 60% 50%; }
+}
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   1) LANDING — extra depth
+   ============================================================ */
+.landing-root .stage-frame {
+  animation: float-gentle 6s ease-in-out infinite;
+}
+.landing-root .stage-frame:hover {
+  animation-play-state: paused;
+}
+.landing-title .landing-grad {
+  background-size: 300% 100%;
+  animation: shimmer-sweep 8s linear infinite, grad-shift 7s ease-in-out infinite;
+}
+.landing-pipeline i {
+  animation: pulse-glow 1.8s ease-in-out infinite;
+}
+.landing-pipeline i:nth-child(2) { animation-delay: 0.15s; }
+.landing-pipeline i:nth-child(4) { animation-delay: 0.3s; }
+.landing-pipeline i:nth-child(6) { animation-delay: 0.45s; }
+.landing-pipeline i:nth-child(8) { animation-delay: 0.6s; }
+
+/* edition cards: shine sweep on hover */
+.edition-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -30%;
+  width: 30%;
+  height: 100%;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,0.18), transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.edition-card:hover::after {
+  animation: card-shine 0.9s ease forwards;
+  opacity: 1;
+}
+.edition-card:hover {
+  transform: perspective(1000px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-4px) scale(1.01) !important;
+}
+.land-project-item {
+  position: relative;
+  overflow: hidden;
+}
+.land-project-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(220px circle at var(--mx,50%) var(--my,50%), rgba(124,108,255,0.12), transparent 65%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.land-project-item:hover::after { opacity: 1; }
+
+/* ============================================================
+   2) CLASSIC — refined motion
+   ============================================================ */
+.classic-root .bg-glow::before {
+  animation: float-gentle 9s ease-in-out infinite alternate;
+}
+.classic-root .bg-glow::after {
+  animation: float-gentle-reverse 11s ease-in-out infinite alternate;
+}
+.classic-root .bg-grid {
+  animation: grid-drift 40s linear infinite;
+}
+@keyframes grid-drift {
+  from { background-position: 0 0, 0 0; }
+  to { background-position: 56px 56px, 56px 56px; }
+}
+.classic-root .hero-title,
+.classic-root .section-title {
+  animation: text-reveal 0.8s cubic-bezier(0.22,1,0.36,1) both;
+}
+.classic-root .skill-chip {
+  transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.classic-root .skill-chip:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 8px 24px rgba(124,108,255,0.18), 0 0 0 1px rgba(124,108,255,0.25) inset;
+  border-color: rgba(124,108,255,0.4) !important;
+}
+.classic-root .gh-repo,
+.classic-root .skill-cat {
+  transition: transform 0.35s ease, box-shadow 0.3s ease, border-color 0.25s ease;
+}
+.classic-root .gh-repo:hover {
+  transform: translateY(-4px) scale(1.01);
+}
+.classic-root .btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+.classic-root .btn-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.22) 50%, transparent 70%);
+  background-size: 200% 100%;
+  opacity: 0;
+  transition: opacity 0.2s;
+  animation: shimmer-sweep 1.2s ease infinite;
+  animation-play-state: paused;
+}
+.classic-root .btn-primary:hover::before {
+  opacity: 1;
+  animation-play-state: running;
+}
+
+/* Projects stagger reveal */
+.classic-root .reveal {
+  transition-duration: 0.75s;
+}
+.classic-root .reveal.is-visible:nth-child(2) { transition-delay: 0.08s; }
+.classic-root .reveal.is-visible:nth-child(3) { transition-delay: 0.16s; }
+
+/* ============================================================
+   3) FORGE — editorial pulse + grid
+   ============================================================ */
+.forge-root .fg-grid {
+  animation: forge-grid-drift 60s linear infinite;
+  opacity: 0.4;
+}
+@keyframes forge-grid-drift {
+  from { transform: translateY(0); }
+  to { transform: translateY(48px); }
+}
+.forge-root .fg-pipe-pulse {
+  animation: forge-pulse 2.2s ease-in-out infinite;
+}
+@keyframes forge-pulse {
+  0% { transform: translateX(-18%) scaleX(0.6); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateX(118%) scaleX(1); opacity: 0; }
+}
+.forge-root .fg-hero-heading {
+  animation: text-reveal 0.9s cubic-bezier(0.22,1,0.36,1) both 0.2s;
+}
+.forge-root .fg-glint {
+  position: relative;
+}
+.forge-root .fg-glint::after {
+  content: "";
+  position: absolute;
+  left: -10%;
+  top: 0;
+  width: 30%;
+  height: 100%;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,0.55), transparent);
+  transform: skewX(-14deg) translateX(-120%);
+  opacity: 0;
+  pointer-events: none;
+}
+.forge-root .fg-glint:hover::after {
+  animation: card-shine 0.9s ease forwards;
+  opacity: 1;
+}
+.forge-root .fg-proj-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s ease, border-color 0.3s ease;
+}
+.forge-root .fg-proj-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(420px circle at var(--mx,50%) var(--my,50%), rgba(125,211,252,0.14), transparent 65%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.forge-root .fg-proj-card:hover::before { opacity: 1; }
+.forge-root .fg-proj-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 24px 48px rgba(0,0,0,0.45), 0 0 0 1px rgba(125,211,252,0.18);
+}
+.forge-root .fg-marquee-track {
+  animation-duration: 32s !important;
+}
+.forge-root .fg-tl-item {
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+.forge-root .fg-tl-item:not(.fg-tl-in) {
+  opacity: 0;
+  transform: translateX(12px);
+}
+.forge-root .fg-tl-item.fg-tl-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* ============================================================
+   4) AURORA — luminous drift + glass
+   ============================================================ */
+.aurora-root .au-glow {
+  animation: float-gentle 8s ease-in-out infinite alternate;
+}
+.aurora-root .au-glow-blue {
+  animation: float-gentle-reverse 10s ease-in-out infinite alternate;
+}
+.aurora-root .au-glow-cyan {
+  animation: float-gentle 12s ease-in-out infinite alternate-reverse;
+}
+.aurora-root .au-glow-purple { animation-delay: -1s; }
+.aurora-root .au-card,
+.aurora-root .au-ft {
+  transition: transform 0.45s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s ease, backdrop-filter 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.aurora-root .au-card:hover,
+.aurora-root .au-ft:hover {
+  transform: translateY(-6px) scale(1.015);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.25), 0 0 28px rgba(167,139,250,0.18);
+}
+.aurora-root .au-card::after,
+.aurora-root .au-ft::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(115deg, transparent 45%, rgba(255,255,255,0.22) 50%, transparent 55%);
+  transform: translateX(-120%) skewX(-10deg);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.aurora-root .au-card:hover::after,
+.aurora-root .au-ft:hover::after {
+  animation: card-shine 0.85s ease forwards;
+  opacity: 1;
+}
+.aurora-root .au-stat-value {
+  transition: transform 0.3s ease;
+}
+.aurora-root .au-stat:hover .au-stat-value {
+  transform: scale(1.08);
+}
+.aurora-root .au-sys-row {
+  position: relative;
+  overflow: hidden;
+}
+.aurora-root .au-sys-row::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(124,108,255,0.35), transparent);
+  transform: translateX(-100%);
+  animation: aurora-sweep 3.8s ease infinite;
+}
+@keyframes aurora-sweep {
+  0% { transform: translateX(-100%); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+/* ============================================================
+   5) PAPER — editorial ink + rules
+   ============================================================ */
+.paper-root .paper-title,
+.paper-root .pp-title {
+  animation: text-reveal 0.85s cubic-bezier(0.22,1,0.36,1) both;
+}
+.paper-root .pp-rule,
+.paper-root .paper-rule {
+  transform-origin: left;
+  animation: border-draw 1s cubic-bezier(0.22,1,0.36,1) both 0.4s;
+}
+.paper-root .pp-card,
+.paper-root .paper-card {
+  transition: transform 0.35s ease, box-shadow 0.3s ease;
+}
+.paper-root .pp-card:hover,
+.paper-root .paper-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(26,24,21,0.12), 0 1px 3px rgba(26,24,21,0.08);
+}
+.paper-root .pp-chip,
+.paper-root .paper-chip {
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+.paper-root .pp-chip:hover {
+  transform: translateY(-2px);
+}
+
+/* ============================================================
+   6) TERMINAL — crt + typewriter
+   ============================================================ */
+.terminal-root .boot-line {
+  animation: term-type 0.45s steps(28) both;
+}
+@keyframes term-type {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+.terminal-root .shell-prompt {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+.terminal-root .term-window,
+.terminal-root .work-detail {
+  position: relative;
+  overflow: hidden;
+}
+.terminal-root .term-window::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.08) 50%);
+  background-size: 100% 3px;
+  opacity: 0.18;
+  pointer-events: none;
+  z-index: 2;
+}
+.terminal-root .term-window::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(180deg, transparent, rgba(54,229,124,0.06), transparent);
+  top: -120px;
+  animation: scanline 6s linear infinite;
+  pointer-events: none;
+  z-index: 3;
+}
+.terminal-root .shell-input {
+  caret-color: #36e57c;
+  animation: caret-glow 1.6s ease-in-out infinite alternate;
+}
+@keyframes caret-glow {
+  from { text-shadow: 0 0 0 rgba(54,229,124,0); }
+  to { text-shadow: 0 0 8px rgba(54,229,124,0.7); }
+}
+
+/* ============================================================
+   Cross-cutting: reveal on scroll softer + stagger
+   ============================================================ */
+.fg-reveal, .au-reveal, .land-stats, .classic-root .reveal {
+  will-change: opacity, transform;
+}
+.fg-reveal:not(.fg-in), .au-reveal:not(.is-in) {
+  /* fallback ensures motion.css doesn't break if JS fails */
+}
+
+/* Interface switcher subtle breathe */
+.iswitcher {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.iswitcher:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+}
+
+/* command palette open spring */
+.cp-root[aria-hidden="false"] {
+  animation: cp-in 0.32s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes cp-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}

@@ -30,7 +30,7 @@ const FORGE_PROJECTS = featuredProjects.map((p, i) => ({
   cat: getCategory(p),
 }));
 
-const AI_TECHS = new Set(["Gemini", "Claude", "Groq", "MCP", "OpenAI", "Mistral", "Cohere"]);
+const AI_TECHS = new Set(["Gemini", "Claude", "Groq", "MCP", "OpenAI", "Mistral", "Cohere", "Muse Spark 1.2", "DeepSeek", "Kimi", "Muse Spark", "DeepSeek API", "Kimi API"]);
 
 const ABOUT_PARAGRAPHS = [
   "I'm a Computer Science undergraduate focused on Generative AI, full-stack development, and shipping useful software products.",
@@ -321,11 +321,11 @@ function Hero() {
   const uptime = useUptime();
   const [trace, setTrace] = useState<number | null>(null);
   const pipeline: [string, string, string][] = [
-    ["Frontend", "React · type-safe UI", "#7DD3FC"],
-    ["API", "Node.js · REST", "#93C5FD"],
-    ["Database", "Mongo · MySQL · Prisma", "#A78BFA"],
-    ["LLM", "Gemini · Groq · Claude", "#C4B5FD"],
-    ["Product", "shipped & live", "#BBCCD7"],
+    ["Frontend", "React · Tailwind UI", "#7DD3FC"],
+    ["API", "Node.js · REST · Cloudinary", "#93C5FD"],
+    ["Database", "Cloud MySQL · Prisma", "#A78BFA"],
+    ["LLM", "Muse Spark · DeepSeek · Kimi · MCP", "#C4B5FD"],
+    ["Product", "Railway · Vercel · live", "#BBCCD7"],
   ];
   return (
     <header className="fg-hero">

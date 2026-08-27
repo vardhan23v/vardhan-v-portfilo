@@ -12,6 +12,7 @@ import { CursorFX } from "./CursorFX";
 import { ScrollChrome } from "./components/ScrollChrome";
 import { CommandPalette } from "./components/CommandPalette";
 import "./landing/Landing.css";
+import "./styles/motion.css";
 
 const interfaceRoutes = ["/terminal", "/classic", "/paper", "/aurora", "/forge"];
 

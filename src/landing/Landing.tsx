@@ -198,6 +198,7 @@ function EditionCard({
     <div ref={ref} className="edition-tilt" role="listitem">
       <Link
         to={to}
+        viewTransition
         className={`edition-card ${className}`}
         aria-label={label}
         data-cursor={cursor}

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useMagnetic } from "../hooks/useMagnetic";
 import "./interface-switcher.css";
 
 const editionRoutes = [
@@ -10,6 +11,7 @@ const editionRoutes = [
 ];
 
 export function InterfaceSwitcher({ current }: { current: string }) {
+  useMagnetic(".iswitcher-item", 0.22, 6);
   return (
     <nav className="iswitcher" aria-label="Switch interface">
       {editionRoutes.map((it) => {
@@ -18,6 +20,7 @@ export function InterfaceSwitcher({ current }: { current: string }) {
           <Link
             key={it.to}
             to={it.to}
+            viewTransition
             className={`iswitcher-item ${active ? "iswitcher-item--active" : ""}`}
             aria-current={active ? "true" : undefined}
             title={`${it.label} — ${it.role}`}

@@ -11,6 +11,7 @@ import { ForgeSite } from "./forge/ForgeSite";
 import { CursorFX } from "./CursorFX";
 import { ScrollChrome } from "./components/ScrollChrome";
 import { CommandPalette } from "./components/CommandPalette";
+import { KonamiFX } from "./components/KonamiFX";
 import "./landing/Landing.css";
 import "./styles/motion.css";
 
@@ -68,6 +69,14 @@ function RouteSeo() {
   return null;
 }
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 function InterfaceShortcuts() {
   const navigate = useNavigate();
 
@@ -78,7 +87,7 @@ function InterfaceShortcuts() {
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
       const n = Number(e.key);
       if (n >= 1 && n <= 6 && interfaceRoutes[n - 1]) {
-        navigate(interfaceRoutes[n - 1]);
+        navigate(interfaceRoutes[n - 1], { viewTransition: true });
       }
     };
     window.addEventListener("keydown", onKey);
@@ -95,7 +104,9 @@ export default function App() {
       <InterfaceShortcuts />
       <ScrollChrome />
       <CommandPalette />
+      <KonamiFX />
       <RouteSeo />
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/classic" element={<ClassicSite />} />

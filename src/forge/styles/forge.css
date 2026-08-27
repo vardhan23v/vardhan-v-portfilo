@@ -1715,3 +1715,163 @@
   --sw-accent: var(--fg-cyan);
   --sw-active-bg: rgba(125, 211, 252, 0.12);
 }
+/* ============================================================
+   Forge polish: embers, pipe tilt, build log, stagger headings,
+   work filters
+   ============================================================ */
+.fg-hero {
+  position: relative;
+}
+
+.fg-embers {
+  position: absolute;
+  inset: -8% -4%;
+  width: 108%;
+  height: 116%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.85;
+  mask-image: radial-gradient(120% 90% at 50% 45%, black 55%, transparent 100%);
+}
+.fg-hero > :not(.fg-embers) {
+  position: relative;
+  z-index: 1;
+}
+
+/* pipeline panel: 3D tilt driven by useTilt's --rx/--ry */
+.fg-hero-visual {
+  perspective: 1100px;
+}
+.fg-pipe {
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.18s ease-out;
+  will-change: transform;
+}
+
+/* typing build log in the pipe footer */
+.fg-pipe-log {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.fg-pipe-caret {
+  display: inline-block;
+  width: 7px;
+  height: 12px;
+  margin-left: 3px;
+  vertical-align: -2px;
+  background: var(--fg-cyan);
+  animation: fg-caret-blink 1s steps(1) infinite;
+}
+@keyframes fg-caret-blink {
+  50% { opacity: 0; }
+}
+
+/* staggered word rise on section headings */
+/* background-clip: text doesn't survive transformed descendants, so the
+   gradient moves off the h2 and onto each word */
+.fg-h-stagger.hero-heading {
+  background: none;
+  animation: none;
+}
+.fg-h-stagger .fg-h-word {
+  background: linear-gradient(
+    110deg,
+    #646973 0%,
+    #9fb0bd 28%,
+    #eaf2f9 50%,
+    #9fb0bd 72%,
+    #646973 100%
+  );
+  background-size: 240% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.fg-h-clip {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+.fg-h-word {
+  display: inline-block;
+  transform: translateY(110%);
+  opacity: 0;
+}
+.fg-in .fg-h-word {
+  animation:
+    fg-h-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both,
+    fg-head-shimmer 9s ease-in-out infinite;
+  animation-delay: calc(var(--wi, 0) * 0.09s), 0s;
+}
+@keyframes fg-h-rise {
+  from { transform: translateY(110%); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+/* work filter chips */
+.fg-work-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+.fg-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(215, 226, 234, 0.18);
+  background: transparent;
+  color: var(--fg-muted);
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.fg-filter:hover {
+  color: var(--fg-text);
+  border-color: rgba(215, 226, 234, 0.4);
+}
+.fg-filter.is-active {
+  color: #0b0b0d;
+  background: var(--fg-cyan);
+  border-color: var(--fg-cyan);
+}
+.fg-filter-count {
+  font-size: 11px;
+  opacity: 0.7;
+}
+.fg-filter.is-active .fg-filter-count {
+  opacity: 0.85;
+}
+
+/* cards slide in when the filter changes (stack is remounted via key) */
+@media (prefers-reduced-motion: no-preference) {
+  .fg-work-stack .fg-proj-wrap {
+    animation: fg-card-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--i, 0) * 0.06s);
+  }
+}
+@keyframes fg-card-enter {
+  /* `to` omits transform so the sticky-stack scale on .fg-proj-wrap resumes */
+  from { opacity: 0; transform: translateY(26px) scale(0.985); }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fg-embers { display: none; }
+  .fg-pipe { transform: none; }
+  .fg-h-word { transform: none; opacity: 1; animation: none; }
+}

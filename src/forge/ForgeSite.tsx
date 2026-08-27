@@ -1,7 +1,10 @@
-import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { Link } from "react-router-dom";
 import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { LiquidButton, MetalButton } from "../components/ui/LiquidButton";
+import { useTilt } from "../hooks/useTilt";
+import { useMagnetic } from "../hooks/useMagnetic";
+import { EmberField } from "./EmberField";
 import { featuredProjects, type Project } from "../classic/data/projects";
 import { experience } from "../classic/data/experience";
 import { skillCategories } from "../classic/data/skills";
@@ -55,9 +58,13 @@ const STACK_ALIAS: Record<string, string> = {
 function stackGroups() {
   return skillCategories.map((c) => ({
     label: c.label === "AI / LLM" ? "AI" : c.label,
-    items: c.items
-      .map((i) => STACK_ALIAS[i.name] ?? i.name)
-      .concat(c.label === "Frontend" ? ["Tailwind CSS"] : c.label === "AI / LLM" ? ["Generative AI"] : []),
+    items: [
+      ...new Set(
+        c.items
+          .map((i) => STACK_ALIAS[i.name] ?? i.name)
+          .concat(c.label === "Frontend" ? ["Tailwind CSS"] : c.label === "AI / LLM" ? ["Generative AI"] : [])
+      ),
+    ],
   }));
 }
 
@@ -316,10 +323,68 @@ function useUptime() {
   return `${m}:${s}`;
 }
 
+const BUILD_LOG = [
+  "▸ compiling ui ......... ok",
+  "▸ wiring llm tools ..... ok",
+  "▸ migrating database ... ok",
+  "▸ streaming tokens ..... ok",
+  "▸ deploying → vercel ... ✓ live",
+];
+
+function BuildLog() {
+  const [line, setLine] = useState(0);
+  const [chars, setChars] = useState(BUILD_LOG[0].length);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let i = 0;
+    let c = 0;
+    let t = 0;
+    const typeNext = () => {
+      const target = BUILD_LOG[i];
+      if (c <= target.length) {
+        setLine(i);
+        setChars(c);
+        c += 1 + Math.floor(Math.random() * 2);
+        t = window.setTimeout(typeNext, 34 + Math.random() * 46);
+      } else {
+        i = (i + 1) % BUILD_LOG.length;
+        c = 0;
+        t = window.setTimeout(typeNext, 1500);
+      }
+    };
+    t = window.setTimeout(typeNext, 800);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  return (
+    <span className="fg-pipe-log">
+      {BUILD_LOG[line].slice(0, chars)}
+      <i className="fg-pipe-caret" aria-hidden="true" />
+    </span>
+  );
+}
+
+/** Section heading with per-word rise-in, staggered via --wi, fired by .fg-in. */
+function StaggerHeading({ text, className = "" }: { text: string; className?: string }) {
+  return (
+    <h2 className={`fg-heading hero-heading fg-h-stagger ${className}`} aria-label={text}>
+      {text.split(" ").map((word, i) => (
+        <span className="fg-h-clip" key={`${word}-${i}`} aria-hidden="true">
+          <span className="fg-h-word" style={{ "--wi": i } as CSSProperties}>
+            {word}
+          </span>{" "}
+        </span>
+      ))}
+    </h2>
+  );
+}
+
 function Hero() {
   const ledeIdx = useLede();
   const uptime = useUptime();
   const [trace, setTrace] = useState<number | null>(null);
+  const pipeRef = useTilt<HTMLDivElement>(5, ".fg-pipe");
   const pipeline: [string, string, string][] = [
     ["Frontend", "React · Tailwind UI", "#7DD3FC"],
     ["API", "Node.js · REST · Cloudinary", "#93C5FD"],
@@ -329,6 +394,7 @@ function Hero() {
   ];
   return (
     <header className="fg-hero">
+      <EmberField />
       <div className="fg-hero-copy">
         <p className="fg-eyebrow fg-enter" style={{ "--d": "0s" } as CSSProperties}>
           generative ai · full-stack · product engineering
@@ -366,7 +432,7 @@ function Hero() {
           <span>agentic systems</span>
         </div>
       </div>
-      <div className="fg-hero-visual fg-enter" style={{ "--d": "0.34s" } as CSSProperties} aria-hidden="true">
+      <div ref={pipeRef} className="fg-hero-visual fg-enter" style={{ "--d": "0.34s" } as CSSProperties} aria-hidden="true">
         <div className="fg-pipe">
           <div className="fg-pipe-head">
             <span>build pipeline</span>
@@ -396,7 +462,7 @@ function Hero() {
             ))}
           </div>
           <div className="fg-pipe-foot">
-            <span className="fg-pipe-path">frontend → api → database → llm → product</span>
+            <BuildLog />
             <span className="fg-pipe-uptime">
               <i className="fg-pipe-dot" /> uptime {uptime}
             </span>
@@ -497,7 +563,7 @@ function About() {
     <section className="fg-section" id="about">
       <div className="fg-about fg-reveal">
         <SectionEyebrow id="about" />
-        <h2 className="fg-heading hero-heading">About me</h2>
+        <StaggerHeading text="About me" />
         <div className="fg-prose">
           {ABOUT_PARAGRAPHS.map((p, i) => (
             <p key={i}>{p}</p>
@@ -521,7 +587,7 @@ function Stack() {
     <section className="fg-section" id="stack">
       <div className="fg-stack fg-reveal">
         <SectionEyebrow id="stack" left />
-        <h2 className="fg-heading hero-heading">Stack</h2>
+        <StaggerHeading text="Stack" />
         <div className="fg-stack-grid">
           {STACK.map((c, i) => (
             <div className="fg-stack-card" key={c.label} style={{ "--i": i, "--hc": STACK_HUES[i % STACK_HUES.length] } as CSSProperties}>
@@ -546,7 +612,7 @@ function Experience() {
     <section className="fg-section" id="experience">
       <div className="fg-exp fg-reveal">
         <SectionEyebrow id="experience" left />
-        <h2 className="fg-heading hero-heading">Experience</h2>
+        <StaggerHeading text="Experience" />
         <ol className="fg-timeline">
           {experience.map((e, i) => (
             <li className="fg-timeline-item fg-tl-item" key={e.company} style={{ "--i": i } as CSSProperties}>
@@ -639,19 +705,48 @@ function ProjectCard({ p, i }: { p: (typeof FORGE_PROJECTS)[number]; i: number }
   );
 }
 
+const WORK_FILTERS: { key: string; label: string; match: (cat: string) => boolean }[] = [
+  { key: "all", label: "all", match: () => true },
+  { key: "ai", label: "ai products", match: (c) => c.startsWith("AI") },
+  { key: "fullstack", label: "full-stack", match: (c) => c.startsWith("FULL-STACK") },
+  { key: "devtool", label: "dev tools", match: (c) => c.includes("DEVELOPER TOOL") },
+];
+
 function Work() {
+  const [filter, setFilter] = useState("all");
+  const active = WORK_FILTERS.find((f) => f.key === filter) ?? WORK_FILTERS[0];
+  const visible = useMemo(
+    () => FORGE_PROJECTS.filter((p) => active.match(p.cat)),
+    [active]
+  );
   return (
     <section className="fg-section fg-work" id="work">
       <div className="fg-work-head fg-reveal">
         <SectionEyebrow id="work" left />
-        <h2 className="fg-heading hero-heading">Selected Work</h2>
+        <StaggerHeading text="Selected Work" />
         <p className="fg-subhead">
           A selection of AI-powered products, full-stack applications, and developer
           tools — ordered by AI engineering relevance.
         </p>
+        <div className="fg-work-filters" role="group" aria-label="Filter projects">
+          {WORK_FILTERS.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              className={`fg-filter${filter === f.key ? " is-active" : ""}`}
+              aria-pressed={filter === f.key}
+              onClick={() => setFilter(f.key)}
+            >
+              {f.label}
+              <span className="fg-filter-count">
+                {FORGE_PROJECTS.filter((p) => f.match(p.cat)).length}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
-      <div className="fg-work-stack">
-        {FORGE_PROJECTS.map((p, i) => (
+      <div className="fg-work-stack" key={filter}>
+        {visible.map((p, i) => (
           <ProjectCard p={p} i={i} key={p.slug} />
         ))}
       </div>
@@ -687,7 +782,7 @@ function Interfaces() {
     <section className="fg-section" id="interfaces">
       <div className="fg-interfaces fg-reveal">
         <SectionEyebrow id="interfaces" />
-        <h2 className="fg-heading hero-heading">Other interfaces</h2>
+        <StaggerHeading text="Other interfaces" />
         <p className="fg-subhead">
           Five interfaces, one portfolio — every edition runs the same work through a
           different design system. This is Forge; here are the rest.
@@ -731,6 +826,7 @@ function ForgeFooter() {
 
 export function ForgeSite() {
   useForgeReveals();
+  useMagnetic(".fg-btn, .fg-filter", 0.24, 7);
   useMarqueeDrift();
   useForgeScrollFX();
   useForgeSpy();

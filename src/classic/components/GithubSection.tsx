@@ -34,7 +34,7 @@ export function GithubSection() {
   const [run, setRun] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
   const repoCount = 39;
-  const followersNum = 31;
+  const followersNum = 30;
   const repos = fallbackRepos;
 
   useEffect(() => {

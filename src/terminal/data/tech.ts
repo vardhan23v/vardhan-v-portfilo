@@ -5,23 +5,45 @@ export const techGroups = [
   },
   {
     label: "Frontend",
-    items: ["React", "Next.js", "Vite", "Responsive design", "DOM"],
+    items: [
+      "React",
+      "Next.js",
+      "TanStack Start",
+      "Vite",
+      "Tailwind CSS",
+      "Framer Motion",
+      "Zustand",
+      "React Router",
+    ],
   },
   {
     label: "Backend",
-    items: ["Node.js", "Express", "REST APIs", "JWT authentication"],
+    items: ["Node.js", "Express", "REST APIs", "Socket.IO", "JWT / NextAuth", "Sequelize", "Zod"],
   },
   {
     label: "Data",
-    items: ["MongoDB", "MySQL", "PostgreSQL", "Prisma"],
+    items: ["MongoDB", "MySQL", "PostgreSQL", "Prisma", "Supabase"],
   },
   {
     label: "AI / LLM",
-    items: ["Gemini", "Claude", "Groq", "LLM APIs", "Prompt engineering", "AI agents", "MCP"],
+    items: ["Gemini", "Claude", "Groq", "LLM APIs", "Prompt engineering", "AI agents", "MCP", "Streaming"],
   },
   {
-    label: "Tools",
-    items: ["Git", "GitHub", "Vercel", "Postman", "VS Code"],
+    label: "Tools & Testing",
+    items: [
+      "Git",
+      "GitHub",
+      "Vercel",
+      "Railway",
+      "Postman",
+      "VS Code",
+      "Jest / Vitest",
+      "Playwright",
+      "Recharts",
+      "Leaflet",
+      "PDFKit / jsPDF",
+      "Monaco Editor",
+    ],
   },
 ];
 

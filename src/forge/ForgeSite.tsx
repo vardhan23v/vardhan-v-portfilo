@@ -118,7 +118,7 @@ function useLede() {
 }
 
 function useGithubStats() {
-  return { followers: 31, repos: 39 };
+  return { followers: 30, repos: 39 };
 }
 
 function useForgeReveals() {

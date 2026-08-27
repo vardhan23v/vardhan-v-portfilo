@@ -15,6 +15,8 @@ export const skillCategories: SkillCategory[] = [
       { name: "Java", icon: "java" },
       { name: "C", icon: "c" },
       { name: "SQL", icon: "sql" },
+      { name: "HTML", icon: "html" },
+      { name: "CSS", icon: "css" },
     ],
   },
   {
@@ -23,9 +25,12 @@ export const skillCategories: SkillCategory[] = [
     items: [
       { name: "React", icon: "react" },
       { name: "Next.js", icon: "next" },
+      { name: "TanStack Start", icon: "tanstack" },
       { name: "Vite", icon: "vite" },
-      { name: "HTML", icon: "html" },
-      { name: "CSS", icon: "css" },
+      { name: "Tailwind CSS", icon: "tailwind" },
+      { name: "Framer Motion", icon: "motion" },
+      { name: "Zustand", icon: "zustand" },
+      { name: "React Router", icon: "router" },
     ],
   },
   {
@@ -35,7 +40,10 @@ export const skillCategories: SkillCategory[] = [
       { name: "Node.js", icon: "node" },
       { name: "Express.js", icon: "express" },
       { name: "REST APIs", icon: "rest" },
-      { name: "JWT", icon: "jwt" },
+      { name: "Socket.IO", icon: "socket" },
+      { name: "JWT / NextAuth", icon: "jwt" },
+      { name: "Sequelize", icon: "sequelize" },
+      { name: "Zod", icon: "zod" },
     ],
   },
   {
@@ -46,6 +54,7 @@ export const skillCategories: SkillCategory[] = [
       { name: "MySQL", icon: "mysql" },
       { name: "PostgreSQL", icon: "postgres" },
       { name: "Prisma", icon: "prisma" },
+      { name: "Supabase", icon: "supabase" },
     ],
   },
   {
@@ -59,25 +68,33 @@ export const skillCategories: SkillCategory[] = [
       { name: "Prompt Engineering", icon: "prompt" },
       { name: "AI Agents", icon: "agent" },
       { name: "MCP", icon: "mcp" },
+      { name: "Streaming", icon: "stream" },
     ],
   },
   {
-    label: "Tools",
+    label: "Tools & Testing",
     icon: "tools",
     items: [
       { name: "Git", icon: "git" },
       { name: "GitHub", icon: "gh" },
       { name: "Vercel", icon: "vercel" },
+      { name: "Railway", icon: "railway" },
       { name: "Postman", icon: "postman" },
       { name: "VS Code", icon: "vscode" },
+      { name: "Jest / Vitest", icon: "vitest" },
+      { name: "Playwright", icon: "playwright" },
+      { name: "Recharts", icon: "recharts" },
+      { name: "Leaflet", icon: "leaflet" },
+      { name: "PDFKit / jsPDF", icon: "pdf" },
+      { name: "Monaco Editor", icon: "monaco" },
     ],
   },
 ];
 
 export const exploring = [
   { name: "Advanced TypeScript", note: "Generics deeper than the docs" },
-  { name: "System Design", note: "Scaling past the prototype" },
-  { name: "AI Agent Architectures", note: "Multi-step reasoning and tools" },
-  { name: "MCP", note: "Giving models real capabilities" },
-  { name: "Modern AI developer tooling", note: "Building with, not just around, AI" },
+  { name: "Real-time systems", note: "Socket.IO, server-authoritative state, single clock" },
+  { name: "Full-stack testing", note: "Jest, Vitest, and Playwright in production ERPs" },
+  { name: "AI Agent Architectures", note: "Multi-step reasoning, MCP tools, streaming" },
+  { name: "System Design", note: "Scaling past the prototype — ERPs & auction engines" },
 ];

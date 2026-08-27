@@ -43,7 +43,20 @@ navigation and one-click entry:
   live GitHub stats strip (session-cached), stacked sticky project cards, and
   project cards that communicate problem → solution → tech → impact
 
-Switch between editions from any page via the interface switcher.
+Switch between editions from any page via the interface switcher (with magnetic
+hover), the `1`–`5` number keys, or the command palette — all navigations
+crossfade using the **View Transitions API** (progressive enhancement,
+reduced-motion safe).
+
+## ⌘K Command Palette & Easter Eggs
+
+- **⌘/Ctrl+K palette** — fuzzy matching (type `prty` → "Party mode"),
+  recently-used items pinned via localStorage, copy email / copy page link with
+  inline "Copied ✓" feedback, "Surprise me" random interface, and quick links
+- **Konami code** — ↑↑↓↓←→←→BA fires a canvas confetti burst in the site's
+  accent colors plus an "achievement unlocked" toast (also via "Party mode")
+- **Scroll-driven reveals** — pure-CSS `animation-timeline: view()` entry
+  animations on cards and stats, zero JS, only in supporting browsers
 
 ## ✨ Highlights
 
@@ -67,7 +80,7 @@ Switch between editions from any page via the interface switcher.
 | --- | --- |
 | Framework | Vite, React 19, TypeScript |
 | Styling | Hand-written CSS with per-edition design tokens (zero UI libraries) |
-| Animation | IntersectionObserver scroll reveals, pure CSS keyframes |
+| Animation | View Transitions API, CSS scroll-driven reveals (`animation-timeline`), IntersectionObserver fallbacks, magnetic hover + canvas confetti — all `prefers-reduced-motion` safe |
 | Data | GitHub REST API (live stats, session-cached) |
 | QA | Puppeteer-core headless check scripts |
 | Deployment | Vercel (auto-deploy on push) |
@@ -83,16 +96,17 @@ bloated deps.
 ├── scripts/           # QA checks: layout-audit, mob-check, shell-test, shortcut-check,
 │                      # switcher-click-check, live-check, forge-probe …
 └── src/
-    ├── App.tsx        # router + keyboard edition switching (⌘/Ctrl+K palette)
+    ├── App.tsx        # router, view transitions, scroll reset, ⌘/Ctrl+K palette,
+    │                  # Konami confetti, keyboard edition switching
     ├── landing/       # Landing + EditionStage picker
     ├── terminal/      # Terminal edition (shell, work detail man pages)
     ├── classic/       # Classic edition (+ shared data, hooks, lib)
     ├── paper/         # Paper edition
     ├── aurora/        # Aurora edition
     ├── forge/         # Forge edition
-    ├── components/    # shared UI (LiquidButton/MetalButton, expandable tabs)
+    ├── components/    # shared UI (command palette, KonamiFX, scroll chrome, buttons)
     ├── interface-switcher/  # edition switcher shown on every page
-    └── hooks/         # shared hooks
+    └── hooks/         # shared hooks (useTilt, useMagnetic)
 ```
 
 Content lives in two places:

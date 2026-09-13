@@ -2,7 +2,10 @@
 
 /* ── Page switch animation (keyed by page in MacPortfolio) ── */
 .mac-root .mac-content--animated {
-  animation: pageIn 0.28s var(--ease-out);
+  animation: pageIn 0.3s var(--ease-out);
+}
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(6px); }
 }
 
 /* ── Scroll reveal ── */
@@ -487,4 +490,211 @@ button.traffic-light:active { transform: scale(0.9); }
   text-transform: uppercase; letter-spacing: 0.07em;
   color: var(--text-tertiary);
   padding: var(--sp-2) var(--sp-3) 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SMOOTH TRANSITIONS & MICRO-INTERACTIONS
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Sidebar hover micro-interactions ── */
+.mac-sidebar__item {
+  transition: all 140ms var(--ease-smooth);
+  position: relative;
+}
+.mac-sidebar__item:hover {
+  background: var(--nav-pill-bg);
+  color: var(--text-primary);
+  transform: translateX(2px);
+}
+.mac-sidebar__item:hover svg {
+  opacity: 1;
+  transform: scale(1.08);
+  transition: transform 140ms var(--ease-spring), opacity 140ms;
+}
+.mac-sidebar__item svg {
+  transition: transform 140ms var(--ease-smooth), opacity 140ms;
+}
+.mac-sidebar__item--active {
+  background: var(--nav-pill-active);
+  color: var(--accent);
+  font-weight: 500;
+}
+.mac-sidebar__item--active svg {
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+/* ── Focus rings (macOS-style accent glow) ── */
+.mac-btn:focus-visible,
+.mac-sidebar__item:focus-visible,
+.mac-edition:focus-visible,
+.mac-pill:focus-visible,
+.mac-tag--clickable:focus-visible,
+.project-card:focus-visible,
+.mac-card:focus-visible,
+.experience-item:focus-visible,
+.achievement-card:focus-visible,
+.education-item:focus-visible,
+.contact-channel:focus-visible,
+.skill-category:focus-visible,
+.mac-stat:focus-visible,
+.overview-meta__item:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
+}
+
+/* ── Card hover states (all card types) ── */
+.experience-item {
+  transition: all 200ms var(--ease-smooth);
+}
+.experience-item:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-1px);
+}
+
+.achievement-card {
+  transition: all 200ms var(--ease-smooth);
+}
+.achievement-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-1px);
+}
+
+.education-item {
+  transition: all 200ms var(--ease-smooth);
+}
+.education-item:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-1px);
+}
+
+.overview-meta__item {
+  transition: all 200ms var(--ease-smooth);
+}
+.overview-meta__item:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-1px);
+}
+
+/* ── Button press depth ── */
+.mac-btn {
+  transition: all 120ms var(--ease-smooth);
+}
+.mac-btn:active {
+  transform: scale(0.97);
+  box-shadow: none;
+}
+.mac-btn--primary:active {
+  background: color-mix(in srgb, var(--accent) 85%, black);
+}
+
+/* ── TabBar item transition + active pill bounce ── */
+.mac-tabbar__item {
+  transition: color 140ms, transform 100ms;
+}
+.mac-tabbar__item:active {
+  transform: scale(0.92);
+}
+.mac-tabbar__indicator {
+  transition: left 280ms var(--ease-spring);
+}
+
+/* ── Modal body scroll lock ── */
+.mac-root:has(.project-modal-overlay) {
+  overflow: hidden;
+}
+
+/* ── Mobile sidebar slide animation ── */
+@media (max-width: 900px) {
+  .mac-sidebar {
+    transition: transform 250ms var(--ease-out);
+  }
+}
+
+/* ── Smooth scroll-to-top on page nav ── */
+.mac-content {
+  scroll-behavior: smooth;
+}
+
+/* ── Toolbar title crossfade ── */
+.mac-toolbar__title {
+  transition: opacity 180ms var(--ease-smooth);
+}
+
+/* ── Status bar page label fade ── */
+.mac-statusbar__page {
+  transition: opacity 180ms var(--ease-smooth);
+}
+
+/* ── Skill tag hover lift ── */
+.mac-tag--clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+/* ── Project card shimmer smoothness ── */
+.project-card {
+  transition: all 200ms var(--ease-smooth);
+}
+
+/* ── Edition card active press ── */
+.mac-edition:active {
+  transform: scale(0.97);
+  transition: transform 80ms;
+}
+
+/* ── Pill active press ── */
+.mac-pill--active:active {
+  transform: scale(0.95);
+}
+
+/* ── Palette input focus glow ── */
+.palette__input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--input-focus);
+}
+
+/* ── Modal nav button depth ── */
+.project-modal__nav button:active {
+  transform: scale(0.97);
+}
+
+/* ── Contact channel link press ── */
+.contact-channel:active {
+  transform: scale(0.99);
+}
+
+/* ── Stat card press ── */
+.mac-stat:active {
+  transform: scale(0.98);
+}
+
+/* ── Search input smooth ── */
+.mac-search {
+  transition: border-color 140ms, box-shadow 140ms;
+}
+
+/* ── Smooth select ── */
+.mac-select {
+  transition: border-color 120ms, box-shadow 120ms;
+}
+.mac-select:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--input-focus);
+}
+
+/* ── Card grid stagger entrance (CSS-only for reveal) ── */
+.mac-root .project-grid .rv.is-in,
+.mac-root .achievements-grid .rv.is-in,
+.mac-root .skills-grid .rv.is-in {
+  animation: cardIn 0.35s var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 0.06s);
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: none; }
 }

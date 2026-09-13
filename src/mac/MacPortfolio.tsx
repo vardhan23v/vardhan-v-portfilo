@@ -55,7 +55,9 @@ function PageContent() {
 
   useEffect(() => {
     if (contentRef.current) {
-      contentRef.current.scrollTop = 0;
+      requestAnimationFrame(() => {
+        contentRef.current?.scrollTo({ top: 0 });
+      });
     }
   }, [page]);
 

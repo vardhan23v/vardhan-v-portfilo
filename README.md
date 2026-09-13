@@ -4,22 +4,22 @@
 
 **Generative AI Developer & Full-Stack Developer**
 
-[![Live Site](https://img.shields.io/badge/Live%20Site-vardhan--v--portfilo.vercel.app-38bdf8?style=flat-square&logo=vercel&logoColor=white)](https://vardhan-v-portfilo.vercel.app)
-[![GitHub](https://img.shields.io/badge/GitHub-vardhan23v-7c6cff?style=flat-square&logo=github&logoColor=white)](https://github.com/vardhan23v)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-vardhan--v23-0a66c2?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/vardhan-v23)
+[![Live Site](https://img.shields.io/badge/Live%20Site-vardhan--v--portfilo.vercel.app-38bdf8?style=for-the-badge&logo=vercel&logoColor=white)](https://vardhan-v-portfilo.vercel.app)
+[![GitHub](https://img.shields.io/badge/GitHub-vardhan23v-7c6cff?style=for-the-badge&logo=github&logoColor=white)](https://github.com/vardhan23v)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-vardhan--v23-0a66c2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/vardhan-v23)
 
-[![Build](https://img.shields.io/badge/build-passing-34d399?style=flat-square&logo=githubactions&logoColor=white)](https://github.com/vardhan23v/vardhan-v-portfilo/actions)
-[![Vercel](https://img.shields.io/badge/Vercel-Ready-black?style=flat-square&logo=vercel&logoColor=white)](https://vardhan-v-portfilo.vercel.app)
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
-[![Vite](https://img.shields.io/badge/Vite-8.2-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![CSS](https://img.shields.io/badge/CSS-hand--written_per--edition-663399?style=flat-square&logo=css3&logoColor=white)](#-tech-stack)
-[![Bundle](https://img.shields.io/badge/bundle-~132kB_JS_+_~37kB_CSS_gzip-7c6cff?style=flat-square)](#-tech-stack)
-[![Editions](https://img.shields.io/badge/editions-6_(landing_+_5_interfaces)-a78bfa?style=flat-square)](#-editions)
+[![Build](https://img.shields.io/badge/build-passing-34d399?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/vardhan23v/vardhan-v-portfilo/actions)
+[![Vercel](https://img.shields.io/badge/Vercel-Ready-black?style=for-the-badge&logo=vercel&logoColor=white)](https://vardhan-v-portfilo.vercel.app)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-8.2-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![CSS](https://img.shields.io/badge/CSS-hand--written_per--edition-663399?style=for-the-badge&logo=css3&logoColor=white)](#-tech-stack)
+[![Bundle](https://img.shields.io/badge/bundle-~132kB_JS_+_~37kB_CSS_gzip-7c6cff?style=for-the-badge)](#-tech-stack)
+[![Editions](https://img.shields.io/badge/editions-6_(landing_+_5_interfaces)-a78bfa?style=for-the-badge)](#-editions)
 
-[![Aurora 2.0](https://img.shields.io/badge/Aurora-2.0-luminous-22d3ee?style=flat-square)](#aurora-20--luminous-interactive)
-[![Classic](https://img.shields.io/badge/Classic-cinematic-34d399?style=flat-square)](#classic--cinematic)
-[![Motion](https://img.shields.io/badge/motion-View_Transitions_+_scroll--driven-38bdf8?style=flat-square)](#-tech-stack)
+[![Aurora 2.0](https://img.shields.io/badge/Aurora-2.0-luminous-22d3ee?style=for-the-badge)](#aurora-20--luminous-interactive)
+[![Classic](https://img.shields.io/badge/Classic-cinematic-34d399?style=for-the-badge)](#classic--cinematic)
+[![Motion](https://img.shields.io/badge/motion-View_Transitions_+_scroll--driven-38bdf8?style=for-the-badge)](#-tech-stack)
 
 </div>
 

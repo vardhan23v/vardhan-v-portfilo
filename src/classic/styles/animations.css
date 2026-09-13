@@ -1,0 +1,350 @@
+/* ============================================================
+   CLASSIC — CINEMATIC ANIMATIONS UPGRADE
+   Scoped to .classic-root. Respects prefers-reduced-motion.
+   ============================================================ */
+
+/* ---------- scroll progress bar ---------- */
+.classic-scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 120;
+  pointer-events: none;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2) 60%, var(--accent-3));
+  transform-origin: left;
+  transform: scaleX(0);
+}
+
+/* ---------- nav entrance ---------- */
+@keyframes classicNavIn {
+  from { opacity: 0; transform: translateY(-14px); }
+  to { opacity: 1; transform: none; }
+}
+.classic-root .nav {
+  animation: classicNavIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+}
+.classic-root .nav-inner > * {
+  animation: classicNavIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+}
+.classic-root .nav-inner > *:nth-child(1) { animation-delay: 0.05s; }
+.classic-root .nav-inner > *:nth-child(2) { animation-delay: 0.12s; }
+.classic-root .nav-inner > *:nth-child(3) { animation-delay: 0.18s; }
+
+/* nav link underline sweep — more fluid */
+.classic-root .nav-links a::after {
+  transition: transform 0.32s cubic-bezier(0.22,1,0.36,1);
+}
+.classic-root .nav-logo-mark {
+  animation: classicLogoPulse 3.2s ease-in-out infinite;
+}
+@keyframes classicLogoPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(124,108,255,0.22); }
+  50% { box-shadow: 0 0 0 8px rgba(124,108,255,0.0); }
+}
+
+/* ---------- hero cinematic entrance ---------- */
+@keyframes classicHeroIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes classicHeroName {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+@keyframes classicGlowBreathe {
+  0%,100% { opacity: 0.38; transform: translateX(-62%) scale(1); }
+  50% { opacity: 0.52; transform: translateX(-62%) scale(1.04); }
+}
+
+.classic-root .hero-availability {
+  animation: classicHeroIn 0.6s cubic-bezier(0.22,1,0.36,1) both 0.1s;
+}
+.classic-root .hero-name {
+  animation: classicHeroName 0.7s cubic-bezier(0.22,1,0.36,1) both 0.18s;
+}
+.classic-root .hero-role {
+  animation: classicHeroIn 0.6s cubic-bezier(0.22,1,0.36,1) both 0.26s;
+}
+.classic-root .hero-desc {
+  animation: classicHeroIn 0.6s cubic-bezier(0.22,1,0.36,1) both 0.32s;
+}
+.classic-root .hero-tagline {
+  animation: classicHeroIn 0.6s cubic-bezier(0.22,1,0.36,1) both 0.38s;
+}
+.classic-root .hero-actions {
+  animation: classicHeroIn 0.6s cubic-bezier(0.22,1,0.36,1) both 0.44s;
+}
+.classic-root .hero-links {
+  animation: classicHeroIn 0.6s cubic-bezier(0.22,1,0.36,1) both 0.52s;
+}
+.classic-root .hero-visual {
+  animation: classicHeroIn 0.7s cubic-bezier(0.22,1,0.36,1) both 0.32s;
+}
+.classic-root .bg-glow::before {
+  animation: classicGlowBreathe 9s ease-in-out infinite alternate, float-gentle 9s ease-in-out infinite alternate;
+}
+.classic-root .bg-glow::after {
+  animation: float-gentle-reverse 11s ease-in-out infinite alternate, classicGlowBreathe 11s ease-in-out infinite alternate-reverse;
+}
+.classic-root .bg-grid {
+  animation: grid-drift 40s linear infinite, classicGridPulse 12s ease-in-out infinite;
+}
+@keyframes classicGridPulse {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+
+/* hero terminal: type-in on load */
+.classic-root .terminal {
+  animation: classicTerminalIn 0.7s cubic-bezier(0.22,1,0.36,1) both 0.42s;
+  transform-origin: center;
+}
+@keyframes classicTerminalIn {
+  from { opacity: 0; transform: perspective(1200px) rotateY(-8deg) rotateX(3deg) translateY(14px); }
+  to { opacity: 1; transform: perspective(1200px) rotateY(-2deg) rotateX(1.5deg); }
+}
+
+/* neural nodes — enhanced pulse */
+.classic-root .hero-node {
+  animation: hnode 5s ease-in-out infinite, classicNodeGlow 2.8s ease-in-out infinite alternate;
+}
+@keyframes classicNodeGlow {
+  from { box-shadow: 0 0 10px rgba(56,189,248,0.5); }
+  to { box-shadow: 0 0 18px rgba(56,189,248,0.95), 0 0 32px rgba(124,108,255,0.35); }
+}
+
+/* hero floats — extra parallax will be JS-driven, but base */
+.classic-root .hero-float {
+  will-change: transform;
+  transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
+}
+.classic-root .hero-float:hover {
+  transform: translateY(-6px) scale(1.04) !important;
+  animation-play-state: paused;
+}
+
+/* ---------- section head — word stagger ---------- */
+@keyframes classicEyebrowDraw {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes classicTitleIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+.classic-root .section-head {
+  /* triggers via .is-visible */
+}
+.classic-root .reveal.is-visible .section-eyebrow {
+  animation: classicHeroIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+}
+.classic-root .reveal.is-visible .section-title {
+  animation: classicTitleIn 0.6s cubic-bezier(0.22,1,0.36,1) both 0.08s;
+}
+.classic-root .reveal.is-visible .section-sub {
+  animation: classicHeroIn 0.5s cubic-bezier(0.22,1,0.36,1) both 0.14s;
+}
+
+/* ---------- projects — filter + card motion ---------- */
+.classic-root .project-toolbar {
+  animation: classicHeroIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+}
+.classic-root .project-filter {
+  position: relative;
+  overflow: hidden;
+}
+.classic-root .project-filter::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.16) 50%, transparent 70%);
+  transform: translateX(-130%) skewX(-10deg);
+  transition: transform 0.6s ease;
+  pointer-events: none;
+}
+.classic-root .project-filter:hover::after {
+  transform: translateX(130%) skewX(-10deg);
+}
+.classic-root .project-filter.is-active {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(124,108,255,0.28);
+}
+
+.classic-root .projects-grid > .reveal {
+  /* stagger via --i already */
+  transition-timing-function: cubic-bezier(0.22,1,0.36,1);
+}
+.classic-root .project-card {
+  /* entrance already via reveal, add will-change */
+  will-change: transform;
+}
+.classic-root .project-card:hover {
+  transform: perspective(1100px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-6px) scale(1.01);
+}
+.classic-root .project-card:hover .project-tech span {
+  animation: classicTechPop 0.35s cubic-bezier(0.22,1,0.36,1) both;
+}
+.classic-root .project-card:hover .project-tech span:nth-child(1) { animation-delay: 0s; }
+.classic-root .project-card:hover .project-tech span:nth-child(2) { animation-delay: 0.03s; }
+.classic-root .project-card:hover .project-tech span:nth-child(3) { animation-delay: 0.06s; }
+.classic-root .project-card:hover .project-tech span:nth-child(4) { animation-delay: 0.09s; }
+.classic-root .project-card:hover .project-tech span:nth-child(5) { animation-delay: 0.12s; }
+@keyframes classicTechPop {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+  100% { transform: translateY(0); }
+}
+
+.classic-root .project-search:focus-within {
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.12), 0 10px 30px rgba(0,0,0,0.22);
+}
+
+/* others cards — sequential rise */
+.classic-root .others-card {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: classicHeroIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 28%;
+}
+.classic-root .others-card:nth-child(2) { animation-delay: 0.04s; }
+.classic-root .others-card:nth-child(3) { animation-delay: 0.08s; }
+.classic-root .others-card:nth-child(4) { animation-delay: 0.12s; }
+
+/* ---------- experience timeline — upgraded ---------- */
+.classic-root .timeline::after {
+  /* keep view-timeline draw, add glow pulse */
+  box-shadow: 0 0 16px rgba(124,108,255,0.55), 0 0 32px rgba(56,189,248,0.22);
+}
+@keyframes classicDotEnter {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: scale(1); }
+}
+.classic-root .timeline-item.is-visible .timeline-dot {
+  animation: classicDotEnter 0.4s cubic-bezier(0.22,1,0.36,1) both;
+}
+.classic-root .timeline-card {
+  will-change: transform;
+}
+.classic-root .timeline-item.is-visible .timeline-card {
+  animation: classicHeroIn 0.55s cubic-bezier(0.22,1,0.36,1) both 0.06s;
+}
+.classic-root .timeline-card:hover {
+  transform: translateX(6px) scale(1.01);
+  box-shadow: 0 22px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(124,108,255,0.14) inset;
+}
+
+/* ---------- skills — chip wave enhanced ---------- */
+.classic-root .skill-cat {
+  will-change: transform;
+}
+.classic-root .skill-cat.is-visible {
+  animation: classicHeroIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+}
+.classic-root .skill-cat:nth-child(2).is-visible { animation-delay: 0.06s; }
+.classic-root .skill-cat:nth-child(3).is-visible { animation-delay: 0.12s; }
+.classic-root .skill-chip-glyph {
+  will-change: transform;
+}
+
+/* ---------- github — repo stagger ---------- */
+.classic-root .gh-card {
+  animation: classicHeroIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+}
+.classic-root .gh-repo {
+  will-change: transform;
+  transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), border-color 0.22s ease, background 0.22s ease;
+}
+.classic-root .gh-repo:hover {
+  border-color: rgba(124,108,255,0.28);
+  background: rgba(255,255,255,0.05);
+}
+
+/* ---------- about strengths — icon hover ---------- */
+.classic-root .about-strength {
+  transition: transform 0.25s cubic-bezier(0.22,1,0.36,1), border-color 0.25s ease, background 0.25s ease;
+}
+.classic-root .about-strength:hover {
+  transform: translateY(-2px);
+  border-color: rgba(124,108,255,0.18);
+}
+.classic-root .about-strength-icon {
+  transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s ease;
+}
+.classic-root .about-strength:hover .about-strength-icon {
+  transform: scale(1.08) rotate(-4deg);
+  box-shadow: 0 8px 20px rgba(124,108,255,0.22);
+}
+
+/* ---------- contact — form focus ---------- */
+.classic-root .contact-form .form-field input:focus,
+.classic-root .contact-form .form-field textarea:focus {
+  border-color: rgba(56,189,248,0.42);
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.12);
+  transform: translateY(-1px);
+}
+.classic-root .contact-form .form-field input,
+.classic-root .contact-form .form-field textarea {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+.classic-root .contact-channel,
+.classic-root .contact-copy {
+  transition: transform 0.25s ease;
+}
+.classic-root .contact-channel:hover {
+  transform: translateY(-1px);
+}
+
+/* ---------- buttons — magnetic shimmer ---------- */
+.classic-root .btn {
+  will-change: transform;
+}
+.classic-root .btn-primary {
+  background-size: 200% 100%;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-position 0.6s ease;
+}
+.classic-root .btn-primary:hover {
+  background-position: 100% 0;
+}
+
+/* ---------- footer — subtle rise ---------- */
+.classic-root footer {
+  animation: classicHeroIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 18%;
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .classic-scroll-progress { display: none; }
+  .classic-root .nav,
+  .classic-root .nav-inner > *,
+  .classic-root .hero-availability,
+  .classic-root .hero-name,
+  .classic-root .hero-role,
+  .classic-root .hero-desc,
+  .classic-root .hero-tagline,
+  .classic-root .hero-actions,
+  .classic-root .hero-links,
+  .classic-root .hero-visual,
+  .classic-root .terminal,
+  .classic-root .reveal.is-visible .section-eyebrow,
+  .classic-root .reveal.is-visible .section-title,
+  .classic-root .reveal.is-visible .section-sub,
+  .classic-root .project-card,
+  .classic-root .timeline-card,
+  .classic-root .skill-cat,
+  .classic-root .gh-card {
+    animation: none !important;
+    transform: none !important;
+  }
+  .classic-root .bg-glow::before,
+  .classic-root .bg-glow::after,
+  .classic-root .bg-grid,
+  .classic-root .hero-node {
+    animation: none !important;
+  }
+}

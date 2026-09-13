@@ -171,6 +171,54 @@
 .classic-root .reveal.is-visible:nth-child(2) { transition-delay: 0.08s; }
 .classic-root .reveal.is-visible:nth-child(3) { transition-delay: 0.16s; }
 
+/* Classic cinematic — scroll parallax + content depth */
+.classic-root .hero {
+  will-change: transform, opacity;
+}
+.classic-root .hero-visual {
+  will-change: transform;
+}
+.classic-root .hero-float {
+  will-change: transform;
+}
+.classic-root .project-card {
+  will-change: transform;
+}
+.classic-root .timeline-card {
+  will-change: transform, box-shadow;
+}
+@keyframes classicScrollHint {
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.85; }
+  50% { transform: translateX(-50%) translateY(7px); opacity: 0.45; }
+}
+.classic-root .hero::after {
+  content: "";
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  width: 18px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.04);
+  opacity: 0.7;
+  transform: translateX(-50%);
+  pointer-events: none;
+  animation: classicScrollHint 2.2s ease-in-out infinite;
+}
+@media (max-width: 1020px) {
+  .classic-root .hero::after { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .classic-root .hero::after { animation: none; opacity: 0; }
+}
+.classic-root .project-card::after {
+  will-change: transform;
+}
+.classic-root .project-search {
+  will-change: transform, box-shadow;
+}
+
 /* ============================================================
    3) FORGE — editorial pulse + grid
    ============================================================ */

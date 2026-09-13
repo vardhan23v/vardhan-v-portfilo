@@ -53,7 +53,48 @@ function useTypewriter(words: string[]) {
   return text;
 }
 
+function useClassicHeroFX() {
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const hero = document.querySelector<HTMLElement>(".classic-root .hero");
+    const visual = document.querySelector<HTMLElement>(".classic-root .hero-visual");
+    const neural = document.querySelector<HTMLElement>(".classic-root .hero-neural");
+    const floats = Array.from(document.querySelectorAll<HTMLElement>(".classic-root .hero-float"));
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const y = window.scrollY;
+        if (hero) {
+          const fade = Math.max(0, 1 - y / 700);
+          const ty = y * 0.1;
+          hero.style.opacity = String(fade);
+          hero.style.transform = `translateY(${ty}px)`;
+        }
+        if (visual) {
+          visual.style.transform = `translateY(${y * -0.05}px)`;
+        }
+        if (neural) {
+          neural.style.transform = `translateY(${y * 0.06}px)`;
+        }
+        floats.forEach((f, i) => {
+          const dir = i % 2 === 0 ? 1 : -1;
+          f.style.transform = `translateY(${y * 0.035 * dir}px) rotate(${dir * (y * 0.005)}deg)`;
+        });
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+}
+
 export function Hero() {
+  useClassicHeroFX();
   return (
     <section className="hero" id="top">
       <div className="container hero-grid">

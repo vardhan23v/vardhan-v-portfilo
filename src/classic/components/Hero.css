@@ -1,9 +1,11 @@
 .classic-root .hero {
+  position: relative;
   padding-top: calc(var(--nav-h) + 64px) !important;
   min-height: 100svh;
   display: flex;
   align-items: center;
-  overflow: hidden;
+  overflow: clip;
+  will-change: transform, opacity;
 }
 
 .classic-root .hero-grid {

@@ -39,25 +39,27 @@ A production-quality portfolio positioning me as a **Generative AI Developer & F
 
 | Edition | Upgrade | Highlights |
 |---|---|---|
+| **macOS** `src/mac/MacPortfolio.tsx:1` | Premium app shell | Spotlight `⌘K` palette with project search + grouped results, functional **traffic lights** (close/minimize/maximize/restore), live **IST clock**, **GitHub followers** via API, **CountUp** stat cards, **scroll-triggered reveals**, **toast notifications**, **TabBar** mobile nav, project **modal** with prev/next + keyboard, **grid/list toggle**, category **filter A-Z/most-stack**, search, expandable experience **accordion**, interactive **skill→project links**, contact **form** with validation, ambient **background blobs**, all scoped under `.mac-root` to avoid style leaks |
 | **Aurora 2.0** `src/aurora/AuroraSite.tsx:1` | Luminous + interactive | Toolbar with live search / sort (`Featured` / `A-Z` / Most stack) / grid↔list, result count + empty state, glass **project modal** (Esc/backdrop, scroll-lock), **Stack Lab** (28 tech pills filter Work + category breakdown + exploring notes), expandable experience rows, new **Education + Certs** timeline, 2-col contact (direct + validation form + toast), availability + IST + mouse aura, `204kB CSS` |
 | **Classic** `src/classic/ClassicSite.tsx:1` + `src/classic/styles/animations.css:1` | Cinematic | Top scroll-progress gradient bar, nav slide-down + logo pulse, hero stagger (`classicHeroIn` 0.1→0.52s) + 3D terminal entrance + `useClassicHeroFX` parallax (rAF, `y/700` fade), neural glow pulse, project filter shine + card tech-pop, timeline dot enter, skill wave, `Hero::after` scroll hint `classicScrollHint` |
 
-Both respect `prefers-reduced-motion`, use `viewTransition` crossfades, and ship via Vercel auto-deploy on `main`.
+All respect `prefers-reduced-motion`, use `viewTransition` crossfades, and ship via Vercel auto-deploy on `main`.
 
 ---
 
 ## ✨ Editions
 
-The site opens on a **landing page with a live edition picker** — a browser-frame preview that cycles through every interface, with keyboard arrows, segment navigation and one-click entry. Switch anytime via the magnetic interface switcher, `1`–`5` keys, or `⌘K` — all with **View Transitions API** crossfade (progressive, reduced-motion safe).
+The site opens on a **landing page with a live edition picker** — a browser-frame preview that cycles through every interface, with keyboard arrows, segment navigation and one-click entry. Switch anytime via the magnetic interface switcher, `1`–`6` keys, or `⌘K` — all with **View Transitions API** crossfade (progressive, reduced-motion safe).
 
 | Route | Edition | Tone | Signature |
 |---|---|---|---|
-| `/` | **Landing** | Picker | Crossfading mini-skins stage (Terminal/Classic/Paper/Aurora/Forge), GitHub stats, two-column hero |
+| `/` | **Landing** | Picker | Crossfading mini-skins stage (Terminal/Classic/Paper/Aurora/Forge/macOS), GitHub stats, two-column hero |
 | `/terminal` | **Terminal** | Retro CRT | Boot seq, shell `help` / `whoami` / `cat skills.tree` / `neofetch` / `cowsay` / `ping`, `↑↓` history + Tab + `` ` `` focus, work at `/terminal/work/:slug` |
-| `/classic` | **Classic** — *cinematic* | Original dark | **New:** stagger hero, neural SVG draw-in, IST clock, parallax floaters, CLI `find ./projects` with highlight + `/` focus, **scroll progress**, GitHub stats, sticky project grid |
+| `/classic` | **Classic** — *cinematic* | Original dark | Stagger hero, neural SVG draw-in, IST clock, parallax floaters, CLI `find ./projects` with highlight + `/` focus, **scroll progress**, GitHub stats, sticky project grid |
 | `/paper` | **Paper** | Light editorial | Fraunces serifs, overlines, hairline rules, quiet readable |
-| `/aurora` | **Aurora 2.0** — *luminous* | Glassmorphism | **New:** frosted glass + drifting blobs + gradient text **plus** searchable/sortable work, quick-view modal, Stack Lab, expandable log, education/certs, mouse aura |
+| `/aurora` | **Aurora 2.0** — *luminous* | Glassmorphism | Frosted glass + drifting blobs + gradient text **plus** searchable/sortable work, quick-view modal, Stack Lab, expandable log, education/certs, mouse aura |
 | `/forge` | **Forge** | Editorial dark | Kanit headlines, build pipeline pulse + hover trace, marquee, cached GitHub stats, sticky problem→solution cards |
+| `/mac` | **macOS** — *premium* | App shell | **New:** Spotlight `⌘K` palette, traffic lights, IST clock, GitHub live, CountUp stats, scroll reveals, toasts, TabBar mobile, project modal, grid/list, filters, accordion, skill→project links, form validation, ambient blobs |
 
 ---
 
@@ -72,6 +74,7 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
 ## 🌟 Highlights
 
 - **9 featured projects** — Extension AI (flagship), AI Code Reviewer, CareerForge Pro, Vard AI, DisasterMind AI, DriveNest, HPL Auction, Apex Retail ERP, Dayflow HRMS — each with *problem → features → AI engine (Gemini/Claude/Groq/MCP) → stack → GitHub/Live*
+- **macOS app shell** — Spotlight `⌘K` palette, traffic lights, IST clock, GitHub live, CountUp stats, scroll reveals, toasts, TabBar mobile, project modal, grid/list, filters, accordion, skill→project links, form validation, ambient blobs `src/mac/MacPortfolio.tsx:1`
 - **Aurora 2.0 discovery** — search across name/tagline/tech/slug, sort, view toggle, highlight pills, empty state, modal body with `problem | features•bullet | tech chips` `src/aurora/AuroraSite.tsx:62`
 - **Classic cinematic** — `ClassicScrollProgress` `src/classic/ClassicSite.tsx:14`, `classicNavIn`/`classicHeroName`/`classicTerminalIn` `src/classic/styles/animations.css:9`, hero parallax `useClassicHeroFX` `src/classic/components/Hero.tsx:56`, filter `::after` shine, timeline `classicDotEnter`
 - **“Other things”** — 13 compact cards + GitHub CTA
@@ -95,7 +98,7 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
 | QA | `puppeteer-core` + `oxlint` | `npm run lint` — 5 warnings / 0 errors baseline |
 | Deploy | **Vercel** `vercel.json:1` `{rewrites:[{source:"/(.*)",destination:"/index.html"}]}` auto-deploy on `main` | `project.json: team_InTZCfnybRSk3JlAYIXFN3UA` |
 
-**Bundle (Sep 13 build):** `dist/assets/index-*.js 451kB / 132kB gzip` + `index-*.css 204kB / 37kB gzip` → `dist/index.html 2.16kB` — 103 modules, `tsc -b` clean.
+**Bundle (Sep 13 build):** `dist/assets/index-*.js 246kB / 79kB gzip` + `MacPortfolio-*.js 67kB / 18kB gzip` + `index-*.css 41kB / 9kB gzip` + `MacPortfolio-*.css 35kB / 9kB gzip` → total ~140kB gzip, `tsc -b` clean.
 
 ---
 
@@ -107,8 +110,8 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
 ├── scripts/           # layout-audit, mob-check, shortcut-check, switcher-click-check,
 │                      # shell-test (terminal), live-check, forge-probe
 └── src/
-    ├── App.tsx        # BrowserRouter + InterfaceShortcuts(1-5) + RouteSeo + ScrollChrome + CommandPalette + KonamiFX
-    ├── landing/       # Landing + EditionStage (stage-frame, mini-skins)
+    ├── App.tsx        # BrowserRouter + InterfaceShortcuts(1-6) + RouteSeo + ScrollChrome + CommandPalette + KonamiFX
+    ├── landing/       # Landing + EditionStage (stage-frame, mini-skins including macOS)
     ├── terminal/      # CRT shell + work man pages
     ├── classic/       # Classic — data + hooks + lib + styles/animations.css (cinematic)
     │   ├── data/      # site.ts / projects.ts / experience.ts / skills.ts — source of truth
@@ -117,6 +120,12 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
     ├── paper/         # Paper
     ├── aurora/        # Aurora 2.0 — AuroraSite.tsx + styles/aurora.css (2.4k lines: toolbar/modal/lab/edu/form)
     ├── forge/         # Forge + EmberField
+    ├── mac/           # macOS — premium app shell (scoped under .mac-root)
+    │   ├── components/# AppShell, Sidebar, Toolbar, StatusBar, CommandPalette, TabBar, CountUp, Reveal, Toast
+    │   ├── pages/     # overview, projects, experience, skills, achievements, contact, about
+    │   ├── hooks/     # useTheme, useNav, usePalette, useIstTime, useGithub, useReveal
+    │   ├── lib/       # icons (Github/LinkedIn SVG), projects (catOf, categoryCounts, labTechs)
+    │   └── styles/    # design-system + global + shell + toolbar + sidebar + statusbar + polish + responsive
     ├── components/    # CommandPalette, KonamiFX, ScrollChrome, LiquidButton, expandable-tabs, ScrollChrome
     ├── interface-switcher/ # magnetic switcher (every page)
     ├── hooks/         # useTilt, useMagnetic, useReveal
@@ -124,7 +133,7 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
 ```
 
 Content in two places:
-- `src/classic/data/` — shared truth (identity, `featuredProjects` 9 + `otherProjects` 13, `experience`/`education`/`certifications`, `skillCategories`/`exploring`) used by Landing/Classic/Paper/Aurora/Forge.
+- `src/classic/data/` — shared truth (identity, `featuredProjects` 9 + `otherProjects` 13, `experience`/`education`/`certifications`, `skillCategories`/`exploring`) used by Landing/Classic/Paper/Aurora/Forge/macOS.
 - `src/terminal/data/` — Terminal’s man-page-rich case studies + `how_i_work.sh` + `site` subset reusing `classic/data/site.ts`.
 
 ---
@@ -177,9 +186,9 @@ No component edits for content. Rebuild → push `main` → Vercel deploys.
 
 ## 🔗 Links
 
-- **Live:** https://vardhan-v-portfilo.vercel.app — `/classic` · `/aurora` (2.0) · `/forge` · `/terminal` · `/paper` · `/` picker
+- **Live:** https://vardhan-v-portfilo.vercel.app — `/mac` (premium) · `/classic` · `/aurora` (2.0) · `/forge` · `/terminal` · `/paper` · `/` picker
 - **Vercel aliases:** `portfilo-rho-steel.vercel.app` + `vardhan-v-portfilo-vardhan23vs-projects.vercel.app` (auto on `main` push)
-- **GitHub:** https://github.com/vardhan23v — repo `vardhan-v-portfilo` `main` `7ad306e` (Classic cinematic)
+- **GitHub:** https://github.com/vardhan23v — repo `vardhan-v-portfilo` `main` `a00ec01` (macOS premium polish)
 - **LinkedIn:** https://www.linkedin.com/in/vardhan-v23
 - **Email:** 23vvardhan@gmail.com
 

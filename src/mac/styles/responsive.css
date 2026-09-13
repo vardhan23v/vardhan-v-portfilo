@@ -1,0 +1,105 @@
+/* ── Mobile sidebar overlay ────────────────────────────────── */
+.mac-sidebar--mobile-overlay {
+  display: none;
+}
+
+/* ── Tablet (≤ 900px) ──────────────────────────────────────── */
+@media (max-width: 900px) {
+  .mac-window {
+    width: 100vw;
+    height: 100dvh;
+    border-radius: 0;
+    border: none;
+  }
+
+  .mac-sidebar {
+    width: 56px;
+    min-width: 56px;
+    padding: var(--sp-2) 0;
+  }
+
+  .mac-sidebar__label { display: none; }
+  .mac-sidebar__shortcut { display: none; }
+
+  .mac-sidebar__item {
+    justify-content: center;
+    padding: 8px;
+  }
+
+  .mac-sidebar__item span { display: none; }
+
+  .mac-sidebar__divider { margin: var(--sp-2) var(--sp-2); }
+
+  .mac-page {
+    padding: var(--sp-6) var(--sp-5);
+  }
+}
+
+/* ── Mobile (≤ 640px) ──────────────────────────────────────── */
+@media (max-width: 640px) {
+  .mac-sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 260px;
+    min-width: 260px;
+    z-index: var(--z-overlay);
+    transform: translateX(-100%);
+    transition: transform 250ms var(--ease-out);
+    background: var(--surface);
+    border-right: 0.5px solid var(--border);
+    padding: var(--sp-4) 0;
+  }
+
+  .mac-sidebar--open {
+    transform: translateX(0);
+  }
+
+  .mac-sidebar--mobile-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: calc(var(--z-overlay) - 1);
+    background: var(--overlay);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 250ms;
+  }
+
+  .mac-sidebar--mobile-overlay--visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .mac-sidebar__label { display: block; }
+  .mac-sidebar__shortcut { display: none; }
+
+  .mac-sidebar__item {
+    justify-content: flex-start;
+    padding: 8px var(--sp-4);
+  }
+
+  .mac-sidebar__item span { display: inline; }
+
+  .mac-toolbar__hamburger {
+    display: flex;
+  }
+
+  .mac-page {
+    padding: var(--sp-5) var(--sp-4);
+  }
+
+  .overview-hero__name {
+    font-size: var(--text-2xl);
+  }
+
+  .project-grid {
+    gap: var(--sp-3);
+  }
+}
+
+@media (min-width: 641px) {
+  .mac-toolbar__hamburger { display: none; }
+  .mac-sidebar--mobile-overlay { display: none !important; }
+}

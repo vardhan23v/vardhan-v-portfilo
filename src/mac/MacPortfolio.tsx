@@ -1,0 +1,85 @@
+import { useEffect, useRef } from "react";
+import { ThemeProvider } from "./hooks/useTheme";
+import { NavProvider, useNav, type PageId } from "./hooks/useNav";
+import { PaletteProvider } from "./hooks/usePalette";
+import { AppShell } from "./components/AppShell";
+import { CommandPalette } from "./components/command-palette/CommandPalette";
+import { OverviewPage } from "./pages/overview/OverviewPage";
+import { AboutPage } from "./pages/about/AboutPage";
+import { ProjectsPage } from "./pages/projects/ProjectsPage";
+import { ExperiencePage } from "./pages/experience/ExperiencePage";
+import { SkillsPage } from "./pages/skills/SkillsPage";
+import { AchievementsPage } from "./pages/achievements/AchievementsPage";
+import { ContactPage } from "./pages/contact/ContactPage";
+
+const PAGES: Record<PageId, React.ComponentType> = {
+  overview: OverviewPage,
+  about: AboutPage,
+  projects: ProjectsPage,
+  experience: ExperiencePage,
+  skills: SkillsPage,
+  achievements: AchievementsPage,
+  contact: ContactPage,
+};
+
+function PageContent() {
+  const { page, navigate } = useNav();
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+
+      const shortcuts: Record<string, PageId> = {
+        "1": "overview",
+        "2": "about",
+        "3": "projects",
+        "4": "experience",
+        "5": "skills",
+        "6": "achievements",
+        "7": "contact",
+      };
+
+      if (shortcuts[e.key]) {
+        navigate(shortcuts[e.key]);
+      }
+    };
+
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [navigate]);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.scrollTop = 0;
+    }
+  }, [page]);
+
+  const Page = PAGES[page];
+  return (
+    <div ref={contentRef} className="mac-content" style={{ animation: "pageIn 250ms var(--ease-out)" }}>
+      <Page />
+    </div>
+  );
+}
+
+function PageRouter() {
+  return <PageContent />;
+}
+
+export function MacPortfolio() {
+  return (
+    <ThemeProvider>
+      <PaletteProvider>
+        <NavProvider>
+          <AppShell>
+            <PageRouter />
+          </AppShell>
+          <CommandPalette />
+        </NavProvider>
+      </PaletteProvider>
+    </ThemeProvider>
+  );
+}

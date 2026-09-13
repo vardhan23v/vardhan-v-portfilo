@@ -1,0 +1,70 @@
+.mac-app {
+  height: 100dvh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.mac-bg {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-bg);
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.mac-bg::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  background:
+    radial-gradient(ellipse 600px 400px at 20% 30%, var(--accent-subtle), transparent),
+    radial-gradient(ellipse 500px 350px at 80% 70%, rgba(168, 85, 247, 0.04), transparent),
+    radial-gradient(ellipse 400px 300px at 50% 50%, rgba(34, 211, 238, 0.03), transparent);
+  animation: macBgDrift 60s ease-in-out infinite alternate;
+}
+
+@keyframes macBgDrift {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(30px, -20px) rotate(2deg); }
+}
+
+.mac-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.3;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px;
+  pointer-events: none;
+}
+
+.mac-window {
+  position: relative;
+  z-index: var(--z-window);
+  width: min(96vw, 1200px);
+  height: min(92dvh, 800px);
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-window);
+  border: 0.5px solid var(--border-strong);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: windowEnter 0.5s var(--ease-out) both;
+}
+
+@keyframes windowEnter {
+  from { opacity: 0; transform: scale(0.96) translateY(12px); }
+}
+
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

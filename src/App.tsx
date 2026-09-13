@@ -1,19 +1,20 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { BrowserRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
-import { Landing } from "./landing/Landing";
-import { ClassicSite } from "./classic/ClassicSite";
-import { TerminalLayout } from "./terminal/TerminalLayout";
-import { TerminalHome } from "./terminal/TerminalHome";
-import { WorkDetail } from "./terminal/components/WorkDetail";
-import { PaperSite } from "./paper/PaperSite";
-import { AuroraSite } from "./aurora/AuroraSite";
-import { ForgeSite } from "./forge/ForgeSite";
+import { MacPortfolio } from "./mac/MacPortfolio";
 import { CursorFX } from "./CursorFX";
 import { ScrollChrome } from "./components/ScrollChrome";
 import { CommandPalette } from "./components/CommandPalette";
 import { KonamiFX } from "./components/KonamiFX";
-import "./landing/Landing.css";
+import "./mac/styles.css";
 import "./styles/motion.css";
+
+const ClassicSite = lazy(() => import("./classic/ClassicSite").then((m) => ({ default: m.ClassicSite })));
+const PaperSite = lazy(() => import("./paper/PaperSite").then((m) => ({ default: m.PaperSite })));
+const AuroraSite = lazy(() => import("./aurora/AuroraSite").then((m) => ({ default: m.AuroraSite })));
+const ForgeSite = lazy(() => import("./forge/ForgeSite").then((m) => ({ default: m.ForgeSite })));
+const TerminalLayout = lazy(() => import("./terminal/TerminalLayout").then((m) => ({ default: m.TerminalLayout })));
+const TerminalHome = lazy(() => import("./terminal/TerminalHome").then((m) => ({ default: m.TerminalHome })));
+const WorkDetail = lazy(() => import("./terminal/components/WorkDetail").then((m) => ({ default: m.WorkDetail })));
 
 const interfaceRoutes = ["/terminal", "/classic", "/paper", "/aurora", "/forge"];
 
@@ -21,32 +22,32 @@ const ROUTE_SEO: Record<string, { title: string; description: string }> = {
   "/": {
     title: "Sree Vardhan V | Generative AI Developer & Full-Stack Developer",
     description:
-      "Five portfolio interfaces by Sree Vardhan V — a Generative AI developer and full-stack engineer building AI-powered products, developer tools, and full-stack systems.",
+      "Portfolio of Sree Vardhan V — a Generative AI developer and full-stack engineer building AI-powered products, developer tools, and full-stack systems.",
   },
   "/terminal": {
     title: "Terminal — Sree Vardhan V | Generative AI Developer",
     description:
-      "Interactive terminal edition of Sree Vardhan V's portfolio — a Generative AI and full-stack developer. Explore projects, experience, skills, and contact via the shell.",
+      "Interactive terminal edition of Sree Vardhan V's portfolio — a Generative AI and full-stack developer.",
   },
   "/classic": {
-    title: "Sree Vardhan V | Generative AI Developer & Full-Stack Developer",
+    title: "Classic — Sree Vardhan V | Generative AI Developer & Full-Stack Developer",
     description:
-      "Portfolio of Sree Vardhan V — a Computer Science undergraduate shipping AI-powered web applications, developer tools, and full-stack products.",
+      "Portfolio of Sree Vardhan V — a Computer Science undergraduate shipping AI-powered web applications.",
   },
   "/paper": {
     title: "Paper — Sree Vardhan V | Generative AI Developer",
     description:
-      "Editorial edition of Sree Vardhan V's portfolio — a Generative AI developer and full-stack engineer. Selected work, experience, skills, and contact in print style.",
+      "Editorial edition of Sree Vardhan V's portfolio — selected work, experience, skills, and contact.",
   },
   "/aurora": {
     title: "Aurora — Sree Vardhan V | Generative AI Developer",
     description:
-      "Aurora edition of Sree Vardhan V's portfolio — AI-powered products and full-stack systems, shipped end-to-end. Projects, experience, skills, and contact.",
+      "Aurora edition — AI-powered products and full-stack systems, shipped end-to-end.",
   },
   "/forge": {
     title: "Forge — Sree Vardhan V | Generative AI Developer",
     description:
-      "Forge edition of Sree Vardhan V — Generative AI developer building LLM-powered products, developer tools, and full-stack systems.",
+      "Forge edition — Generative AI developer building LLM-powered products and full-stack systems.",
   },
 };
 
@@ -97,6 +98,21 @@ function InterfaceShortcuts() {
   return null;
 }
 
+function LoadingFallback() {
+  return (
+    <div style={{
+      height: "100dvh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      color: "var(--text-tertiary)",
+      fontSize: "var(--text-sm)",
+    }}>
+      Loading...
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -107,18 +123,20 @@ export default function App() {
       <KonamiFX />
       <RouteSeo />
       <ScrollToTop />
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/classic" element={<ClassicSite />} />
-        <Route path="/paper" element={<PaperSite />} />
-        <Route path="/aurora" element={<AuroraSite />} />
-        <Route path="/forge" element={<ForgeSite />} />
-        <Route path="/terminal" element={<TerminalLayout />}>
-          <Route index element={<TerminalHome />} />
-          <Route path="work/:slug" element={<WorkDetail />} />
-        </Route>
-        <Route path="*" element={<Landing />} />
-      </Routes>
+      <Suspense fallback={<LoadingFallback />}>
+        <Routes>
+          <Route path="/" element={<MacPortfolio />} />
+          <Route path="/classic" element={<ClassicSite />} />
+          <Route path="/paper" element={<PaperSite />} />
+          <Route path="/aurora" element={<AuroraSite />} />
+          <Route path="/forge" element={<ForgeSite />} />
+          <Route path="/terminal" element={<TerminalLayout />}>
+            <Route index element={<TerminalHome />} />
+            <Route path="work/:slug" element={<WorkDetail />} />
+          </Route>
+          <Route path="*" element={<MacPortfolio />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

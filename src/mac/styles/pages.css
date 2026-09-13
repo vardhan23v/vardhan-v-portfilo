@@ -223,6 +223,7 @@
 .contact-channel:hover {
   box-shadow: var(--shadow-card-hover);
   border-color: var(--border-strong);
+  transform: translateY(-1px);
 }
 
 .contact-channel svg {

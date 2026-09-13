@@ -80,9 +80,6 @@
 }
 .mac-root .rv.is-in { opacity: 1; transform: none; filter: blur(0); }
 
-/* ── Dynamic sections (mount later): quick rise ── */
-.mac-enter { animation: macRise 0.4s var(--ease-out) both; }
-
 /* ── Palette: spotlight beam + item stagger + exit ── */
 .palette-overlay::before {
   content: "";

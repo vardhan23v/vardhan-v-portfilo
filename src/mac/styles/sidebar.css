@@ -43,7 +43,6 @@
   font-weight: 450;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all 120ms;
   width: 100%;
   text-align: left;
 }

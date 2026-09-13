@@ -1,13 +1,5 @@
 /* ── Polish layer: reveal, toast, forms, window states, tabbar ── */
 
-/* ── Page switch animation (keyed by page in MacPortfolio) ── */
-.mac-root .mac-content--animated {
-  animation: pageIn 0.3s var(--ease-out);
-}
-@keyframes pageIn {
-  from { opacity: 0; transform: translateY(6px); }
-}
-
 /* ── Scroll reveal ── */
 .mac-root .rv {
   opacity: 0;
@@ -272,7 +264,7 @@ button.traffic-light:active { transform: scale(0.9); }
   background: var(--input-bg);
   border: 0.5px solid var(--input-border);
   border-radius: var(--radius-sm);
-  transition: border-color 120ms, box-shadow 120ms;
+  transition: border-color 140ms, box-shadow 140ms;
 }
 .mac-search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--input-focus); }
 .mac-search svg { width: 14px; height: 14px; color: var(--text-tertiary); flex-shrink: 0; }
@@ -399,7 +391,6 @@ button.traffic-light:active { transform: scale(0.9); }
 
 /* ── Press feedback ── */
 .mac-btn:active { transform: scale(0.97); }
-.project-card:active { transform: translateY(0) scale(0.99); }
 
 /* ── Pipeline strip (Forge-inspired) ── */
 .mac-pipeline {
@@ -450,7 +441,7 @@ button.traffic-light:active { transform: scale(0.9); }
 .mac-tag--clickable:hover { color: var(--text-primary); border-color: var(--border-strong); }
 .mac-tag--active { background: var(--nav-pill-active); color: var(--accent); border-color: transparent; font-weight: 600; }
 .skill-category { transition: all 200ms; }
-.skill-category:hover { border-color: var(--border-strong); box-shadow: var(--shadow-card-hover); }
+.skill-category:hover { border-color: var(--border-strong); box-shadow: var(--shadow-card-hover); transform: translateY(-1px); }
 
 /* ── Stat cards ── */
 .mac-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-3); }
@@ -634,9 +625,6 @@ button.traffic-light:active { transform: scale(0.9); }
 }
 
 /* ── Project card shimmer smoothness ── */
-.project-card {
-  transition: all 200ms var(--ease-smooth);
-}
 
 /* ── Edition card active press ── */
 .mac-edition:active {

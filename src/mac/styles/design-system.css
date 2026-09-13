@@ -1,6 +1,6 @@
-/* ── macOS Design System ─────────────────────────────────────── */
+/* ── macOS Design System (scoped to .mac-root — never leaks globally) ── */
 
-:root {
+.mac-root {
   /* ── Typography ─────────────────────────────────────────── */
   --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, system-ui, sans-serif;
   --font-mono: "SF Mono", "JetBrains Mono", "Fira Code", ui-monospace, monospace;
@@ -137,7 +137,6 @@
 
 /* ── System preference default ───────────────────────────────── */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme]),
   .mac-root:not([data-theme]) {
     --bg: #1c1c1e;
     --bg-subtle: #232325;
@@ -177,9 +176,9 @@
   }
 }
 
-/* ── Reduced motion ──────────────────────────────────────────── */
+/* ── Reduced motion (scoped) ─────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  .mac-root *, .mac-root *::before, .mac-root *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

@@ -2,6 +2,11 @@ import { Search, Moon, Sun, Menu } from "lucide-react";
 import { useTheme } from "../../hooks/useTheme";
 import { usePalette } from "../../hooks/usePalette";
 import { useNav } from "../../hooks/useNav";
+import { useIstTime } from "../../hooks/useIstTime";
+import { featuredProjects } from "../../data/projects";
+import { skillCategories } from "../../data/skills";
+import { experience } from "../../data/experience";
+import type { WindowState } from "../AppShell";
 
 const PAGE_TITLES: Record<string, string> = {
   overview: "Overview",
@@ -13,17 +18,48 @@ const PAGE_TITLES: Record<string, string> = {
   contact: "Contact",
 };
 
-export function Toolbar() {
+const PAGE_CONTEXT: Record<string, string> = {
+  overview: "Vardhan — developer workspace",
+  about: "The story behind the work",
+  projects: `${featuredProjects.length} featured · 13 more`,
+  experience: `${experience.length} roles · 2026 — present`,
+  skills: `${skillCategories.reduce((a, c) => a + c.items.length, 0)}+ technologies`,
+  achievements: "Education & certifications",
+  contact: "Replies within 24h",
+};
+
+export function Toolbar({ win, setWin }: { win: WindowState; setWin: (w: WindowState) => void }) {
   const { theme, toggle } = useTheme();
   const { setOpen } = usePalette();
   const { page, setMobileOpen } = useNav();
+  const ist = useIstTime();
+
+  const toggleMax = () => setWin(win === "maximized" ? "normal" : "maximized");
 
   return (
     <div className="mac-toolbar">
-      <div className="traffic-lights">
-        <div className="traffic-light traffic-light--close" />
-        <div className="traffic-light traffic-light--minimize" />
-        <div className="traffic-light traffic-light--maximize" />
+      <div className="traffic-lights" role="group" aria-label="Window controls">
+        <button
+          type="button"
+          className="traffic-light traffic-light--close"
+          onClick={() => setWin(win === "closed" ? "normal" : "closed")}
+          aria-label={win === "closed" ? "Reopen window" : "Close window"}
+          title="Close"
+        />
+        <button
+          type="button"
+          className="traffic-light traffic-light--minimize"
+          onClick={() => setWin(win === "minimized" ? "normal" : "minimized")}
+          aria-label={win === "minimized" ? "Restore window" : "Minimize window"}
+          title="Minimize"
+        />
+        <button
+          type="button"
+          className="traffic-light traffic-light--maximize"
+          onClick={toggleMax}
+          aria-label={win === "maximized" ? "Exit full screen" : "Maximize window"}
+          title={win === "maximized" ? "Restore" : "Maximize"}
+        />
       </div>
 
       <button
@@ -34,11 +70,13 @@ export function Toolbar() {
         <Menu />
       </button>
 
-      <div className="mac-toolbar__title">
-        Vardhan — {PAGE_TITLES[page] ?? "Portfolio"}
-      </div>
+      <div className="mac-toolbar__title">Vardhan — {PAGE_TITLES[page] ?? "Portfolio"}</div>
+      <div className="mac-toolbar__context">{PAGE_CONTEXT[page]}</div>
 
       <div className="mac-toolbar__actions">
+        <span className="mac-toolbar__clock" title="India Standard Time">
+          {ist}
+        </span>
         <button
           className="mac-toolbar__btn"
           onClick={() => setOpen(true)}
@@ -51,6 +89,7 @@ export function Toolbar() {
           className="mac-toolbar__btn"
           onClick={toggle}
           aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+          title="Toggle theme"
         >
           {theme === "dark" ? <Sun /> : <Moon />}
         </button>

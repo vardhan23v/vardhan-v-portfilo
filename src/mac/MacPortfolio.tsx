@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { ThemeProvider, useTheme } from "./hooks/useTheme";
 import { NavProvider, useNav, type PageId } from "./hooks/useNav";
 import { PaletteProvider } from "./hooks/usePalette";
+import { ToastProvider } from "./components/ui/Toast";
 import { AppShell } from "./components/AppShell";
 import { CommandPalette } from "./components/command-palette/CommandPalette";
 import { OverviewPage } from "./pages/overview/OverviewPage";
@@ -60,7 +61,7 @@ function PageContent() {
 
   const Page = PAGES[page];
   return (
-    <div ref={contentRef} className="mac-content" style={{ animation: "pageIn 250ms var(--ease-out)" }}>
+    <div ref={contentRef} key={page} className="mac-content mac-content--animated">
       <Page />
     </div>
   );
@@ -73,13 +74,15 @@ function PageRouter() {
 function MacInner() {
   const { theme } = useTheme();
   return (
-    <div className="mac-root" data-theme={theme}>
+    <div className="mac-root" data-theme={theme} data-cursor-off>
       <PaletteProvider>
         <NavProvider>
-          <AppShell>
-            <PageRouter />
-          </AppShell>
-          <CommandPalette />
+          <ToastProvider>
+            <AppShell>
+              <PageRouter />
+            </AppShell>
+            <CommandPalette />
+          </ToastProvider>
         </NavProvider>
       </PaletteProvider>
     </div>

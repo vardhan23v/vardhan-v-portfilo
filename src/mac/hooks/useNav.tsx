@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
+import type { Project } from "../data/projects";
 
 export type PageId =
   | "overview"
@@ -14,6 +15,9 @@ interface NavCtx {
   navigate: (p: PageId) => void;
   mobileOpen: boolean;
   setMobileOpen: (v: boolean) => void;
+  /** cross-page project quick-view (palette / overview can open it) */
+  openProject: Project | null;
+  setOpenProject: (p: Project | null) => void;
 }
 
 const Ctx = createContext<NavCtx>({
@@ -21,6 +25,8 @@ const Ctx = createContext<NavCtx>({
   navigate: () => {},
   mobileOpen: false,
   setMobileOpen: () => {},
+  openProject: null,
+  setOpenProject: () => {},
 });
 
 export const NAV_ITEMS: { id: PageId; label: string; shortcut: string; section: "main" | "connect" }[] = [
@@ -36,13 +42,18 @@ export const NAV_ITEMS: { id: PageId; label: string; shortcut: string; section: 
 export function NavProvider({ children }: { children: ReactNode }) {
   const [page, setPage] = useState<PageId>("overview");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [openProject, setOpenProject] = useState<Project | null>(null);
 
   const navigate = (p: PageId) => {
     setPage(p);
     setMobileOpen(false);
   };
 
-  return <Ctx.Provider value={{ page, navigate, mobileOpen, setMobileOpen }}>{children}</Ctx.Provider>;
+  return (
+    <Ctx.Provider value={{ page, navigate, mobileOpen, setMobileOpen, openProject, setOpenProject }}>
+      {children}
+    </Ctx.Provider>
+  );
 }
 
 export const useNav = () => useContext(Ctx);

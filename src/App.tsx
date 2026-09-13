@@ -86,8 +86,11 @@ function ScrollToTop() {
 
 function InterfaceShortcuts() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   useEffect(() => {
+    // /mac has its own inner 1-7 page shortcuts — don't hijack them
+    if (pathname.startsWith("/mac")) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
       const t = e.target as HTMLElement | null;
@@ -99,7 +102,7 @@ function InterfaceShortcuts() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [navigate]);
+  }, [navigate, pathname]);
 
   return null;
 }

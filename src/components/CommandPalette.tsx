@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { site } from "../classic/data/site";
 import "./command-palette.css";
 
@@ -71,6 +71,9 @@ function fuzzyScore(query: string, text: string): number {
 
 export function CommandPalette() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  // /mac ships its own Spotlight-style palette — avoid a double overlay
+  const isMac = pathname.startsWith("/mac");
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [index, setIndex] = useState(0);
@@ -148,6 +151,10 @@ export function CommandPalette() {
   );
 
   useEffect(() => {
+    if (isMac) {
+      setOpen(false);
+      return;
+    }
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
@@ -178,9 +185,9 @@ export function CommandPalette() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, items, index, select]);
+  }, [open, items, index, select, isMac]);
 
-  if (!open) return null;
+  if (isMac || !open) return null;
 
   return (
     <div

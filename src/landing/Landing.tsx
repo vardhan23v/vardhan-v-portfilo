@@ -3,7 +3,6 @@ import type { CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { useTilt } from "../hooks/useTilt";
-import StackSpread from "../components/ui/stack-spread";
 import { site } from "../classic/data/site";
 import { featuredProjects } from "../classic/data/projects";
 import { experience } from "../classic/data/experience";
@@ -596,18 +595,6 @@ export function Landing() {
             </div>
           </EditionCard>
         </div>
-
-        <section className="land-showcase" aria-label="Design showreel — scroll to spread">
-          <StackSpread
-            scrollLength={320}
-            bgColor="#ececeb"
-            clusterRotation
-            stackScale={0.82}
-            cardRadius={8}
-            textColor="#141414"
-            showScrollHint
-          />
-        </section>
 
         <div className="land-projects" data-land-reveal>
           <div className="land-projects-head">

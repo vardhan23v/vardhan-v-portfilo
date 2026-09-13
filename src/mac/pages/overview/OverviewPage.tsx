@@ -19,7 +19,7 @@ import { CountUp } from "../../components/ui/CountUp";
 import { Reveal } from "../../components/ui/Reveal";
 import { Tilt } from "../../components/ui/Tilt";
 import { GithubIcon } from "../../lib/icons";
-import { MacShowcase } from "../../components/showcase/MacShowcase";
+
 
 const EDITIONS = [
   { label: "Terminal", to: "/terminal", num: "01" },
@@ -269,7 +269,6 @@ export function OverviewPage() {
         </div>
       </div>
       </div>
-      <MacShowcase />
     </>
   );
 }

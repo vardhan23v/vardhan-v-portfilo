@@ -1,7 +1,0 @@
-/* Tailwind activation — utilities + theme ONLY (no preflight).
-   Preflight is intentionally skipped so the hand-crafted, scoped
-   per-edition resets (classic-root / mac-root / …) are never clobbered.
-   Imported first in src/main.tsx. */
-
-@import "tailwindcss/theme.css" layer(theme);
-@import "tailwindcss/utilities.css" layer(utilities);

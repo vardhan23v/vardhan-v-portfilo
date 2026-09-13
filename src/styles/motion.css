@@ -467,3 +467,70 @@
   /* `to` deliberately omits transform so hover lifts still apply after entry */
   to { opacity: 1; }
 }
+
+/* ============================================================
+   AURORA 2.0 — upgraded polish for new features
+   ============================================================ */
+.aurora-root .au-marquee:hover .au-marquee-track {
+  animation-play-state: paused;
+}
+.aurora-root .au-toolbar,
+.aurora-root .au-lab,
+.aurora-root .au-edu-card,
+.aurora-root .au-cert-chip,
+.aurora-root .au-form {
+  will-change: transform;
+}
+.aurora-root .au-lab-pill {
+  position: relative;
+  overflow: hidden;
+}
+.aurora-root .au-lab-pill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.16) 50%, transparent 60%);
+  transform: translateX(-130%) skewX(-10deg);
+  transition: transform 0.6s ease;
+  pointer-events: none;
+}
+.aurora-root .au-lab-pill:hover::after {
+  transform: translateX(130%) skewX(-10deg);
+}
+.aurora-root .au-modal {
+  scrollbar-width: thin;
+}
+.aurora-root .au-search:focus-within {
+  box-shadow: 0 0 0 3px rgba(167,139,250,0.14), 0 12px 28px rgba(0,0,0,0.22);
+}
+.aurora-root .au-card:focus-visible,
+.aurora-root .au-ft:focus-visible {
+  outline: 2px solid rgba(167,139,250,0.9);
+  outline-offset: 3px;
+}
+.aurora-root .au-exp-toggle:focus-visible,
+.aurora-root .au-filter:focus-visible,
+.aurora-root .au-view-btn:focus-visible {
+  outline: 2px solid var(--violet);
+  outline-offset: 2px;
+}
+/* global polish — smoother font rendering + selection */
+::selection {
+  background: rgba(167,139,250,0.32);
+  color: #fff;
+}
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(167,139,250,0.28) transparent;
+}
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(167,139,250,0.28);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}

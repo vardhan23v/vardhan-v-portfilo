@@ -18,6 +18,7 @@ import { certifications } from "../../data/experience";
 import { CountUp } from "../../components/ui/CountUp";
 import { Reveal } from "../../components/ui/Reveal";
 import { GithubIcon } from "../../lib/icons";
+import { MacShowcase } from "../../components/showcase/MacShowcase";
 
 const EDITIONS = [
   { label: "Terminal", to: "/terminal", num: "01" },
@@ -35,8 +36,9 @@ export function OverviewPage() {
   const preview = featuredProjects.slice(0, 3);
 
   return (
-    <div className="mac-page">
-      <Reveal>
+    <>
+      <div className="mac-page">
+        <Reveal>
         <div className="overview-hero">
           <div className="overview-hero__greeting">Hello, I&apos;m</div>
           <h1 className="overview-hero__name">{site.name}</h1>
@@ -255,6 +257,8 @@ export function OverviewPage() {
           ))}
         </div>
       </div>
-    </div>
+      </div>
+      <MacShowcase />
+    </>
   );
 }

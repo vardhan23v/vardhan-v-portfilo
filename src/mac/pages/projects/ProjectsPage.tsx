@@ -6,7 +6,7 @@ import { usePalette } from "../../hooks/usePalette";
 import { featuredProjects, otherProjects, type Project } from "../../data/projects";
 import { catOf, categoryCounts, CATEGORY_LABELS, type ProjectCategory } from "../../lib/projects";
 import { Reveal } from "../../components/ui/Reveal";
-import { useTilt } from "../../../hooks/useTilt";
+import { useTilt } from "../../hooks/useTilt";
 import "../../styles/projects.css";
 
 type Category = "all" | ProjectCategory;

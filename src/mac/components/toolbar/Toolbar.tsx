@@ -70,8 +70,8 @@ export function Toolbar({ win, setWin }: { win: WindowState; setWin: (w: WindowS
         <Menu />
       </button>
 
-      <div className="mac-toolbar__title">Vardhan — {PAGE_TITLES[page] ?? "Portfolio"}</div>
-      <div className="mac-toolbar__context">{PAGE_CONTEXT[page]}</div>
+      <div key={page} className="mac-toolbar__title mac-toolbar__title--fade">Vardhan — {PAGE_TITLES[page] ?? "Portfolio"}</div>
+      <div key={page + "-ctx"} className="mac-toolbar__context mac-toolbar__title--fade">{PAGE_CONTEXT[page]}</div>
 
       <div className="mac-toolbar__actions">
         <span className="mac-toolbar__clock" title="India Standard Time">

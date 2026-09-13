@@ -599,9 +599,6 @@ button.traffic-light:active { transform: scale(0.9); }
 .mac-tabbar__item:active {
   transform: scale(0.92);
 }
-.mac-tabbar__indicator {
-  transition: left 280ms var(--ease-spring);
-}
 
 /* ── Modal body scroll lock ── */
 .mac-root:has(.project-modal-overlay) {

@@ -14,17 +14,24 @@ export function useReveal<T extends HTMLElement>(threshold = 0.15) {
       el.classList.add("is-in");
       return;
     }
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          el.classList.add("is-in");
-          io.disconnect();
-        }
-      },
-      { threshold, rootMargin: "0px 0px -4% 0px" }
-    );
-    io.observe(el);
-    return () => io.disconnect();
+    let io: IntersectionObserver | null = null;
+    // Delay observer by one frame so the initial hidden state is painted first
+    const raf = requestAnimationFrame(() => {
+      io = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting) {
+            el.classList.add("is-in");
+            io?.disconnect();
+          }
+        },
+        { threshold, rootMargin: "0px 0px -4% 0px" }
+      );
+      io.observe(el);
+    });
+    return () => {
+      cancelAnimationFrame(raf);
+      io?.disconnect();
+    };
   }, [threshold]);
   return ref;
 }

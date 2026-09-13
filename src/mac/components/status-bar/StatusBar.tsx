@@ -25,7 +25,7 @@ export function StatusBar() {
           <span className="mac-statusbar__dot" />
           Available
         </span>
-        <span className="mac-statusbar__page">{PAGE_LABEL[page]}</span>
+        <span key={page} className="mac-statusbar__page mac-toolbar__title--fade">{PAGE_LABEL[page]}</span>
       </div>
       <div className="mac-statusbar__right">
         <span className="mac-statusbar__hide-m">{featuredProjects.length} Projects</span>

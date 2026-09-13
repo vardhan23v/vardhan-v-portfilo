@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useTilt } from "../../../hooks/useTilt";
+import { useTilt } from "../../hooks/useTilt";
 
 /** 3D tilt wrapper — feeds --rx/--ry to [target]. Keeps the target as the
  *  grid/flex child (wrapper is inside the revealed cell). */

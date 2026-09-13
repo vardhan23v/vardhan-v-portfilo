@@ -32,6 +32,7 @@
   background: linear-gradient(90deg, var(--accent), #a78bfa 55%, #22d3ee);
   opacity: 0.95;
   pointer-events: none;
+  transition: transform 200ms var(--ease-smooth);
 }
 
 /* ── Page switch: richer entrance (overrides polish.css) ── */
@@ -216,7 +217,7 @@
   width: 25%;
   border-radius: var(--radius-sm);
   background: var(--nav-pill-active);
-  transition: left 300ms var(--ease-out);
+  transition: left 280ms var(--ease-spring);
   pointer-events: none;
 }
 
@@ -294,4 +295,12 @@
 @keyframes nameShine {
   0%, 60% { background-position: 130% 0; }
   90%, 100% { background-position: -120% 0; }
+}
+
+/* ── Toolbar / statusbar title crossfade ── */
+.mac-toolbar__title--fade {
+  animation: titleFadeIn 0.25s var(--ease-out) both;
+}
+@keyframes titleFadeIn {
+  from { opacity: 0; transform: translateY(3px); }
 }

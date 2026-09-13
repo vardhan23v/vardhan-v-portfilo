@@ -48,6 +48,8 @@ export function CommandPalette() {
   const [copied, setCopied] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const closeTimer = useRef(0);
+  const [closing, setClosing] = useState(false);
 
   const openProjectBySlug = useCallback(
     (slug: string) => {
@@ -154,13 +156,23 @@ export function CommandPalette() {
     }
   }, [open ]);
 
+  const handleClose = useCallback(() => {
+    setClosing(true);
+    closeTimer.current = window.setTimeout(() => {
+      setClosing(false);
+      setOpen(false);
+    }, 170);
+  }, [setOpen]);
+
+  useEffect(() => () => window.clearTimeout(closeTimer.current), []);
+
   const run = useCallback(
     (item: CmdItem) => {
       item.action();
-      if (item.id !== "copy-email" && item.id !== "copy-link") setOpen(false);
-      else setTimeout(() => setOpen(false), 650);
+      if (item.id !== "copy-email" && item.id !== "copy-link") handleClose();
+      else setTimeout(() => handleClose(), 650);
     },
-    [setOpen]
+    [handleClose]
   );
 
   useEffect(() => {
@@ -176,23 +188,27 @@ export function CommandPalette() {
         e.preventDefault();
         if (filtered[activeIdx]) run(filtered[activeIdx]);
       } else if (e.key === "Escape") {
-        setOpen(false);
+        handleClose();
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [open, filtered, activeIdx, run, setOpen]);
+  }, [open, filtered, activeIdx, run, handleClose]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        setOpen(!open);
+        if (open) handleClose();
+        else {
+          setClosing(false);
+          setOpen(true);
+        }
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [open, setOpen]);
+  }, [open, handleClose]);
 
   useEffect(() => {
     setActiveIdx(0);
@@ -208,9 +224,9 @@ export function CommandPalette() {
 
   let lastGroup = "";
   return (
-    <div className="palette-overlay" onClick={() => setOpen(false)}>
+    <div className={`palette-overlay${closing ? " palette-overlay--closing" : ""}`} onClick={handleClose}>
       <div
-        className="palette"
+        className={`palette${closing ? " palette--closing" : ""}`}
         role="dialog"
         aria-modal="true"
         aria-label="Spotlight command palette"

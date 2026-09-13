@@ -10,8 +10,10 @@ const TABS: { id: PageId; label: string; icon: typeof LayoutDashboard }[] = [
 
 export function TabBar() {
   const { page, navigate } = useNav();
+  const activeIndex = TABS.findIndex((t) => t.id === page);
   return (
     <nav className="mac-tabbar" aria-label="Primary">
+      <span className="mac-tabbar__indicator" aria-hidden="true" style={{ left: `${Math.max(activeIndex, 0) * 25}%` }} />
       {TABS.map((t) => (
         <button
           key={t.id}

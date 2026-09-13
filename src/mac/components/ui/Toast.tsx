@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { CheckCircle2 } from "lucide-react";
 
 interface ToastCtx {
@@ -11,12 +11,25 @@ export const useToast = () => useContext(Ctx);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [msg, setMsg] = useState<string | null>(null);
-  const timer = useRef(0);
+  const [leaving, setLeaving] = useState(false);
+  const hideTimer = useRef(0);
+  const closeTimer = useRef(0);
 
   const toast = useCallback((m: string) => {
+    window.clearTimeout(hideTimer.current);
+    window.clearTimeout(closeTimer.current);
     setMsg(m);
-    window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => setMsg(null), 2600);
+    setLeaving(false);
+    hideTimer.current = window.setTimeout(() => setLeaving(true), 2600);
+    closeTimer.current = window.setTimeout(() => {
+      setMsg(null);
+      setLeaving(false);
+    }, 2600 + 220);
+  }, []);
+
+  useLayoutEffect(() => () => {
+    window.clearTimeout(hideTimer.current);
+    window.clearTimeout(closeTimer.current);
   }, []);
 
   return (
@@ -24,9 +37,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       <div className="mac-toast-region" aria-live="polite">
         {msg && (
-          <div className="mac-toast" role="status">
+          <div className={`mac-toast${leaving ? " mac-toast--leaving" : ""}`} role="status">
             <CheckCircle2 />
             <span>{msg}</span>
+            <div className="mac-toast__timer" aria-hidden="true" />
           </div>
         )}
       </div>

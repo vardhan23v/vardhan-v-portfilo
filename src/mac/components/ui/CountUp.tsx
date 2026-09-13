@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 export function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const [display, setDisplay] = useState(0);
+  const [done, setDone] = useState(false);
   const started = useRef(false);
 
   useEffect(() => {
@@ -14,6 +15,7 @@ export function CountUp({ value, suffix = "" }: { value: number; suffix?: string
       started.current = true;
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         setDisplay(value);
+        setDone(true);
         return;
       }
       const t0 = performance.now();
@@ -23,6 +25,7 @@ export function CountUp({ value, suffix = "" }: { value: number; suffix?: string
         const p = Math.min(1, (t - t0) / dur);
         setDisplay(Math.round((1 - Math.pow(1 - p, 3)) * value));
         if (p < 1) raf = requestAnimationFrame(tick);
+        else setDone(true);
       };
       raf = requestAnimationFrame(tick);
       return () => cancelAnimationFrame(raf);
@@ -45,7 +48,7 @@ export function CountUp({ value, suffix = "" }: { value: number; suffix?: string
   }, [value]);
 
   return (
-    <span ref={ref}>
+    <span ref={ref} className={done ? "countup--done" : undefined}>
       {display}
       {suffix}
     </span>

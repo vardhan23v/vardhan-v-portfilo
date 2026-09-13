@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Search, ExternalLink, X, LayoutGrid, Rows3, ChevronLeft, ChevronRight } from "lucide-react";
 import { GithubIcon } from "../../lib/icons";
 import { useNav } from "../../hooks/useNav";
@@ -6,6 +6,7 @@ import { usePalette } from "../../hooks/usePalette";
 import { featuredProjects, otherProjects, type Project } from "../../data/projects";
 import { catOf, categoryCounts, CATEGORY_LABELS, type ProjectCategory } from "../../lib/projects";
 import { Reveal } from "../../components/ui/Reveal";
+import { useTilt } from "../../../hooks/useTilt";
 import "../../styles/projects.css";
 
 type Category = "all" | ProjectCategory;
@@ -36,8 +37,13 @@ function ProjectCard({
   list: boolean;
   onClick: () => void;
 }) {
+  const ref = useTilt<HTMLButtonElement>(7);
   return (
-    <button className={`project-card${list ? " project-card--list" : ""}`} onClick={onClick}>
+    <button
+      ref={ref}
+      className={`project-card${list ? " project-card--list" : ""}`}
+      onClick={onClick}
+    >
       <div className="project-card__top">
         <span className="project-card__cat">{CATEGORY_LABELS[catOf(project)]}</span>
         {project.highlight && <span className="mac-tag">flagship</span>}
@@ -79,37 +85,61 @@ function ProjectModal({
 }) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const idx = siblings.findIndex((p) => p.slug === project.slug);
+  const closeTimer = useRef(0);
+  const [closing, setClosing] = useState(false);
+  const [dir, setDir] = useState(1);
+
+  const handleClose = useCallback(() => {
+    setClosing(true);
+    closeTimer.current = window.setTimeout(() => {
+      setClosing(false);
+      onClose();
+    }, 170);
+  }, [onClose]);
+
+  const handleStep = useCallback(
+    (d: 1 | -1) => {
+      setDir(d);
+      onStep(d);
+    },
+    [onStep]
+  );
 
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-      if (e.key === "ArrowRight") onStep(1);
-      if (e.key === "ArrowLeft") onStep(-1);
+      if (e.key === "Escape") handleClose();
+      if (e.key === "ArrowRight") handleStep(1);
+      if (e.key === "ArrowLeft") handleStep(-1);
     };
     window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prev;
       window.removeEventListener("keydown", onKey);
+      window.clearTimeout(closeTimer.current);
     };
-  }, [onClose, onStep]);
+  }, [handleClose, handleStep]);
 
   const prevP = siblings[(idx - 1 + siblings.length) % siblings.length];
   const nextP = siblings[(idx + 1) % siblings.length];
 
   return (
     <div
-      className="project-modal-overlay"
+      className={`project-modal-overlay${closing ? " project-modal-overlay--closing" : ""}`}
       ref={overlayRef}
       role="dialog"
       aria-modal="true"
       aria-label={`${project.name} details`}
       onClick={(e) => {
-        if (e.target === overlayRef.current) onClose();
+        if (e.target === overlayRef.current) handleClose();
       }}
     >
-      <div className="project-modal" onClick={(e) => e.stopPropagation()}>
+      <div
+        key={project.slug}
+        className={`project-modal${closing ? " project-modal--closing" : dir === -1 ? " project-modal__slide--left" : " project-modal__slide"}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="project-modal__header">
           <span className="project-modal__emoji">{project.emoji}</span>
           <div className="project-modal__header-text">
@@ -157,11 +187,11 @@ function ProjectModal({
         </div>
         {siblings.length > 1 && (
           <div className="project-modal__nav">
-            <button onClick={() => onStep(-1)}>
+            <button onClick={() => handleStep(-1)}>
               <ChevronLeft style={{ width: 12, height: 12, display: "inline", verticalAlign: -1 }} />{" "}
               {prevP?.name ?? "Prev"}
             </button>
-            <button onClick={() => onStep(1)}>
+            <button onClick={() => handleStep(1)}>
               {nextP?.name ?? "Next"}{" "}
               <ChevronRight style={{ width: 12, height: 12, display: "inline", verticalAlign: -1 }} />
             </button>

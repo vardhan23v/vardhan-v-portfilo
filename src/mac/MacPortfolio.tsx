@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { ThemeProvider, useTheme } from "./hooks/useTheme";
 import { NavProvider, useNav, type PageId } from "./hooks/useNav";
 import { PaletteProvider } from "./hooks/usePalette";
@@ -59,9 +59,23 @@ function PageContent() {
     }
   }, [page]);
 
+  useLayoutEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    const update = () => {
+      const max = el.scrollHeight - el.clientHeight;
+      el.style.setProperty("--scroll", String(max > 0 ? Math.min(el.scrollTop / max, 1) : 0));
+    };
+    el.style.setProperty("--scroll", "0");
+    el.addEventListener("scroll", update, { passive: true });
+    update();
+    return () => el.removeEventListener("scroll", update);
+  }, [page]);
+
   const Page = PAGES[page];
   return (
     <div ref={contentRef} key={page} className="mac-content mac-content--animated">
+      <div className="mac-scrollprogress" aria-hidden="true" />
       <Page />
     </div>
   );

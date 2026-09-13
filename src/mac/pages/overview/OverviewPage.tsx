@@ -17,6 +17,7 @@ import { skillCategories, exploring } from "../../data/skills";
 import { certifications } from "../../data/experience";
 import { CountUp } from "../../components/ui/CountUp";
 import { Reveal } from "../../components/ui/Reveal";
+import { Tilt } from "../../components/ui/Tilt";
 import { GithubIcon } from "../../lib/icons";
 import { MacShowcase } from "../../components/showcase/MacShowcase";
 
@@ -105,36 +106,44 @@ export function OverviewPage() {
         </Reveal>
         <div className="mac-stats">
           <Reveal index={0}>
-            <div className="mac-stat">
-              <div className="mac-stat__value">
-                <CountUp value={featuredProjects.length} />
+            <Tilt target=".mac-stat">
+              <div className="mac-stat">
+                <div className="mac-stat__value">
+                  <CountUp value={featuredProjects.length} />
+                </div>
+                <div className="mac-stat__label">Featured projects</div>
               </div>
-              <div className="mac-stat__label">Featured projects</div>
-            </div>
+            </Tilt>
           </Reveal>
           <Reveal index={1}>
-            <div className="mac-stat">
-              <div className="mac-stat__value">
-                <CountUp value={experience.length} />
+            <Tilt target=".mac-stat">
+              <div className="mac-stat">
+                <div className="mac-stat__value">
+                  <CountUp value={experience.length} />
+                </div>
+                <div className="mac-stat__label">Roles held</div>
               </div>
-              <div className="mac-stat__label">Roles held</div>
-            </div>
+            </Tilt>
           </Reveal>
           <Reveal index={2}>
-            <div className="mac-stat">
-              <div className="mac-stat__value">
-                <CountUp value={techTotal} suffix="+" />
+            <Tilt target=".mac-stat">
+              <div className="mac-stat">
+                <div className="mac-stat__value">
+                  <CountUp value={techTotal} suffix="+" />
+                </div>
+                <div className="mac-stat__label">Technologies</div>
               </div>
-              <div className="mac-stat__label">Technologies</div>
-            </div>
+            </Tilt>
           </Reveal>
           <Reveal index={3}>
-            <div className="mac-stat">
-              <div className="mac-stat__value">
-                {loading ? <span className="mac-skeleton">--</span> : <CountUp value={followers} />}
+            <Tilt target=".mac-stat">
+              <div className="mac-stat">
+                <div className="mac-stat__value">
+                  {loading ? <span className="mac-skeleton">--</span> : <CountUp value={followers} />}
+                </div>
+                <div className="mac-stat__label">GitHub followers · {loading ? "…" : `${repos} repos`}</div>
               </div>
-              <div className="mac-stat__label">GitHub followers · {loading ? "…" : `${repos} repos`}</div>
-            </div>
+            </Tilt>
           </Reveal>
         </div>
       </div>
@@ -153,29 +162,31 @@ export function OverviewPage() {
         <div className="project-grid">
           {preview.map((p, i) => (
             <Reveal key={p.slug} index={i}>
-              <button
-                className="project-card"
-                onClick={() => {
-                  navigate("projects");
-                  // open after the page switches
-                  setTimeout(() => setOpenProject(p), 60);
-                }}
-              >
-                <div className="project-card__header">
-                  <span className="project-card__emoji">{p.emoji}</span>
-                  <div>
-                    <div className="project-card__name">{p.name}</div>
-                    <div className="project-card__tagline">{p.tagline}</div>
+              <Tilt target=".project-card">
+                <button
+                  className="project-card"
+                  onClick={() => {
+                    navigate("projects");
+                    // open after the page switches
+                    setTimeout(() => setOpenProject(p), 60);
+                  }}
+                >
+                  <div className="project-card__header">
+                    <span className="project-card__emoji">{p.emoji}</span>
+                    <div>
+                      <div className="project-card__name">{p.name}</div>
+                      <div className="project-card__tagline">{p.tagline}</div>
+                    </div>
                   </div>
+                  <div className="project-card__tech">
+                    {p.tech.slice(0, 4).map((t) => (
+                      <span className="mac-tag" key={t}>
+                        {t}
+                      </span>
+                    ))}
                 </div>
-                <div className="project-card__tech">
-                  {p.tech.slice(0, 4).map((t) => (
-                    <span className="mac-tag" key={t}>
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </button>
+                </button>
+              </Tilt>
             </Reveal>
           ))}
         </div>

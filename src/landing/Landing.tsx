@@ -10,7 +10,7 @@ import { skillCategories } from "../classic/data/skills";
 
 const STATS = [
   { value: featuredProjects.length, label: "shipped products", pad: true },
-  { value: 5, label: "interfaces, one portfolio", pad: true },
+  { value: 6, label: "interfaces, one portfolio", pad: true },
   { value: experience.length, label: "roles & internships", pad: true },
   { value: skillCategories.reduce((s, c) => s + c.items.length, 0), label: "stack technologies", pad: true },
 ];
@@ -105,6 +105,30 @@ const EDITIONS = [
       </div>
     ),
   },
+  {
+    to: "/mac",
+    label: "macOS",
+    url: "vardhan.dev/mac",
+    tone: "mac",
+    skin: (
+      <div className="stage-mac" aria-hidden="true">
+        <div className="sm-bar">
+          <span className="sm-dot r" />
+          <span className="sm-dot y" />
+          <span className="sm-dot g" />
+          <span className="sm-title">Vardhan</span>
+        </div>
+        <div className="sm-body">
+          <div className="sm-side" />
+          <div className="sm-main">
+            <div className="sm-line" />
+            <div className="sm-line short" />
+            <div className="sm-card" />
+          </div>
+        </div>
+      </div>
+    ),
+  },
 ];
 
 function EditionStage() {
@@ -127,7 +151,7 @@ function EditionStage() {
       onMouseLeave={() => setPaused(false)}
       tabIndex={0}
       role="group"
-      aria-label="Live preview of the five portfolio editions. Use left and right arrows to switch."
+      aria-label="Live preview of the six portfolio editions. Use left and right arrows to switch."
       onKeyDown={(e) => {
         if (e.key === "ArrowRight") setIndex((i) => (i + 1) % EDITIONS.length);
         if (e.key === "ArrowLeft") setIndex((i) => (i + EDITIONS.length - 1) % EDITIONS.length);
@@ -138,9 +162,9 @@ function EditionStage() {
         <span className="stage-dot y" />
         <span className="stage-dot g" />
         <span className="stage-url" aria-hidden="true">{ed.url}</span>
-        <span className="stage-count" aria-hidden="true">
-          0{index + 1} / 05
-        </span>
+          <span className="stage-count" aria-hidden="true">
+            0{index + 1} / 06
+          </span>
       </div>
 
       <Link to={ed.to} className="stage-screen" aria-label={`Open the ${ed.label} interface`}>
@@ -329,7 +353,7 @@ export function Landing() {
               <h1 className="landing-title">
                 One portfolio.
                 <br />
-                <span className="landing-grad">Five interfaces.</span>
+                <span className="landing-grad">Six interfaces.</span>
               </h1>
               <p className="landing-what">I build AI-powered products and full-stack systems.</p>
               <p className="landing-sub">
@@ -401,11 +425,11 @@ export function Landing() {
         </div>
 
         <div className="edition-bar">
-          <span className="edition-bar-label">five interfaces</span>
+          <span className="edition-bar-label">six interfaces</span>
           <InterfaceSwitcher current="landing" />
         </div>
         <p className="edition-bar-hint">
-          ⌘/ctrl + K — command palette · press <kbd>1</kbd>–<kbd>5</kbd> — switch from any page
+          ⌘/ctrl + K — command palette · press <kbd>1</kbd>–<kbd>6</kbd> — switch from any page
         </p>
 
         <div className="edition-grid" id="editions" role="list" aria-label="Portfolio interfaces — choose an edition">
@@ -537,6 +561,36 @@ export function Landing() {
               </p>
               <span className="ed-cta">
                 Enter the forge <span aria-hidden="true">→</span>
+              </span>
+            </div>
+          </EditionCard>
+
+          <EditionCard to="/mac" label="Open the macOS interface" className="ed-mac" cursor="mac" keyNum="6">
+            <div className="mini-mac" aria-hidden="true">
+              <div className="mm-bar">
+                <span className="mm-dot r" />
+                <span className="mm-dot y" />
+                <span className="mm-dot g" />
+              </div>
+              <div className="mm-body">
+                <div className="mm-side" />
+                <div className="mm-main">
+                  <div className="mm-line" />
+                  <div className="mm-line short" />
+                </div>
+              </div>
+            </div>
+            <div className="ed-meta">
+              <span className="ed-num" aria-hidden="true">
+                06
+              </span>
+              <h2>macOS</h2>
+              <p>
+                Premium application — traffic lights, translucent sidebar,
+                Spotlight palette, and six native pages.
+              </p>
+              <span className="ed-cta">
+                Open the application <span aria-hidden="true">→</span>
               </span>
             </div>
           </EditionCard>

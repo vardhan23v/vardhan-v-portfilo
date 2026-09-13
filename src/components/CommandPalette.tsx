@@ -20,6 +20,7 @@ const ITEMS: Item[] = [
   { id: "paper", label: "Paper interface", hint: "3", keywords: "light editorial print", path: "/paper" },
   { id: "aurora", label: "Aurora interface", hint: "4", keywords: "glass gradient", path: "/aurora" },
   { id: "forge", label: "Forge interface", hint: "5", keywords: "industrial", path: "/forge" },
+  { id: "mac", label: "macOS interface", hint: "6", keywords: "mac application desktop", path: "/mac" },
   { id: "random", label: "Surprise me — random interface", hint: "⚄", keywords: "shuffle lucky", action: "random" },
   { id: "top", label: "Back to top", hint: "top", keywords: "scroll up", action: "top" },
   { id: "copy-email", label: "Copy email address", hint: "⧉", keywords: "clipboard contact", action: "copy-email" },
@@ -32,7 +33,7 @@ const ITEMS: Item[] = [
 ];
 
 const RECENTS_KEY = "cp-recents";
-const editionPaths = ["/terminal", "/classic", "/paper", "/aurora", "/forge"];
+const editionPaths = ["/terminal", "/classic", "/paper", "/aurora", "/forge", "/mac"];
 
 function readRecents(): string[] {
   try {

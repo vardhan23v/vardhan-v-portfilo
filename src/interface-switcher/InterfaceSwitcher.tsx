@@ -8,6 +8,7 @@ const editionRoutes = [
   { num: "03", label: "Paper", role: "Editorial", to: "/paper", key: "paper" },
   { num: "04", label: "Aurora", role: "Visual", to: "/aurora", key: "aurora" },
   { num: "05", label: "Forge", role: "Builder", to: "/forge", key: "forge" },
+  { num: "06", label: "macOS", role: "Application", to: "/mac", key: "mac" },
 ];
 
 export function InterfaceSwitcher({ current }: { current: string }) {

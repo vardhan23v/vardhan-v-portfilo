@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { ThemeProvider } from "./hooks/useTheme";
+import { ThemeProvider, useTheme } from "./hooks/useTheme";
 import { NavProvider, useNav, type PageId } from "./hooks/useNav";
 import { PaletteProvider } from "./hooks/usePalette";
 import { AppShell } from "./components/AppShell";
@@ -11,6 +11,7 @@ import { ExperiencePage } from "./pages/experience/ExperiencePage";
 import { SkillsPage } from "./pages/skills/SkillsPage";
 import { AchievementsPage } from "./pages/achievements/AchievementsPage";
 import { ContactPage } from "./pages/contact/ContactPage";
+import "./styles.css";
 
 const PAGES: Record<PageId, React.ComponentType> = {
   overview: OverviewPage,
@@ -69,9 +70,10 @@ function PageRouter() {
   return <PageContent />;
 }
 
-export function MacPortfolio() {
+function MacInner() {
+  const { theme } = useTheme();
   return (
-    <ThemeProvider>
+    <div className="mac-root" data-theme={theme}>
       <PaletteProvider>
         <NavProvider>
           <AppShell>
@@ -80,6 +82,14 @@ export function MacPortfolio() {
           <CommandPalette />
         </NavProvider>
       </PaletteProvider>
+    </div>
+  );
+}
+
+export function MacPortfolio() {
+  return (
+    <ThemeProvider>
+      <MacInner />
     </ThemeProvider>
   );
 }

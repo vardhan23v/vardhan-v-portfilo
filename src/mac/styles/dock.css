@@ -1,0 +1,83 @@
+/* ── Dock ── */
+.mac-dock-wrap {
+  position: absolute;
+  bottom: calc(4px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-toolbar);
+}
+
+.mac-dock {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--toolbar-bg);
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  border: 0.5px solid var(--toolbar-border);
+  border-radius: var(--radius-full);
+}
+
+.mac-dock__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 4px 5px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  transition: transform 160ms var(--ease-out), color 120ms;
+}
+.mac-dock__item:hover {
+  transform: scale(1.18);
+  color: var(--text-primary);
+}
+.mac-dock__item:active {
+  transform: scale(1.05);
+}
+.mac-dock__item.is-active {
+  color: var(--accent);
+}
+
+.mac-dock__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+.mac-dock__icon svg { width: 20px; height: 20px; }
+
+.mac-dock__tip {
+  font-size: var(--text-xs);
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  color: var(--text-secondary);
+  transition: opacity 120ms;
+}
+.mac-dock__item:hover .mac-dock__tip,
+.mac-dock__item.is-active .mac-dock__tip {
+  opacity: 1;
+}
+
+.mac-dock__dot {
+  width: 3px;
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 120ms;
+}
+.mac-dock__item.is-active .mac-dock__dot {
+  opacity: 1;
+}

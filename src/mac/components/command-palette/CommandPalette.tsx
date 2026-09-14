@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { Search, ArrowRight, Copy, Check, Shuffle, ArrowUp } from "lucide-react";
 import { usePalette } from "../../hooks/usePalette";
 import { useNav, type PageId } from "../../hooks/useNav";
+import { useWindowManager } from "../../hooks/useWindowManager";
 import { useTheme } from "../../hooks/useTheme";
 import { useToast } from "../ui/Toast";
 import { site } from "../../data/site";
@@ -41,6 +42,7 @@ function fuzzyScore(query: string, text: string): number {
 export function CommandPalette() {
   const { open, setOpen } = usePalette();
   const { navigate, setOpenProject } = useNav();
+  const { openWindow } = useWindowManager();
   const { toggle } = useTheme();
   const { toast } = useToast();
   const [query, setQuery] = useState("");
@@ -51,14 +53,23 @@ export function CommandPalette() {
   const closeTimer = useRef(0);
   const [closing, setClosing] = useState(false);
 
+  // Desktop navigation: switch the page highlight AND open/focus its window.
+  const go = useCallback(
+    (p: PageId) => {
+      navigate(p);
+      openWindow(p);
+    },
+    [navigate, openWindow]
+  );
+
   const openProjectBySlug = useCallback(
     (slug: string) => {
       const p = featuredProjects.find((x) => x.slug === slug);
       if (!p) return;
-      navigate("projects");
-      setTimeout(() => setOpenProject(p), 60);
+      go("projects");
+      setTimeout(() => setOpenProject(p), 80);
     },
-    [navigate, setOpenProject]
+    [go, setOpenProject]
   );
 
   const copyText = useCallback(
@@ -77,13 +88,13 @@ export function CommandPalette() {
 
   const commands: CmdItem[] = useMemo(
     () => [
-      { id: "overview", label: "Go to Overview", hint: "1", group: "Pages", keywords: "home overview main workspace", action: () => navigate("overview") },
-      { id: "about", label: "Go to About", hint: "2", group: "Pages", keywords: "about me bio story", action: () => navigate("about") },
-      { id: "projects", label: "Go to Projects", hint: "3", group: "Pages", keywords: "projects work portfolio featured", action: () => navigate("projects") },
-      { id: "experience", label: "Go to Experience", hint: "4", group: "Pages", keywords: "experience work history jobs", action: () => navigate("experience") },
-      { id: "skills", label: "Go to Skills", hint: "5", group: "Pages", keywords: "skills tech stack tools", action: () => navigate("skills") },
-      { id: "achievements", label: "Go to Achievements", hint: "6", group: "Pages", keywords: "achievements education certifications awards", action: () => navigate("achievements") },
-      { id: "contact", label: "Go to Contact", hint: "7", group: "Pages", keywords: "contact email reach hire", action: () => navigate("contact") },
+      { id: "overview", label: "Go to Overview", hint: "1", group: "Pages", keywords: "home overview main workspace", action: () => go("overview") },
+      { id: "about", label: "Go to About", hint: "2", group: "Pages", keywords: "about me bio story", action: () => go("about") },
+      { id: "projects", label: "Go to Projects", hint: "3", group: "Pages", keywords: "projects work portfolio featured", action: () => go("projects") },
+      { id: "experience", label: "Go to Experience", hint: "4", group: "Pages", keywords: "experience work history jobs", action: () => go("experience") },
+      { id: "skills", label: "Go to Skills", hint: "5", group: "Pages", keywords: "skills tech stack tools", action: () => go("skills") },
+      { id: "achievements", label: "Go to Achievements", hint: "6", group: "Pages", keywords: "achievements education certifications awards", action: () => go("achievements") },
+      { id: "contact", label: "Go to Contact", hint: "7", group: "Pages", keywords: "contact email reach hire", action: () => go("contact") },
       ...featuredProjects.map((p) => ({
         id: `proj-${p.slug}`,
         label: `Open ${p.name}`,
@@ -100,7 +111,7 @@ export function CommandPalette() {
         group: "Actions",
         keywords: "random shuffle surprise lucky",
         action: () =>
-          navigate(
+          go(
             ["overview", "about", "projects", "experience", "skills", "achievements", "contact"][
               (Math.random() * 7) | 0
             ] as PageId
@@ -136,7 +147,7 @@ export function CommandPalette() {
       { id: "li", label: "Open LinkedIn", hint: "↗", group: "Links", keywords: "linkedin social career", action: () => window.open(site.linkedin, "_blank") },
       { id: "resume", label: "Download resume", hint: "↗", group: "Links", keywords: "resume cv download pdf", action: () => window.open(site.resume, "_blank") },
     ],
-    [navigate, toggle, openProjectBySlug, copyText]
+    [go, toggle, openProjectBySlug, copyText]
   );
 
   const filtered = useMemo(() => {

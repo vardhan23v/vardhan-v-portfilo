@@ -1,0 +1,490 @@
+/* ── Desktop shell ── */
+.mac-desktop {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.mac-desktop__area {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-window);
+  pointer-events: none;
+}
+
+/* The wallpaper / blobs already sit behind via .mac-bg at z-index 0. */
+
+/* ── Window layer ── */
+.mac-desktop-window {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  border: 0.5px solid var(--border-strong);
+  box-shadow: var(--shadow-window);
+  will-change: transform, left, top;
+  pointer-events: auto;
+  animation: desktopWindowEnter 0.32s var(--ease-out) both;
+  transform: translateZ(0);
+  contain: layout style paint;
+}
+
+@keyframes desktopWindowEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.mac-desktop-window.is-maximized {
+  border-radius: 0;
+}
+.mac-desktop-window.is-dragging {
+  transition: box-shadow 100ms;
+  box-shadow: var(--shadow-window), 0 0 0 1px var(--accent);
+}
+.mac-desktop-window.is-active {
+  border-color: rgba(0, 113, 227, 0.25);
+}
+
+/* ── Window header (drag region) ── */
+.mac-desktop-window__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  height: 28px;
+  min-height: 28px;
+  border-bottom: 0.5px solid var(--toolbar-border);
+  cursor: default;
+  user-select: none;
+  -webkit-app-region: drag;
+}
+.mac-desktop-window__header .traffic-lights {
+  flex-shrink: 0;
+}
+.mac-desktop-window__title {
+  flex: 1;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mac-desktop-window__spacer { flex: 1; min-width: 80px; }
+
+.mac-desktop-window__body {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+  position: relative;
+}
+
+.mac-desktop-window__resize {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+  height: 20px;
+  cursor: nwse-resize;
+  z-index: 5;
+}
+.mac-desktop-window__resize::before {
+  content: "";
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid var(--text-tertiary);
+  border-bottom: 2px solid var(--text-tertiary);
+  opacity: 0;
+  transition: opacity 120ms;
+}
+.mac-desktop-window:hover .mac-desktop-window__resize::before {
+  opacity: 0.5;
+}
+
+/* ── Empty desktop state ── */
+.mac-desktop__empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  color: var(--text-secondary);
+}
+.mac-desktop__empty-title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.mac-desktop__empty-sub { font-size: var(--text-sm); }
+
+/* ── Menu bar ── */
+.mac-menubar {
+  height: 28px;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--sp-3);
+  background: var(--toolbar-bg);
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  border-bottom: 0.5px solid var(--toolbar-border);
+  z-index: var(--z-toolbar);
+  user-select: none;
+}
+.mac-menubar__left {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+.mac-menubar__logo {
+  font-weight: 700;
+  font-size: var(--text-sm);
+  color: var(--accent);
+}
+.mac-menubar__app {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.mac-menubar__menus {
+  display: flex;
+  gap: var(--sp-4);
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  opacity: 0.6;
+}
+.mac-menubar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.mac-menubar__clock {
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+.mac-menubar__btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+.mac-menubar__btn svg { width: 14px; height: 14px; }
+.mac-menubar__btn:hover {
+  background: var(--nav-pill-bg);
+  color: var(--text-primary);
+}
+
+/* ── Finder ── */
+.finder {
+  display: flex;
+  height: 100%;
+}
+.finder__sidebar {
+  width: 160px;
+  min-width: 160px;
+  padding: var(--sp-3) var(--sp-2);
+  background: var(--bg-subtle);
+  border-right: 0.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.finder__side-label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: var(--sp-2) var(--sp-3);
+}
+.finder__side-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 5px var(--sp-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+.finder__side-item:hover {
+  background: var(--nav-pill-bg);
+  color: var(--text-primary);
+}
+.finder__main {
+  flex: 1;
+  padding: var(--sp-4) var(--sp-5);
+  overflow-y: auto;
+}
+.finder__path {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-bottom: var(--sp-3);
+}
+.finder__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--sp-3);
+}
+.finder__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: var(--sp-3) var(--sp-2);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  cursor: pointer;
+  transition: background 140ms, box-shadow 140ms, transform 140ms;
+}
+.finder__item:hover {
+  background: var(--surface-hover);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-1px);
+}
+.finder__item-emoji { font-size: 1.6rem; }
+.finder__item-name {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: center;
+}
+.finder__item-sub {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+.finder__foot {
+  margin-top: var(--sp-4);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+/* ── Terminal ── */
+.termapp {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #1a1a1a;
+  font-family: var(--font-mono);
+  color: #e0e0e0;
+}
+.termapp__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--sp-3) var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.termapp__line {
+  font-size: var(--text-sm);
+  white-space: pre-wrap;
+}
+.termapp__line--out { color: #e0e0e0; }
+.termapp__line--in { color: #50fa7b; }
+.termapp__line--dim { color: #6272a4; }
+.termapp__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  border-top: 0.5px solid rgba(255,255,255,0.08);
+}
+.termapp__prompt {
+  color: #50fa7b;
+  font-size: var(--text-sm);
+  flex-shrink: 0;
+}
+.termapp__input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f8f8f2;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+/* ── Vardhan AI ── */
+.aiapp {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.aiapp__head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 0.5px solid var(--border);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+}
+.aiapp__head em {
+  margin-left: auto;
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  font-style: normal;
+}
+.aiapp__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.aiapp__hint {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+.aiapp__q {
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.aiapp__a {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  padding-left: var(--sp-2);
+  border-left: 2px solid var(--accent);
+}
+.aiapp__suggest {
+  padding: var(--sp-2) var(--sp-4);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+.aiapp__chip {
+  padding: 4px var(--sp-3);
+  font-size: var(--text-xs);
+  border-radius: var(--radius-full);
+  border: 0.5px solid var(--border);
+  background: var(--tag-bg);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+.aiapp__chip:hover {
+  background: var(--nav-pill-active);
+  color: var(--accent);
+  border-color: transparent;
+}
+.aiapp__row {
+  display: flex;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  border-top: 0.5px solid var(--border);
+}
+.aiapp__input {
+  flex: 1;
+  padding: var(--sp-2) var(--sp-3);
+  border: 0.5px solid var(--input-border);
+  border-radius: var(--radius-sm);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  outline: none;
+  transition: border-color 120ms, box-shadow 120ms;
+}
+.aiapp__input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--input-focus);
+}
+
+/* ── Settings ── */
+.settingsapp__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-4) 0;
+  border-bottom: 0.5px solid var(--border);
+}
+.settingsapp__label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.settingsapp__sub {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+.settingsapp__seg {
+  display: flex;
+  gap: var(--sp-1);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.settingsapp__seg button {
+  padding: var(--sp-1) var(--sp-3);
+  font-size: var(--text-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+.settingsapp__seg button.is-on {
+  background: var(--nav-pill-active);
+  color: var(--accent);
+}
+.aboutmac__hero {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
+}
+.aboutmac__sub {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+.aboutmac__specs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
+}
+.aboutmac__specs dt {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+.aboutmac__specs dd {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.aboutmac__links {
+  display: flex;
+  gap: var(--sp-2);
+}

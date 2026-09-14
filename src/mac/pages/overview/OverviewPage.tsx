@@ -9,6 +9,7 @@ import {
   FolderKanban,
 } from "lucide-react";
 import { useNav } from "../../hooks/useNav";
+import { useWindowManager } from "../../hooks/useWindowManager";
 import { useGithub } from "../../hooks/useGithub";
 import { site } from "../../data/site";
 import { featuredProjects } from "../../data/projects";
@@ -33,8 +34,13 @@ const techTotal = skillCategories.reduce((a, c) => a + c.items.length, 0);
 
 export function OverviewPage() {
   const { navigate, setOpenProject } = useNav();
+  const { openWindow } = useWindowManager();
   const { followers, repos, loading } = useGithub();
   const preview = featuredProjects.slice(0, 3);
+  const goProjects = () => {
+    navigate("projects");
+    openWindow("projects");
+  };
 
   return (
     <>
@@ -154,7 +160,7 @@ export function OverviewPage() {
             <h2 className="mac-section-title" style={{ marginBottom: 0 }}>
               <FolderKanban /> Featured work
             </h2>
-            <button className="mac-link" onClick={() => navigate("projects")}>
+            <button className="mac-link" onClick={goProjects}>
               View all →
             </button>
           </div>
@@ -166,9 +172,9 @@ export function OverviewPage() {
                 <button
                   className="project-card"
                   onClick={() => {
-                    navigate("projects");
+                    goProjects();
                     // open after the page switches
-                    setTimeout(() => setOpenProject(p), 60);
+                    setTimeout(() => setOpenProject(p), 80);
                   }}
                 >
                   <div className="project-card__header">

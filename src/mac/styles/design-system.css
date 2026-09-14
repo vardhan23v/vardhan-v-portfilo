@@ -184,3 +184,11 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Toggled from Control Center (persisted preference). */
+.mac-root[data-mac-motion="off"] *, .mac-root[data-mac-motion="off"] *::before,
+.mac-root[data-mac-motion="off"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}

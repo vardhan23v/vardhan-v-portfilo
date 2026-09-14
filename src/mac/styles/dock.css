@@ -5,6 +5,24 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: var(--z-toolbar);
+  transition: transform 300ms var(--ease-out);
+  will-change: transform;
+}
+.mac-dock-wrap.is-autohide {
+  transform: translateX(-50%) translateY(calc(100% - 10px));
+}
+.mac-dock-hotzone {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 14px;
+  z-index: var(--z-toolbar);
+}
+.mac-dock-wrap.is-autohide:hover,
+.mac-dock-wrap.is-autohide:focus-within,
+.mac-dock-hotzone:hover + .mac-dock-wrap.is-autohide {
+  transform: translateX(-50%) translateY(0);
 }
 
 .mac-dock {

@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { Search, Sun, Moon, Check } from "lucide-react";
+import { Search, Sun, Moon, Check, SlidersHorizontal } from "lucide-react";
 import { useWindowManager } from "../../hooks/useWindowManager";
 import { usePalette } from "../../hooks/usePalette";
 import { useTheme } from "../../hooks/useTheme";
 import { useIstTime } from "../../hooks/useIstTime";
+import { ControlCenter } from "./ControlCenter";
 
 type MenuId = "apple" | "app" | "file" | "edit" | "view" | "window" | "help";
 
@@ -40,8 +41,17 @@ export function MenuBar() {
   const ist = useIstTime(false);
   const [menuState, setMenuState] = useState<{ id: MenuId; src: "click" | "hover" } | null>(null);
   const openMenu = menuState?.id ?? null;
+  const [ccOpen, setCcOpen] = useState(false);
   const rootRef = useRef<HTMLElement | null>(null);
   const close = () => setMenuState(null);
+
+  // Opening a menu closes Control Center, and vice versa.
+  useEffect(() => {
+    if (menuState) setCcOpen(false);
+  }, [menuState]);
+  useEffect(() => {
+    if (ccOpen) setMenuState(null);
+  }, [ccOpen]);
 
   const active = windows.find((w) => w.id === activeId);
   const activeName = active ? active.title : "Vardhan OS";
@@ -62,13 +72,17 @@ export function MenuBar() {
 
   // Close on outside pointerdown / Escape.
   useEffect(() => {
-    if (!openMenu) return;
+    if (!openMenu && !ccOpen) return;
     const onDown = (e: PointerEvent) => {
       if (rootRef.current && e.target instanceof Node && rootRef.current.contains(e.target)) return;
       setMenuState(null);
+      setCcOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMenuState(null);
+      if (e.key === "Escape") {
+        setMenuState(null);
+        setCcOpen(false);
+      }
     };
     document.addEventListener("pointerdown", onDown);
     document.addEventListener("keydown", onKey);
@@ -76,7 +90,7 @@ export function MenuBar() {
       document.removeEventListener("pointerdown", onDown);
       document.removeEventListener("keydown", onKey);
     };
-  }, [openMenu]);
+  }, [openMenu, ccOpen]);
 
   const menus: { id: MenuId; className?: string; label: string; items: MenuEntry[] }[] = [
     {
@@ -231,6 +245,18 @@ export function MenuBar() {
       </div>
       <div className="mac-menubar__right">
         <span className="mac-menubar__clock" title="India Standard Time">{ist}</span>
+        <div className="mac-menubar__cc">
+          <button
+            className={`mac-menubar__btn${ccOpen ? " is-open" : ""}`}
+            onClick={() => setCcOpen((o) => !o)}
+            aria-label="Open Control Center"
+            aria-expanded={ccOpen}
+            title="Control Center"
+          >
+            <SlidersHorizontal />
+          </button>
+          {ccOpen && <ControlCenter />}
+        </div>
         <button className="mac-menubar__btn" onClick={() => setOpen(true)} aria-label="Open Spotlight search" title="Spotlight (⌘K)">
           <Search />
         </button>

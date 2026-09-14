@@ -1,5 +1,6 @@
 import { Folder, LayoutDashboard, Briefcase, Terminal, Sparkles, Mail, Settings } from "lucide-react";
 import { useWindowManager, type AppId } from "../../hooks/useWindowManager";
+import { usePreferences } from "../../hooks/usePreferences";
 
 const DOCK_APPS: { id: AppId; label: string; Icon: typeof Folder }[] = [
   { id: "finder", label: "Finder", Icon: Folder },
@@ -15,10 +16,13 @@ const DOCK_APPS: { id: AppId; label: string; Icon: typeof Folder }[] = [
  *  Magnification is CSS proximity scaling (GPU transforms only). */
 export function Dock() {
   const { windows, activeId, openWindow } = useWindowManager();
+  const { prefs } = usePreferences();
 
   return (
-    <div className="mac-dock-wrap" aria-hidden="false">
-      <nav className="mac-dock" aria-label="Dock">
+    <>
+      {prefs.dockAutoHide && <div className="mac-dock-hotzone" aria-hidden="true" />}
+      <div className={`mac-dock-wrap${prefs.dockAutoHide ? " is-autohide" : ""}`} aria-hidden="false">
+        <nav className="mac-dock" aria-label="Dock">
         {DOCK_APPS.map(({ id, label, Icon }) => {
           const win = windows.find((w) => w.id === id);
           const isActive = activeId === id && win && !win.minimized;
@@ -37,6 +41,7 @@ export function Dock() {
           );
         })}
       </nav>
-    </div>
+      </div>
+    </>
   );
 }

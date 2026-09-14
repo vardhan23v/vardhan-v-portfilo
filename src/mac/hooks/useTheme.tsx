@@ -4,13 +4,14 @@ type Theme = "light" | "dark";
 
 interface ThemeCtx {
   theme: Theme;
+  setTheme: (t: Theme) => void;
   toggle: () => void;
 }
 
-const Ctx = createContext<ThemeCtx>({ theme: "dark", toggle: () => {} });
+const Ctx = createContext<ThemeCtx>({ theme: "dark", setTheme: () => {}, toggle: () => {} });
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => {
+  const [theme, setThemeState] = useState<Theme>(() => {
     const stored = localStorage.getItem("mac-theme");
     if (stored === "light" || stored === "dark") return stored;
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -24,16 +25,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const handler = (e: MediaQueryListEvent) => {
       if (!localStorage.getItem("mac-theme")) {
-        setTheme(e.matches ? "dark" : "light");
+        setThemeState(e.matches ? "dark" : "light");
       }
     };
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
   }, []);
 
-  const toggle = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
+  const setTheme = (t: Theme) => setThemeState(t);
+  const toggle = () => setThemeState((t) => (t === "dark" ? "light" : "dark"));
 
-  return <Ctx.Provider value={{ theme, toggle }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ theme, setTheme, toggle }}>{children}</Ctx.Provider>;
 }
 
 export const useTheme = () => useContext(Ctx);

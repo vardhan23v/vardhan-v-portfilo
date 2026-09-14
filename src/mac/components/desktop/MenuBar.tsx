@@ -38,9 +38,10 @@ export function MenuBar() {
   const { setOpen } = usePalette();
   const { theme, toggle } = useTheme();
   const ist = useIstTime(false);
-  const [openMenu, setOpenMenu] = useState<MenuId | null>(null);
+  const [menuState, setMenuState] = useState<{ id: MenuId; src: "click" | "hover" } | null>(null);
+  const openMenu = menuState?.id ?? null;
   const rootRef = useRef<HTMLElement | null>(null);
-  const close = () => setOpenMenu(null);
+  const close = () => setMenuState(null);
 
   const active = windows.find((w) => w.id === activeId);
   const activeName = active ? active.title : "Vardhan OS";
@@ -64,10 +65,10 @@ export function MenuBar() {
     if (!openMenu) return;
     const onDown = (e: PointerEvent) => {
       if (rootRef.current && e.target instanceof Node && rootRef.current.contains(e.target)) return;
-      setOpenMenu(null);
+      setMenuState(null);
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpenMenu(null);
+      if (e.key === "Escape") setMenuState(null);
     };
     document.addEventListener("pointerdown", onDown);
     document.addEventListener("keydown", onKey);
@@ -190,9 +191,11 @@ export function MenuBar() {
                 className={`mac-menubar__trigger${menu.className ? ` ${menu.className}` : ""}${openMenu === menu.id ? " is-open" : ""}`}
                 aria-haspopup="menu"
                 aria-expanded={openMenu === menu.id}
-                onClick={() => setOpenMenu((o) => (o === menu.id ? null : menu.id))}
+                onClick={() =>
+                  setMenuState((s) => (s && s.id === menu.id && s.src === "click" ? null : { id: menu.id, src: "click" }))
+                }
                 onMouseEnter={() => {
-                  if (openMenu) setOpenMenu(menu.id);
+                  setMenuState((s) => (s && s.id !== menu.id ? { id: menu.id, src: "hover" } : s));
                 }}
               >
                 {menu.id === "window" && windows.length > 0 ? `${menu.label} (${windows.length})` : menu.label}

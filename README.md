@@ -39,7 +39,7 @@ A production-quality portfolio positioning me as a **Generative AI Developer & F
 
 | Edition | Upgrade | Highlights |
 |---|---|---|
-| **macOS** `src/mac/MacPortfolio.tsx:1` | Premium app shell | Spotlight `⌘K` palette with project search + grouped results, functional **traffic lights** (close/minimize/maximize/restore), live **IST clock**, **GitHub followers** via API, **CountUp** stat cards, **scroll-triggered reveals**, **toast notifications**, **TabBar** mobile nav, project **modal** with prev/next + keyboard, **grid/list toggle**, category **filter A-Z/most-stack**, search, expandable experience **accordion**, interactive **skill→project links**, contact **form** with validation, ambient **background blobs**, all scoped under `.mac-root` to avoid style leaks |
+| **macOS** `src/mac/MacPortfolio.tsx:1` | Premium OS shell — 8-phase build | **Desktop shell** + **window manager** (drag/resize/maximize/minimize, `is-active` accent border) + **menu bar dropdowns** (Apple/App/File/Edit/View/Window/Help) + **Control Center** (Wi-Fi/BT/AirDrop/Focus/DND, appearance, brightness, volume, auto-hide dock, Show Desktop, persisted `mac-preferences`) + **Settings sidebar** (accent 6 swatches, theme, motion, dock, network, sound, dev-mode toggle) + **Terminal** (`about`/`date`/`repo <slug>`/`github`/`linkedin`/`resume` + `open <app>`) + **Spotlight** label-first ranking + 5 app commands + **Vardhan AI** intent engine (project/stack/experience/education/contact with `[app:]` links) + **Developer Mode** chip + live inspector (windows/prefs JSON/console/uptime) + **Help overlay** (`?` + Help menu, 5 sections) + **mobile desktop-area bounds** + `prefers-reduced-motion` + `?` help, all scoped under `.mac-root` |
 | **Aurora 2.0** `src/aurora/AuroraSite.tsx:1` | Luminous + interactive | Toolbar with live search / sort (`Featured` / `A-Z` / Most stack) / grid↔list, result count + empty state, glass **project modal** (Esc/backdrop, scroll-lock), **Stack Lab** (28 tech pills filter Work + category breakdown + exploring notes), expandable experience rows, new **Education + Certs** timeline, 2-col contact (direct + validation form + toast), availability + IST + mouse aura, `204kB CSS` |
 | **Classic** `src/classic/ClassicSite.tsx:1` + `src/classic/styles/animations.css:1` | Cinematic | Top scroll-progress gradient bar, nav slide-down + logo pulse, hero stagger (`classicHeroIn` 0.1→0.52s) + 3D terminal entrance + `useClassicHeroFX` parallax (rAF, `y/700` fade), neural glow pulse, project filter shine + card tech-pop, timeline dot enter, skill wave, `Hero::after` scroll hint `classicScrollHint` |
 
@@ -59,7 +59,7 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
 | `/paper` | **Paper** | Light editorial | Fraunces serifs, overlines, hairline rules, quiet readable |
 | `/aurora` | **Aurora 2.0** — *luminous* | Glassmorphism | Frosted glass + drifting blobs + gradient text **plus** searchable/sortable work, quick-view modal, Stack Lab, expandable log, education/certs, mouse aura |
 | `/forge` | **Forge** | Editorial dark | Kanit headlines, build pipeline pulse + hover trace, marquee, cached GitHub stats, sticky problem→solution cards |
-| `/mac` | **macOS** — *premium* | App shell | **New:** Spotlight `⌘K` palette, traffic lights, IST clock, GitHub live, CountUp stats, scroll reveals, toasts, TabBar mobile, project modal, grid/list, filters, accordion, skill→project links, form validation, ambient blobs |
+| `/mac` | **macOS** — *premium OS* | App shell | Spotlight `⌘K` (label-first ranking) + traffic lights + Control Center + Settings (accent/motion/dock/network) + Terminal + Vardhan AI + Developer Mode inspector + Help `?` — see macOS deep dive below |
 
 ---
 
@@ -74,7 +74,7 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
 ## 🌟 Highlights
 
 - **9 featured projects** — Extension AI (flagship), AI Code Reviewer, CareerForge Pro, Vard AI, DisasterMind AI, DriveNest, HPL Auction, Apex Retail ERP, Dayflow HRMS — each with *problem → features → AI engine (Gemini/Claude/Groq/MCP) → stack → GitHub/Live*
-- **macOS app shell** — Spotlight `⌘K` palette, traffic lights, IST clock, GitHub live, CountUp stats, scroll reveals, toasts, TabBar mobile, project modal, grid/list, filters, accordion, skill→project links, form validation, ambient blobs `src/mac/MacPortfolio.tsx:1`
+- **macOS OS shell** — window manager + Control Center + Settings (accent 6 swatches / theme / motion) + Terminal (`about`/`date`/`repo`) + Spotlight ranking fix + Vardhan AI links + Developer Mode inspector + Help `?` + mobile bounds fix + persisted prefs + a11y (0 buttons without name, `aria-label` on dialogs, `data-mac-motion`) `src/mac/MacPortfolio.tsx:1` — `MacPortfolio-*.js 113kB / 29.9kB gzip` (budget 150kB) + `MacPortfolio-*.css 69kB / 12kB gzip`
 - **Aurora 2.0 discovery** — search across name/tagline/tech/slug, sort, view toggle, highlight pills, empty state, modal body with `problem | features•bullet | tech chips` `src/aurora/AuroraSite.tsx:62`
 - **Classic cinematic** — `ClassicScrollProgress` `src/classic/ClassicSite.tsx:14`, `classicNavIn`/`classicHeroName`/`classicTerminalIn` `src/classic/styles/animations.css:9`, hero parallax `useClassicHeroFX` `src/classic/components/Hero.tsx:56`, filter `::after` shine, timeline `classicDotEnter`
 - **“Other things”** — 13 compact cards + GitHub CTA
@@ -98,7 +98,32 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
 | QA | `puppeteer-core` + `oxlint` | `npm run lint` — 5 warnings / 0 errors baseline |
 | Deploy | **Vercel** `vercel.json:1` `{rewrites:[{source:"/(.*)",destination:"/index.html"}]}` auto-deploy on `main` | `project.json: team_InTZCfnybRSk3JlAYIXFN3UA` |
 
-**Bundle (Sep 13 build):** `dist/assets/index-*.js 246kB / 79kB gzip` + `MacPortfolio-*.js 67kB / 18kB gzip` + `index-*.css 41kB / 9kB gzip` + `MacPortfolio-*.css 35kB / 9kB gzip` → total ~140kB gzip, `tsc -b` clean.
+**Bundle (Sep 14 build):** `dist/assets/index-*.js 246kB / 79kB gzip` + `MacPortfolio-*.js 113kB / 29.9kB gzip` + `index-*.css 41kB / 9kB gzip` + `MacPortfolio-*.css 69kB / 12kB gzip` → total ~121kB gzip for macOS chunk (budget 150kB), `tsc -b` clean, 0 a11y buttons without name, `prefers-reduced-motion` + `data-mac-motion` respected.
+
+---
+
+## 🖥 macOS — Deep Dive (8 Phases)
+
+Built at `src/mac/MacPortfolio.tsx:12` — providers `ThemeProvider → WindowManagerProvider → PreferencesProvider → PaletteProvider → NavProvider → ToastProvider`.
+
+| Phase | What shipped | Key files |
+|---|---|---|
+| 1 Desktop shell | Window manager (drag/resize/double-click maximize, `is-active` accent border, `pointer-events` bg fix, `z` renorm >500), mobile `MENU_H/DOCK_H` bounds | `src/mac/hooks/useWindowManager.tsx:67`, `src/mac/components/window/WindowFrame.tsx:12` |
+| 2 Menu bar | Dropdowns Apple/App/File/Edit/View/Window/Help, hover-switch fix, `Window (N)` live count | `src/mac/components/desktop/MenuBar.tsx:28` |
+| 3 Control Center | Tiles Wi-Fi/BT/AirDrop/Focus(DND), appearance seg, brightness (`--cc-brightness` filter), volume, auto-hide dock (hotzone sibling), Show Desktop, `mac-preferences` store | `src/mac/hooks/usePreferences.tsx:4`, `src/mac/components/desktop/ControlCenter.tsx:18` |
+| 4 Settings | Sidebar 6 sections + accent 6 swatches (`data-accent` matrix light/dark), `accent-border` token, persisted | `src/mac/apps/SettingsApp.tsx:6`, `src/mac/styles/design-system.css:141` |
+| 5 Terminal + Spotlight | `about`/`date`/`repo <slug>`/`github`/`linkedin`/`resume` + `open` expansion, Spotlight label-first `fieldScore*10+keyword` + 5 app commands | `src/mac/apps/TerminalApp.tsx:29`, `src/mac/components/command-palette/CommandPalette.tsx:21` |
+| 6 Vardhan AI | Intent engine (project/stack/experience/education/contact/VardhanOS) + `[label](app:)` / `mailto:` / external link renderer + `open <app>` navigation | `src/mac/apps/VardhanAIApp.tsx:15` |
+| 7 Developer Mode | `devMode` pref → bug chip in menu bar → live inspector (viewport/dpr, windows z/bounds/minimized, prefs JSON, console `error`/`unhandledrejection`, uptime, Reload/Reset) | `src/mac/components/desktop/DevPanel.tsx:1` |
+| 8 QA + Help | Help overlay `?` + Help menu (5 sections, respects inputs), mobile bounds fix, full desktop/mobile/resize/palette/contact sweep (0 pageerrors) | `src/mac/components/desktop/HelpOverlay.tsx:1`, `src/mac/hooks/useWindowManager.tsx:35` |
+
+**Shortcuts:** `⌘K` Spotlight · `?` Help · `1`–`7` pages · `⌘M` minimize · drag header / corner resize · double-click maximize · traffic lights · Control Center · `Esc` closes overlays.
+
+**Bundle:** `MacPortfolio-*.js 113kB / 29.9kB gzip` (budget 150kB), `MacPortfolio-*.css 69kB / 12kB gzip` — `tsc -b` clean.
+
+**a11y:** 84 `aria-*`/`role` labels, 0 buttons without name, 0 imgs without alt (audit via Playwright), all dialogs `aria-label`, `aria-live` on AI/terminal, `data-mac-motion="off"` + `prefers-reduced-motion` gate `src/mac/styles/design-system.css:234`, focus rings, keyboard-navigable palette (`↑↓↵`).
+
+**Persistence:** `localStorage` keys `mac-preferences` (accent/dnd/reduceMotion/dockAutoHide/brightness/volume/wifi/bt/airdrop/devMode) + `mac-theme` — verified across reload.
 
 ---
 
@@ -120,12 +145,12 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
     ├── paper/         # Paper
     ├── aurora/        # Aurora 2.0 — AuroraSite.tsx + styles/aurora.css (2.4k lines: toolbar/modal/lab/edu/form)
     ├── forge/         # Forge + EmberField
-    ├── mac/           # macOS — premium app shell (scoped under .mac-root)
-    │   ├── components/# AppShell, Sidebar, Toolbar, StatusBar, CommandPalette, TabBar, CountUp, Reveal, Toast
-    │   ├── pages/     # overview, projects, experience, skills, achievements, contact, about
-    │   ├── hooks/     # useTheme, useNav, usePalette, useIstTime, useGithub, useReveal
-    │   ├── lib/       # icons (Github/LinkedIn SVG), projects (catOf, categoryCounts, labTechs)
-    │   └── styles/    # design-system + global + shell + toolbar + sidebar + statusbar + polish + responsive
+    ├── mac/           # macOS — premium OS shell (scoped under .mac-root, 8 phases)
+    │   ├── components/# Desktop, Dock, MenuBar, ControlCenter, DevPanel, HelpOverlay, WindowFrame, CommandPalette, Toast, Finder/Terminal/AI/Settings apps
+    │   ├── hooks/     # useWindowManager, usePreferences (accent/devMode persisted), useTheme, useNav, usePalette, useIstTime
+    │   ├── pages/     # overview, projects, experience, skills, achievements, contact, about (via AppContent)
+    │   ├── data/      # re-exports classic/data (single source of truth)
+    │   └── styles/    # design-system (accent matrix + motion gate) + desktop (help/dev/control) + dock + shell + pages
     ├── components/    # CommandPalette, KonamiFX, ScrollChrome, LiquidButton, expandable-tabs, ScrollChrome
     ├── interface-switcher/ # magnetic switcher (every page)
     ├── hooks/         # useTilt, useMagnetic, useReveal

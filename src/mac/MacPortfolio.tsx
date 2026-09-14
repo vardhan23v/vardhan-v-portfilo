@@ -7,6 +7,7 @@ import { WindowManagerProvider } from "./hooks/useWindowManager";
 import { PreferencesProvider, usePreferences } from "./hooks/usePreferences";
 import { Desktop } from "./components/desktop/Desktop";
 import { CommandPalette } from "./components/command-palette/CommandPalette";
+import { HelpOverlay } from "./components/desktop/HelpOverlay";
 import "./styles.css";
 
 function MacInner() {
@@ -26,6 +27,7 @@ function MacInner() {
           <ToastProvider>
             <Desktop />
             <CommandPalette />
+            <HelpOverlay />
           </ToastProvider>
         </NavProvider>
       </PaletteProvider>

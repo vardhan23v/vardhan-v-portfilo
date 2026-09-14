@@ -196,6 +196,7 @@ export function MenuBar() {
       label: "Help",
       items: [
         { label: "Spotlight Search", shortcut: "⌘K", action: () => setOpen(true) },
+        { label: "Keyboard Shortcuts", shortcut: "?", action: () => window.dispatchEvent(new CustomEvent("open-help-overlay")) },
         { kind: "sep" },
         { label: "Vardhan OS Help", action: () => openWindow("vardhan-ai") },
         { label: "Open Terminal", action: () => openWindow("terminal") },

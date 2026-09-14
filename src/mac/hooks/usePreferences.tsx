@@ -11,6 +11,7 @@ export interface Preferences {
   wifi: boolean;
   bluetooth: boolean;
   airdrop: boolean;
+  devMode: boolean;
 }
 
 const DEFAULTS: Preferences = {
@@ -23,11 +24,12 @@ const DEFAULTS: Preferences = {
   wifi: true,
   bluetooth: true,
   airdrop: true,
+  devMode: false,
 };
 
 const STORAGE = "mac-preferences";
 
-type ToggleKey = "dnd" | "reduceMotion" | "dockAutoHide" | "wifi" | "bluetooth" | "airdrop";
+type ToggleKey = "dnd" | "reduceMotion" | "dockAutoHide" | "wifi" | "bluetooth" | "airdrop" | "devMode";
 
 interface PrefCtx {
   prefs: Preferences;

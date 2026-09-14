@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { Search, Sun, Moon, Check, SlidersHorizontal } from "lucide-react";
+import { Search, Sun, Moon, Check, SlidersHorizontal, Bug } from "lucide-react";
 import { useWindowManager } from "../../hooks/useWindowManager";
 import { usePalette } from "../../hooks/usePalette";
 import { useTheme } from "../../hooks/useTheme";
 import { useIstTime } from "../../hooks/useIstTime";
+import { usePreferences } from "../../hooks/usePreferences";
 import { ControlCenter } from "./ControlCenter";
+import { DevPanel } from "./DevPanel";
 
 type MenuId = "apple" | "app" | "file" | "edit" | "view" | "window" | "help";
 
@@ -38,20 +40,25 @@ export function MenuBar() {
   } = useWindowManager();
   const { setOpen } = usePalette();
   const { theme, toggle } = useTheme();
+  const { prefs } = usePreferences();
   const ist = useIstTime(false);
   const [menuState, setMenuState] = useState<{ id: MenuId; src: "click" | "hover" } | null>(null);
   const openMenu = menuState?.id ?? null;
   const [ccOpen, setCcOpen] = useState(false);
+  const [devOpen, setDevOpen] = useState(false);
   const rootRef = useRef<HTMLElement | null>(null);
   const close = () => setMenuState(null);
 
-  // Opening a menu closes Control Center, and vice versa.
+  // Opening one panel closes the others.
   useEffect(() => {
-    if (menuState) setCcOpen(false);
+    if (menuState) { setCcOpen(false); setDevOpen(false); }
   }, [menuState]);
   useEffect(() => {
-    if (ccOpen) setMenuState(null);
+    if (ccOpen) { setMenuState(null); setDevOpen(false); }
   }, [ccOpen]);
+  useEffect(() => {
+    if (devOpen) { setMenuState(null); setCcOpen(false); }
+  }, [devOpen]);
 
   const active = windows.find((w) => w.id === activeId);
   const activeName = active ? active.title : "Vardhan OS";
@@ -72,16 +79,18 @@ export function MenuBar() {
 
   // Close on outside pointerdown / Escape.
   useEffect(() => {
-    if (!openMenu && !ccOpen) return;
+    if (!openMenu && !ccOpen && !devOpen) return;
     const onDown = (e: PointerEvent) => {
       if (rootRef.current && e.target instanceof Node && rootRef.current.contains(e.target)) return;
       setMenuState(null);
       setCcOpen(false);
+      setDevOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setMenuState(null);
         setCcOpen(false);
+        setDevOpen(false);
       }
     };
     document.addEventListener("pointerdown", onDown);
@@ -90,7 +99,7 @@ export function MenuBar() {
       document.removeEventListener("pointerdown", onDown);
       document.removeEventListener("keydown", onKey);
     };
-  }, [openMenu, ccOpen]);
+  }, [openMenu, ccOpen, devOpen]);
 
   const menus: { id: MenuId; className?: string; label: string; items: MenuEntry[] }[] = [
     {
@@ -245,6 +254,20 @@ export function MenuBar() {
       </div>
       <div className="mac-menubar__right">
         <span className="mac-menubar__clock" title="India Standard Time">{ist}</span>
+        {prefs.devMode && (
+          <div className="mac-menubar__dev">
+            <button
+              className={`mac-menubar__btn dev-chip${devOpen ? " is-open" : ""}`}
+              onClick={() => setDevOpen((o) => !o)}
+              aria-label="Open Developer Mode"
+              aria-expanded={devOpen}
+              title="Developer Mode"
+            >
+              <Bug />
+            </button>
+            {devOpen && <DevPanel />}
+          </div>
+        )}
         <div className="mac-menubar__cc">
           <button
             className={`mac-menubar__btn${ccOpen ? " is-open" : ""}`}

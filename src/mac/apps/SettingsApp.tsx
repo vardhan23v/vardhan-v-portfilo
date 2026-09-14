@@ -282,9 +282,13 @@ function Sound({
 
 /* ── General panel ──────────────────────────────────────────── */
 function General({
+  prefs,
+  toggle,
   resetWorkspace,
   openWindow,
 }: {
+  prefs: Preferences;
+  toggle: (k: "devMode") => void;
   resetWorkspace: () => void;
   openWindow: (id: AppId) => void;
 }) {
@@ -315,6 +319,17 @@ function General({
           >
             <RotateCcw style={{ width: 14, height: 14 }} /> Reset
           </button>
+        </div>
+        <div className="settingsrow">
+          <div className="settingsrow__text">
+            <div className="settingsrow__label">Developer Mode</div>
+            <div className="settingsrow__sub">Inspect the operating system live</div>
+          </div>
+          <Sw
+            on={prefs.devMode}
+            label="Developer Mode"
+            onToggle={() => toggle("devMode")}
+          />
         </div>
       </div>
       <div className="settingsapp__group">
@@ -367,7 +382,12 @@ export function SettingsApp() {
         {section === "network" && <Network prefs={prefs} toggle={toggle} />}
         {section === "sound" && <Sound prefs={prefs} set={set} />}
         {section === "general" && (
-          <General resetWorkspace={resetWorkspace} openWindow={openWindow} />
+          <General
+            prefs={prefs}
+            toggle={toggle}
+            resetWorkspace={resetWorkspace}
+            openWindow={openWindow}
+          />
         )}
       </div>
     </div>

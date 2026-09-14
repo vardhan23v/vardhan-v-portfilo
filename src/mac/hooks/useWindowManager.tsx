@@ -34,7 +34,7 @@ const APP_TITLES: Record<AppId, string> = {
 
 function defaultBounds(appId: AppId, index: number, vw: number, vh: number) {
   const isMobile = vw <= 640;
-  if (isMobile) return { x: 0, y: 0, w: vw, h: vh };
+  if (isMobile) return { x: 0, y: MENU_H, w: vw, h: vh - MENU_H - DOCK_H };
   // stagger cascade
   const w = Math.min(appId === "projects" || appId === "finder" ? 980 : appId === "terminal" ? 720 : 860, Math.floor(vw * 0.86));
   const h = Math.min(620, Math.floor(vh * 0.78));

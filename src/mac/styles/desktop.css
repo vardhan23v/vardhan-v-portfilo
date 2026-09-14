@@ -133,8 +133,10 @@
 
 /* ── Menu bar ── */
 .mac-menubar {
+  position: relative;
   height: 28px;
   min-height: 28px;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -148,8 +150,9 @@
 }
 .mac-menubar__left {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: var(--sp-3);
+  height: 100%;
 }
 .mac-menubar__logo {
   font-weight: 700;
@@ -163,10 +166,127 @@
 }
 .mac-menubar__menus {
   display: flex;
-  gap: var(--sp-4);
+  align-items: center;
+  gap: 2px;
+}
+.mac-menubar__menu {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.mac-menubar__trigger {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
   font-size: var(--text-sm);
+  height: 100%;
+  min-height: 22px;
+  padding: 0 9px;
+  border-radius: 6px;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  transition: background 100ms, color 100ms;
+}
+.mac-menubar__trigger:hover,
+.mac-menubar__trigger.is-open {
+  background: var(--nav-pill-bg);
+  color: var(--text-primary);
+}
+.mac-menubar__trigger--app {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.mac-menubar__drop {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 230px;
+  max-width: min(360px, calc(100vw - 24px));
+  padding: 5px;
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--border-strong);
+  box-shadow: var(--shadow-window);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  animation: menuDropIn 0.14s var(--ease-out) both;
+}
+@keyframes menuDropIn {
+  from { opacity: 0; transform: translateY(-4px) scale(0.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.mac-menubar__drop-item {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 8px;
+  font-family: inherit;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  border-radius: 6px;
+  text-align: left;
+  cursor: default;
+  transition: background 80ms;
+}
+.mac-menubar__drop-item:hover:not(:disabled),
+.mac-menubar__drop-item:focus-visible {
+  background: var(--accent);
+  color: #fff;
+  outline: none;
+}
+.mac-menubar__drop-item:disabled { opacity: 0.45; }
+.mac-menubar__drop-item:disabled:hover { background: transparent; color: var(--text-primary); }
+.mac-menubar__drop-check {
+  display: inline-flex;
+  width: 14px;
+  flex: 0 0 14px;
+  align-items: center;
+  justify-content: center;
+}
+.mac-menubar__drop-check svg {
+  width: 13px;
+  height: 13px;
+}
+.mac-menubar__drop-labeltext {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mac-menubar__drop-shortcut {
+  font-size: var(--text-xs);
   color: var(--text-tertiary);
-  opacity: 0.6;
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+.mac-menubar__drop-item:hover:not(:disabled) .mac-menubar__drop-shortcut,
+.mac-menubar__drop-item:focus-visible .mac-menubar__drop-shortcut {
+  color: rgba(255, 255, 255, 0.8);
+}
+.mac-menubar__drop-item:disabled .mac-menubar__drop-shortcut { color: var(--text-tertiary); }
+.mac-menubar__drop-label {
+  padding: 6px 8px 3px;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.mac-menubar__drop-sep {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 8px;
 }
 .mac-menubar__right {
   display: flex;

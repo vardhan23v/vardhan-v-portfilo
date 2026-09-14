@@ -18,17 +18,12 @@ interface CmdItem {
   action: () => void;
 }
 
-function fuzzyScore(query: string, text: string): number {
-  if (!query) return 1;
-  const q = query.toLowerCase();
-  const t = text.toLowerCase();
-  if (t.includes(q)) return 3;
-  // subsequence match
+function subseqScore(query: string, text: string): number {
   let qi = 0;
   let streak = 0;
   let score = 0;
-  for (let ti = 0; ti < t.length && qi < q.length; ti++) {
-    if (t[ti] === q[qi]) {
+  for (let ti = 0; ti < text.length && qi < query.length; ti++) {
+    if (text[ti] === query[qi]) {
       qi++;
       streak++;
       score += streak;
@@ -36,7 +31,26 @@ function fuzzyScore(query: string, text: string): number {
       streak = 0;
     }
   }
-  return qi === q.length ? score : 0;
+  return qi === query.length ? score : 0;
+}
+
+function fieldScore(query: string, text: string): number {
+  if (text === query) return 5;
+  if (text.startsWith(query)) return 4;
+  if (text.includes(query)) return 3;
+  return subseqScore(query, text) > 0 ? 1 : 0;
+}
+
+/**
+ * Label matches dominate keyword matches, so "email" finds
+ * "Copy email address" ahead of a project whose tagline mentions email.
+ */
+function fuzzyScore(query: string, label: string, keywords: string): number {
+  if (!query) return 1;
+  const q = query.toLowerCase().trim();
+  const l = label.toLowerCase();
+  const k = keywords.toLowerCase();
+  return fieldScore(q, l) * 10 + fieldScore(q, k);
 }
 
 export function CommandPalette() {
@@ -146,14 +160,19 @@ export function CommandPalette() {
       { id: "gh", label: "Open GitHub", hint: "↗", group: "Links", keywords: "github code repos opensource", action: () => window.open(site.github, "_blank") },
       { id: "li", label: "Open LinkedIn", hint: "↗", group: "Links", keywords: "linkedin social career", action: () => window.open(site.linkedin, "_blank") },
       { id: "resume", label: "Download resume", hint: "↗", group: "Links", keywords: "resume cv download pdf", action: () => window.open(site.resume, "_blank") },
+      { id: "app-settings", label: "Open Settings", hint: "", group: "Apps", keywords: "settings preferences system", action: () => openWindow("settings") },
+      { id: "app-finder", label: "Open Finder", hint: "", group: "Apps", keywords: "finder files browse", action: () => openWindow("finder") },
+      { id: "app-terminal", label: "Open Terminal", hint: "", group: "Apps", keywords: "terminal shell cli command", action: () => openWindow("terminal") },
+      { id: "app-ai", label: "Open Vardhan AI", hint: "✦", group: "Apps", keywords: "ai assistant chat muse", action: () => openWindow("vardhan-ai") },
+      { id: "app-about", label: "About This Mac", hint: "", group: "Apps", keywords: "about mac system info vardhanos", action: () => openWindow("about-mac") },
     ],
-    [go, toggle, openProjectBySlug, copyText]
+    [go, toggle, openProjectBySlug, copyText, openWindow]
   );
 
   const filtered = useMemo(() => {
     if (!query.trim()) return commands;
     return commands
-      .map((c) => ({ ...c, score: fuzzyScore(query, `${c.label} ${c.keywords}`) }))
+      .map((c) => ({ ...c, score: fuzzyScore(query, c.label, c.keywords) }))
       .filter((c) => c.score > 0)
       .sort((a, b) => b.score - a.score);
   }, [query, commands]);

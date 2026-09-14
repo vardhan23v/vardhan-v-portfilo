@@ -1,7 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 
-/** Persisted OS-level preferences (Control Center + future Settings). */
+/** Persisted OS-level preferences (Control Center + Settings). */
 export interface Preferences {
+  accent: string;
   dnd: boolean;
   reduceMotion: boolean;
   dockAutoHide: boolean;
@@ -13,6 +14,7 @@ export interface Preferences {
 }
 
 const DEFAULTS: Preferences = {
+  accent: "blue",
   dnd: false,
   reduceMotion: false,
   dockAutoHide: false,

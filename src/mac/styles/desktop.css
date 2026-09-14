@@ -51,7 +51,7 @@
   box-shadow: var(--shadow-window), 0 0 0 1px var(--accent);
 }
 .mac-desktop-window.is-active {
-  border-color: rgba(0, 113, 227, 0.25);
+  border-color: var(--accent-border);
 }
 
 /* ── Window header (drag region) ── */
@@ -742,41 +742,128 @@
 }
 
 /* ── Settings ── */
-.settingsapp__row {
+.settingsapp {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+.settingsapp__side {
+  width: 196px;
+  min-width: 196px;
+  padding: var(--sp-3) var(--sp-2);
+  background: var(--bg-subtle);
+  border-right: 0.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+}
+.settingsapp__side-item {
+  appearance: none;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-align: left;
+  transition: background 120ms, color 120ms;
+}
+.settingsapp__side-item svg { width: 15px; height: 15px; flex: 0 0 auto; }
+.settingsapp__side-item:hover {
+  background: var(--nav-pill-bg);
+  color: var(--text-primary);
+}
+.settingsapp__side-item.is-active {
+  background: var(--nav-pill-active);
+  color: var(--accent);
+}
+.settingsapp__main {
+  flex: 1;
+  min-width: 0;
+  padding: var(--sp-6) var(--sp-6) var(--sp-8);
+  overflow-y: auto;
+}
+.settingsapp__head {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--sp-3);
+}
+.settingsapp__group {
+  border-top: 0.5px solid var(--border);
+}
+.settingsrow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--sp-4) 0;
+  gap: var(--sp-4);
+  padding: var(--sp-3) 0;
   border-bottom: 0.5px solid var(--border);
 }
-.settingsapp__label {
+.settingsrow:last-child { border-bottom: none; }
+.settingsrow__text { min-width: 0; }
+.settingsrow__label {
   font-size: var(--text-sm);
   font-weight: 600;
   color: var(--text-primary);
 }
-.settingsapp__sub {
+.settingsrow__sub {
   font-size: var(--text-xs);
   color: var(--text-tertiary);
+  margin-top: 2px;
 }
-.settingsapp__seg {
+.settingsrow__control {
+  flex: 0 0 auto;
   display: flex;
-  gap: var(--sp-1);
-  border: 0.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
+  align-items: center;
+  gap: var(--sp-3);
 }
-.settingsapp__seg button {
-  padding: var(--sp-1) var(--sp-3);
-  font-size: var(--text-sm);
+.accent-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: var(--sp-3) 0;
+}
+.accent-swatch {
+  appearance: none;
   border: none;
-  background: transparent;
-  color: var(--text-secondary);
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-full);
   cursor: pointer;
-  transition: background 120ms, color 120ms;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: transform 150ms var(--ease-out), box-shadow 150ms;
 }
-.settingsapp__seg button.is-on {
-  background: var(--nav-pill-active);
-  color: var(--accent);
+.accent-swatch:hover {
+  transform: scale(1.08);
+}
+.accent-swatch svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0;
+  transition: opacity 120ms;
+}
+.accent-swatch.is-selected {
+  transform: scale(1.12);
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
+}
+.accent-swatch.is-selected svg { opacity: 1; }
+.settingsapp__volume {
+  min-width: 60px;
+  text-align: right;
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
 }
 .aboutmac__hero {
   display: flex;

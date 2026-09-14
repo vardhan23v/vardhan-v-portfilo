@@ -18,6 +18,7 @@ function MacInner() {
       data-theme={theme}
       data-cursor-off
       data-mac-motion={prefs.reduceMotion ? "off" : "on"}
+      data-accent={prefs.accent}
       style={{ "--cc-brightness": String(prefs.brightness) } as CSSProperties}
     >
       <PaletteProvider>

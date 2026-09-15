@@ -7,7 +7,7 @@ import { featuredProjects, otherProjects, type Project } from "../../data/projec
 import { catOf, categoryCounts, CATEGORY_LABELS, type ProjectCategory } from "../../lib/projects";
 import { Reveal } from "../../components/ui/Reveal";
 import { useTilt } from "../../hooks/useTilt";
-import "../../styles/projects.css";
+import { ProjectCover } from "../../components/ui/ProjectCover";
 
 type Category = "all" | ProjectCategory;
 type Sort = "default" | "az" | "tech";
@@ -44,6 +44,7 @@ function ProjectCard({
       className={`project-card${list ? " project-card--list" : ""}`}
       onClick={onClick}
     >
+      <ProjectCover project={project} size={list ? "sm" : "md"} ratio={list ? "4/3" : "16/9"} />
       <div className="project-card__top">
         <span className="project-card__cat">{CATEGORY_LABELS[catOf(project)]}</span>
         {project.highlight && <span className="mac-tag">flagship</span>}
@@ -140,6 +141,11 @@ function ProjectModal({
         className={`project-modal${closing ? " project-modal--closing" : dir === -1 ? " project-modal__slide--left" : " project-modal__slide"}`}
         onClick={(e) => e.stopPropagation()}
       >
+        <div className="project-modal__strip">
+          {(project.screenshots?.length ? project.screenshots : [project.cover]).map((shot, i) => (
+            <ProjectCover key={`${project.slug}-${i}`} project={project} src={shot} size="md" ratio="16/9" />
+          ))}
+        </div>
         <div className="project-modal__header">
           <span className="project-modal__emoji">{project.emoji}</span>
           <div className="project-modal__header-text">
@@ -251,7 +257,7 @@ export function ProjectsPage() {
     <div className="mac-page">
       <div className="page-header">
         <div className="page-header__eyebrow">Projects</div>
-        <h1 className="page-header__title">Featured Work</h1>
+        <h1 className="page-header__title">Selected work, in the open.</h1>
         <p className="page-header__subtitle">
           {featuredProjects.length} featured projects — each with a real problem, real features, and a real
           tech stack.
@@ -349,7 +355,7 @@ export function ProjectsPage() {
         <div className="project-grid" style={{ marginTop: "var(--sp-4)" }}>
           {otherProjects.map((p, i) => (
             <Reveal key={p.name} index={Math.min(i, 4)}>
-              <a className="project-card" href={p.github} target="_blank" rel="noopener noreferrer">
+              <a className="project-card project-card--mini" href={p.github} target="_blank" rel="noopener noreferrer">
                 <div className="project-card__header">
                   <span className="project-card__emoji">{p.emoji}</span>
                   <div>

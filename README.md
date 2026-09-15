@@ -35,7 +35,14 @@ A production-quality portfolio positioning me as a **Generative AI Developer & F
 
 ---
 
-## 🆕 What’s New — Sep 15 2026
+## 🆕 What’s New — Sep 15 2026 · Vardhan OS 2.0 “glass edition”
+
+The macOS interface was rebuilt from the visual layer up: a **dark-glass OS with editorial typography** (Fraunces display serif, Inter UI, JetBrains Mono details) that is deliberately not a stock-macOS clone. The engine — window manager, preferences, theme, Spotlight, toasts — is unchanged.
+
+- **New surfaces** — boot → login screen (`sessionStorage mac-booted`, `?noboot=1` bypass, replay from Settings → Desktop), draggable **desktop icons** (positions in `localStorage mac-desktop-icons`, snap to a 96px grid), a **Widgets panel** behind the menu-bar clock (IST clock, GitHub stats, status, links), full-screen **Launchpad** (Dock item · View menu · Spotlight), and **project covers** (`Project.cover` / `Project.screenshots`, generated gradient fallback via `src/mac/components/ui/ProjectCover.tsx`).
+- **Design system** — 7 stylesheets replace 15: `tokens` (glass/elevation/z/accent matrix that also steers the wallpaper hues) · `shell` · `window` · `components` · `pages` · `apps` · `responsive`, all under `src/mac/styles/`. Flat editorial app tiles via `src/mac/components/ui/AppGlyph.tsx`.
+- **Pages** — Overview masthead + lead cover + ledger, Projects gallery with a right-side quick-view drawer and screenshot strip, Experience/Education ledgers, Skills type-specimen cards, numbered certification plates, About essay with drop cap, Contact with a display-size mailto. Finder gained icon/list views and a preview pane.
+- **Hygiene** — dead `AppShell`/Sidebar/Toolbar/StatusBar/TabBar removed; `useTilt`/`CountUp` honour the in-app Reduce-motion toggle; QA scripts cover `/?noboot=1` and `/editions`.
 
 - **macOS is now the front door.** `/` boots straight into the desktop shell; the edition picker moved to `/editions` (also reachable from the  menu → *Browse Other Editions…*). `/mac` still works as an alias.
 - **Wallpaper + Dock refresh** `src/mac/styles/wallpaper.css:1` — layered gradient-mesh wallpaper that follows the accent colour and light/dark theme, frosted window glass, macOS-style coloured Dock tiles with proximity magnification, running-app indicator dots and a tray separator.
@@ -109,7 +116,23 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
 
 ---
 
-## 🖥 macOS — Deep Dive (8 Phases)
+## 🖥 macOS — Vardhan OS 2.0 (glass edition)
+
+**Composition** `src/mac/MacPortfolio.tsx` — `ThemeProvider → WindowManagerProvider → PreferencesProvider → ShellProvider → (PaletteProvider → NavProvider → ToastProvider)`. `useShell` (`src/mac/hooks/useShell.tsx`) owns overlays (`launchpad` / `widgets`), the boot gate and desktop-icon visibility; overlays are not windows, so `AppId` is unchanged.
+
+| Surface | File | Notes |
+|---|---|---|
+| Wallpaper | `components/desktop/Wallpaper.tsx` | 3 hue-driven radial layers (`--wp-h1/2/3` from the accent matrix), SVG grain, rAF pointer parallax (off under reduced motion) |
+| Boot / login | `components/boot/BootScreen.tsx` | boot bar → login card; any key/click continues; instant when motion is reduced |
+| Desktop icons | `components/desktop/DesktopIcons.tsx` + `hooks/usePointerDrag.ts` | Projects · Finder · Terminal · Resume · GitHub; drag, snap, persist, double-click/tap/Enter to open |
+| Widgets | `components/desktop/WidgetsPanel.tsx` | clock button in the menu bar; Esc / outside click closes |
+| Launchpad | `components/desktop/Launchpad.tsx` | search, arrow keys, Enter, Esc |
+| Covers | `components/ui/ProjectCover.tsx` | `cover` image over a generated gradient; used by Overview, Projects, Finder |
+| Glyphs | `components/ui/AppGlyph.tsx` | flat SVG tiles for Dock, Launchpad, desktop icons |
+
+**Legacy phases (1–8)** — window manager, menus, Control Center, Settings, Terminal, Spotlight, Vardhan AI, Developer Mode and Help all remain; see the git history for the original phase table.
+
+### Previous deep dive (8 Phases)
 
 Built at `src/mac/MacPortfolio.tsx:12` — providers `ThemeProvider → WindowManagerProvider → PreferencesProvider → PaletteProvider → NavProvider → ToastProvider`.
 

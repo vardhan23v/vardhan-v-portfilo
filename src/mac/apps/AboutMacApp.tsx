@@ -14,7 +14,7 @@ export function AboutMacApp() {
   return (
     <div className="mac-page aboutmac">
       <div className="aboutmac__hero">
-        <span className="mac-sidebar__avatar" style={{ width: 52, height: 52, fontSize: "1rem" }} aria-hidden="true">SV</span>
+        <span className="mac-avatar" style={{ width: 60, height: 60, fontSize: "1.3rem" }} aria-hidden="true">SV</span>
         <div>
           <h2 className="page-header__title">Vardhan&apos;s Mac</h2>
           <div className="aboutmac__sub">{site.title}</div>

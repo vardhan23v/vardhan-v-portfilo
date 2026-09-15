@@ -7,6 +7,7 @@ export function useTilt<T extends HTMLElement>(maxDeg = 6, target?: string) {
     const el = ref.current;
     if (!el) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (el.closest(".mac-root")?.getAttribute("data-mac-motion") === "off") return;
     const targetEl = (target ? el.querySelector(target) : el) as HTMLElement | null;
     if (!targetEl) return;
 

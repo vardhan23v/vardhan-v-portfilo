@@ -112,20 +112,22 @@ const EDITIONS = [
     tone: "mac",
     skin: (
       <div className="stage-mac" aria-hidden="true">
-        <div className="sm-bar">
-          <span className="sm-dot r" />
-          <span className="sm-dot y" />
-          <span className="sm-dot g" />
-          <span className="sm-title">Vardhan</span>
-        </div>
-        <div className="sm-body">
-          <div className="sm-side" />
-          <div className="sm-main">
+        <div className="sm-menubar"><span>✦</span><em>Vardhan — Overview</em></div>
+        <div className="sm-window">
+          <div className="sm-bar">
+            <span className="sm-dot r" />
+            <span className="sm-dot y" />
+            <span className="sm-dot g" />
+            <span className="sm-title">VARDHAN — OVERVIEW</span>
+          </div>
+          <div className="sm-body">
+            <div className="sm-name">Sree Vardhan <i>V</i></div>
             <div className="sm-line" />
             <div className="sm-line short" />
             <div className="sm-card" />
           </div>
         </div>
+        <div className="sm-dock"><span /><span /><span /><span /><span /><span /></div>
       </div>
     ),
   },
@@ -573,12 +575,11 @@ export function Landing() {
                 <span className="mm-dot g" />
               </div>
               <div className="mm-body">
-                <div className="mm-side" />
-                <div className="mm-main">
-                  <div className="mm-line" />
-                  <div className="mm-line short" />
-                </div>
+                <div className="mm-name">Vardhan <i>V</i></div>
+                <div className="mm-line" />
+                <div className="mm-line short" />
               </div>
+              <div className="mm-dock"><span /><span /><span /><span /><span /></div>
             </div>
             <div className="ed-meta">
               <span className="ed-num" aria-hidden="true">
@@ -586,8 +587,8 @@ export function Landing() {
               </span>
               <h2>macOS</h2>
               <p>
-                Premium application — traffic lights, translucent sidebar,
-                Spotlight palette, and six native pages.
+                Dark-glass desktop — boot screen, draggable icons, Launchpad,
+                widgets, Spotlight, Finder, Terminal and seven pages.
               </p>
               <span className="ed-cta">
                 Open the application <span aria-hidden="true">→</span>

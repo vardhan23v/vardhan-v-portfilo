@@ -12,7 +12,7 @@ export function ExperiencePage() {
     <div className="mac-page">
       <div className="page-header">
         <div className="page-header__eyebrow">Experience</div>
-        <h1 className="page-header__title">Where I&apos;ve Worked</h1>
+        <h1 className="page-header__title">A ledger of roles.</h1>
         <p className="page-header__subtitle">
           {experience.length} roles · 2026 — present. Select a row to see what I actually did.
         </p>
@@ -27,7 +27,8 @@ export function ExperiencePage() {
             const open = expanded === i;
             return (
               <Reveal key={exp.company} index={Math.min(i, 3)}>
-                <div className="experience-item" style={{ borderLeftColor: exp.accent }}>
+                <div className="experience-item" style={{ "--exp-accent": exp.accent } as React.CSSProperties}>
+                  <div className="experience-item__period">{exp.period}</div>
                   <button
                     onClick={() => setExpanded(open ? null : i)}
                     aria-expanded={open}
@@ -35,7 +36,6 @@ export function ExperiencePage() {
                   >
                     <div className="experience-item__role">{exp.role}</div>
                     <div className="experience-item__company">{exp.company}</div>
-                    <div className="experience-item__period">{exp.period}</div>
                     <span className="experience-item__toggle">
                       {open ? "Hide details" : `Show ${exp.points.length} highlights`}
                       <ChevronDown
@@ -77,9 +77,9 @@ export function ExperiencePage() {
           {education.map((edu, i) => (
             <Reveal key={edu.school} index={Math.min(i, 2)}>
               <div className="education-item">
+                <div className="education-item__period">{edu.period}</div>
                 <div className="education-item__school">{edu.school}</div>
                 <div className="education-item__degree">{edu.degree}</div>
-                <div className="education-item__period">{edu.period}</div>
                 {edu.detail && (
                   <p
                     style={{

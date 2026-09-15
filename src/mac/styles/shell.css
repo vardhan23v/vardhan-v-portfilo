@@ -1,71 +1,393 @@
-.mac-app {
-  height: 100dvh;
-  width: 100vw;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* ═══ Shell: desktop, wallpaper, menu bar, dock, control center, dev panel,
+       boot, launchpad, widgets, desktop icons ═══ */
+
+.mac-desktop {
   position: relative;
+  height: 100%;
+  width: 100%;
   overflow: hidden;
-}
-
-.mac-bg {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-bg);
-  background: var(--bg);
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.mac-bg::before {
-  content: "";
-  position: absolute;
-  inset: -50%;
-  width: 200%;
-  height: 200%;
-  background:
-    radial-gradient(ellipse 600px 400px at 20% 30%, var(--accent-subtle), transparent),
-    radial-gradient(ellipse 500px 350px at 80% 70%, rgba(168, 85, 247, 0.04), transparent),
-    radial-gradient(ellipse 400px 300px at 50% 50%, rgba(34, 211, 238, 0.03), transparent);
-  animation: macBgDrift 60s ease-in-out infinite alternate;
-}
-
-@keyframes macBgDrift {
-  0% { transform: translate(0, 0) rotate(0deg); }
-  100% { transform: translate(30px, -20px) rotate(2deg); }
-}
-
-.mac-bg::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  opacity: 0.3;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 256px;
-  pointer-events: none;
-}
-
-.mac-window {
-  position: relative;
-  z-index: var(--z-window);
-  width: min(96vw, 1200px);
-  height: min(92dvh, 800px);
-  background: var(--surface);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-window);
-  border: 0.5px solid var(--border-strong);
+  filter: brightness(var(--cc-brightness, 1));
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  animation: windowEnter 0.5s var(--ease-out) both;
-  transition:
-    width 320ms var(--ease-smooth),
-    height 320ms var(--ease-smooth),
-    border-radius 280ms var(--ease-smooth),
-    border-color 200ms;
 }
+.mac-desktop__area {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-window);
+  pointer-events: none;
+}
+.mac-desktop__empty {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  pointer-events: none;
+}
+.mac-desktop__empty-title { font-family: var(--font-display); font-size: var(--text-h2); font-style: italic; color: rgba(255,255,255,0.85); text-shadow: 0 2px 20px rgba(0,0,0,0.4); }
+.mac-root[data-theme="light"] .mac-desktop__empty-title { color: rgba(0,0,0,0.7); text-shadow: none; }
+.mac-desktop__empty-sub { color: rgba(255,255,255,0.55); }
+.mac-root[data-theme="light"] .mac-desktop__empty-sub { color: rgba(0,0,0,0.45); }
 
-@keyframes windowEnter {
-  from { opacity: 0; transform: scale(0.96) translateY(12px); }
+/* ── Wallpaper ─────────────────────────────────────────────── */
+.mac-wallpaper {
+  position: absolute; inset: 0; z-index: var(--z-bg); overflow: hidden; pointer-events: none;
+  background:
+    linear-gradient(165deg, hsl(var(--wp-h1) 45% 9%) 0%, hsl(var(--wp-h2) 40% 14%) 55%, hsl(var(--wp-h3) 40% 10%) 100%);
+  --px: 0; --py: 0;
 }
+.mac-root[data-theme="light"] .mac-wallpaper {
+  background: linear-gradient(165deg, hsl(var(--wp-h1) 40% 93%) 0%, hsl(var(--wp-h2) 45% 90%) 55%, hsl(var(--wp-h3) 45% 92%) 100%);
+}
+.mac-wallpaper__layer {
+  position: absolute; inset: -12%;
+  will-change: transform;
+  transition: transform 900ms var(--ease-cinema);
+}
+.mac-wallpaper__layer--a {
+  background: radial-gradient(60% 55% at 22% 18%, hsl(var(--wp-h2) 70% 48% / 0.55), transparent 70%);
+  transform: translate(calc(var(--px) * -14px), calc(var(--py) * -10px));
+}
+.mac-wallpaper__layer--b {
+  background:
+    radial-gradient(50% 45% at 82% 28%, hsl(var(--wp-h3) 75% 52% / 0.45), transparent 70%),
+    radial-gradient(45% 40% at 75% 92%, hsl(var(--wp-h1) 70% 55% / 0.4), transparent 70%);
+  transform: translate(calc(var(--px) * -26px), calc(var(--py) * -18px));
+}
+.mac-wallpaper__layer--c {
+  background: radial-gradient(38% 34% at 40% 78%, hsl(var(--wp-h2) 80% 62% / 0.35), transparent 70%);
+  transform: translate(calc(var(--px) * -40px), calc(var(--py) * -28px));
+
+}
+.mac-root[data-theme="light"] .mac-wallpaper__layer--a { background: radial-gradient(60% 55% at 22% 18%, hsl(var(--wp-h2) 70% 70% / 0.6), transparent 70%); }
+.mac-root[data-theme="light"] .mac-wallpaper__layer--b { background: radial-gradient(50% 45% at 82% 28%, hsl(var(--wp-h3) 80% 72% / 0.55), transparent 70%), radial-gradient(45% 40% at 75% 92%, hsl(var(--wp-h1) 70% 75% / 0.5), transparent 70%); }
+.mac-root[data-theme="light"] .mac-wallpaper__layer--c { background: radial-gradient(38% 34% at 40% 78%, hsl(var(--wp-h2) 80% 80% / 0.5), transparent 70%); }
+.mac-wallpaper__grain { position: absolute; inset: 0; opacity: 0.06; background-size: 160px; mix-blend-mode: overlay; }
+.mac-root[data-theme="light"] .mac-wallpaper__grain { opacity: 0.12; }
+.mac-wallpaper__vignette { position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(0,0,0,0.42) 100%); }
+.mac-root[data-theme="light"] .mac-wallpaper__vignette { background: radial-gradient(120% 90% at 50% 40%, transparent 60%, rgba(30,40,80,0.14) 100%); }
+
+/* ── Menu bar ──────────────────────────────────────────────── */
+.mac-menubar {
+  position: relative;
+  height: 28px; min-height: 28px; flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 10px;
+  background: var(--toolbar-bg);
+  backdrop-filter: blur(20px) saturate(1.7);
+  -webkit-backdrop-filter: blur(20px) saturate(1.7);
+  border-bottom: 0.5px solid var(--toolbar-border);
+  z-index: var(--z-menubar);
+  user-select: none;
+  color: var(--text-primary);
+}
+.mac-menubar__left, .mac-menubar__right { display: flex; align-items: center; gap: 4px; height: 100%; }
+.mac-menubar__menus { display: flex; align-items: center; gap: 1px; height: 100%; }
+.mac-menubar__menu { position: relative; display: flex; align-items: center; height: 100%; }
+.mac-menubar__trigger {
+  height: 22px; padding: 0 9px; border-radius: 6px;
+  font-size: 13px; color: var(--text-secondary); cursor: default; white-space: nowrap;
+  display: flex; align-items: center; transition: background 100ms, color 100ms;
+}
+.mac-menubar__trigger:hover, .mac-menubar__trigger.is-open { background: var(--nav-pill-bg); color: var(--text-primary); }
+.mac-menubar__trigger--apple { font-size: 15px; color: var(--accent); padding: 0 8px; }
+.mac-menubar__trigger--app {
+  font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: 14.5px;
+  color: var(--text-primary); letter-spacing: -0.005em;
+}
+.mac-menubar__drop {
+  position: absolute; top: calc(100% + 5px); left: 0; z-index: var(--z-popover);
+  min-width: 232px; max-width: min(360px, calc(100vw - 24px)); padding: 5px;
+  border-radius: var(--radius-md);
+  background: var(--glass-bg-strong); border: 0.5px solid var(--glass-border);
+  box-shadow: var(--el-3), var(--glass-inset);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  display: flex; flex-direction: column; gap: 1px;
+  animation: menuDropIn 0.16s var(--ease-cinema) both;
+}
+@keyframes menuDropIn { from { opacity: 0; transform: translateY(-4px) scale(0.99); } }
+.mac-menubar__drop-item {
+  width: 100%; display: flex; align-items: center; gap: 10px; padding: 5px 8px;
+  font-size: 13px; color: var(--text-primary); border-radius: 6px; text-align: left; cursor: default; transition: background 80ms;
+}
+.mac-menubar__drop-item:hover:not(:disabled), .mac-menubar__drop-item:focus-visible { background: var(--accent); color: var(--accent-ink); outline: none; }
+.mac-menubar__drop-item:disabled { opacity: 0.4; }
+.mac-menubar__drop-check { display: inline-flex; width: 14px; flex: 0 0 14px; align-items: center; justify-content: center; }
+.mac-menubar__drop-check svg { width: 13px; height: 13px; }
+.mac-menubar__drop-labeltext { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mac-menubar__drop-shortcut { font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); margin-left: auto; }
+.mac-menubar__drop-item:hover:not(:disabled) .mac-menubar__drop-shortcut { color: inherit; opacity: 0.8; }
+.mac-menubar__drop-label { padding: 6px 8px 3px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); }
+.mac-menubar__drop-sep { height: 1px; background: var(--border); margin: 4px 8px; }
+.mac-menubar__clock {
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.02em; color: var(--text-secondary);
+  padding: 0 8px; height: 22px; border-radius: 6px; font-variant-numeric: tabular-nums;
+}
+.mac-menubar__clock:hover { background: var(--nav-pill-bg); color: var(--text-primary); }
+.mac-menubar__btn {
+  width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; color: var(--text-secondary); transition: background 120ms, color 120ms;
+}
+.mac-menubar__btn svg { width: 14px; height: 14px; }
+.mac-menubar__btn:hover, .mac-menubar__btn.is-open { background: var(--nav-pill-bg); color: var(--text-primary); }
+.mac-menubar__cc, .mac-menubar__dev { position: relative; display: flex; align-items: center; }
+.dev-chip.is-open { color: var(--accent); }
+
+/* ── Popover panels (Control Center, Dev) ──────────────────── */
+.cc-drop, .dev-panel {
+  position: absolute; top: calc(100% + 7px); right: 0; z-index: var(--z-popover);
+  width: 312px; padding: 10px;
+  border-radius: var(--radius-xl);
+  background: var(--glass-bg-strong); border: 0.5px solid var(--glass-border);
+  box-shadow: var(--el-3), var(--glass-inset);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  display: flex; flex-direction: column; gap: 8px;
+  animation: menuDropIn 0.18s var(--ease-cinema) both;
+}
+.dev-panel { width: 340px; max-height: min(70vh, 560px); overflow-y: auto; }
+.cc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cc-tile {
+  border: 0.5px solid var(--border); background: var(--bg-subtle); border-radius: var(--radius-md); padding: 10px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px; color: var(--text-secondary); text-align: left;
+  transition: background 120ms, border-color 120ms;
+}
+.cc-tile:hover { background: var(--surface-hover); }
+.cc-tile.is-on { border-color: var(--accent-border); color: var(--text-primary); background: var(--accent-subtle); }
+.cc-tile__icon { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 999px; background: var(--nav-pill-bg); color: var(--text-primary); }
+.cc-tile__icon svg { width: 15px; height: 15px; }
+.cc-tile.is-on .cc-tile__icon { background: var(--accent); color: var(--accent-ink); }
+.cc-tile__label { font-size: 13px; font-weight: 600; }
+.cc-tile__state { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-tertiary); }
+.cc-tile.is-on .cc-tile__state { color: var(--accent); }
+.cc-panel { background: var(--bg-subtle); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.cc-panel__head { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); }
+.cc-seg { display: flex; gap: 6px; }
+.cc-seg button {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 10px;
+  border: 0.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; color: var(--text-secondary);
+  transition: background 120ms, border-color 120ms, color 120ms;
+}
+.cc-seg button svg { width: 14px; height: 14px; }
+.cc-seg button:hover { background: var(--surface-hover); }
+.cc-seg button.is-on { background: var(--accent-subtle); border-color: var(--accent-border); color: var(--text-primary); }
+.cc-row { display: flex; align-items: center; gap: 10px; }
+.cc-row__icon { width: 16px; height: 16px; color: var(--text-tertiary); flex: 0 0 auto; }
+.cc-row__label { flex: 1; font-size: 13px; color: var(--text-primary); }
+.cc-range { flex: 1; -webkit-appearance: none; appearance: none; height: 4px; border-radius: 999px; background: var(--border-strong); accent-color: var(--accent); cursor: pointer; }
+.cc-range::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 999px; background: #fff; border: 0.5px solid rgba(0,0,0,0.2); box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+.cc-switch { width: 36px; height: 20px; border-radius: 999px; background: var(--border-strong); position: relative; padding: 0; transition: background 150ms var(--ease-out); flex: 0 0 auto; }
+.cc-switch.is-on { background: var(--accent); }
+.cc-switch__knob { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 999px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.3); transition: transform 150ms var(--ease-out); }
+.cc-switch.is-on .cc-switch__knob { transform: translateX(16px); }
+.cc-action { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px; border-radius: var(--radius-md); border: 0.5px solid var(--border); font-size: 13px; color: var(--text-primary); }
+.cc-action svg { width: 14px; height: 14px; }
+.cc-action:hover { background: var(--surface-hover); }
+.cc-footer { display: flex; align-items: center; gap: 6px; justify-content: center; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); }
+.cc-footer svg { width: 12px; height: 12px; }
+
+.dev-panel__head { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; }
+.dev-panel__head svg { width: 14px; height: 14px; }
+.dev-panel__live { margin-left: auto; font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); background: var(--accent-subtle); border-radius: 999px; padding: 2px 7px; }
+.dev-panel__section { border-top: 0.5px solid var(--border); padding-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+.dev-panel__subhead { display: flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); }
+.dev-panel__row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font-size: 12px; }
+.dev-panel__k { color: var(--text-tertiary); }
+.dev-panel__v { color: var(--text-primary); text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.dev-panel__v--dim { color: var(--text-tertiary); }
+.dev-panel__win { text-align: left; padding: 4px 6px; border-radius: 6px; display: flex; align-items: baseline; gap: 8px; }
+.dev-panel__win:hover { background: var(--nav-pill-bg); }
+.dev-panel__win.is-active { background: var(--accent-subtle); }
+.dev-panel__win-id { font-family: var(--font-mono); font-size: 12px; color: var(--accent); }
+.dev-panel__win-meta { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); }
+.dev-panel__json, .dev-panel__console { max-height: 140px; overflow: auto; font-family: var(--font-mono); font-size: 10.5px; line-height: 1.5; color: var(--text-secondary); background: var(--input-bg); border: 0.5px solid var(--input-border); border-radius: 6px; padding: 8px; overflow-wrap: anywhere; }
+.dev-panel__log { color: #ff6b6b; }
+.dev-panel__actions { display: flex; gap: 8px; padding-top: 4px; }
+.dev-panel__actions .mac-btn { flex: 1; justify-content: center; }
+
+/* ── Dock ──────────────────────────────────────────────────── */
+.mac-dock-wrap {
+  position: absolute; bottom: calc(10px + env(safe-area-inset-bottom)); left: 50%;
+  transform: translateX(-50%); z-index: var(--z-dock);
+  transition: transform 300ms var(--ease-cinema);
+}
+.mac-dock-wrap.is-autohide { transform: translateX(-50%) translateY(calc(100% + 12px)); }
+.mac-dock-hotzone { position: absolute; left: 0; right: 0; bottom: 0; height: 14px; z-index: var(--z-dock); }
+.mac-dock-wrap.is-autohide:hover, .mac-dock-wrap.is-autohide:focus-within, .mac-dock-hotzone:hover + .mac-dock-wrap.is-autohide { transform: translateX(-50%) translateY(0); }
+.mac-dock {
+  display: flex; align-items: flex-end; gap: 4px; padding: 7px 9px;
+  border-radius: 22px;
+  background: var(--glass-bg); border: 0.5px solid var(--glass-border);
+  box-shadow: var(--el-3), var(--glass-inset);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+}
+.mac-dock__item {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 2px 2px 3px;
+  transform-origin: bottom center;
+  transition: transform 180ms var(--ease-cinema);
+}
+.mac-dock__item:hover { transform: translateY(-10px) scale(1.4); z-index: 2; }
+.mac-dock__item:has(+ .mac-dock__item:hover), .mac-dock__item:hover + .mac-dock__item { transform: translateY(-5px) scale(1.16); }
+.mac-dock__item:active { transform: translateY(-6px) scale(1.28); }
+.mac-dock__tip {
+  position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 4px 9px; border-radius: 7px; white-space: nowrap; opacity: 0; pointer-events: none;
+  background: var(--glass-bg-strong); color: var(--text-primary); border: 0.5px solid var(--glass-border); box-shadow: var(--el-2);
+  transition: opacity 120ms;
+}
+.mac-dock__item:hover .mac-dock__tip { opacity: 1; }
+.mac-dock__dot { width: 4px; height: 4px; border-radius: 999px; background: var(--text-primary); opacity: 0; transition: opacity 120ms; }
+.mac-dock__item.is-open .mac-dock__dot, .mac-dock__item.is-active .mac-dock__dot { opacity: 0.85; }
+.mac-dock__item.is-minimized .mac-glyph { opacity: 0.55; }
+.mac-dock__sep { width: 1px; align-self: stretch; margin: 8px 5px; background: var(--hairline); }
+
+/* ── App glyph tiles ───────────────────────────────────────── */
+.mac-glyph {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto;
+  border-radius: 24%;
+  background:
+    linear-gradient(160deg, hsl(var(--g-h) var(--g-s) calc(var(--g-l) + 14%)) 0%, hsl(var(--g-h) var(--g-s) calc(var(--g-l) - 10%)) 100%);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.35);
+}
+.mac-glyph svg { filter: drop-shadow(0 1px 1px rgba(0,0,0,0.35)); }
+.mac-glyph__mono {
+  position: absolute; right: 9%; bottom: 6%;
+  font-family: var(--font-mono); font-size: 22%; font-weight: 700; line-height: 1; letter-spacing: 0.02em;
+  color: rgba(255,255,255,0.75);
+}
+.mac-glyph--resume { color: hsl(20 20% 30%); }
+.mac-glyph--resume .mac-glyph__mono { color: hsl(20 20% 40% / 0.8); }
+.mac-glyph--terminal { background: linear-gradient(160deg, #2e3340, #0e1118); }
+.mac-glyph--github { background: linear-gradient(160deg, #3a3f4c, #171a22); }
+
+/* ── Desktop icons ─────────────────────────────────────────── */
+.mac-dicons { position: absolute; inset: 0; z-index: var(--z-icons); pointer-events: none; }
+.mac-dicon {
+  position: absolute; left: var(--x); top: var(--y);
+  width: 84px; padding: 8px 4px 6px; border-radius: 10px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  pointer-events: auto; touch-action: none; user-select: none;
+  color: #fff;
+  transition: background 120ms;
+}
+.mac-dicon:hover { background: rgba(255,255,255,0.08); }
+.mac-dicon:focus-visible, .mac-dicon.is-dragging { background: rgba(255,255,255,0.14); outline: none; }
+.mac-dicon.is-dragging { transition: none; z-index: 2; }
+.mac-dicon__label {
+  font-size: 11.5px; font-weight: 500; text-align: center; line-height: 1.2;
+  color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.7), 0 0 12px rgba(0,0,0,0.4);
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.mac-root[data-theme="light"] .mac-dicon__label { color: #12151f; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
+.mac-root[data-theme="light"] .mac-dicon:hover { background: rgba(0,0,0,0.06); }
+
+/* ── Boot / login ──────────────────────────────────────────── */
+.mac-boot {
+  position: absolute; inset: 0; z-index: var(--z-boot);
+  display: flex; align-items: center; justify-content: center;
+  background:
+    radial-gradient(70% 60% at 30% 20%, hsl(var(--wp-h2) 60% 30% / 0.6), transparent 70%),
+    radial-gradient(60% 50% at 80% 80%, hsl(var(--wp-h3) 60% 30% / 0.5), transparent 70%),
+    var(--ink);
+  color: #f2f3f8;
+  transition: opacity 360ms var(--ease-cinema), transform 360ms var(--ease-cinema);
+}
+.mac-root[data-theme="light"] .mac-boot { color: #12151f; background: radial-gradient(70% 60% at 30% 20%, hsl(var(--wp-h2) 60% 78% / 0.7), transparent 70%), radial-gradient(60% 50% at 80% 80%, hsl(var(--wp-h3) 60% 80% / 0.6), transparent 70%), var(--ink); }
+.mac-boot--leaving { opacity: 0; transform: scale(1.03); pointer-events: none; }
+.mac-boot__stage { display: flex; flex-direction: column; align-items: center; gap: 14px; animation: bootIn 600ms var(--ease-cinema) both; }
+@keyframes bootIn { from { opacity: 0; transform: translateY(10px); } }
+.mac-boot__wordmark { font-family: var(--font-display); font-size: clamp(2.6rem, 6vw, 4.6rem); font-weight: 500; letter-spacing: -0.02em; font-variation-settings: "opsz" 144; }
+.mac-boot__wordmark span { font-style: italic; color: var(--accent); }
+.mac-boot__bar { width: 220px; height: 3px; border-radius: 999px; background: rgba(255,255,255,0.14); overflow: hidden; }
+.mac-root[data-theme="light"] .mac-boot__bar { background: rgba(0,0,0,0.12); }
+.mac-boot__bar span { display: block; height: 100%; width: 0; background: var(--accent); animation: bootBar 1s var(--ease-cinema) forwards; }
+@keyframes bootBar { to { width: 100%; } }
+.mac-boot__hint { opacity: 0.7; }
+.mac-boot__avatar {
+  width: 92px; height: 92px; border-radius: 999px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 2rem; font-weight: 500;
+  color: var(--accent-ink);
+  background: linear-gradient(150deg, var(--accent), hsl(var(--wp-h3) 70% 55%));
+  box-shadow: 0 0 0 6px rgba(255,255,255,0.08), 0 20px 60px -10px rgba(0,0,0,0.6);
+}
+.mac-boot__name { font-family: var(--font-display); font-size: 1.7rem; font-weight: 500; letter-spacing: -0.01em; }
+.mac-boot__role { opacity: 0.8; }
+.mac-boot__enter {
+  margin-top: 8px; display: inline-flex; align-items: center; gap: 10px;
+  padding: 10px 22px; border-radius: 999px;
+  background: rgba(255,255,255,0.1); border: 0.5px solid rgba(255,255,255,0.22); color: inherit;
+  font-size: 14px; font-weight: 500; backdrop-filter: blur(10px);
+  transition: background 120ms, transform 120ms;
+}
+.mac-root[data-theme="light"] .mac-boot__enter { background: rgba(255,255,255,0.7); border-color: rgba(0,0,0,0.12); }
+.mac-boot__enter:hover { background: var(--accent); color: var(--accent-ink); transform: translateY(-1px); }
+.mac-boot__enter kbd { font-family: var(--font-mono); font-size: 11px; opacity: 0.7; }
+.mac-boot__skip { opacity: 0.6; padding: 6px 10px; }
+.mac-boot__skip:hover { opacity: 1; }
+
+/* ── Launchpad ─────────────────────────────────────────────── */
+.mac-launchpad {
+  position: absolute; inset: 0; z-index: var(--z-launchpad);
+  background: var(--overlay);
+  backdrop-filter: blur(28px) saturate(1.4); -webkit-backdrop-filter: blur(28px) saturate(1.4);
+  display: flex; align-items: center; justify-content: center; padding: 48px 24px 110px;
+  animation: lpIn 220ms var(--ease-cinema) both;
+}
+@keyframes lpIn { from { opacity: 0; } }
+.mac-launchpad__inner { width: min(880px, 100%); display: flex; flex-direction: column; align-items: center; gap: 28px; animation: lpScale 260ms var(--ease-cinema) both; }
+@keyframes lpScale { from { transform: scale(1.06); opacity: 0; } }
+.mac-launchpad__search {
+  display: flex; align-items: center; gap: 8px; width: min(360px, 100%); padding: 8px 12px; border-radius: 12px;
+  background: var(--glass-bg); border: 0.5px solid var(--glass-border); box-shadow: var(--glass-inset);
+  color: var(--text-secondary);
+}
+.mac-launchpad__search svg { width: 15px; height: 15px; }
+.mac-launchpad__search input { flex: 1; background: transparent; border: 0; outline: 0; font-size: 15px; color: var(--text-primary); }
+.mac-launchpad__grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 18px 10px; width: 100%; }
+.mac-launchpad__app {
+  display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 6px 10px; border-radius: 16px;
+  transition: background 120ms, transform 160ms var(--ease-cinema);
+}
+.mac-launchpad__app:hover, .mac-launchpad__app.is-active { background: rgba(255,255,255,0.08); transform: translateY(-3px); }
+.mac-root[data-theme="light"] .mac-launchpad__app:hover, .mac-root[data-theme="light"] .mac-launchpad__app.is-active { background: rgba(0,0,0,0.06); }
+.mac-launchpad__label { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+.mac-launchpad__hint { font-size: 10px; }
+.mac-launchpad__empty { grid-column: 1 / -1; text-align: center; font-family: var(--font-display); font-style: italic; color: var(--text-secondary); padding: 30px; }
+.mac-launchpad__foot { opacity: 0.7; }
+
+/* ── Widgets panel ─────────────────────────────────────────── */
+.mac-widgets {
+  position: absolute; top: 34px; right: 10px; z-index: var(--z-popover);
+  width: min(340px, calc(100vw - 20px)); max-height: calc(100% - 120px); overflow-y: auto;
+  display: flex; flex-direction: column; gap: 10px; padding: 4px;
+  animation: widgetsIn 260ms var(--ease-cinema) both;
+}
+@keyframes widgetsIn { from { opacity: 0; transform: translateX(24px); } }
+.mac-widget {
+  display: block; width: 100%; text-align: left;
+  padding: 14px 16px; border-radius: 16px;
+  background: var(--glass-bg-strong); border: 0.5px solid var(--glass-border);
+  box-shadow: var(--el-2), var(--glass-inset);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  color: var(--text-primary);
+}
+.mac-widget__eyebrow { margin-bottom: 6px; }
+.mac-widget__time { font-family: var(--font-display); font-size: 2.6rem; line-height: 1; font-weight: 400; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.mac-widget__date { margin-top: 4px; font-size: 13px; color: var(--text-secondary); }
+.mac-widget__lede { font-family: var(--font-display); font-size: 1.05rem; line-height: 1.35; font-weight: 400; }
+.mac-widget__foot { margin-top: 10px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
+.mac-dot { width: 7px; height: 7px; border-radius: 999px; background: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 25%, transparent); display: inline-block; }
+.mac-widget__stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.mac-widget__stats div { display: flex; flex-direction: column; }
+.mac-widget__stats b { font-family: var(--font-display); font-size: 1.6rem; font-weight: 500; line-height: 1.1; }
+.mac-widget__stats span { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-tertiary); }
+.mac-widget__link { margin-top: 10px; display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; color: var(--accent); }
+.mac-widget__link svg { width: 13px; height: 13px; }
+.mac-widget--latest:hover { background: var(--glass-bg); }
+.mac-widget__row { display: flex; gap: 12px; align-items: center; }
+.mac-widget__emoji { font-size: 1.6rem; }
+.mac-widget__title { font-family: var(--font-display); font-size: 1.05rem; font-weight: 500; }
+.mac-widget__sub { font-size: 12px; color: var(--text-secondary); line-height: 1.35; }
+.mac-widget__links { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.mac-widget__links a, .mac-widget__links button { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; font-size: 12.5px; background: var(--bg-subtle); border: 0.5px solid var(--border); color: var(--text-primary); text-align: left; }
+.mac-widget__links a:hover, .mac-widget__links button:hover { background: var(--surface-hover); }
+.mac-widget__links svg { width: 14px; height: 14px; color: var(--text-secondary); }

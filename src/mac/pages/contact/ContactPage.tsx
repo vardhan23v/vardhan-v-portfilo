@@ -57,12 +57,15 @@ export function ContactPage() {
     <div className="mac-page">
       <div className="page-header">
         <div className="page-header__eyebrow">Contact</div>
-        <h1 className="page-header__title">Get in Touch</h1>
+        <h1 className="page-header__title">Say hello.</h1>
         <p className="page-header__subtitle">
           Open to opportunities, collaborations, and interesting conversations. Replies within 24 hours.
         </p>
       </div>
 
+      <Reveal>
+        <a className="contact-mail" href={`mailto:${site.email}`}>{site.email}</a>
+      </Reveal>
       <div className="contact-channels">
         {channels.map((ch, i) => (
           <Reveal key={ch.label} index={Math.min(i, 3)}>

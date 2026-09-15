@@ -53,7 +53,9 @@ export function HelpOverlay() {
             <dl>
               <dt><kbd>1</kbd>–<kbd>7</kbd></dt><dd>Overview / About / Projects / Experience / Skills / Achievements / Contact</dd>
               <dt><kbd>↑</kbd> <kbd>↓</kbd> + <kbd>↵</kbd></dt><dd>Navigate Spotlight results</dd>
-              <dt>Click Dock</dt><dd>Open / focus app</dd>
+              <dt>Click Dock</dt><dd>Open / focus app · Launchpad opens the app grid</dd>
+              <dt>Click clock</dt><dd>Widgets panel (IST, GitHub, status, links)</dd>
+              <dt>Desktop icons</dt><dd>Drag to arrange · double-click to open</dd>
             </dl>
           </section>
           <section>

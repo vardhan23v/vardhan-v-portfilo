@@ -44,6 +44,8 @@ export function DevPanel() {
     try {
       localStorage.removeItem("mac-preferences");
       localStorage.removeItem("mac-theme");
+      localStorage.removeItem("mac-desktop-icons");
+      sessionStorage.removeItem("mac-booted");
     } catch {
       /* no-op */
     }

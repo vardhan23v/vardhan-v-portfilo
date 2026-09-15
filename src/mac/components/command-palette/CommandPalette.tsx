@@ -7,7 +7,6 @@ import { useTheme } from "../../hooks/useTheme";
 import { useToast } from "../ui/Toast";
 import { site } from "../../data/site";
 import { featuredProjects } from "../../data/projects";
-import "../../styles/command-palette.css";
 
 interface CmdItem {
   id: string;
@@ -54,7 +53,7 @@ function fuzzyScore(query: string, label: string, keywords: string): number {
 }
 
 export function CommandPalette() {
-  const { open, setOpen } = usePalette();
+  const { open, setOpen, items } = usePalette();
   const { navigate, setOpenProject } = useNav();
   const { openWindow } = useWindowManager();
   const { toggle } = useTheme();
@@ -165,8 +164,9 @@ export function CommandPalette() {
       { id: "app-terminal", label: "Open Terminal", hint: "", group: "Apps", keywords: "terminal shell cli command", action: () => openWindow("terminal") },
       { id: "app-ai", label: "Open Vardhan AI", hint: "✦", group: "Apps", keywords: "ai assistant chat muse", action: () => openWindow("vardhan-ai") },
       { id: "app-about", label: "About This Mac", hint: "", group: "Apps", keywords: "about mac system info vardhanos", action: () => openWindow("about-mac") },
+      ...items.map((it) => ({ id: it.id, label: it.label, hint: it.hint, group: "Shell", keywords: `${it.label} ${it.hint ?? ""} shell desktop`, action: it.action })),
     ],
-    [go, toggle, openProjectBySlug, copyText, openWindow]
+    [go, toggle, openProjectBySlug, copyText, openWindow, items]
   );
 
   const filtered = useMemo(() => {

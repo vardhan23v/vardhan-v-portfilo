@@ -1,0 +1,218 @@
+/* ═══════════════════════════════════════════════════════════════
+   Vardhan OS — tokens
+   Dark glass + editorial type. Everything is scoped to .mac-root.
+   ═══════════════════════════════════════════════════════════════ */
+.mac-root {
+  /* type */
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-ui: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-system: var(--font-ui);
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-meta: 0.6875rem;
+  --text-display: clamp(2.4rem, 4.2vw + 0.5rem, 4.4rem);
+  --text-h1: clamp(1.8rem, 2.2vw + 0.6rem, 2.6rem);
+  --text-h2: clamp(1.25rem, 1vw + 0.7rem, 1.6rem);
+
+  /* space & radius */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 20px;
+  --sp-6: 24px; --sp-8: 32px; --sp-10: 40px; --sp-12: 48px; --sp-16: 64px;
+  --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px; --radius-xl: 18px; --radius-full: 999px;
+
+  /* z scale (authoritative) */
+  --z-bg: 0; --z-icons: 5; --z-window: 10; --z-dock: 40; --z-toolbar: 50; --z-menubar: 50;
+  --z-popover: 60; --z-overlay: 100; --z-launchpad: 150; --z-palette: 200; --z-modal: 200;
+  --z-boot: 900; --z-toast: 1000;
+
+  /* motion */
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-cinema: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 160ms; --duration-base: 320ms; --duration-slow: 640ms;
+
+  /* glass */
+  --glass-blur: 26px;
+  --glass-sat: 160%;
+
+  /* wallpaper hues (blue default) */
+  --wp-h1: 225; --wp-h2: 262; --wp-h3: 196;
+}
+
+/* ── Dark (default) ─────────────────────────────────────────── */
+.mac-root,
+.mac-root[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #0b0f1a;
+  --navy: #101a33;
+  --bg: #0d1220;
+  --bg-subtle: rgba(255, 255, 255, 0.035);
+  --surface: #141a2b;
+  --surface-hover: rgba(255, 255, 255, 0.06);
+  --surface-active: rgba(255, 255, 255, 0.09);
+  --glass-bg: rgba(18, 24, 40, 0.62);
+  --glass-bg-strong: rgba(18, 24, 40, 0.86);
+  --glass-border: rgba(255, 255, 255, 0.11);
+  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --toolbar-bg: rgba(14, 18, 32, 0.55);
+  --toolbar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-bg: rgba(14, 18, 32, 0.4);
+  --sidebar-border: rgba(255, 255, 255, 0.07);
+  --text-primary: #f2f3f8;
+  --text-secondary: #a9afc3;
+  --text-tertiary: #6d7590;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --hairline: rgba(255, 255, 255, 0.14);
+  --el-1: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --el-2: 0 8px 24px -8px rgba(0, 0, 0, 0.45), 0 0 0 0.5px rgba(255, 255, 255, 0.05);
+  --el-3: 0 18px 50px -12px rgba(0, 0, 0, 0.55), 0 0 0 0.5px rgba(255, 255, 255, 0.07);
+  --el-4: 0 30px 80px -10px rgba(0, 0, 0, 0.65), 0 0 0 0.5px rgba(255, 255, 255, 0.1);
+  --shadow-window: var(--el-4);
+  --shadow-card: var(--el-1);
+  --shadow-card-hover: var(--el-2);
+  --shadow-modal: var(--el-4);
+  --nav-pill-bg: rgba(255, 255, 255, 0.06);
+  --nav-pill-active: rgba(255, 255, 255, 0.1);
+  --traffic-close: #ff5f57; --traffic-minimize: #febc2e; --traffic-maximize: #28c840;
+  --traffic-inactive: rgba(255, 255, 255, 0.18);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.14); --scrollbar-track: transparent;
+  --tag-bg: rgba(255, 255, 255, 0.05); --tag-border: rgba(255, 255, 255, 0.09);
+  --input-bg: rgba(255, 255, 255, 0.04); --input-border: rgba(255, 255, 255, 0.12);
+  --overlay: rgba(4, 6, 12, 0.55);
+  --accent: #6ea8ff; --accent-hover: #8dbaff; --accent-ink: #061024;
+  --accent-subtle: rgba(110, 168, 255, 0.14); --accent-border: rgba(110, 168, 255, 0.4);
+  --input-focus: rgba(110, 168, 255, 0.3);
+  --ok: #4ade80;
+}
+
+/* ── Light ──────────────────────────────────────────────────── */
+.mac-root[data-theme="light"] {
+  color-scheme: light;
+  --ink: #eef0f5;
+  --navy: #dfe5f4;
+  --bg: #eef0f5;
+  --bg-subtle: rgba(0, 0, 0, 0.03);
+  --surface: #ffffff;
+  --surface-hover: rgba(0, 0, 0, 0.04);
+  --surface-active: rgba(0, 0, 0, 0.07);
+  --glass-bg: rgba(255, 255, 255, 0.58);
+  --glass-bg-strong: rgba(255, 255, 255, 0.86);
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --toolbar-bg: rgba(255, 255, 255, 0.5);
+  --toolbar-border: rgba(0, 0, 0, 0.08);
+  --sidebar-bg: rgba(255, 255, 255, 0.4);
+  --sidebar-border: rgba(0, 0, 0, 0.06);
+  --text-primary: #12151f;
+  --text-secondary: #565c70;
+  --text-tertiary: #8b91a6;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.15);
+  --hairline: rgba(0, 0, 0, 0.14);
+  --el-1: 0 1px 2px rgba(20, 30, 60, 0.08);
+  --el-2: 0 8px 24px -8px rgba(20, 30, 60, 0.18), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+  --el-3: 0 18px 50px -12px rgba(20, 30, 60, 0.22), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+  --el-4: 0 30px 80px -10px rgba(20, 30, 60, 0.28), 0 0 0 0.5px rgba(0, 0, 0, 0.08);
+  --shadow-window: var(--el-4); --shadow-card: var(--el-1); --shadow-card-hover: var(--el-2); --shadow-modal: var(--el-4);
+  --nav-pill-bg: rgba(0, 0, 0, 0.05); --nav-pill-active: rgba(0, 0, 0, 0.08);
+  --traffic-inactive: rgba(0, 0, 0, 0.15);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.16);
+  --tag-bg: rgba(0, 0, 0, 0.04); --tag-border: rgba(0, 0, 0, 0.07);
+  --input-bg: rgba(0, 0, 0, 0.03); --input-border: rgba(0, 0, 0, 0.12);
+  --overlay: rgba(20, 24, 40, 0.35);
+  --accent: #2563eb; --accent-hover: #1d4ed8; --accent-ink: #ffffff;
+  --accent-subtle: rgba(37, 99, 235, 0.1); --accent-border: rgba(37, 99, 235, 0.35);
+  --input-focus: rgba(37, 99, 235, 0.25);
+  --ok: #16a34a;
+}
+
+/* ── Accent matrix (also steers the wallpaper) ──────────────── */
+.mac-root[data-accent="purple"] { --wp-h1: 258; --wp-h2: 290; --wp-h3: 230; }
+.mac-root[data-accent="purple"][data-theme="dark"] { --accent: #b48cff; --accent-hover: #c6a6ff; --accent-ink: #14082b; --accent-subtle: rgba(180,140,255,0.15); --accent-border: rgba(180,140,255,0.42); --input-focus: rgba(180,140,255,0.3); }
+.mac-root[data-accent="purple"][data-theme="light"] { --accent: #7c3aed; --accent-hover: #6d28d9; --accent-subtle: rgba(124,58,237,0.1); --accent-border: rgba(124,58,237,0.35); --input-focus: rgba(124,58,237,0.25); }
+
+.mac-root[data-accent="pink"] { --wp-h1: 330; --wp-h2: 355; --wp-h3: 280; }
+.mac-root[data-accent="pink"][data-theme="dark"] { --accent: #ff7ab3; --accent-hover: #ff9cc6; --accent-ink: #2b0815; --accent-subtle: rgba(255,122,179,0.15); --accent-border: rgba(255,122,179,0.42); --input-focus: rgba(255,122,179,0.3); }
+.mac-root[data-accent="pink"][data-theme="light"] { --accent: #db2777; --accent-hover: #be185d; --accent-subtle: rgba(219,39,119,0.1); --accent-border: rgba(219,39,119,0.35); --input-focus: rgba(219,39,119,0.25); }
+
+.mac-root[data-accent="orange"] { --wp-h1: 22; --wp-h2: 350; --wp-h3: 45; }
+.mac-root[data-accent="orange"][data-theme="dark"] { --accent: #ffab5e; --accent-hover: #ffc084; --accent-ink: #2b1400; --accent-subtle: rgba(255,171,94,0.15); --accent-border: rgba(255,171,94,0.42); --input-focus: rgba(255,171,94,0.3); }
+.mac-root[data-accent="orange"][data-theme="light"] { --accent: #ea580c; --accent-hover: #c2410c; --accent-subtle: rgba(234,88,12,0.1); --accent-border: rgba(234,88,12,0.35); --input-focus: rgba(234,88,12,0.25); }
+
+.mac-root[data-accent="green"] { --wp-h1: 165; --wp-h2: 200; --wp-h3: 120; }
+.mac-root[data-accent="green"][data-theme="dark"] { --accent: #5fe3a1; --accent-hover: #86ecb9; --accent-ink: #032116; --accent-subtle: rgba(95,227,161,0.15); --accent-border: rgba(95,227,161,0.42); --input-focus: rgba(95,227,161,0.3); }
+.mac-root[data-accent="green"][data-theme="light"] { --accent: #059669; --accent-hover: #047857; --accent-subtle: rgba(5,150,105,0.1); --accent-border: rgba(5,150,105,0.35); --input-focus: rgba(5,150,105,0.25); }
+
+.mac-root[data-accent="graphite"] { --wp-h1: 225; --wp-h2: 230; --wp-h3: 215; }
+.mac-root[data-accent="graphite"][data-theme="dark"] { --accent: #c7cbd8; --accent-hover: #e0e3ec; --accent-ink: #0b0f1a; --accent-subtle: rgba(199,203,216,0.14); --accent-border: rgba(199,203,216,0.4); --input-focus: rgba(199,203,216,0.3); }
+.mac-root[data-accent="graphite"][data-theme="light"] { --accent: #3f4757; --accent-hover: #2b3140; --accent-subtle: rgba(63,71,87,0.1); --accent-border: rgba(63,71,87,0.35); --input-focus: rgba(63,71,87,0.25); }
+.mac-root[data-accent="graphite"] .mac-glyph { filter: saturate(0.25); }
+
+/* ── Base ───────────────────────────────────────────────────── */
+.mac-root *, .mac-root *::before, .mac-root *::after { box-sizing: border-box; margin: 0; padding: 0; }
+.mac-root {
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  color: var(--text-primary);
+  background: var(--ink);
+  height: 100dvh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "ss01", "cv11";
+}
+.mac-root a { color: inherit; text-decoration: none; }
+.mac-root button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+.mac-root ul, .mac-root ol { list-style: none; }
+.mac-root img { max-width: 100%; display: block; }
+.mac-root input, .mac-root textarea, .mac-root select { font: inherit; color: inherit; }
+.mac-root ::-webkit-scrollbar { width: 6px; height: 6px; }
+.mac-root ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 999px; }
+.mac-root :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--radius-sm); }
+.mac-root ::selection { background: var(--accent-subtle); color: var(--text-primary); }
+
+/* Editorial helpers */
+.mac-root .mac-caps {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.mac-root .mac-serif { font-family: var(--font-display); font-variation-settings: "opsz" 144, "SOFT" 40; font-weight: 500; letter-spacing: -0.01em; }
+.mac-root .mac-glass {
+  background: var(--glass-bg);
+  border: 0.5px solid var(--glass-border);
+  box-shadow: var(--el-3), var(--glass-inset);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+}
+
+/* ── Motion gate ────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .mac-root *, .mac-root *::before, .mac-root *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+.mac-root[data-mac-motion="off"] *,
+.mac-root[data-mac-motion="off"] *::before,
+.mac-root[data-mac-motion="off"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}

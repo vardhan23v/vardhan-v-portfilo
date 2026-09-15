@@ -38,7 +38,7 @@ export function SkillsPage() {
     <div className="mac-page">
       <div className="page-header">
         <div className="page-header__eyebrow">Skills</div>
-        <h1 className="page-header__title">Tech Stack</h1>
+        <h1 className="page-header__title">The stack, as a type specimen.</h1>
         <p className="page-header__subtitle">
           {total}+ technologies across {skillCategories.length} categories — honest context, no percentage bars.
           Select any skill to see where I&apos;ve shipped it.
@@ -118,7 +118,7 @@ export function SkillsPage() {
               {matched.map((p) => (
                 <button
                   key={p.slug}
-                  className="project-card"
+                  className="project-card project-card--mini"
                   onClick={() => {
                     navigate("projects");
                     setTimeout(() => setOpenProject(p), 60);
@@ -145,22 +145,10 @@ export function SkillsPage() {
               <FlaskConical /> Currently exploring
             </h2>
           </Reveal>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)" }}>
+          <div>
             {exploring.map((item, i) => (
               <Reveal key={item.name} index={Math.min(i, 3)}>
-                <div
-                  style={{
-                    padding: "var(--sp-3) var(--sp-4)",
-                    background: "var(--surface)",
-                    border: "0.5px solid var(--border)",
-                    borderRadius: "var(--radius-md)",
-                  }}
-                >
-                  <div style={{ fontSize: "var(--text-sm)", fontWeight: 600 }}>{item.name}</div>
-                  <div style={{ fontSize: "var(--text-xs)", color: "var(--text-secondary)", marginTop: 2 }}>
-                    {item.note}
-                  </div>
-                </div>
+                <div className="exploring-note"><b>{item.name}</b><span>{item.note}</span></div>
               </Reveal>
             ))}
           </div>

@@ -29,12 +29,12 @@ export function AboutPage() {
     <div className="mac-page">
       <div className="page-header">
         <div className="page-header__eyebrow">About</div>
-        <h1 className="page-header__title">About Me</h1>
+        <h1 className="page-header__title">A short essay on how I work.</h1>
       </div>
 
       <Reveal>
         <div className="mac-card" style={{ display: "flex", gap: "var(--sp-4)", alignItems: "center" }}>
-          <span className="mac-sidebar__avatar" style={{ width: 52, height: 52, fontSize: "var(--text-lg)" }} aria-hidden="true">
+          <span className="mac-avatar" style={{ width: 56, height: 56, fontSize: "1.2rem" }} aria-hidden="true">
             SV
           </span>
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -65,7 +65,7 @@ export function AboutPage() {
           </h2>
         </Reveal>
         <Reveal index={1}>
-          <p className="about-section__text">
+          <p className="about-section__text about-section__text--lede">
             I&apos;m {site.name}, a Computer Science student at NMAM Institute of Technology (NITTE) and a
             Generative AI Developer &amp; Full-Stack Developer based in {site.location}. I build AI-powered web
             applications, developer tools, and full-stack products — not just prototypes, but production systems
@@ -118,27 +118,13 @@ export function AboutPage() {
             <Workflow /> How I work
           </h2>
         </Reveal>
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-3)" }}>
+        <div className="about-steps">
           {STEPS.map((s, i) => (
             <Reveal key={s.title} index={Math.min(i, 3)}>
-              <div className="mac-card" style={{ display: "flex", gap: "var(--sp-3)" }}>
-                <span
-                  style={{
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "var(--text-xs)",
-                    color: "var(--accent)",
-                    fontWeight: 700,
-                    paddingTop: 2,
-                  }}
-                >
-                  0{i + 1}
-                </span>
-                <div>
-                  <div style={{ fontSize: "var(--text-sm)", fontWeight: 600 }}>{s.title}</div>
-                  <div style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", marginTop: 2 }}>
-                    {s.text}
-                  </div>
-                </div>
+              <div className="about-step">
+                <span className="about-step__n">0{i + 1}</span>
+                <div className="about-step__t">{s.title}</div>
+                <div className="about-step__d">{s.text}</div>
               </div>
             </Reveal>
           ))}

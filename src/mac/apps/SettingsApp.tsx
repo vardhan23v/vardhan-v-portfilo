@@ -8,7 +8,10 @@ import {
   Volume2,
   Info,
   RotateCcw,
+  Monitor,
+  Play,
 } from "lucide-react";
+import { useShell } from "../hooks/useShell";
 import { useTheme } from "../hooks/useTheme";
 import { useWindowManager } from "../hooks/useWindowManager";
 import { usePreferences, type Preferences } from "../hooks/usePreferences";
@@ -25,7 +28,7 @@ export const ACCENTS = [
 ];
 
 /* ── Section nav ────────────────────────────────────────────── */
-type SectionId = "appearance" | "focus" | "dock" | "network" | "sound" | "general";
+type SectionId = "appearance" | "desktop" | "focus" | "dock" | "network" | "sound" | "general";
 
 const SECTIONS: {
   id: SectionId;
@@ -33,6 +36,7 @@ const SECTIONS: {
   Icon: React.ComponentType<{ size?: number }>;
 }[] = [
   { id: "appearance", label: "Appearance", Icon: Palette },
+  { id: "desktop", label: "Desktop", Icon: Monitor },
   { id: "focus", label: "Focus", Icon: Moon },
   { id: "dock", label: "Dock & Menu Bar", Icon: PanelBottom },
   { id: "network", label: "Network", Icon: Wifi },
@@ -140,6 +144,43 @@ function Appearance({
               set("reduceMotion", !prefs.reduceMotion);
             }}
           />
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ── Desktop panel ──────────────────────────────────────────── */
+function DesktopPanel() {
+  const { iconsHidden, setIconsHidden, setBooted } = useShell();
+  return (
+    <>
+      <div className="settingsapp__head">Desktop</div>
+      <div className="settingsapp__group">
+        <div className="settingsrow">
+          <div className="settingsrow__text">
+            <div className="settingsrow__label">Show desktop icons</div>
+            <div className="settingsrow__sub">Projects, Finder, Terminal, Resume, GitHub shortcuts</div>
+          </div>
+          <Sw on={!iconsHidden} label="Show desktop icons" onToggle={() => setIconsHidden(!iconsHidden)} />
+        </div>
+        <div className="settingsrow">
+          <div className="settingsrow__text">
+            <div className="settingsrow__label">Reset icon positions</div>
+            <div className="settingsrow__sub">Snap shortcuts back to the left column</div>
+          </div>
+          <button className="mac-btn mac-btn--ghost" onClick={() => window.dispatchEvent(new Event("mac-reset-desktop-icons"))}>
+            <RotateCcw style={{ width: 14, height: 14 }} /> Reset
+          </button>
+        </div>
+        <div className="settingsrow">
+          <div className="settingsrow__text">
+            <div className="settingsrow__label">Replay boot screen</div>
+            <div className="settingsrow__sub">Shows the login card again this session</div>
+          </div>
+          <button className="mac-btn mac-btn--ghost" onClick={() => setBooted(false)}>
+            <Play style={{ width: 14, height: 14 }} /> Replay
+          </button>
         </div>
       </div>
     </>
@@ -336,7 +377,7 @@ function General({
         <div className="settingsrow">
           <div className="settingsrow__text">
             <div className="settingsrow__label">Version</div>
-            <div className="settingsrow__sub">VardhanOS 1.0 (2025)</div>
+            <div className="settingsrow__sub">Vardhan OS 2.0 · glass edition (2026)</div>
           </div>
         </div>
       </div>
@@ -377,6 +418,7 @@ export function SettingsApp() {
         {section === "appearance" && (
           <Appearance prefs={prefs} theme={theme} setTheme={setTheme} set={set} />
         )}
+        {section === "desktop" && <DesktopPanel />}
         {section === "focus" && <Focus prefs={prefs} toggle={toggle} />}
         {section === "dock" && <Dock prefs={prefs} toggle={toggle} />}
         {section === "network" && <Network prefs={prefs} toggle={toggle} />}

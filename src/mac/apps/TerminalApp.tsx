@@ -33,7 +33,7 @@ export function TerminalApp() {
   const { openWindow } = useWindowManager();
   const ist = useIstTime();
   const [lines, setLines] = useState<Line[]>([
-    { text: "VardhanOS — type `help` to start.", kind: "dim" },
+    { text: "Vardhan OS · glass edition — type `help` to start.", kind: "dim" },
   ]);
   const [value, setValue] = useState("");
   const [hist, setHist] = useState<string[]>([]);
@@ -51,7 +51,7 @@ export function TerminalApp() {
   const run = useCallback((raw: string) => {
     const cmd = raw.trim();
     if (!cmd) return;
-    print(`vardhan@mac ~ % ${cmd}`, "in");
+    print(`vardhan@glass ~ ${cmd}`, "in");
     const [name, ...rest] = cmd.split(/\s+/);
     const arg = rest.join(" ");
     switch (name.toLowerCase()) {
@@ -143,7 +143,7 @@ export function TerminalApp() {
             setValue("");
           }}
         >
-          <span className="termapp__prompt" aria-hidden="true">vardhan@mac ~ %</span>
+          <span className="termapp__prompt" aria-hidden="true">vardhan@glass ~</span>
           <input
             ref={inputRef}
             className="termapp__input"

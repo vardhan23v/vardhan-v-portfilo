@@ -92,7 +92,7 @@ export function WindowFrame({ id, title, children }: Props) {
           <button type="button" className="traffic-light traffic-light--minimize" onClick={() => minimizeWindow(id)} aria-label="Minimize window" title="Minimize" />
           <button type="button" className="traffic-light traffic-light--maximize" onClick={() => maximizeWindow(id)} aria-label={win.maximized ? "Restore window" : "Maximize window"} title={win.maximized ? "Restore" : "Maximize"} />
         </div>
-        <div className="mac-desktop-window__title">{title}</div>
+        <div className="mac-desktop-window__title mac-caps">{title}</div>
         <div className="mac-desktop-window__spacer" aria-hidden="true" />
       </div>
       <div className="mac-desktop-window__body">

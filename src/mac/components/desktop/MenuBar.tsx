@@ -6,6 +6,7 @@ import { usePalette } from "../../hooks/usePalette";
 import { useTheme } from "../../hooks/useTheme";
 import { useIstTime } from "../../hooks/useIstTime";
 import { usePreferences } from "../../hooks/usePreferences";
+import { useShell } from "../../hooks/useShell";
 import { ControlCenter } from "./ControlCenter";
 import { DevPanel } from "./DevPanel";
 
@@ -44,6 +45,7 @@ export function MenuBar() {
   const { prefs } = usePreferences();
   const ist = useIstTime(false);
   const routerNavigate = useNavigate();
+  const { setOverlay, toggleOverlay } = useShell();
   const [menuState, setMenuState] = useState<{ id: MenuId; src: "click" | "hover" } | null>(null);
   const openMenu = menuState?.id ?? null;
   const [ccOpen, setCcOpen] = useState(false);
@@ -106,7 +108,8 @@ export function MenuBar() {
   const menus: { id: MenuId; className?: string; label: string; items: MenuEntry[] }[] = [
     {
       id: "apple",
-      label: "V",
+      className: "mac-menubar__trigger--apple",
+      label: "✦",
       items: [
         { label: "About This Mac", action: () => openWindow("about-mac") },
         { label: "System Settings…", shortcut: "⌘,", action: () => openWindow("settings") },
@@ -166,6 +169,9 @@ export function MenuBar() {
           shortcut: "⇧⌘T",
           action: toggle,
         },
+        { kind: "sep" },
+        { label: "Launchpad", action: () => setOverlay("launchpad") },
+        { label: "Widgets", action: () => toggleOverlay("widgets") },
         { kind: "sep" },
         { label: "Reset Workspace", action: resetWorkspace },
       ],
@@ -258,7 +264,7 @@ export function MenuBar() {
         </nav>
       </div>
       <div className="mac-menubar__right">
-        <span className="mac-menubar__clock" title="India Standard Time">{ist}</span>
+        <button className="mac-menubar__clock" onClick={() => toggleOverlay("widgets")} title="Widgets · India Standard Time" aria-label="Open widgets">{ist}</button>
         {prefs.devMode && (
           <div className="mac-menubar__dev">
             <button

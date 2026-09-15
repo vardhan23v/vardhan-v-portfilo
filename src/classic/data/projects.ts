@@ -15,6 +15,10 @@ export interface Project {
   accent: [string, string, string];
   emoji: string;
   highlight?: boolean;
+  /** Optional hero image (public path). Falls back to a generated cover. */
+  cover?: string;
+  /** Optional screenshot strip (public paths). */
+  screenshots?: string[];
 }
 
 export const featuredProjects: Project[] = [
@@ -114,6 +118,8 @@ export const featuredProjects: Project[] = [
     github: "https://github.com/vardhan23v/Disastermind-ai",
     accent: ["#f97316", "#fb923c", "#facc15"],
     emoji: "🛰️",
+    cover: "/work/disastermind-ops.jpg",
+    screenshots: ["/work/disastermind-ops.jpg", "/work/disastermind-map.jpg"],
   },
   {
     name: "DriveNest",

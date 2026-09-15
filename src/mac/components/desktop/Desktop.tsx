@@ -1,10 +1,16 @@
 import { useEffect } from "react";
 import { useNav, type PageId } from "../../hooks/useNav";
 import { useWindowManager } from "../../hooks/useWindowManager";
+import { usePalette } from "../../hooks/usePalette";
+import { useShell } from "../../hooks/useShell";
 import { WindowFrame } from "../window/WindowFrame";
 import { AppContent } from "../../apps/AppContent";
 import { MenuBar } from "./MenuBar";
 import { Dock } from "./Dock";
+import { Wallpaper } from "./Wallpaper";
+import { DesktopIcons } from "./DesktopIcons";
+import { WidgetsPanel } from "./WidgetsPanel";
+import { Launchpad } from "./Launchpad";
 
 const PAGE_SHORTCUTS: Record<string, PageId> = {
   "1": "overview", "2": "about", "3": "projects", "4": "experience",
@@ -14,19 +20,20 @@ const PAGE_SHORTCUTS: Record<string, PageId> = {
 const isPageId = (id: string): id is PageId =>
   ["overview", "about", "projects", "experience", "skills", "achievements", "contact"].includes(id);
 
-/** Desktop shell: menu bar + window layer + dock.
- *  Replaces the old single-window AppShell; all page components render
- *  untouched inside WindowFrames via AppContent. */
+/** Desktop shell: wallpaper + menu bar + icons + window layer + dock + overlays. */
 export function Desktop() {
   const { navigate, page } = useNav();
   const { windows, activeId, openWindow, minimizeWindow } = useWindowManager();
+  const { register } = usePalette();
+  const { overlay, setOverlay, toggleOverlay } = useShell();
 
-  // 1–7 shortcuts open/focus the page window (migrated from old PageContent).
+  // 1–7 shortcuts open/focus the page window.
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      if (overlay !== "none") return;
       const p = PAGE_SHORTCUTS[e.key];
       if (p) {
         navigate(p);
@@ -35,9 +42,9 @@ export function Desktop() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [navigate, openWindow]);
+  }, [navigate, openWindow, overlay]);
 
-  // Keep the sidebar highlight in sync when focus moves between page windows.
+  // Keep the page highlight in sync when focus moves between page windows.
   useEffect(() => {
     if (activeId && isPageId(activeId) && activeId !== page) navigate(activeId);
   }, [activeId, page, navigate]);
@@ -56,27 +63,38 @@ export function Desktop() {
     return () => window.removeEventListener("keydown", handler);
   }, [activeId, minimizeWindow]);
 
+  // Shell commands in Spotlight.
+  useEffect(() => {
+    register([
+      { id: "launchpad", label: "Open Launchpad", hint: "apps", action: () => setOverlay("launchpad") },
+      { id: "widgets", label: "Toggle Widgets", hint: "clock · github", action: () => toggleOverlay("widgets") },
+      { id: "reset-icons", label: "Reset desktop icons", hint: "desktop", action: () => window.dispatchEvent(new Event("mac-reset-desktop-icons")) },
+    ]);
+  }, [register, setOverlay, toggleOverlay]);
+
+  const visible = windows.filter((w) => !w.minimized).length;
+
   return (
     <div className="mac-desktop">
-      <div className="mac-bg" aria-hidden="true">
-        <div className="mac-blob mac-blob--a" />
-        <div className="mac-blob mac-blob--b" />
-      </div>
+      <Wallpaper />
       <MenuBar />
       <div className="mac-desktop__area">
+        <DesktopIcons />
         {windows.map((w) => (
           <WindowFrame key={w.id} id={w.id} title={w.title}>
             <AppContent appId={w.id} />
           </WindowFrame>
         ))}
-        {windows.filter((w) => !w.minimized).length === 0 && (
+        {visible === 0 && windows.length > 0 && (
           <div className="mac-desktop__empty">
-            <div className="mac-desktop__empty-title">All windows minimized</div>
-            <div className="mac-desktop__empty-sub">Click the Dock or press ⌘K to continue.</div>
+            <div className="mac-desktop__empty-title">Everything is tucked away.</div>
+            <div className="mac-desktop__empty-sub mac-caps">click the dock · press ⌘K</div>
           </div>
         )}
       </div>
       <Dock />
+      <WidgetsPanel />
+      <Launchpad />
     </div>
   );
 }

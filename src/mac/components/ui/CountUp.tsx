@@ -13,7 +13,10 @@ export function CountUp({ value, suffix = "" }: { value: number; suffix?: string
     const run = () => {
       if (started.current) return;
       started.current = true;
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const motionOff =
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+        el.closest(".mac-root")?.getAttribute("data-mac-motion") === "off";
+      if (motionOff) {
         setDisplay(value);
         setDone(true);
         return;

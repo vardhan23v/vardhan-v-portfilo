@@ -1,0 +1,59 @@
+/* ═══ Window chrome + page scroll containers ═══ */
+.mac-desktop-window {
+  position: absolute;
+  display: flex; flex-direction: column;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
+  border: 0.5px solid var(--glass-border);
+  box-shadow: var(--el-3), var(--glass-inset), 0 0 0 0.5px rgba(0,0,0,0.5);
+  backdrop-filter: blur(22px) saturate(1.5); -webkit-backdrop-filter: blur(22px) saturate(1.5);
+  pointer-events: auto;
+  animation: winIn 0.36s var(--ease-cinema) both;
+  transform: translateZ(0);
+  contain: layout style paint;
+  transition: box-shadow 200ms, opacity 200ms, border-color 200ms;
+}
+.mac-root[data-theme="light"] .mac-desktop-window { box-shadow: var(--el-3), var(--glass-inset), 0 0 0 0.5px rgba(0,0,0,0.12); }
+@keyframes winIn { from { opacity: 0; transform: translateY(12px) scale(0.985); } }
+.mac-desktop-window.is-active { box-shadow: var(--el-4), var(--glass-inset), 0 0 0 0.5px rgba(0,0,0,0.6), 0 0 0 1px var(--accent-border); }
+.mac-root[data-theme="light"] .mac-desktop-window.is-active { box-shadow: var(--el-4), var(--glass-inset), 0 0 0 1px var(--accent-border); }
+.mac-desktop-window:not(.is-active) { opacity: 0.94; backdrop-filter: blur(12px) saturate(1.3); -webkit-backdrop-filter: blur(12px) saturate(1.3); }
+.mac-desktop-window.is-dragging, .mac-desktop-window.is-resizing { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--surface); transition: none; }
+.mac-desktop-window.is-maximized { border-radius: 0; }
+
+.mac-desktop-window__header {
+  display: flex; align-items: center; gap: 8px; padding: 0 10px;
+  height: 38px; min-height: 38px;
+  border-bottom: 0.5px solid var(--border);
+  cursor: default; user-select: none;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.03), transparent);
+}
+.mac-desktop-window__title { flex: 1; text-align: center; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mac-desktop-window.is-active .mac-desktop-window__title { color: var(--text-primary); }
+.mac-desktop-window__spacer { flex: 0 0 52px; }
+.mac-desktop-window__body { flex: 1; overflow: hidden; min-height: 0; position: relative; }
+.mac-desktop-window__resize { position: absolute; right: 0; bottom: 0; width: 20px; height: 20px; cursor: nwse-resize; z-index: 5; }
+.mac-desktop-window__resize::before { content: ""; position: absolute; right: 6px; bottom: 6px; width: 9px; height: 9px; border-right: 1.5px solid var(--text-tertiary); border-bottom: 1.5px solid var(--text-tertiary); opacity: 0; transition: opacity 120ms; }
+.mac-desktop-window:hover .mac-desktop-window__resize::before { opacity: 0.6; }
+
+/* traffic lights */
+.traffic-lights { display: flex; align-items: center; gap: 8px; padding: 0 2px; flex-shrink: 0; }
+.traffic-light { width: 12px; height: 12px; border-radius: 50%; position: relative; padding: 0; transition: transform 120ms var(--ease-out), background 200ms; }
+.traffic-light--close { background: var(--traffic-close); }
+.traffic-light--minimize { background: var(--traffic-minimize); }
+.traffic-light--maximize { background: var(--traffic-maximize); }
+.mac-desktop-window:not(.is-active) .traffic-light { background: var(--traffic-inactive); }
+.mac-desktop-window:not(.is-active) .traffic-lights:hover .traffic-light--close { background: var(--traffic-close); }
+.mac-desktop-window:not(.is-active) .traffic-lights:hover .traffic-light--minimize { background: var(--traffic-minimize); }
+.mac-desktop-window:not(.is-active) .traffic-lights:hover .traffic-light--maximize { background: var(--traffic-maximize); }
+.traffic-light::after { content: ""; position: absolute; inset: 0; border-radius: inherit; opacity: 0; transition: opacity 120ms; }
+.traffic-lights:hover .traffic-light--close::after { opacity: 1; background: radial-gradient(circle at center, rgba(0,0,0,0.35) 32%, transparent 34%); }
+.traffic-lights:hover .traffic-light--minimize::after { opacity: 1; background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)) no-repeat center / 6px 1.5px; }
+.traffic-lights:hover .traffic-light--maximize::after { opacity: 1; background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)) no-repeat center / 6px 1.5px, linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)) no-repeat center / 1.5px 6px; }
+.traffic-light:active { transform: scale(0.9); }
+
+/* page scroll container */
+.mac-content { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scroll-behavior: smooth; }
+.mac-scrollprogress { position: sticky; top: 0; z-index: 3; height: 2px; width: 100%; transform-origin: left; transform: scaleX(var(--scroll, 0)); background: var(--accent); opacity: 0.85; }
+.mac-page { max-width: 880px; margin: 0 auto; padding: 36px 44px 56px; }
+.mac-body { height: 100%; }

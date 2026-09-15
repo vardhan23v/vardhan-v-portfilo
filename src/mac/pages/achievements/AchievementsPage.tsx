@@ -1,4 +1,4 @@
-import { Award, GraduationCap, BookOpen } from "lucide-react";
+import { Award, GraduationCap } from "lucide-react";
 import { education, certifications } from "../../data/experience";
 import { CountUp } from "../../components/ui/CountUp";
 import { Reveal } from "../../components/ui/Reveal";
@@ -8,7 +8,7 @@ export function AchievementsPage() {
     <div className="mac-page">
       <div className="page-header">
         <div className="page-header__eyebrow">Achievements</div>
-        <h1 className="page-header__title">Education & Certifications</h1>
+        <h1 className="page-header__title">Credentials, numbered.</h1>
         <p className="page-header__subtitle">
           The credentials behind the work — {education.length} schools, {certifications.length} certifications.
         </p>
@@ -43,9 +43,9 @@ export function AchievementsPage() {
           {education.map((edu, i) => (
             <Reveal key={edu.school} index={Math.min(i, 2)}>
               <div className="education-item">
+                <div className="education-item__period">{edu.period}</div>
                 <div className="education-item__school">{edu.school}</div>
                 <div className="education-item__degree">{edu.degree}</div>
-                <div className="education-item__period">{edu.period}</div>
                 {edu.detail && (
                   <p
                     style={{
@@ -73,13 +73,8 @@ export function AchievementsPage() {
           {certifications.map((cert, i) => (
             <Reveal key={cert} index={Math.min(i, 5)}>
               <div className="achievement-card">
-                <div
-                  className="achievement-card__title"
-                  style={{ display: "flex", alignItems: "center", gap: "var(--sp-2)" }}
-                >
-                  <BookOpen style={{ width: 14, height: 14, color: "var(--accent)", flexShrink: 0 }} />
-                  {cert.split("—")[0].trim()}
-                </div>
+                <span className="achievement-card__n">{String(i + 1).padStart(2, "0")}</span>
+                <div className="achievement-card__title">{cert.split("—")[0].trim()}</div>
                 {cert.includes("—") && (
                   <div className="achievement-card__text">{cert.split("—")[1]?.trim()}</div>
                 )}

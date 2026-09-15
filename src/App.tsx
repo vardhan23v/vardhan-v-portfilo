@@ -23,7 +23,7 @@ const ROUTE_SEO: Record<string, { title: string; description: string }> = {
   "/": {
     title: "Sree Vardhan V | Generative AI Developer & Full-Stack Developer",
     description:
-      "Portfolio of Sree Vardhan V — a Generative AI developer and full-stack engineer — presented as a macOS-style desktop. Overview, projects, experience, skills, and contact.",
+      "Six portfolio interfaces by Sree Vardhan V — a Generative AI developer and full-stack engineer building AI-powered products, developer tools, and full-stack systems.",
   },
   "/editions": {
     title: "Editions — Sree Vardhan V | Generative AI Developer",
@@ -94,8 +94,8 @@ function InterfaceShortcuts() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    // The macOS shell (/ and /mac) has its own inner 1-7 page shortcuts — don't hijack them
-    if (pathname === "/" || pathname.startsWith("/mac")) return;
+    // /mac has its own inner 1-7 page shortcuts — don't hijack them
+    if (pathname.startsWith("/mac")) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
       const t = e.target as HTMLElement | null;
@@ -139,7 +139,7 @@ export default function App() {
       <ScrollToTop />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/" element={<MacPortfolio />} />
+          <Route path="/" element={<Landing />} />
           <Route path="/editions" element={<Landing />} />
           <Route path="/classic" element={<ClassicSite />} />
           <Route path="/paper" element={<PaperSite />} />
@@ -150,7 +150,7 @@ export default function App() {
             <Route index element={<TerminalHome />} />
             <Route path="work/:slug" element={<WorkDetail />} />
           </Route>
-          <Route path="*" element={<MacPortfolio />} />
+          <Route path="*" element={<Landing />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

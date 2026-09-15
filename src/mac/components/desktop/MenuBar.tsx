@@ -133,7 +133,7 @@ export function MenuBar() {
         { label: "About This Mac", action: () => openWindow("about-mac") },
         { label: "System Settings…", shortcut: "⌘,", action: () => openWindow("settings") },
         { kind: "sep" },
-        { label: "Browse Other Editions…", action: () => routerNavigate("/editions", { viewTransition: true }) },
+        { label: "Browse Other Editions…", action: () => routerNavigate("/", { viewTransition: true }) },
         { kind: "sep" },
         { label: anyVisible ? "Lock Screen" : "Wake Up", action: lockScreen },
       ],

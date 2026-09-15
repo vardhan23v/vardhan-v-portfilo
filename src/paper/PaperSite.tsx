@@ -255,7 +255,7 @@ export function PaperSite() {
       <footer className="paper-foot">
         <span>© 2026 {site.name}</span>
         <span className="paper-foot-links">
-          <Link to="/editions">editions</Link>
+          <Link to="/">editions</Link>
           <a href={site.github} target="_blank" rel="noopener noreferrer">
             GitHub
           </a>

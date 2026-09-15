@@ -5,11 +5,11 @@ let f = 0;
 const chk = (l, c) => { if (!c) { console.log("FAIL:", l); f++; } };
 const BASE = process.env.BASE || "http://localhost:4173";
 // macOS shell at / : 1-7 open page windows, ⌘K opens Spotlight, digits never leave the route.
-await p.goto(BASE + "/?noboot=1", { waitUntil: "networkidle0" });
+await p.goto(BASE + "/mac?noboot=1", { waitUntil: "networkidle0" });
 await p.waitForSelector(".mac-desktop", { timeout: 10000 });
 await p.keyboard.press("3");
 await p.waitForSelector('.mac-desktop-window[data-app="projects"]', { timeout: 5000 });
-chk("mac: 3 opens Projects window", await p.evaluate(() => location.pathname === "/"));
+chk("mac: 3 opens Projects window", await p.evaluate(() => location.pathname === "/mac"));
 await p.keyboard.press("7");
 await p.waitForSelector('.mac-desktop-window[data-app="contact"]', { timeout: 5000 });
 chk("mac: 7 opens Contact window", true);
@@ -18,7 +18,7 @@ await p.waitForSelector(".palette", { timeout: 5000 });
 chk("mac: ⌘K opens Spotlight", true);
 await p.keyboard.press("Escape");
 // Edition picker at /editions : 1-5 switch editions.
-await p.goto(BASE + "/editions", { waitUntil: "networkidle0" });
+await p.goto(BASE + "/", { waitUntil: "networkidle0" });
 await p.waitForSelector(".edition-grid", { timeout: 10000 });
 await p.keyboard.press("2");
 await p.waitForFunction(() => location.pathname === "/classic", { timeout: 5000 });

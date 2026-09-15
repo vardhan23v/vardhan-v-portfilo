@@ -1045,7 +1045,7 @@ export function AuroraSite() {
         <footer className="aurora-foot au-reveal">
           <span>© 2026 {site.name} — Aurora edition · last deployed today · IST {ist}</span>
           <span className="aurora-foot-links">
-            <Link to="/editions">editions</Link>
+            <Link to="/">editions</Link>
             <a href={site.github} target="_blank" rel="noopener noreferrer">
               GitHub
             </a>

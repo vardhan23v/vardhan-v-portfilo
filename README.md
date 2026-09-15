@@ -45,7 +45,7 @@ The macOS interface was rebuilt from the visual layer up: a **dark-glass OS with
 - **Round 3** — ⌥Tab **app switcher**, **Mission Control** (⌃↑ / F3), edge **window snapping** with live preview, ⇧⌘D show desktop, idle **screensaver** (`?saver=1`), time-of-day wallpaper tint, **genie** minimize/restore, circular **light/dark reveal** (View Transitions), Finder **Quick Look** (Space), **notification banners** with app glyphs + actions, synthesized **interface sounds** (Settings → Sound), Terminal `matrix` + typewriter intro + confetti on `sudo hire vardhan`.
 - **Hygiene** — dead `AppShell`/Sidebar/Toolbar/StatusBar/TabBar removed; `useTilt`/`CountUp` honour the in-app Reduce-motion toggle; QA scripts cover `/?noboot=1` and `/editions`.
 
-- **macOS is now the front door.** `/` boots straight into the desktop shell; the edition picker moved to `/editions` (also reachable from the  menu → *Browse Other Editions…*). `/mac` still works as an alias.
+- **Routing** — the landing page with the edition picker stays at `/` (`/editions` is an alias); the macOS shell lives at `/mac` and links back via the ✦ menu → *Browse Other Editions…*.
 - **Wallpaper + Dock refresh** `src/mac/styles/wallpaper.css:1` — layered gradient-mesh wallpaper that follows the accent colour and light/dark theme, frosted window glass, macOS-style coloured Dock tiles with proximity magnification, running-app indicator dots and a tray separator.
 - **Window manager hardening** `src/mac/hooks/useWindowManager.tsx:36` — windows re-fit on resize/rotation and never render 0px wide when the viewport reports 0 on first paint; mobile menu bar no longer overflows.
 
@@ -67,8 +67,7 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
 
 | Route | Edition | Tone | Signature |
 |---|---|---|---|
-| `/` | **macOS** (default) | App shell | Boots straight into the desktop shell described below |
-| `/editions` | **Landing** | Picker | Crossfading mini-skins stage (Terminal/Classic/Paper/Aurora/Forge/macOS), GitHub stats, two-column hero |
+| `/` | **Landing** | Picker | Crossfading mini-skins stage (Terminal/Classic/Paper/Aurora/Forge/macOS), GitHub stats, two-column hero (`/editions` is an alias) |
 | `/terminal` | **Terminal** | Retro CRT | Boot seq, shell `help` / `whoami` / `cat skills.tree` / `neofetch` / `cowsay` / `ping`, `↑↓` history + Tab + `` ` `` focus, work at `/terminal/work/:slug` |
 | `/classic` | **Classic** — *cinematic* | Original dark | Stagger hero, neural SVG draw-in, IST clock, parallax floaters, CLI `find ./projects` with highlight + `/` focus, **scroll progress**, GitHub stats, sticky project grid |
 | `/paper` | **Paper** | Light editorial | Fraunces serifs, overlines, hairline rules, quiet readable |

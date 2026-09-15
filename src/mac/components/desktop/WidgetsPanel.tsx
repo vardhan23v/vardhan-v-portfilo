@@ -51,13 +51,13 @@ export function WidgetsPanel() {
 
   return (
     <aside className="mac-widgets" ref={ref} aria-label="Widgets">
-      <section className="mac-widget mac-widget--clock">
+      <section className="mac-widget mac-widget--clock" style={{ "--i": 0 } as React.CSSProperties}>
         <div className="mac-widget__eyebrow mac-caps">{day} · IST</div>
         <div className="mac-widget__time">{ist}</div>
         <div className="mac-widget__date">{date}</div>
       </section>
 
-      <section className="mac-widget mac-widget--status">
+      <section className="mac-widget mac-widget--status" style={{ "--i": 1 } as React.CSSProperties}>
         <div className="mac-widget__eyebrow mac-caps">{status.headline}</div>
         <p className="mac-widget__lede">{status.detail}</p>
         <div className="mac-widget__foot">
@@ -65,7 +65,7 @@ export function WidgetsPanel() {
         </div>
       </section>
 
-      <section className="mac-widget mac-widget--github">
+      <section className="mac-widget mac-widget--github" style={{ "--i": 2 } as React.CSSProperties}>
         <div className="mac-widget__eyebrow mac-caps">GitHub · @{site.githubUser}</div>
         <div className="mac-widget__stats">
           <div><b>{loading ? "—" : repos}</b><span>repos</span></div>
@@ -78,7 +78,7 @@ export function WidgetsPanel() {
       </section>
 
       {latest && (
-        <button className="mac-widget mac-widget--latest" onClick={() => { openWindow("projects"); setOverlay("none"); }}>
+        <button className="mac-widget mac-widget--latest" style={{ "--i": 3 } as React.CSSProperties} onClick={() => { openWindow("projects"); setOverlay("none"); }}>
           <div className="mac-widget__eyebrow mac-caps">Latest build</div>
           <div className="mac-widget__row">
             <span className="mac-widget__emoji" aria-hidden="true">{latest.emoji}</span>
@@ -90,7 +90,7 @@ export function WidgetsPanel() {
         </button>
       )}
 
-      <section className="mac-widget mac-widget--links">
+      <section className="mac-widget mac-widget--links" style={{ "--i": 4 } as React.CSSProperties}>
         <div className="mac-widget__eyebrow mac-caps">Reach</div>
         <div className="mac-widget__links">
           <a href={`mailto:${site.email}`}><Mail /> Email</a>

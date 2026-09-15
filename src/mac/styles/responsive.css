@@ -8,6 +8,8 @@
 }
 @media (max-width: 760px) {
   .project-grid, .skills-grid, .achievements-grid, .about-steps { grid-template-columns: 1fr; }
+  .ov-ledger__row { grid-template-columns: 30px 1fr; }
+  .ov-ledger__tech { display: none; }
   .mac-form__row { grid-template-columns: 1fr; }
   .experience-item, .education-item { grid-template-columns: 1fr; gap: 6px; }
   .experience-item > button, .experience-item__points, .education-item__school, .education-item__degree, .education-item > p { grid-column: 1; }

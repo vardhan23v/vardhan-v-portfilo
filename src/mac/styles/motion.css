@@ -1,0 +1,189 @@
+/* ═══ Motion layer — every rule here is zeroed by the reduce-motion gates
+       in tokens.css (prefers-reduced-motion + data-mac-motion="off"). ═══ */
+
+/* ── Wallpaper: slow autonomous drift layered under pointer parallax ── */
+.mac-wallpaper__layer--a { animation: wpDriftA 46s ease-in-out infinite alternate; }
+.mac-wallpaper__layer--b { animation: wpDriftB 58s ease-in-out infinite alternate; }
+.mac-wallpaper__layer--c { animation: wpDriftC 38s ease-in-out infinite alternate; }
+@keyframes wpDriftA { to { translate: 3% 2%; scale: 1.06; } }
+@keyframes wpDriftB { to { translate: -3% 3%; scale: 1.08; } }
+@keyframes wpDriftC { to { translate: 4% -3%; scale: 1.1; } }
+
+/* ── Windows: open, close, minimize-to-dock, maximize glide ── */
+.mac-desktop-window { animation: winIn 0.42s var(--ease-spring) both; }
+@keyframes winIn { from { opacity: 0; transform: translateY(18px) scale(0.96); } }
+.mac-desktop-window:not(.is-dragging):not(.is-resizing):not(.is-leaving) {
+  transition: left 320ms var(--ease-cinema), top 320ms var(--ease-cinema), width 320ms var(--ease-cinema), height 320ms var(--ease-cinema), border-radius 320ms, box-shadow 200ms, opacity 200ms;
+}
+.mac-desktop-window.is-leaving { pointer-events: none; }
+.mac-desktop-window.is-leaving--close { animation: winClose 0.22s var(--ease-cinema) forwards; }
+@keyframes winClose { to { opacity: 0; transform: scale(0.94) translateY(6px); filter: blur(4px); } }
+.mac-desktop-window.is-leaving--minimize { animation: winMinimize 0.38s cubic-bezier(0.5, 0, 0.8, 0.4) forwards; transform-origin: center; }
+@keyframes winMinimize {
+  40% { opacity: 1; border-radius: 24px; }
+  to { opacity: 0; transform: translate(var(--tx, 0), var(--ty, 40vh)) scale(0.08); border-radius: 40px; }
+}
+.mac-desktop-window__body { animation: bodyIn 0.5s 0.08s var(--ease-cinema) both; }
+@keyframes bodyIn { from { opacity: 0; } }
+.mac-desktop-window.is-active .traffic-light { animation: lightIn 0.4s var(--ease-spring) both; }
+.mac-desktop-window.is-active .traffic-light--minimize { animation-delay: 60ms; }
+.mac-desktop-window.is-active .traffic-light--maximize { animation-delay: 120ms; }
+@keyframes lightIn { from { transform: scale(0.4); opacity: 0; } }
+
+/* ── Page content: masthead settle + section reveal (existing .rv) ── */
+.mac-content--animated .mac-page { animation: pageIn 0.5s var(--ease-cinema) both; }
+@keyframes pageIn { from { opacity: 0; transform: translateY(8px); } }
+.ov-name { animation: nameIn 0.9s var(--ease-cinema) both; }
+@keyframes nameIn { from { opacity: 0; transform: translateY(14px); letter-spacing: 0.02em; } }
+.ov-name em { display: inline-block; animation: emTilt 1.1s 0.2s var(--ease-spring) both; }
+@keyframes emTilt { from { opacity: 0; transform: rotate(-8deg) translateY(10px); } }
+.ov-quote { animation: pageIn 0.7s 0.35s var(--ease-cinema) both; }
+.mac-scrollprogress { transition: transform 120ms linear; }
+
+/* ── Dock: launch bounce, hover lift already in shell.css ── */
+.mac-dock__item.is-bouncing { animation: dockBounce 0.9s var(--ease-cinema) 2; }
+@keyframes dockBounce { 0%, 100% { transform: translateY(0); } 35% { transform: translateY(-22px); } 65% { transform: translateY(-4px); } }
+.mac-dock { animation: dockIn 0.6s 0.1s var(--ease-spring) both; }
+@keyframes dockIn { from { opacity: 0; transform: translateY(30px) scale(0.96); } }
+.mac-dock__dot { transition: opacity 200ms, transform 300ms var(--ease-spring); transform: scale(0); }
+.mac-dock__item.is-open .mac-dock__dot, .mac-dock__item.is-active .mac-dock__dot { transform: scale(1); }
+
+/* ── Menu bar & popovers ── */
+.mac-menubar { animation: barIn 0.5s var(--ease-cinema) both; }
+@keyframes barIn { from { opacity: 0; transform: translateY(-100%); } }
+.mac-menubar__drop-item { animation: menuItemIn 0.22s var(--ease-cinema) both; }
+.mac-menubar__drop-item:nth-child(1) { animation-delay: 0ms; }
+.mac-menubar__drop-item:nth-child(2) { animation-delay: 20ms; }
+.mac-menubar__drop-item:nth-child(3) { animation-delay: 40ms; }
+.mac-menubar__drop-item:nth-child(4) { animation-delay: 60ms; }
+.mac-menubar__drop-item:nth-child(5) { animation-delay: 80ms; }
+.mac-menubar__drop-item:nth-child(n + 6) { animation-delay: 100ms; }
+@keyframes menuItemIn { from { opacity: 0; transform: translateX(-6px); } }
+.cc-tile, .cc-panel, .cc-action { animation: tileIn 0.32s var(--ease-spring) both; }
+.cc-grid .cc-tile:nth-child(2) { animation-delay: 40ms; }
+.cc-grid .cc-tile:nth-child(3) { animation-delay: 80ms; }
+.cc-grid .cc-tile:nth-child(4) { animation-delay: 120ms; }
+.cc-drop > .cc-panel:nth-of-type(1) { animation-delay: 140ms; }
+.cc-drop > .cc-panel:nth-of-type(2) { animation-delay: 180ms; }
+.cc-drop > .cc-panel:nth-of-type(3) { animation-delay: 220ms; }
+.cc-drop > .cc-panel:nth-of-type(4) { animation-delay: 260ms; }
+@keyframes tileIn { from { opacity: 0; transform: translateY(8px) scale(0.96); } }
+.cc-switch__knob { transition: transform 260ms var(--ease-spring); }
+.cc-tile__icon { transition: transform 200ms var(--ease-spring), background 150ms; }
+.cc-tile:active .cc-tile__icon { transform: scale(0.86); }
+.cc-tile.is-on .cc-tile__icon { animation: iconPop 0.35s var(--ease-spring); }
+@keyframes iconPop { 50% { transform: scale(1.2); } }
+.mac-menubar__clock { transition: background 120ms, letter-spacing 200ms; }
+.mac-menubar__clock:hover { letter-spacing: 0.08em; }
+
+/* ── Desktop icons: drop in on mount ── */
+.mac-dicon-slot { display: contents; }
+.mac-dicon { animation: iconDrop 0.55s var(--ease-spring) both; animation-delay: calc(var(--i, 0) * 70ms + 200ms); }
+@keyframes iconDrop { from { opacity: 0; transform: translateY(-14px) scale(0.9); } }
+.mac-dicon .mac-glyph { transition: transform 200ms var(--ease-spring), box-shadow 200ms; }
+.mac-dicon:hover .mac-glyph { transform: translateY(-3px) scale(1.06); box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(0,0,0,0.3), 0 10px 22px rgba(0,0,0,0.45); }
+.mac-dicon.is-dragging .mac-glyph { transform: scale(1.1) rotate(-3deg); }
+
+/* ── Launchpad: staggered grid ── */
+.mac-launchpad__app { animation: lpApp 0.45s var(--ease-spring) both; animation-delay: calc(var(--i, 0) * 28ms + 60ms); }
+@keyframes lpApp { from { opacity: 0; transform: translateY(16px) scale(0.9); } }
+.mac-launchpad__search { animation: pageIn 0.4s var(--ease-cinema) both; }
+.mac-launchpad__app .mac-glyph { transition: transform 220ms var(--ease-spring); }
+.mac-launchpad__app:hover .mac-glyph, .mac-launchpad__app.is-active .mac-glyph { transform: scale(1.1) translateY(-2px); }
+
+/* ── Widgets: staggered slide ── */
+.mac-widget { animation: widgetIn 0.45s var(--ease-cinema) both; animation-delay: calc(var(--i, 0) * 55ms); }
+@keyframes widgetIn { from { opacity: 0; transform: translateX(28px); } }
+.mac-widget__time { animation: timePulse 0.8s var(--ease-cinema) both; }
+@keyframes timePulse { from { opacity: 0; letter-spacing: 0.06em; } }
+.mac-dot { animation: dotPing 2.4s ease-out infinite; }
+@keyframes dotPing { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 45%, transparent); } 70% { box-shadow: 0 0 0 8px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+.status-badge__dot { animation: dotPing 2.4s ease-out infinite; }
+
+/* ── Covers: hover sheen + lift ── */
+.mac-cover { transition: transform 320ms var(--ease-cinema), box-shadow 320ms; }
+.mac-cover__img, .mac-cover__gen { transition: transform 700ms var(--ease-cinema); }
+.project-card:hover .mac-cover__img, .project-card:hover .mac-cover__gen,
+.ov-lead:hover .mac-cover__img, .ov-lead:hover .mac-cover__gen,
+.finder__item:hover .mac-cover__gen, .finder__item:hover .mac-cover__img { transform: scale(1.04); }
+.mac-cover::after {
+  content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.18) 50%, transparent 65%);
+  transform: translateX(-120%);
+}
+.project-card:hover .mac-cover::after, .ov-lead:hover .mac-cover::after, .finder__item:hover .mac-cover::after { animation: sheen 0.9s var(--ease-cinema) forwards; }
+@keyframes sheen { to { transform: translateX(120%); } }
+.mac-cover__emoji { transition: transform 300ms var(--ease-spring); }
+.project-card:hover .mac-cover__emoji, .ov-lead:hover .mac-cover__emoji { transform: rotate(-8deg) scale(1.15); }
+
+/* ── Cards, chips, buttons ── */
+.project-card:hover { transform: perspective(900px) rotateX(var(--rx, 0)) rotateY(var(--ry, 0)) translateY(-3px); }
+.mac-tag--clickable:active, .mac-pill:active, .mac-btn:active { transform: scale(0.96); }
+.mac-btn--primary { position: relative; overflow: hidden; }
+.mac-btn--primary::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.28) 50%, transparent 70%); transform: translateX(-130%); }
+.mac-btn--primary:hover::after { animation: sheen 0.7s var(--ease-cinema) forwards; }
+.mac-stat__value { transition: color 200ms; }
+.mac-stat:hover .mac-stat__value { color: var(--accent); }
+.countup--done { animation: countDone 0.5s var(--ease-spring); display: inline-block; }
+@keyframes countDone { 40% { transform: scale(1.08); } }
+.experience-item__toggle svg { transition: transform 200ms var(--ease-spring); }
+.experience-item__points li { animation: pointIn 0.35s var(--ease-cinema) both; }
+.experience-item__points li:nth-child(2) { animation-delay: 40ms; }
+.experience-item__points li:nth-child(3) { animation-delay: 80ms; }
+.experience-item__points li:nth-child(4) { animation-delay: 120ms; }
+.experience-item__points li:nth-child(n + 5) { animation-delay: 160ms; }
+@keyframes pointIn { from { opacity: 0; transform: translateX(-8px); } }
+.ov-ledger__row { transition: background 120ms, padding-left 200ms var(--ease-cinema); }
+.ov-ledger__row:hover { padding-left: 10px; }
+.ov-ledger__row:hover .ov-ledger__n { color: var(--text-primary); }
+.mac-edition { overflow: hidden; }
+.mac-edition__name { transition: transform 200ms var(--ease-cinema); }
+.mac-edition:hover .mac-edition__name { transform: translateX(4px); }
+.contact-mail { transition: color 200ms, letter-spacing 300ms var(--ease-cinema); }
+.contact-mail:hover { letter-spacing: -0.005em; }
+.contact-channel > svg { transition: transform 200ms var(--ease-spring); }
+.contact-channel:hover > svg { transform: scale(1.15); color: var(--accent); }
+
+/* ── Apps ── */
+.termapp__prompt::after { animation: caretBlink 1.1s steps(2) infinite; }
+@keyframes caretBlink { 50% { opacity: 0.25; } }
+.termapp__line { animation: lineIn 0.18s var(--ease-cinema) both; }
+@keyframes lineIn { from { opacity: 0; transform: translateY(3px); } }
+.aiapp__q, .aiapp__a { animation: bubbleIn 0.35s var(--ease-spring) both; }
+.aiapp__a { animation-delay: 120ms; }
+@keyframes bubbleIn { from { opacity: 0; transform: translateY(8px) scale(0.97); } }
+.aiapp__chip { transition: transform 160ms var(--ease-spring), background 120ms, color 120ms; }
+.aiapp__chip:hover { transform: translateY(-2px); }
+.finder__item, .finder__row { transition: background 120ms, transform 200ms var(--ease-spring); }
+.finder__item:hover { transform: translateY(-2px); }
+.finder__preview > * { animation: pageIn 0.35s var(--ease-cinema) both; }
+.finder__preview > *:nth-child(2) { animation-delay: 50ms; }
+.finder__preview > *:nth-child(3) { animation-delay: 100ms; }
+.finder__preview > *:nth-child(4) { animation-delay: 150ms; }
+.settingsapp__group { animation: pageIn 0.35s var(--ease-cinema) both; }
+.settingsapp__group:nth-of-type(2) { animation-delay: 60ms; }
+.settingsapp__group:nth-of-type(3) { animation-delay: 120ms; }
+.accent-swatch { transition: transform 200ms var(--ease-spring), box-shadow 200ms; }
+.accent-swatch.is-selected { animation: iconPop 0.4s var(--ease-spring); }
+
+/* ── Boot: shimmer on the wordmark, breathing ring on the avatar ── */
+.mac-boot__wordmark {
+  background: linear-gradient(100deg, currentColor 40%, var(--accent) 50%, currentColor 60%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: bootIn 600ms var(--ease-cinema) both, shimmer 2.2s 0.3s linear infinite;
+}
+.mac-root[data-theme="dark"] .mac-boot__wordmark { background-image: linear-gradient(100deg, #f2f3f8 40%, var(--accent) 50%, #f2f3f8 60%); }
+.mac-root[data-theme="light"] .mac-boot__wordmark { background-image: linear-gradient(100deg, #12151f 40%, var(--accent) 50%, #12151f 60%); }
+.mac-boot__wordmark span { color: var(--accent); -webkit-text-fill-color: var(--accent); }
+@keyframes shimmer { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+.mac-boot__avatar { animation: bootIn 600ms var(--ease-cinema) both, breathe 3s 0.6s ease-in-out infinite; }
+@keyframes breathe { 50% { box-shadow: 0 0 0 14px rgba(255,255,255,0.05), 0 20px 60px -10px rgba(0,0,0,0.6); } }
+.mac-boot__enter { animation: pageIn 0.5s 0.25s var(--ease-cinema) both; }
+.mac-boot__enter kbd { transition: transform 200ms var(--ease-spring); }
+.mac-boot__enter:hover kbd { transform: translateX(3px); }
+
+/* ── Toast & palette ── */
+.palette__item { transition: background 80ms, transform 120ms var(--ease-cinema); }
+.palette__item--active { transform: translateX(2px); }
+.mac-toast svg { animation: iconPop 0.5s var(--ease-spring); }

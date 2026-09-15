@@ -159,8 +159,10 @@ export function DesktopIcons() {
 
   return (
     <div className="mac-dicons" ref={areaRef} aria-label="Desktop shortcuts">
-      {ICONS.map((def) => (
-        <DesktopIcon key={def.id} def={def} pos={pos[def.id] ?? defaults[def.id]} onMove={onMove} onOpen={onOpen} />
+      {ICONS.map((def, i) => (
+        <div key={def.id} className="mac-dicon-slot" style={{ "--i": i } as React.CSSProperties}>
+          <DesktopIcon def={def} pos={pos[def.id] ?? defaults[def.id]} onMove={onMove} onOpen={onOpen} />
+        </div>
       ))}
     </div>
   );

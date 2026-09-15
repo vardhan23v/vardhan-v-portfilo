@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { useWindowManager, type AppId } from "../../hooks/useWindowManager";
 import { usePreferences } from "../../hooks/usePreferences";
 import { useShell } from "../../hooks/useShell";
@@ -21,6 +21,11 @@ export function Dock() {
   const { windows, activeId, openWindow } = useWindowManager();
   const { prefs } = usePreferences();
   const { overlay, setOverlay, toggleOverlay } = useShell();
+  const [bouncing, setBouncing] = useState<string | null>(null);
+  const bounce = (id: string) => {
+    setBouncing(id);
+    window.setTimeout(() => setBouncing((b) => (b === id ? null : b)), 900);
+  };
 
   return (
     <>
@@ -36,11 +41,12 @@ export function Dock() {
                 {sep && <span className="mac-dock__sep" aria-hidden="true" />}
                 <button
                   data-app={id}
-                  className={`mac-dock__item${isActive ? " is-active" : ""}${win ? " is-open" : ""}${win?.minimized ? " is-minimized" : ""}`}
+                  className={`mac-dock__item${isActive ? " is-active" : ""}${win ? " is-open" : ""}${win?.minimized ? " is-minimized" : ""}${bouncing === id ? " is-bouncing" : ""}`}
                   onClick={() => {
                     if (isLaunchpad) toggleOverlay("launchpad");
                     else {
                       setOverlay("none");
+                      if (!win || win.minimized) bounce(id);
                       openWindow(id as AppId);
                     }
                   }}

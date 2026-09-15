@@ -86,6 +86,7 @@ export function Launchpad() {
               className={`mac-launchpad__app${i === idx ? " is-active" : ""}`}
               onClick={() => launch(a.id)}
               onMouseEnter={() => setIdx(i)}
+              style={{ "--i": i } as React.CSSProperties}
             >
               <AppGlyph id={a.id} size={64} />
               <span className="mac-launchpad__label">{a.label}</span>

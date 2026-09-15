@@ -208,6 +208,32 @@ kbd { font-family: var(--font-mono); font-size: 0.8em; padding: 1px 5px; border-
   [data-land-reveal], .edition-tilt { opacity: 1 !important; transform: none !important; transition: none; }
 }
 
+/* ── Portal transition: card → page ── */
+.ed-portal { position: fixed; z-index: 50; left: var(--px); top: var(--py); width: var(--pw); height: var(--ph); border-radius: 20px; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; pointer-events: none;
+  background: var(--portal-bg, #0b0f1a); box-shadow: 0 40px 120px -20px rgba(0,0,0,0.8);
+  transition: left 620ms var(--ease), top 620ms var(--ease), width 620ms var(--ease), height 620ms var(--ease), border-radius 620ms var(--ease); }
+.ed-portal.is-hold { left: 0; top: 0; width: 100vw; height: 100vh; border-radius: 0; }
+.ed-portal::before { content: ""; position: absolute; inset: -20%; background: var(--portal-glow, radial-gradient(60% 60% at 30% 30%, rgba(110,168,255,0.35), transparent 70%)); animation: portalGlow 900ms var(--ease) both; }
+@keyframes portalGlow { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.ed-portal__card { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--portal-fg, #f2f3f8); opacity: 0; transform: translateY(14px) scale(0.96); transition: opacity 320ms 220ms var(--ease), transform 500ms 220ms var(--spring); }
+.ed-portal.is-hold .ed-portal__card { opacity: 1; transform: none; }
+.ed-portal__num { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.2em; opacity: 0.7; }
+.ed-portal__name { font-family: var(--font-display); font-size: clamp(3rem, 9vw, 7rem); line-height: 1; letter-spacing: -0.03em; font-style: italic; }
+.ed-portal__hint { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.55; animation: caretBlinkL 0.9s steps(2) infinite; }
+@keyframes caretBlinkL { 50% { opacity: 0.2; } }
+.ed-portal--term    { --portal-bg: #05100a; --portal-fg: #36e57c; --portal-glow: radial-gradient(60% 60% at 30% 30%, rgba(54,229,124,0.3), transparent 70%); }
+.ed-portal--term .ed-portal__name { font-family: var(--font-mono); font-style: normal; letter-spacing: -0.02em; }
+.ed-portal--classic { --portal-bg: #05060f; --portal-fg: #f2f3f8; --portal-glow: radial-gradient(60% 60% at 30% 30%, rgba(124,108,255,0.4), transparent 70%); }
+.ed-portal--paper   { --portal-bg: #f6f1e7; --portal-fg: #1b1710; --portal-glow: radial-gradient(60% 60% at 70% 30%, rgba(200,160,90,0.3), transparent 70%); }
+.ed-portal--aurora  { --portal-bg: #0b0a1a; --portal-fg: #fff; --portal-glow: radial-gradient(50% 50% at 25% 30%, rgba(255,122,198,0.45), transparent 70%), radial-gradient(50% 50% at 75% 70%, rgba(34,211,238,0.4), transparent 70%); }
+.ed-portal--forge   { --portal-bg: #0a0705; --portal-fg: #ffab5e; --portal-glow: radial-gradient(60% 60% at 30% 70%, rgba(255,106,31,0.35), transparent 70%); }
+.ed-portal--forge .ed-portal__name { font-family: "Kanit", var(--font-display); font-style: normal; font-weight: 700; letter-spacing: -0.02em; }
+.ed-portal--mac     { --portal-bg: #0b0f1a; --portal-fg: #f2f3f8; --portal-glow: radial-gradient(60% 55% at 22% 18%, hsl(262 70% 48% / 0.55), transparent 70%), radial-gradient(50% 45% at 82% 28%, hsl(196 75% 52% / 0.45), transparent 70%); }
+.landing-root.is-leaving .landing-main, .landing-root.is-leaving .landing-top, .landing-root.is-leaving .landing-foot { transition: opacity 400ms var(--ease), transform 600ms var(--ease); opacity: 0.35; transform: scale(0.985); }
+.landing-root.is-leaving .edition-card { pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .ed-portal { display: none; } }
+
 /* ============================================================
    Edition skins (stage + mini previews) — preserved
    ============================================================ */

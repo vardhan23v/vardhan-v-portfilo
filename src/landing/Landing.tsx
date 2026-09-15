@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { useTilt } from "../hooks/useTilt";
 import { site } from "../classic/data/site";
@@ -143,6 +143,47 @@ const EDITIONS = [
   },
 ];
 
+type Portal = { to: string; tone: string; label: string; num: string; x: number; y: number; w: number; h: number; phase: "grow" | "hold" };
+
+/** Card → page transition: the clicked preview swells to fill the viewport, then we navigate. */
+function usePortal() {
+  const navigate = useNavigate();
+  const [portal, setPortal] = useState<Portal | null>(null);
+  const busy = useRef(false);
+  const go = (e: React.MouseEvent | null, ed: { to: string; tone: string; label: string; num: string }, fromEl?: HTMLElement | null) => {
+    if (busy.current) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced || e?.metaKey || e?.ctrlKey || e?.shiftKey) return; // let the Link handle it
+    e?.preventDefault();
+    busy.current = true;
+    const el = fromEl ?? (e?.currentTarget as HTMLElement | null);
+    const r = el?.getBoundingClientRect();
+    const rect = r && r.width > 0
+      ? { x: r.left, y: r.top, w: r.width, h: r.height }
+      : { x: window.innerWidth / 2 - 160, y: window.innerHeight / 2 - 100, w: 320, h: 200 };
+    setPortal({ ...ed, ...rect, phase: "grow" });
+    window.setTimeout(() => setPortal((p) => (p ? { ...p, phase: "hold" } : p)), 60);
+    window.setTimeout(() => {
+      navigate(ed.to, { viewTransition: true });
+      window.setTimeout(() => { setPortal(null); busy.current = false; }, 400);
+    }, 640);
+  };
+  return { portal, go };
+}
+
+function PortalOverlay({ p }: { p: Portal }) {
+  const style = { "--px": `${p.x}px`, "--py": `${p.y}px`, "--pw": `${p.w}px`, "--ph": `${p.h}px` } as CSSProperties;
+  return (
+    <div className={`ed-portal ed-portal--${p.tone} is-${p.phase}`} style={style} aria-hidden="true">
+      <div className="ed-portal__card">
+        <span className="ed-portal__num">{p.num}</span>
+        <span className="ed-portal__name">{p.label}</span>
+        <span className="ed-portal__hint">entering…</span>
+      </div>
+    </div>
+  );
+}
+
 function useIst() {
   const [t, setT] = useState("");
   useEffect(() => {
@@ -154,7 +195,7 @@ function useIst() {
   return t;
 }
 
-function EditionStage({ index, setIndex }: { index: number; setIndex: (f: (i: number) => number) => void }) {
+function EditionStage({ index, setIndex, onEnter }: { index: number; setIndex: (f: (i: number) => number) => void; onEnter: (e: React.MouseEvent, ed: (typeof EDITIONS)[number]) => void }) {
   const [paused, setPaused] = useState(false);
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -183,7 +224,7 @@ function EditionStage({ index, setIndex }: { index: number; setIndex: (f: (i: nu
         <span className="stage-url" aria-hidden="true">{ed.url}</span>
         <span className="stage-count" aria-hidden="true">{ed.num} / 06</span>
       </div>
-      <Link to={ed.to} className="stage-screen" aria-label={`Open the ${ed.label} interface`}>
+      <Link to={ed.to} className="stage-screen" aria-label={`Open the ${ed.label} interface`} onClick={(e) => onEnter(e, ed)}>
         {EDITIONS.map((s, i) => (
           <div key={s.to} className={`stage-skin stage-${s.tone}${i === index ? " is-active" : ""}`}>{s.skin}</div>
         ))}
@@ -203,11 +244,11 @@ function EditionStage({ index, setIndex }: { index: number; setIndex: (f: (i: nu
   );
 }
 
-function EditionCard({ to, label, tone, keyNum, children }: { to: string; label: string; tone: string; keyNum: string; children: ReactNode }) {
+function EditionCard({ to, label, tone, keyNum, children, onClick }: { to: string; label: string; tone: string; keyNum: string; children: ReactNode; onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void }) {
   const ref = useTilt<HTMLDivElement>(5, ".edition-card");
   return (
     <div ref={ref} className="edition-tilt" role="listitem">
-      <Link to={to} viewTransition className={`edition-card ed-${tone}`} aria-label={label} data-cursor={tone}>
+      <Link to={to} viewTransition className={`edition-card ed-${tone}`} aria-label={label} data-cursor={tone} onClick={onClick}>
         <kbd className="ed-key" aria-hidden="true">{keyNum}</kbd>
         {children}
       </Link>
@@ -246,6 +287,25 @@ function Stat({ value, label }: { value: number; label: string }) {
 export function Landing() {
   const [index, setIndex] = useState(0);
   const ist = useIst();
+  const { portal, go } = usePortal();
+
+  // 1–6 on the landing page: flash the edition then enter (global shortcut is replaced here).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      const n = Number(e.key);
+      if (n >= 1 && n <= 6) {
+        e.stopImmediatePropagation();
+        const ed = EDITIONS[n - 1];
+        const card = document.querySelector<HTMLElement>(`.edition-card.ed-${ed.tone} .ed-preview`);
+        go(null, ed, card);
+      }
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [go]);
   const [first, last] = [site.name.split(" ").slice(0, -1).join(" "), site.name.split(" ").slice(-1)[0]];
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
@@ -309,7 +369,8 @@ export function Landing() {
   const current = EDITIONS[index];
 
   return (
-    <div className="landing-root" data-tone={current.tone}>
+    <div className={`landing-root${portal ? " is-leaving" : ""}`} data-tone={current.tone}>
+      {portal && <PortalOverlay p={portal} />}
       <div className="land-wall" aria-hidden="true"><i className="a" /><i className="b" /><i className="c" /><i className="grain" /></div>
 
       <header className="landing-top" data-land-reveal>
@@ -345,7 +406,7 @@ export function Landing() {
               </div>
             </div>
             <div className="hero-stage">
-              <EditionStage index={index} setIndex={(f) => setIndex((i) => f(i))} />
+              <EditionStage index={index} setIndex={(f) => setIndex((i) => f(i))} onEnter={(e, ed) => go(e, ed, (e.currentTarget as HTMLElement))} />
             </div>
           </div>
           <div className="landing-scroll" aria-hidden="true"><i /></div>
@@ -373,7 +434,7 @@ export function Landing() {
           </div>
           <div className="edition-grid" role="list" aria-label="Portfolio interfaces — choose an edition">
             {EDITIONS.map((e, i) => (
-              <EditionCard key={e.to} to={e.to} label={`Open the ${e.label} interface`} tone={e.tone} keyNum={String(i + 1)}>
+              <EditionCard key={e.to} to={e.to} label={`Open the ${e.label} interface`} tone={e.tone} keyNum={String(i + 1)} onClick={(ev) => go(ev, e, (ev.currentTarget as HTMLElement).querySelector(".ed-preview"))}>
                 <div className="ed-preview">{e.mini}</div>
                 <div className="ed-meta">
                   <span className="ed-num" aria-hidden="true">{e.num}</span>

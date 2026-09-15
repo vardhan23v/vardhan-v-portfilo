@@ -238,25 +238,10 @@
 .mac-dock__item.is-minimized .mac-glyph { opacity: 0.55; }
 .mac-dock__sep { width: 1px; align-self: stretch; margin: 8px 5px; background: var(--hairline); }
 
-/* ── App glyph tiles ───────────────────────────────────────── */
-.mac-glyph {
-  position: relative; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto;
-  border-radius: 24%;
-  background:
-    linear-gradient(160deg, hsl(var(--g-h) var(--g-s) calc(var(--g-l) + 14%)) 0%, hsl(var(--g-h) var(--g-s) calc(var(--g-l) - 10%)) 100%);
-  color: #fff;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.35);
-}
-.mac-glyph svg { filter: drop-shadow(0 1px 1px rgba(0,0,0,0.35)); }
-.mac-glyph__mono {
-  position: absolute; right: 9%; bottom: 6%;
-  font-family: var(--font-mono); font-size: 22%; font-weight: 700; line-height: 1; letter-spacing: 0.02em;
-  color: rgba(255,255,255,0.75);
-}
-.mac-glyph--resume { color: hsl(20 20% 30%); }
-.mac-glyph--resume .mac-glyph__mono { color: hsl(20 20% 40% / 0.8); }
-.mac-glyph--terminal { background: linear-gradient(160deg, #2e3340, #0e1118); }
-.mac-glyph--github { background: linear-gradient(160deg, #3a3f4c, #171a22); }
+/* ── App glyph tiles (macOS-style squircles) ─────────────── */
+.mac-glyph { position: relative; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; border-radius: 24%; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.35)); }
+.mac-glyph svg { display: block; width: 100%; height: 100%; }
+.mac-root[data-accent="graphite"] .mac-glyph { filter: saturate(0.35) drop-shadow(0 2px 6px rgba(0,0,0,0.35)); }
 
 /* ── Desktop icons ─────────────────────────────────────────── */
 .mac-dicons { position: absolute; inset: 0; z-index: var(--z-icons); pointer-events: none; }

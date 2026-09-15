@@ -32,8 +32,8 @@ const APP_TITLES: Record<AppId, string> = {
   "about-mac": "About This Mac",
 };
 
-const MENU_H = 28;
-const DOCK_H = 84;
+export const MENU_H = 28;
+export const DOCK_H = 84;
 
 /** Viewport size that never reports 0 (some embedded browsers lay out at 0×0
  *  for the first frame, which used to produce invisible 0px-wide windows). */
@@ -77,6 +77,8 @@ interface WindowManagerCtx {
   focusWindow: (id: AppId) => void;
   updateWindowPos: (id: AppId, x: number, y: number) => void;
   updateWindowSize: (id: AppId, w: number, h: number) => void;
+  /** Tile a window to the left/right half or the full desktop area. */
+  snapWindow: (id: AppId, side: "left" | "right" | "full") => void;
   isOpen: (id: AppId) => boolean;
   isMinimized: (id: AppId) => boolean;
   bringToFront: (id: AppId) => void;
@@ -229,8 +231,20 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
     setWindows((prev) => prev.map((win) => win.id === id && !win.maximized ? { ...win, w: Math.max(360, w), h: Math.max(260, h) } : win));
   }, []);
 
+  const snapWindow = useCallback((id: AppId, side: "left" | "right" | "full") => {
+    const { vw, vh } = viewport();
+    const h = vh - MENU_H - DOCK_H;
+    const half = Math.floor(vw / 2);
+    setWindows((prev) => prev.map((w) => {
+      if (w.id !== id) return w;
+      if (side === "full") return { ...w, maximized: false, x: 8, y: MENU_H + 4, w: vw - 16, h: h - 8 };
+      return { ...w, maximized: false, x: side === "left" ? 0 : half, y: MENU_H, w: half, h };
+    }));
+    bringToFront(id);
+  }, [bringToFront]);
+
   return (
-    <Ctx.Provider value={{ windows, activeId, openWindow, closeWindow, minimizeWindow, maximizeWindow, focusWindow, updateWindowPos, updateWindowSize, isOpen, isMinimized, bringToFront }}>
+    <Ctx.Provider value={{ windows, activeId, openWindow, closeWindow, minimizeWindow, maximizeWindow, focusWindow, updateWindowPos, updateWindowSize, snapWindow, isOpen, isMinimized, bringToFront }}>
       {children}
     </Ctx.Provider>
   );

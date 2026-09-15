@@ -65,6 +65,9 @@ export function HelpOverlay() {
               <dt>Double-click header</dt><dd>Maximize / restore</dd>
               <dt>Drag corner</dt><dd>Resize</dd>
               <dt><kbd>⌘M</kbd></dt><dd>Minimize active window</dd>
+              <dt><kbd>⌃↑</kbd> / <kbd>F3</kbd></dt><dd>Mission Control — every window in a grid</dd>
+              <dt><kbd>⇧⌘D</kbd></dt><dd>Show desktop</dd>
+              <dt>Drag to an edge</dt><dd>Snap left / right half · top edge fills the desk</dd>
               <dt>Traffic lights</dt><dd>Close / Minimize / Zoom</dd>
             </dl>
           </section>

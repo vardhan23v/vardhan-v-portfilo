@@ -1,16 +1,32 @@
 import { useRef, useState, useCallback, useEffect, type ReactNode, type PointerEvent } from "react";
 import { useWindowManager, type AppId } from "../../hooks/useWindowManager";
+import { useShell } from "../../hooks/useShell";
+import { AppGlyph } from "../ui/AppGlyph";
 
 interface Props {
   id: AppId;
   title: string;
   children: ReactNode;
+  /** Mission Control placement: target top-left and scale in desktop coords. */
+  expose?: { x: number; y: number; s: number };
 }
+
+type SnapSide = "left" | "right" | "full" | null;
+const snapSideFor = (x: number, y: number): SnapSide => {
+  const vw = window.innerWidth;
+  if (x <= 10) return "left";
+  if (x >= vw - 10) return "right";
+  if (y <= 30) return "full";
+  return null;
+};
+const hint = (side: SnapSide) => window.dispatchEvent(new CustomEvent("mac-snap-hint", { detail: side }));
 
 const isMobileViewport = () => typeof window !== "undefined" && window.innerWidth <= 640;
 
-export function WindowFrame({ id, title, children }: Props) {
-  const { windows, activeId, closeWindow, minimizeWindow, maximizeWindow, focusWindow, updateWindowPos, updateWindowSize } = useWindowManager();
+export function WindowFrame({ id, title, children, expose }: Props) {
+  const { windows, activeId, closeWindow, minimizeWindow, maximizeWindow, focusWindow, updateWindowPos, updateWindowSize, snapWindow } = useWindowManager();
+  const { overlay, setOverlay } = useShell();
+  const inExpose = overlay === "expose" && !!expose;
   const win = windows.find((w) => w.id === id);
   const isActive = activeId === id;
   const frameRef = useRef<HTMLDivElement>(null);
@@ -58,16 +74,23 @@ export function WindowFrame({ id, title, children }: Props) {
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   }, [win, id, focusWindow]);
 
+  const snapRef = useRef<SnapSide>(null);
   const onHeaderPointerMove = useCallback((e: PointerEvent) => {
     if (!dragRef.current || !win || win.maximized) return;
     updateWindowPos(id, e.clientX - dragRef.current.dx, e.clientY - dragRef.current.dy);
+    const side = snapSideFor(e.clientX, e.clientY);
+    if (side !== snapRef.current) { snapRef.current = side; hint(side); }
   }, [win, id, updateWindowPos]);
 
   const endDrag = useCallback((e: PointerEvent) => {
+    const wasDragging = !!dragRef.current;
     dragRef.current = null;
     setDragging(false);
     try { (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId); } catch { /* noop */ }
-  }, []);
+    if (wasDragging && snapRef.current) snapWindow(id, snapRef.current);
+    snapRef.current = null;
+    hint(null);
+  }, [id, snapWindow]);
 
   const onResizePointerDown = useCallback((e: PointerEvent) => {
     if (!win || win.maximized || isMobileViewport()) return;
@@ -94,18 +117,29 @@ export function WindowFrame({ id, title, children }: Props) {
     maximizeWindow(id);
   }, [id, maximizeWindow]);
 
-  if (!win || win.minimized) return null;
+  if (!win) return null;
+  if (win.minimized && !inExpose) return null;
+
+  const exposeStyle = inExpose
+    ? { transform: `translate(${expose.x - win.x}px, ${expose.y - win.y}px) scale(${expose.s})` }
+    : undefined;
 
   return (
     <div
       ref={frameRef}
-      className={`mac-desktop-window${isActive ? " is-active" : ""}${dragging ? " is-dragging" : ""}${resizing ? " is-resizing" : ""}${win.maximized ? " is-maximized" : ""}${leaving ? ` is-leaving is-leaving--${leaving}` : ""}`}
-      style={{ left: win.x, top: win.y, width: win.w, height: win.h, zIndex: win.z }}
-      onMouseDown={() => focusWindow(id)}
+      className={`mac-desktop-window${isActive ? " is-active" : ""}${dragging ? " is-dragging" : ""}${resizing ? " is-resizing" : ""}${win.maximized ? " is-maximized" : ""}${leaving ? ` is-leaving is-leaving--${leaving}` : ""}${inExpose ? " is-expose" : ""}${win.minimized ? " is-min" : ""}`}
+      style={{ left: win.x, top: win.y, width: win.w, height: win.h, zIndex: win.z, ...exposeStyle }}
+      onMouseDown={() => { if (!inExpose) focusWindow(id); }}
+      onClick={() => { if (inExpose) { setOverlay("none"); focusWindow(id); } }}
       role="dialog"
       aria-label={title}
       data-app={id}
     >
+      {inExpose && (
+        <div className="mac-desktop-window__expose-label" style={{ transform: `scale(${1 / expose.s})` }}>
+          <AppGlyph id={id} size={22} /> <span>{title}</span>
+        </div>
+      )}
       <div
         className="mac-desktop-window__header"
         onPointerDown={onHeaderPointerDown}

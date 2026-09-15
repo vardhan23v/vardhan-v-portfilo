@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 
-export type ShellOverlay = "none" | "launchpad" | "widgets";
+export type ShellOverlay = "none" | "launchpad" | "widgets" | "expose" | "saver";
 
 interface ShellCtx {
   overlay: ShellOverlay;

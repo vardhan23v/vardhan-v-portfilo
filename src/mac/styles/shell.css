@@ -391,3 +391,77 @@
 .mac-widget__links a, .mac-widget__links button { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; font-size: 12.5px; background: var(--bg-subtle); border: 0.5px solid var(--border); color: var(--text-primary); text-align: left; }
 .mac-widget__links a:hover, .mac-widget__links button:hover { background: var(--surface-hover); }
 .mac-widget__links svg { width: 14px; height: 14px; color: var(--text-secondary); }
+
+/* ── Mission Control (expose) ─────────────────────────────── */
+.mac-desktop__area.is-expose::before {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: auto;
+  background: var(--overlay); backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  animation: lpIn 220ms var(--ease-cinema) both;
+}
+.mac-desktop-window.is-expose {
+  contain: layout style; overflow: visible;
+  transform-origin: top left; cursor: pointer; z-index: 2 !important; opacity: 1 !important;
+  transition: transform 460ms var(--ease-cinema), box-shadow 300ms, opacity 200ms;
+  box-shadow: var(--el-4), 0 0 0 1px rgba(255,255,255,0.12);
+}
+.mac-desktop-window.is-expose > *:not(.mac-desktop-window__expose-label) { pointer-events: none; }
+.mac-desktop-window.is-expose:hover { box-shadow: var(--el-4), 0 0 0 3px var(--accent); }
+.mac-desktop-window.is-expose.is-min { animation: winIn 0.4s var(--ease-cinema) both; }
+.mac-desktop-window__expose-label {
+  position: absolute; left: 50%; top: 100%; transform-origin: top center; margin-top: 8px; z-index: 3;
+  display: inline-flex; align-items: center; gap: 8px; padding: 5px 10px 5px 6px; border-radius: 999px; white-space: nowrap;
+  background: var(--glass-bg-strong); border: 0.5px solid var(--glass-border); box-shadow: var(--el-2);
+  font-size: 12px; color: var(--text-primary); pointer-events: none;
+  translate: -50% 0;
+  animation: pageIn 0.4s 0.25s var(--ease-cinema) both;
+}
+.mac-expose-exit {
+  position: absolute; bottom: 96px; left: 50%; transform: translateX(-50%); z-index: 3;
+  padding: 8px 14px; border-radius: 999px; background: var(--glass-bg-strong); border: 0.5px solid var(--glass-border); box-shadow: var(--el-2);
+  pointer-events: auto; color: var(--text-secondary);
+  animation: pageIn 0.4s 0.2s var(--ease-cinema) both;
+}
+.mac-expose-exit:hover { color: var(--text-primary); }
+
+/* ── Snap preview ─────────────────────────────────────────── */
+.mac-snap-preview {
+  position: absolute; z-index: 1; pointer-events: none; border-radius: 16px;
+  background: var(--accent-subtle); border: 1px solid var(--accent-border);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08), 0 0 60px -10px var(--accent);
+  animation: snapIn 200ms var(--ease-cinema) both;
+}
+@keyframes snapIn { from { opacity: 0; transform: scale(0.97); } }
+.mac-snap-preview--left { left: 6px; top: 34px; width: calc(50% - 10px); height: calc(100% - 34px - 90px); }
+.mac-snap-preview--right { right: 6px; top: 34px; width: calc(50% - 10px); height: calc(100% - 34px - 90px); }
+.mac-snap-preview--full { left: 8px; right: 8px; top: 32px; height: calc(100% - 32px - 92px); }
+
+/* ── Wallpaper time-of-day tint ───────────────────────────── */
+.mac-wallpaper::after { content: ""; position: absolute; inset: 0; pointer-events: none; transition: opacity 1s; }
+.mac-wallpaper.is-dawn::after { background: linear-gradient(180deg, hsl(20 80% 60% / 0.18), transparent 60%); }
+.mac-wallpaper.is-day::after { background: linear-gradient(180deg, hsl(200 80% 70% / 0.12), transparent 60%); }
+.mac-wallpaper.is-dusk::after { background: linear-gradient(200deg, hsl(340 70% 55% / 0.2), transparent 55%, hsl(30 80% 55% / 0.1)); }
+.mac-wallpaper.is-night::after { background: linear-gradient(180deg, transparent 40%, hsl(230 60% 10% / 0.35)); }
+
+/* ── Screensaver ──────────────────────────────────────────── */
+.mac-saver {
+  position: absolute; inset: 0; z-index: var(--z-boot); overflow: hidden; cursor: none;
+  background: radial-gradient(80% 70% at 50% 60%, hsl(var(--wp-h1) 40% 8%), #05070d 80%);
+  color: #f2f3f8; animation: lpIn 900ms var(--ease-cinema) both;
+}
+.mac-saver__clock {
+  position: absolute; transform: translate(-50%, -50%); max-width: 92vw;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  transition: left 6s var(--ease-cinema), top 6s var(--ease-cinema);
+  animation: saverBreathe 6s ease-in-out infinite;
+}
+@keyframes saverBreathe { 50% { opacity: 0.75; } }
+.mac-saver__time { font-family: var(--font-display); font-size: clamp(3.4rem, 14vw, 11rem); line-height: 1; font-weight: 300; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+.mac-saver__time i { font-style: normal; color: var(--accent); animation: caretBlink 2s steps(2) infinite; }
+.mac-saver__name { font-family: var(--font-display); font-style: italic; font-size: 1.4rem; opacity: 0.85; }
+.mac-saver__hint { opacity: 0.45; margin-top: 10px; }
+.mac-saver__orb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.55; }
+.mac-saver__orb--a { width: 42vw; height: 42vw; left: -10vw; top: -10vw; background: hsl(var(--wp-h2) 70% 45%); animation: orbA 22s ease-in-out infinite alternate; }
+.mac-saver__orb--b { width: 36vw; height: 36vw; right: -8vw; bottom: -12vw; background: hsl(var(--wp-h3) 70% 45%); animation: orbB 28s ease-in-out infinite alternate; }
+@keyframes orbA { to { transform: translate(30vw, 20vh) scale(1.2); } }
+@keyframes orbB { to { transform: translate(-25vw, -25vh) scale(1.15); } }
+@media (max-width: 640px) { .mac-snap-preview { display: none; } }

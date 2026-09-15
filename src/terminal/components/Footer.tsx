@@ -27,7 +27,7 @@ export function Footer() {
           </span>
           <span>
             <span className="amber">uptime:</span> {uptime}m <span className="bracket">·</span>{" "}
-            <Link to="/">↺ editions</Link> <span className="bracket">·</span> <Link to="/terminal#work">~/work</Link> <span className="bracket">·</span>{" "}
+            <Link to="/editions">↺ editions</Link> <span className="bracket">·</span> <Link to="/terminal#work">~/work</Link> <span className="bracket">·</span>{" "}
             <a href={site.github} target="_blank" rel="noopener noreferrer">
               github
             </a>{" "}

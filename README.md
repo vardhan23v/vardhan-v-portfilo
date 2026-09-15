@@ -35,7 +35,13 @@ A production-quality portfolio positioning me as a **Generative AI Developer & F
 
 ---
 
-## 🆕 What’s New — Sep 13 2026
+## 🆕 What’s New — Sep 15 2026
+
+- **macOS is now the front door.** `/` boots straight into the desktop shell; the edition picker moved to `/editions` (also reachable from the  menu → *Browse Other Editions…*). `/mac` still works as an alias.
+- **Wallpaper + Dock refresh** `src/mac/styles/wallpaper.css:1` — layered gradient-mesh wallpaper that follows the accent colour and light/dark theme, frosted window glass, macOS-style coloured Dock tiles with proximity magnification, running-app indicator dots and a tray separator.
+- **Window manager hardening** `src/mac/hooks/useWindowManager.tsx:36` — windows re-fit on resize/rotation and never render 0px wide when the viewport reports 0 on first paint; mobile menu bar no longer overflows.
+
+## What’s New — Sep 13 2026
 
 | Edition | Upgrade | Highlights |
 |---|---|---|
@@ -53,7 +59,8 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
 
 | Route | Edition | Tone | Signature |
 |---|---|---|---|
-| `/` | **Landing** | Picker | Crossfading mini-skins stage (Terminal/Classic/Paper/Aurora/Forge/macOS), GitHub stats, two-column hero |
+| `/` | **macOS** (default) | App shell | Boots straight into the desktop shell described below |
+| `/editions` | **Landing** | Picker | Crossfading mini-skins stage (Terminal/Classic/Paper/Aurora/Forge/macOS), GitHub stats, two-column hero |
 | `/terminal` | **Terminal** | Retro CRT | Boot seq, shell `help` / `whoami` / `cat skills.tree` / `neofetch` / `cowsay` / `ping`, `↑↓` history + Tab + `` ` `` focus, work at `/terminal/work/:slug` |
 | `/classic` | **Classic** — *cinematic* | Original dark | Stagger hero, neural SVG draw-in, IST clock, parallax floaters, CLI `find ./projects` with highlight + `/` focus, **scroll progress**, GitHub stats, sticky project grid |
 | `/paper` | **Paper** | Light editorial | Fraunces serifs, overlines, hairline rules, quiet readable |

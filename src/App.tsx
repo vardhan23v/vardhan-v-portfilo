@@ -23,7 +23,12 @@ const ROUTE_SEO: Record<string, { title: string; description: string }> = {
   "/": {
     title: "Sree Vardhan V | Generative AI Developer & Full-Stack Developer",
     description:
-      "Five portfolio interfaces by Sree Vardhan V — a Generative AI developer and full-stack engineer building AI-powered products, developer tools, and full-stack systems.",
+      "Portfolio of Sree Vardhan V — a Generative AI developer and full-stack engineer — presented as a macOS-style desktop. Overview, projects, experience, skills, and contact.",
+  },
+  "/editions": {
+    title: "Editions — Sree Vardhan V | Generative AI Developer",
+    description:
+      "Six portfolio interfaces by Sree Vardhan V — Terminal, Classic, Paper, Aurora, Forge, and macOS.",
   },
   "/terminal": {
     title: "Terminal — Sree Vardhan V | Generative AI Developer",
@@ -89,8 +94,8 @@ function InterfaceShortcuts() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    // /mac has its own inner 1-7 page shortcuts — don't hijack them
-    if (pathname.startsWith("/mac")) return;
+    // The macOS shell (/ and /mac) has its own inner 1-7 page shortcuts — don't hijack them
+    if (pathname === "/" || pathname.startsWith("/mac")) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
       const t = e.target as HTMLElement | null;
@@ -134,7 +139,8 @@ export default function App() {
       <ScrollToTop />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/" element={<Landing />} />
+          <Route path="/" element={<MacPortfolio />} />
+          <Route path="/editions" element={<Landing />} />
           <Route path="/classic" element={<ClassicSite />} />
           <Route path="/paper" element={<PaperSite />} />
           <Route path="/aurora" element={<AuroraSite />} />
@@ -144,7 +150,7 @@ export default function App() {
             <Route index element={<TerminalHome />} />
             <Route path="work/:slug" element={<WorkDetail />} />
           </Route>
-          <Route path="*" element={<Landing />} />
+          <Route path="*" element={<MacPortfolio />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

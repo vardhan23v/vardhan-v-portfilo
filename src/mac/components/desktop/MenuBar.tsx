@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, Sun, Moon, Check, SlidersHorizontal, Bug } from "lucide-react";
 import { useWindowManager } from "../../hooks/useWindowManager";
 import { usePalette } from "../../hooks/usePalette";
@@ -42,6 +43,7 @@ export function MenuBar() {
   const { theme, toggle } = useTheme();
   const { prefs } = usePreferences();
   const ist = useIstTime(false);
+  const routerNavigate = useNavigate();
   const [menuState, setMenuState] = useState<{ id: MenuId; src: "click" | "hover" } | null>(null);
   const openMenu = menuState?.id ?? null;
   const [ccOpen, setCcOpen] = useState(false);
@@ -108,6 +110,8 @@ export function MenuBar() {
       items: [
         { label: "About This Mac", action: () => openWindow("about-mac") },
         { label: "System Settings…", shortcut: "⌘,", action: () => openWindow("settings") },
+        { kind: "sep" },
+        { label: "Browse Other Editions…", action: () => routerNavigate("/editions", { viewTransition: true }) },
         { kind: "sep" },
         { label: anyVisible ? "Lock Screen" : "Wake Up", action: lockScreen },
       ],

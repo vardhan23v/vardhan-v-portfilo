@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { X } from "lucide-react";
 import { Folder, FileText, ExternalLink, LayoutGrid, Rows3, Star } from "lucide-react";
 import { GithubIcon } from "../lib/icons";
 import { featuredProjects, otherProjects, type Project } from "../data/projects";
@@ -31,6 +32,26 @@ export function FinderApp() {
   }, [place]);
 
   const sel = items.find((p) => p.slug === selected) ?? items[0];
+  const [quick, setQuick] = useState(false);
+  const [shot, setShot] = useState(0);
+
+  // Space toggles Quick Look for the selected item; Esc closes; ←/→ move through shots.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+      const focused = document.activeElement as HTMLElement | null;
+      const inside = focused?.closest?.(".finder") || t?.closest?.(".finder");
+      const finderActive = document.querySelector('.mac-desktop-window.is-active[data-app="finder"]');
+      if (!inside && !finderActive) return;
+      if (e.key === " " && sel && place !== "other") { e.preventDefault(); setQuick((q) => !q); setShot(0); }
+      else if (quick && e.key === "Escape") { e.preventDefault(); setQuick(false); }
+      else if (quick && e.key === "ArrowRight") setShot((i) => i + 1);
+      else if (quick && e.key === "ArrowLeft") setShot((i) => Math.max(0, i - 1));
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [sel, quick, place]);
 
   const open = (p: Project) => {
     openWindow("projects");
@@ -44,8 +65,27 @@ export function FinderApp() {
 
   const path = place === "other" ? `~/work/other · ${otherProjects.length} items` : `~/work/${place} · ${items.length} items`;
 
+  const shots = sel ? (sel.screenshots?.length ? sel.screenshots : [sel.cover]) : [];
+  const shotIdx = shots.length ? shot % shots.length : 0;
+
   return (
-    <div className="finder">
+    <div className="finder" tabIndex={-1}>
+      {quick && sel && (
+        <div className="finder__ql" role="dialog" aria-label={`Quick Look: ${sel.name}`} onClick={() => setQuick(false)}>
+          <div className="finder__ql-card" onClick={(e) => e.stopPropagation()}>
+            <div className="finder__ql-bar">
+              <span className="mac-caps">Quick Look · {shots.length > 1 ? `${shotIdx + 1}/${shots.length}` : "cover"}</span>
+              <span className="finder__ql-title">{sel.name}</span>
+              <button className="finder__ql-close" onClick={() => setQuick(false)} aria-label="Close Quick Look"><X /></button>
+            </div>
+            <ProjectCover key={`${sel.slug}-${shotIdx}`} project={sel} src={shots[shotIdx]} size="lg" ratio="16/9" className="finder__ql-shot" />
+            <div className="finder__ql-foot">
+              <span>{sel.tagline}</span>
+              <button className="mac-btn mac-btn--primary" onClick={() => { setQuick(false); open(sel); }}>Open in Projects</button>
+            </div>
+          </div>
+        </div>
+      )}
       <aside className="finder__sidebar" aria-label="Places">
         <div className="finder__side-label">Places</div>
         {PLACES.map(({ id, label, Icon }) => (
@@ -135,7 +175,7 @@ export function FinderApp() {
         </div>
 
         <div className="finder__foot">
-          <FileText /> <span>{featuredProjects.length + otherProjects.length} items, all with source on GitHub</span>
+          <FileText /> <span>{featuredProjects.length + otherProjects.length} items, all with source on GitHub · space for Quick Look</span>
           <ExternalLink />
         </div>
       </div>

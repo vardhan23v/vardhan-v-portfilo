@@ -5,6 +5,7 @@ import { featuredProjects } from "../data/projects";
 import { skillCategories } from "../data/skills";
 import { experience } from "../data/experience";
 import { useIstTime } from "../hooks/useIstTime";
+import { play } from "../lib/sounds";
 
 interface Line { text: string; kind: "in" | "out" | "dim"; }
 
@@ -23,6 +24,7 @@ const HELP = [
   "open <app> — open pages & apps (projects, finder, github, linkedin, resume…)",
   "repo <slug> — open a project's GitHub      date — current time",
   "skills | experience | contact — quick facts",
+  "matrix — follow the white rabbit",
   "sudo hire vardhan — try it",
   "clear — clear screen",
 ];
@@ -32,9 +34,56 @@ const HELP = [
 export function TerminalApp() {
   const { openWindow } = useWindowManager();
   const ist = useIstTime();
-  const [lines, setLines] = useState<Line[]>([
-    { text: "Vardhan OS · glass edition — type `help` to start.", kind: "dim" },
-  ]);
+  const [lines, setLines] = useState<Line[]>([]);
+  const [intro, setIntro] = useState("");
+  const [matrix, setMatrix] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Typewriter intro line.
+  useEffect(() => {
+    const full = "Vardhan OS · glass edition — type `help` to start.";
+    const fast = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (fast) { setIntro(full); return; }
+    let i = 0;
+    const id = window.setInterval(() => {
+      i += 1;
+      setIntro(full.slice(0, i));
+      if (i >= full.length) window.clearInterval(id);
+    }, 22);
+    return () => window.clearInterval(id);
+  }, []);
+
+  // `matrix`: 6 seconds of rain on a canvas overlay.
+  useEffect(() => {
+    if (!matrix) return;
+    const cv = canvasRef.current;
+    if (!cv) return;
+    const parent = cv.parentElement as HTMLElement;
+    cv.width = parent.clientWidth;
+    cv.height = parent.clientHeight;
+    const g = cv.getContext("2d");
+    if (!g) return;
+    const cols = Math.floor(cv.width / 14);
+    const drops = Array.from({ length: cols }, () => Math.random() * -40);
+    const chars = "ｱｲｳｴｵｶｷｸｹｺ01VARDHAN<>{}/*";
+    let raf = 0;
+    const draw = () => {
+      g.fillStyle = "rgba(10,13,20,0.16)";
+      g.fillRect(0, 0, cv.width, cv.height);
+      g.font = "13px JetBrains Mono, monospace";
+      for (let i = 0; i < cols; i++) {
+        const y = drops[i] * 14;
+        g.fillStyle = Math.random() > 0.96 ? "#dfffe8" : "#4ade80";
+        g.fillText(chars[(Math.random() * chars.length) | 0], i * 14, y);
+        if (y > cv.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i] += 1;
+      }
+      raf = requestAnimationFrame(draw);
+    };
+    raf = requestAnimationFrame(draw);
+    const stop = window.setTimeout(() => setMatrix(false), 6000);
+    return () => { cancelAnimationFrame(raf); window.clearTimeout(stop); };
+  }, [matrix]);
   const [value, setValue] = useState("");
   const [hist, setHist] = useState<string[]>([]);
   const [histIdx, setHistIdx] = useState(-1);
@@ -49,6 +98,7 @@ export function TerminalApp() {
     setLines((prev) => [...prev.slice(-120), { text, kind }]);
 
   const run = useCallback((raw: string) => {
+    play("tick");
     const cmd = raw.trim();
     if (!cmd) return;
     print(`vardhan@glass ~ ${cmd}`, "in");
@@ -89,6 +139,7 @@ export function TerminalApp() {
         print("Status: Building…");
         break;
       case "echo": print(arg); break;
+      case "matrix": setMatrix(true); print("Wake up… (6s)", "dim"); break;
       case "github": window.open(site.github, "_blank"); print("Opening GitHub…"); break;
       case "linkedin": window.open(site.linkedin, "_blank"); print("Opening LinkedIn…"); break;
       case "resume": window.open(site.resume, "_blank"); print("Opening resume…"); break;
@@ -121,6 +172,7 @@ export function TerminalApp() {
         if (/hire\s+vardhan/.test(cmd.toLowerCase())) {
           print("✔ Reference check passed. Offer letter compiling…", "out");
           print(`Contact: ${site.email}`, "out");
+          window.dispatchEvent(new CustomEvent("vardhan:party"));
         } else print(`sudo: ${arg || "nothing to do"}`);
         break;
       default: print(`command not found: ${name}  (try: help)`, "dim");
@@ -129,7 +181,9 @@ export function TerminalApp() {
 
   return (
     <div className="termapp" onClick={() => inputRef.current?.focus()}>
+      {matrix && <canvas ref={canvasRef} className="termapp__matrix" aria-hidden="true" />}
       <div className="termapp__body" ref={bodyRef} aria-live="polite">
+        <div className="termapp__line termapp__line--dim termapp__intro">{intro}</div>
         {lines.map((l, i) => (
           <div key={i} className={`termapp__line termapp__line--${l.kind}`}>{l.text}</div>
         ))}

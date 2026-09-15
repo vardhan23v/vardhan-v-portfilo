@@ -104,3 +104,21 @@
 .aboutmac__specs > div { display: grid; grid-template-columns: 130px 1fr; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid var(--border); font-size: 13.5px; }
 .aboutmac__specs dt { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); padding-top: 3px; }
 .aboutmac__links { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Quick Look */
+.finder { position: relative; outline: none; }
+.finder__ql { position: absolute; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; padding: 18px; background: var(--overlay); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); animation: lpIn 160ms var(--ease-cinema) both; }
+.finder__ql-card { width: min(640px, 100%); border-radius: 16px; overflow: hidden; background: var(--glass-bg-strong); border: 0.5px solid var(--glass-border); box-shadow: var(--el-4), var(--glass-inset); animation: qlIn 300ms var(--ease-spring) both; }
+@keyframes qlIn { from { opacity: 0; transform: scale(0.9) translateY(10px); } }
+.finder__ql-bar { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-bottom: 0.5px solid var(--border); }
+.finder__ql-title { flex: 1; text-align: center; font-family: var(--font-display); font-size: 1.05rem; font-weight: 500; }
+.finder__ql-close { width: 26px; height: 26px; border-radius: 999px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); }
+.finder__ql-close svg { width: 14px; height: 14px; }
+.finder__ql-close:hover { background: var(--surface-hover); color: var(--text-primary); }
+.finder__ql-shot { border-radius: 0; animation: lpIn 240ms var(--ease-cinema) both; }
+.finder__ql-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 12px; padding: 12px 14px; font-size: 13px; color: var(--text-secondary); }
+
+/* Terminal extras */
+.termapp { position: relative; }
+.termapp__matrix { position: absolute; inset: 0; z-index: 2; pointer-events: none; animation: lpIn 300ms both; }
+.termapp__intro::after { content: "▌"; color: var(--accent); animation: caretBlink 1s steps(2) infinite; }

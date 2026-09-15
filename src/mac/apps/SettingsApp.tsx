@@ -12,6 +12,7 @@ import {
   Play,
 } from "lucide-react";
 import { useShell } from "../hooks/useShell";
+import { play } from "../lib/sounds";
 import { useTheme } from "../hooks/useTheme";
 import { useWindowManager } from "../hooks/useWindowManager";
 import { usePreferences, type Preferences } from "../hooks/usePreferences";
@@ -286,14 +287,23 @@ function Network({
 function Sound({
   prefs,
   set,
+  toggle,
 }: {
   prefs: Preferences;
   set: <K extends keyof Preferences>(key: K, value: Preferences[K]) => void;
+  toggle: (k: "sounds") => void;
 }) {
   return (
     <>
       <div className="settingsapp__head">Sound</div>
       <div className="settingsapp__group">
+        <div className="settingsrow">
+          <div className="settingsrow__text">
+            <div className="settingsrow__label">Interface sounds</div>
+            <div className="settingsrow__sub">Boot chime, Dock pops, notification dings, window whooshes</div>
+          </div>
+          <Sw on={prefs.sounds} label="Interface sounds" onToggle={() => { toggle("sounds"); if (!prefs.sounds) play("ding"); }} />
+        </div>
         <div className="settingsrow">
           <div className="settingsrow__text">
             <div className="settingsrow__label">Output volume</div>
@@ -422,7 +432,7 @@ export function SettingsApp() {
         {section === "focus" && <Focus prefs={prefs} toggle={toggle} />}
         {section === "dock" && <Dock prefs={prefs} toggle={toggle} />}
         {section === "network" && <Network prefs={prefs} toggle={toggle} />}
-        {section === "sound" && <Sound prefs={prefs} set={set} />}
+        {section === "sound" && <Sound prefs={prefs} set={set} toggle={toggle} />}
         {section === "general" && (
           <General
             prefs={prefs}

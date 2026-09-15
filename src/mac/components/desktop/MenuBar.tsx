@@ -53,6 +53,25 @@ export function MenuBar() {
   const rootRef = useRef<HTMLElement | null>(null);
   const close = () => setMenuState(null);
 
+  /** Light/dark switch with a circular reveal from the clicked control (View Transitions API). */
+  const toggleThemeFrom = (e?: { clientX: number; clientY: number }) => {
+    const doc = document as Document & { startViewTransition?: (cb: () => void) => { ready: Promise<void> } };
+    const root = rootRef.current?.closest(".mac-root") as HTMLElement | null;
+    const motionOff = root?.getAttribute("data-mac-motion") === "off" || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!doc.startViewTransition || motionOff) return toggle();
+    const x = e?.clientX ?? window.innerWidth - 20;
+    const y = e?.clientY ?? 14;
+    const r = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+    document.documentElement.classList.add("mac-theme-vt");
+    const vt = doc.startViewTransition(() => toggle());
+    vt.ready.then(() => {
+      document.documentElement.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`] },
+        { duration: 620, easing: "cubic-bezier(0.2, 0.7, 0.2, 1)", pseudoElement: "::view-transition-new(root)" }
+      ).finished.finally(() => document.documentElement.classList.remove("mac-theme-vt"));
+    }).catch(() => document.documentElement.classList.remove("mac-theme-vt"));
+  };
+
   // Opening one panel closes the others.
   useEffect(() => {
     if (menuState) { setCcOpen(false); setDevOpen(false); }
@@ -167,7 +186,7 @@ export function MenuBar() {
         {
           label: theme === "dark" ? "Use Light Appearance" : "Use Dark Appearance",
           shortcut: "⇧⌘T",
-          action: toggle,
+          action: () => toggleThemeFrom(),
         },
         { kind: "sep" },
         { label: "Mission Control", shortcut: "⌃↑", action: () => setOverlay("expose") },
@@ -298,7 +317,7 @@ export function MenuBar() {
         </button>
         <button
           className="mac-menubar__btn"
-          onClick={toggle}
+          onClick={(e) => toggleThemeFrom(e)}
           aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
           title="Toggle theme"
         >

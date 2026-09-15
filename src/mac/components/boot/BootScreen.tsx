@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { site } from "../../data/site";
 import { usePreferences } from "../../hooks/usePreferences";
+import { play } from "../../lib/sounds";
 
 const initials = site.name
   .split(" ")
@@ -30,6 +31,7 @@ export function BootScreen({ onDone }: { onDone: () => void }) {
   useEffect(() => {
     const finish = () => {
       if (phase === "leaving") return;
+      play("chime");
       setPhase("leaving");
       window.setTimeout(onDone, instant ? 0 : 360);
     };

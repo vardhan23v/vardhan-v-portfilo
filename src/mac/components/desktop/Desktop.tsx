@@ -14,6 +14,7 @@ import { DesktopIcons } from "./DesktopIcons";
 import { WidgetsPanel } from "./WidgetsPanel";
 import { Launchpad } from "./Launchpad";
 import { Screensaver } from "./Screensaver";
+import { AppSwitcher } from "./AppSwitcher";
 
 const PAGE_SHORTCUTS: Record<string, PageId> = {
   "1": "overview", "2": "about", "3": "projects", "4": "experience",
@@ -72,7 +73,16 @@ export function Desktop() {
     } catch { /* ignore */ }
     const hr = Number(new Date().toLocaleTimeString("en-GB", { hour: "2-digit", hour12: false, timeZone: "Asia/Kolkata" }));
     const part = hr < 5 ? "night" : hr < 12 ? "morning" : hr < 17 ? "afternoon" : "evening";
-    const t = window.setTimeout(() => toast(`Good ${part} — welcome to ${site.name.split(" ")[1] ?? "Vardhan"}'s desk. Press ? for shortcuts.`), 900);
+    const t = window.setTimeout(
+      () =>
+        toast({
+          title: `Good ${part}`,
+          body: `Welcome to ${site.name.split(" ")[1] ?? "Vardhan"}'s desk. ⌥Tab switches apps, ⌃↑ shows every window.`,
+          app: "overview",
+          action: { label: "Shortcuts", onClick: () => window.dispatchEvent(new CustomEvent("open-help-overlay")) },
+        }),
+      900
+    );
     return () => window.clearTimeout(t);
   }, [toast]);
 
@@ -162,6 +172,7 @@ export function Desktop() {
       <WidgetsPanel />
       <Launchpad />
       <Screensaver />
+      <AppSwitcher />
     </div>
   );
 }

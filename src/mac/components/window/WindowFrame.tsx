@@ -21,6 +21,36 @@ const snapSideFor = (x: number, y: number): SnapSide => {
 };
 const hint = (side: SnapSide) => window.dispatchEvent(new CustomEvent("mac-snap-hint", { detail: side }));
 
+/**
+ * Genie effect: the window stretches into a neck aimed at its Dock tile,
+ * then pours into it. `reverse` plays the restore. Uses WAAPI so the
+ * clip-path polygon can be computed in the window's own pixel space.
+ */
+function genie(frame: HTMLElement, tile: DOMRect, reverse = false): Animation | null {
+  if (typeof frame.animate !== "function") return null;
+  const f = frame.getBoundingClientRect();
+  const W = f.width;
+  const H = f.height;
+  const gx = Math.max(0, Math.min(W, tile.left + tile.width / 2 - f.left)); // neck x (window space)
+  const gy = tile.top + tile.height / 2 - f.top; // tile centre below the window top
+  const stretch = Math.max(1, gy / H);
+  const neck = Math.min(28, W * 0.12);
+  const rect = `polygon(0 0, ${W}px 0, ${W}px ${H}px, 0 ${H}px)`;
+  const funnel = `polygon(0 0, ${W}px 0, ${gx + neck / 2}px ${H}px, ${gx - neck / 2}px ${H}px)`;
+  const thread = `polygon(${gx - 3}px 0, ${gx + 3}px 0, ${gx + 3}px ${H}px, ${gx - 3}px ${H}px)`;
+  const frames: Keyframe[] = [
+    { clipPath: rect, transform: "scaleY(1)", opacity: 1, offset: 0, easing: "cubic-bezier(0.6, 0, 0.4, 1)" },
+    { clipPath: funnel, transform: `scaleY(${stretch})`, opacity: 1, offset: 0.45, easing: "cubic-bezier(0.7, 0, 0.6, 1)" },
+    { clipPath: thread, transform: `translateY(${gy - 8}px) scaleY(0.02)`, opacity: 0.9, offset: 0.92 },
+    { clipPath: thread, transform: `translateY(${gy}px) scaleY(0.01)`, opacity: 0, offset: 1 },
+  ];
+  frame.style.transformOrigin = "0 0";
+  return frame.animate(frames, { duration: reverse ? 480 : 560, fill: "forwards", direction: reverse ? "reverse" : "normal" });
+}
+
+const dockTile = (id: string) =>
+  document.querySelector<HTMLElement>(`.mac-dock__item[data-app="${id}"]`)?.getBoundingClientRect() ?? null;
+
 const isMobileViewport = () => typeof window !== "undefined" && window.innerWidth <= 640;
 
 export function WindowFrame({ id, title, children, expose }: Props) {
@@ -45,22 +75,43 @@ export function WindowFrame({ id, title, children, expose }: Props) {
   const leave = useCallback((kind: "close" | "minimize") => {
     const done = () => (kind === "close" ? closeWindow(id) : minimizeWindow(id));
     if (motionOff()) return done();
-    // aim the minimize animation at this app's Dock tile
-    const tile = document.querySelector<HTMLElement>(`.mac-dock__item[data-app="${id}"]`);
     const frame = frameRef.current;
-    if (kind === "minimize" && tile && frame) {
-      const t = tile.getBoundingClientRect();
-      const f = frame.getBoundingClientRect();
-      frame.style.setProperty("--tx", `${t.left + t.width / 2 - (f.left + f.width / 2)}px`);
-      frame.style.setProperty("--ty", `${t.top + t.height / 2 - (f.top + f.height / 2)}px`);
+    const tile = dockTile(id);
+    if (kind === "minimize" && frame && tile) {
+      setLeaving(kind);
+      document.querySelector(`.mac-dock__item[data-app="${id}"]`)?.classList.add("is-catching");
+      const anim = genie(frame, tile);
+      const finish = () => {
+        document.querySelector(`.mac-dock__item[data-app="${id}"]`)?.classList.remove("is-catching");
+        done();
+      };
+      if (anim) anim.onfinish = finish;
+      else leaveTimer.current = window.setTimeout(finish, 560);
+      return;
     }
     setLeaving(kind);
-    leaveTimer.current = window.setTimeout(done, kind === "close" ? 220 : 380);
+    leaveTimer.current = window.setTimeout(done, 220);
   }, [id, closeWindow, minimizeWindow]);
 
   useEffect(() => () => window.clearTimeout(leaveTimer.current), []);
-  // reset exit state if the window comes back (un-minimize)
-  useEffect(() => { if (win && !win.minimized) setLeaving(null); }, [win]);
+  // Restore from the Dock: play the genie in reverse.
+  const wasMin = useRef(win?.minimized ?? false);
+  useEffect(() => {
+    const nowMin = win?.minimized ?? false;
+    if (wasMin.current && !nowMin) {
+      setLeaving(null);
+      const frame = frameRef.current;
+      const tile = dockTile(id);
+      if (frame && tile && !motionOff()) {
+        frame.classList.add("is-restoring");
+        const anim = genie(frame, tile, true);
+        const clear = () => { frame.classList.remove("is-restoring"); frame.style.clipPath = ""; frame.style.transform = ""; };
+        if (anim) anim.onfinish = () => { anim.cancel(); clear(); };
+        else clear();
+      }
+    }
+    wasMin.current = nowMin;
+  }, [win?.minimized, id]);
 
   const onHeaderPointerDown = useCallback((e: PointerEvent) => {
     if (!win || win.maximized || isMobileViewport()) return;

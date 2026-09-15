@@ -15,7 +15,9 @@ const LAUNCH_APPS: { id: AppId; label: string; hint: string }[] = [
   { id: "contact", label: "Contact", hint: "say hello" },
   { id: "finder", label: "Finder", hint: "browse work" },
   { id: "terminal", label: "Terminal", hint: "type help" },
-  { id: "vardhan-ai", label: "Vardhan AI", hint: "ask anything" },
+  { id: "vardhan-ai", label: "Messages", hint: "chat with vardhan" },
+  { id: "notes", label: "Notes", hint: "markdown" },
+  { id: "photos", label: "Photos", hint: "screenshots" },
   { id: "settings", label: "Settings", hint: "accent · theme" },
   { id: "about-mac", label: "About This Mac", hint: "specs" },
 ];

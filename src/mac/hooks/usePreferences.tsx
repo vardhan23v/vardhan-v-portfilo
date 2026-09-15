@@ -12,7 +12,8 @@ export interface Preferences {
   bluetooth: boolean;
   airdrop: boolean;
   devMode: boolean;
-  sounds: boolean;
+  /** "mesh" (accent-driven), "grad:<name>", or an image URL */
+  wallpaper: string;
 }
 
 const DEFAULTS: Preferences = {
@@ -26,12 +27,12 @@ const DEFAULTS: Preferences = {
   bluetooth: true,
   airdrop: true,
   devMode: false,
-  sounds: true,
+  wallpaper: "mesh",
 };
 
 const STORAGE = "mac-preferences";
 
-type ToggleKey = "dnd" | "reduceMotion" | "dockAutoHide" | "wifi" | "bluetooth" | "airdrop" | "devMode" | "sounds";
+type ToggleKey = "dnd" | "reduceMotion" | "dockAutoHide" | "wifi" | "bluetooth" | "airdrop" | "devMode";
 
 interface PrefCtx {
   prefs: Preferences;

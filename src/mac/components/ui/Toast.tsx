@@ -2,7 +2,6 @@ import { createContext, useCallback, useContext, useLayoutEffect, useRef, useSta
 import { CheckCircle2 } from "lucide-react";
 import { usePreferences } from "../../hooks/usePreferences";
 import { AppGlyph, type GlyphId } from "./AppGlyph";
-import { play } from "../../lib/sounds";
 
 export interface Notice {
   title?: string;
@@ -44,7 +43,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       window.clearTimeout(closeTimer.current);
       setNotice(next);
       setLeaving(false);
-      if (next.title) play("ding");
       const ttl = next.title ? 4200 : 2600;
       hideTimer.current = window.setTimeout(() => setLeaving(true), ttl);
       closeTimer.current = window.setTimeout(() => {

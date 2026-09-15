@@ -493,3 +493,21 @@
 .mac-theme-vt::view-transition-old(root), .mac-theme-vt::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 .mac-theme-vt::view-transition-old(root) { z-index: 1; }
 .mac-theme-vt::view-transition-new(root) { z-index: 2; }
+
+/* ── System states ────────────────────────────────────────── */
+.mac-sys { position: absolute; inset: 0; z-index: var(--z-boot); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; color: #f2f3f8; animation: lpIn 500ms var(--ease-cinema) both; }
+.mac-sys--black { background: #000; animation: lpIn 700ms ease both; }
+.mac-sys--sleep { background: #000; cursor: none; }
+.mac-sys__breath { width: 8px; height: 8px; border-radius: 50%; background: #fff; animation: sysBreath 4s ease-in-out infinite; }
+@keyframes sysBreath { 0%, 100% { opacity: 0.15; transform: scale(0.9); } 50% { opacity: 0.9; transform: scale(1.2); } }
+.mac-sys--off { background: #000; }
+.mac-sys__power { width: 84px; height: 84px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.7); transition: transform 200ms var(--ease-spring), color 150ms, box-shadow 200ms; }
+.mac-sys__power svg { width: 34px; height: 34px; }
+.mac-sys__power:hover { color: #fff; transform: scale(1.06); box-shadow: 0 0 0 10px rgba(255,255,255,0.05), 0 0 60px rgba(110,168,255,0.35); }
+.mac-sys--lock { background: radial-gradient(70% 60% at 30% 20%, hsl(var(--wp-h2) 60% 30% / 0.6), transparent 70%), radial-gradient(60% 50% at 80% 80%, hsl(var(--wp-h3) 60% 30% / 0.5), transparent 70%), var(--ink); backdrop-filter: blur(30px); }
+.mac-sys__time { font-family: var(--font-display); font-size: clamp(3.4rem, 12vw, 8rem); line-height: 1; letter-spacing: -0.04em; font-weight: 300; animation: rise 0.7s var(--ease-cinema) both; }
+.mac-sys__card { display: flex; flex-direction: column; align-items: center; gap: 12px; animation: bootIn 600ms 0.1s var(--ease-cinema) both; }
+.mac-sys__hint { opacity: 0.55; }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+.mac-root[data-theme="light"] .mac-sys--lock { color: #12151f; background: radial-gradient(70% 60% at 30% 20%, hsl(var(--wp-h2) 60% 78% / 0.7), transparent 70%), radial-gradient(60% 50% at 80% 80%, hsl(var(--wp-h3) 60% 80% / 0.6), transparent 70%), var(--ink); }
+@media (max-width: 640px) { .notesapp__side, .msgs__side, .photos__side { flex-basis: 150px; } .notesapp__doc, .notesapp__editor { padding: 16px; } }

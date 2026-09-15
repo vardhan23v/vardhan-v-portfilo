@@ -8,6 +8,7 @@ import { useNav } from "../hooks/useNav";
 import { useWindowManager } from "../hooks/useWindowManager";
 import { ProjectCover } from "../components/ui/ProjectCover";
 import { site } from "../data/site";
+import { useShell } from "../hooks/useShell";
 
 type Place = "featured" | "flagship" | "other" | "resume" | "github";
 const PLACES: { id: Place; label: string; Icon: React.ComponentType<{ size?: number }> }[] = [
@@ -23,6 +24,7 @@ export function FinderApp() {
   const { setOpenProject } = useNav();
   const { openWindow } = useWindowManager();
   const [place, setPlace] = useState<Place>("featured");
+  const { setPreview } = useShell();
   const [view, setView] = useState<"icons" | "list">("icons");
   const [selected, setSelected] = useState<string | null>(featuredProjects[0]?.slug ?? null);
 
@@ -159,7 +161,9 @@ export function FinderApp() {
             <aside className="finder__preview" aria-label="Preview">
               <div className="finder__preview-shots">
                 {(sel.screenshots?.length ? sel.screenshots : [sel.cover]).map((shot, i) => (
-                  <ProjectCover key={`${sel.slug}-${i}`} project={sel} src={shot} size="sm" ratio="16/9" />
+                  <button key={`${sel.slug}-${i}`} className="finder__shot" onClick={() => { setPreview({ src: shot ?? `cover:${sel.slug}`, title: sel.name, sub: shot ? `screenshot ${i + 1}` : "cover" }); openWindow("preview"); }} title="Open in Preview">
+                    <ProjectCover project={sel} src={shot} size="sm" ratio="16/9" />
+                  </button>
                 ))}
               </div>
               <div className="finder__preview-name">{sel.name}</div>

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useWindowManager } from "../../hooks/useWindowManager";
 import { AppGlyph } from "../ui/AppGlyph";
-import { play } from "../../lib/sounds";
 
 /** ⌥Tab app switcher: hold Option, tap Tab to cycle, release to focus. */
 export function AppSwitcher() {
@@ -20,7 +19,6 @@ export function AppSwitcher() {
           setIdx(list.length > 1 ? 1 : 0);
         } else {
           setIdx((i) => (e.shiftKey ? (i - 1 + list.length) % list.length : (i + 1) % list.length));
-          play("tick");
         }
       } else if (open && e.key === "Escape") {
         setOpen(false);

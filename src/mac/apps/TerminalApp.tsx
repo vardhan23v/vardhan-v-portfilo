@@ -5,7 +5,6 @@ import { featuredProjects } from "../data/projects";
 import { skillCategories } from "../data/skills";
 import { experience } from "../data/experience";
 import { useIstTime } from "../hooks/useIstTime";
-import { play } from "../lib/sounds";
 
 interface Line { text: string; kind: "in" | "out" | "dim"; }
 
@@ -13,7 +12,7 @@ const OPEN_TARGETS: Record<string, AppId | "github" | "linkedin" | "resume"> = {
   projects: "projects", about: "about", skills: "skills", experience: "experience",
   contact: "contact", achievements: "achievements", overview: "overview",
   finder: "finder", terminal: "terminal", settings: "settings", ai: "vardhan-ai",
-  "vardhan-ai": "vardhan-ai", "about-mac": "about-mac", aboutmac: "about-mac",
+  "vardhan-ai": "vardhan-ai", messages: "vardhan-ai", notes: "notes", photos: "photos", "about-mac": "about-mac", aboutmac: "about-mac",
   github: "github", linkedin: "linkedin", resume: "resume",
 };
 
@@ -98,7 +97,6 @@ export function TerminalApp() {
     setLines((prev) => [...prev.slice(-120), { text, kind }]);
 
   const run = useCallback((raw: string) => {
-    play("tick");
     const cmd = raw.trim();
     if (!cmd) return;
     print(`vardhan@glass ~ ${cmd}`, "in");

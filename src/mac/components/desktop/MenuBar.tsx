@@ -45,7 +45,7 @@ export function MenuBar() {
   const { prefs } = usePreferences();
   const ist = useIstTime(false);
   const routerNavigate = useNavigate();
-  const { setOverlay, toggleOverlay } = useShell();
+  const { setOverlay, toggleOverlay, setSysState } = useShell();
   const [menuState, setMenuState] = useState<{ id: MenuId; src: "click" | "hover" } | null>(null);
   const openMenu = menuState?.id ?? null;
   const [ccOpen, setCcOpen] = useState(false);
@@ -92,13 +92,6 @@ export function MenuBar() {
     focusWindow("overview");
   };
 
-  const lockScreen = () => {
-    if (anyVisible) {
-      for (const w of windows) if (!w.minimized) minimizeWindow(w.id);
-    } else {
-      focusWindow("overview");
-    }
-  };
 
   // Close on outside pointerdown / Escape.
   useEffect(() => {
@@ -135,7 +128,11 @@ export function MenuBar() {
         { kind: "sep" },
         { label: "Browse Other Editions…", action: () => routerNavigate("/", { viewTransition: true }) },
         { kind: "sep" },
-        { label: anyVisible ? "Lock Screen" : "Wake Up", action: lockScreen },
+        { label: "Sleep", action: () => setSysState("sleep") },
+        { label: "Restart…", action: () => setSysState("restart") },
+        { label: "Shut Down…", action: () => setSysState("shutdown") },
+        { kind: "sep" },
+        { label: "Lock Screen", shortcut: "⌃⌘Q", action: () => setSysState("lock") },
       ],
     },
     {

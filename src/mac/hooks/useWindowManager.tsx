@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback, useRef, useEffect, type ReactNode } from "react";
 import type { PageId } from "./useNav";
 
-export type AppId = PageId | "finder" | "terminal" | "vardhan-ai" | "settings" | "about-mac";
+export type AppId = PageId | "finder" | "terminal" | "vardhan-ai" | "settings" | "about-mac" | "notes" | "photos" | "preview";
 
 export interface WindowInstance {
   id: AppId;
@@ -27,9 +27,12 @@ const APP_TITLES: Record<AppId, string> = {
   contact: "Contact",
   finder: "Finder",
   terminal: "Terminal",
-  "vardhan-ai": "Vardhan AI",
+  "vardhan-ai": "Messages",
   settings: "Settings",
   "about-mac": "About This Mac",
+  notes: "Notes",
+  photos: "Photos",
+  preview: "Preview",
 };
 
 export const MENU_H = 28;
@@ -59,7 +62,7 @@ function defaultBounds(appId: AppId, index: number, vw: number, vh: number) {
   const isMobile = vw <= 640;
   if (isMobile) return { x: 0, y: MENU_H, w: vw, h: vh - MENU_H - DOCK_H };
   // stagger cascade
-  const w = Math.min(appId === "projects" || appId === "finder" ? 980 : appId === "terminal" ? 720 : 860, Math.floor(vw * 0.86));
+  const w = Math.min(appId === "projects" || appId === "finder" || appId === "photos" || appId === "notes" ? 980 : appId === "terminal" || appId === "preview" ? 760 : appId === "vardhan-ai" ? 820 : 860, Math.floor(vw * 0.86));
   const h = Math.min(620, Math.floor(vh * 0.78));
   const offset = index * 28;
   const x = Math.max(16, Math.floor((vw - w) / 2 + offset - 60));

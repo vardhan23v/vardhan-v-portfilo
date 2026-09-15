@@ -1,6 +1,8 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 
 export type ShellOverlay = "none" | "launchpad" | "widgets" | "expose" | "saver";
+export type SysState = "none" | "lock" | "sleep" | "restart" | "shutdown";
+export interface PreviewItem { src: string; title: string; sub?: string }
 
 interface ShellCtx {
   overlay: ShellOverlay;
@@ -10,6 +12,10 @@ interface ShellCtx {
   setBooted: (v: boolean) => void;
   iconsHidden: boolean;
   setIconsHidden: (v: boolean) => void;
+  sysState: SysState;
+  setSysState: (s: SysState) => void;
+  preview: PreviewItem | null;
+  setPreview: (p: PreviewItem | null) => void;
 }
 
 const BOOT_KEY = "mac-booted";
@@ -23,6 +29,10 @@ const Ctx = createContext<ShellCtx>({
   setBooted: () => {},
   iconsHidden: false,
   setIconsHidden: () => {},
+  sysState: "none",
+  setSysState: () => {},
+  preview: null,
+  setPreview: () => {},
 });
 
 function readBooted(): boolean {
@@ -49,6 +59,8 @@ export function ShellProvider({ children }: { children: ReactNode }) {
   const [overlay, setOverlay] = useState<ShellOverlay>("none");
   const [booted, setBootedState] = useState<boolean>(readBooted);
   const [iconsHidden, setIconsHiddenState] = useState<boolean>(readIconsHidden);
+  const [sysState, setSysState] = useState<SysState>("none");
+  const [preview, setPreview] = useState<PreviewItem | null>(null);
 
   const setBooted = useCallback((v: boolean) => {
     setBootedState(v);
@@ -76,8 +88,8 @@ export function ShellProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ overlay, setOverlay, toggleOverlay, booted, setBooted, iconsHidden, setIconsHidden }),
-    [overlay, toggleOverlay, booted, setBooted, iconsHidden, setIconsHidden]
+    () => ({ overlay, setOverlay, toggleOverlay, booted, setBooted, iconsHidden, setIconsHidden, sysState, setSysState, preview, setPreview }),
+    [overlay, toggleOverlay, booted, setBooted, iconsHidden, setIconsHidden, sysState, preview]
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

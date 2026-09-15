@@ -15,6 +15,7 @@ import { WidgetsPanel } from "./WidgetsPanel";
 import { Launchpad } from "./Launchpad";
 import { Screensaver } from "./Screensaver";
 import { AppSwitcher } from "./AppSwitcher";
+import { SystemStates } from "./SystemStates";
 
 const PAGE_SHORTCUTS: Record<string, PageId> = {
   "1": "overview", "2": "about", "3": "projects", "4": "experience",
@@ -29,7 +30,7 @@ export function Desktop() {
   const { navigate, page } = useNav();
   const { windows, activeId, openWindow, minimizeWindow } = useWindowManager();
   const { register } = usePalette();
-  const { overlay, setOverlay, toggleOverlay } = useShell();
+  const { overlay, setOverlay, toggleOverlay, setSysState } = useShell();
   const { toast } = useToast();
   const areaRef = useRef<HTMLDivElement>(null);
   const [snapHint, setSnapHint] = useState<"left" | "right" | "full" | null>(null);
@@ -123,13 +124,16 @@ export function Desktop() {
       } else if (mod && e.shiftKey && e.key.toLowerCase() === "d") {
         e.preventDefault();
         for (const w of windows) if (!w.minimized) minimizeWindow(w.id);
+      } else if (e.ctrlKey && e.metaKey && e.key.toLowerCase() === "q") {
+        e.preventDefault();
+        setSysState("lock");
       } else if (e.key === "Escape" && overlay === "expose") {
         setOverlay("none");
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [activeId, minimizeWindow, toggleOverlay, overlay, setOverlay, windows]);
+  }, [activeId, minimizeWindow, toggleOverlay, overlay, setOverlay, windows, setSysState]);
 
   // Shell commands in Spotlight.
   useEffect(() => {
@@ -173,6 +177,7 @@ export function Desktop() {
       <Launchpad />
       <Screensaver />
       <AppSwitcher />
+      <SystemStates />
     </div>
   );
 }

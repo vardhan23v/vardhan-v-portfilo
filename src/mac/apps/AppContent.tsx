@@ -6,6 +6,9 @@ import { TerminalApp } from "./TerminalApp";
 import { VardhanAIApp } from "./VardhanAIApp";
 import { SettingsApp } from "./SettingsApp";
 import { AboutMacApp } from "./AboutMacApp";
+import { NotesApp } from "./NotesApp";
+import { PhotosApp } from "./PhotosApp";
+import { PreviewApp } from "./PreviewApp";
 
 const PAGE_IDS: PageId[] = ["overview", "about", "projects", "experience", "skills", "achievements", "contact"];
 
@@ -21,6 +24,9 @@ export function AppContent({ appId }: { appId: AppId }) {
     case "vardhan-ai": return <VardhanAIApp />;
     case "settings": return <SettingsApp />;
     case "about-mac": return <AboutMacApp />;
+    case "notes": return <NotesApp />;
+    case "photos": return <PhotosApp />;
+    case "preview": return <PreviewApp />;
     default: return null;
   }
 }

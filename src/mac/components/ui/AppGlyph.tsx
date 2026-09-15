@@ -14,7 +14,10 @@ const TONES: Record<GlyphId, { h: number; s: number; l: number; mono: string }> 
   achievements: { h: 45, s: 85, l: 50, mono: "C" },
   contact: { h: 200, s: 75, l: 50, mono: "M" },
   terminal: { h: 230, s: 12, l: 16, mono: ">" },
-  "vardhan-ai": { h: 300, s: 65, l: 56, mono: "AI" },
+  "vardhan-ai": { h: 140, s: 65, l: 46, mono: "iM" },
+  notes: { h: 48, s: 90, l: 58, mono: "N" },
+  photos: { h: 20, s: 85, l: 58, mono: "Ph" },
+  preview: { h: 200, s: 70, l: 52, mono: "Pv" },
   settings: { h: 220, s: 8, l: 46, mono: "⚙" },
   "about-mac": { h: 240, s: 20, l: 40, mono: "i" },
   github: { h: 230, s: 10, l: 22, mono: "GH" },
@@ -46,7 +49,13 @@ function Symbol({ id }: { id: GlyphId }) {
     case "terminal":
       return (<g {...p}><path d="M8 10l6 6-6 6M16 22h8" /></g>);
     case "vardhan-ai":
-      return (<g {...p}><path d="M16 5l2.6 6.4L25 14l-6.4 2.6L16 23l-2.6-6.4L7 14l6.4-2.6z" /><path d="M24 22l.9 2.1L27 25l-2.1.9L24 28l-.9-2.1L21 25l2.1-.9z" /></g>);
+      return (<g {...p}><path d="M16 6c6.6 0 12 4.2 12 9.5S22.6 25 16 25c-1.3 0-2.6-.2-3.8-.5L7 27l1.6-4.2C5.8 21 4 18.4 4 15.5 4 10.2 9.4 6 16 6z" /></g>);
+    case "notes":
+      return (<g {...p}><rect x="6" y="5" width="20" height="22" rx="3" /><path d="M6 11h20M11 16h10M11 20h7" /></g>);
+    case "photos":
+      return (<g {...p}><circle cx="16" cy="16" r="4" /><circle cx="16" cy="7" r="3" /><circle cx="16" cy="25" r="3" /><circle cx="7" cy="16" r="3" /><circle cx="25" cy="16" r="3" /></g>);
+    case "preview":
+      return (<g {...p}><rect x="5" y="7" width="22" height="18" rx="3" /><path d="M5 21l6-6 5 5 4-4 7 7" /><circle cx="21" cy="12" r="2" /></g>);
     case "settings":
       return (<g {...p}><circle cx="16" cy="16" r="4" /><path d="M16 4v4M16 24v4M4 16h4M24 16h4M7.5 7.5l2.8 2.8M21.7 21.7l2.8 2.8M7.5 24.5l2.8-2.8M21.7 10.3l2.8-2.8" /></g>);
     case "about-mac":

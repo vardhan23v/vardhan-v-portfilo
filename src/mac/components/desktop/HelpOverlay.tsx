@@ -67,6 +67,7 @@ export function HelpOverlay() {
               <dt><kbd>⌘M</kbd></dt><dd>Minimize active window</dd>
               <dt><kbd>⌃↑</kbd> / <kbd>F3</kbd></dt><dd>Mission Control — every window in a grid</dd>
               <dt><kbd>⇧⌘D</kbd></dt><dd>Show desktop</dd>
+              <dt><kbd>⌃⌘Q</kbd></dt><dd>Lock screen · ✦ menu has Sleep / Restart / Shut Down</dd>
               <dt><kbd>⌥Tab</kbd></dt><dd>App switcher — hold ⌥, tap Tab to cycle, release to focus</dd>
               <dt>Drag to an edge</dt><dd>Snap left / right half · top edge fills the desk</dd>
               <dt>Traffic lights</dt><dd>Close / Minimize / Zoom</dd>
@@ -86,8 +87,9 @@ export function HelpOverlay() {
               <dt>Terminal</dt><dd><kbd>help</kbd> <kbd>about</kbd> <kbd>date</kbd> <kbd>repo &lt;slug&gt;</kbd> <kbd>open &lt;app&gt;</kbd> · <kbd>↑↓</kbd> history</dd>
               <dt>Vardhan AI</dt><dd>Ask about projects / stack / experience / education / contact — links open apps</dd>
               <dt>Finder</dt><dd>Browse projects · <kbd>Space</kbd> Quick Look · ←/→ screenshots</dd>
+              <dt>Notes</dt><dd>Markdown notes about the work · your own notes stay in this browser</dd>
+              <dt>Photos</dt><dd>Screenshots &amp; covers · favourite · set as wallpaper · double-click for Preview</dd>
               <dt>Terminal extras</dt><dd><kbd>matrix</kbd> rain · <kbd>sudo hire vardhan</kbd> confetti</dd>
-              <dt>Sounds</dt><dd>Settings → Sound → Interface sounds (boot chime, pops, dings)</dd>
             </dl>
           </section>
         </div>

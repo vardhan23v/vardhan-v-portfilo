@@ -3,7 +3,6 @@ import { useWindowManager, type AppId } from "../../hooks/useWindowManager";
 import { usePreferences } from "../../hooks/usePreferences";
 import { useShell } from "../../hooks/useShell";
 import { AppGlyph, type GlyphId } from "../ui/AppGlyph";
-import { play } from "../../lib/sounds";
 
 type DockId = AppId | "launchpad";
 const DOCK_APPS: { id: DockId; label: string; sep?: boolean }[] = [
@@ -12,7 +11,9 @@ const DOCK_APPS: { id: DockId; label: string; sep?: boolean }[] = [
   { id: "overview", label: "Vardhan" },
   { id: "projects", label: "Projects" },
   { id: "terminal", label: "Terminal" },
-  { id: "vardhan-ai", label: "Vardhan AI" },
+  { id: "vardhan-ai", label: "Messages" },
+  { id: "notes", label: "Notes" },
+  { id: "photos", label: "Photos" },
   { id: "contact", label: "Contact" },
   { id: "settings", label: "Settings", sep: true },
 ];
@@ -47,7 +48,7 @@ export function Dock() {
                     if (isLaunchpad) toggleOverlay("launchpad");
                     else {
                       setOverlay("none");
-                      if (!win || win.minimized) { bounce(id); play("pop"); }
+                      if (!win || win.minimized) bounce(id);
                       openWindow(id as AppId);
                     }
                   }}

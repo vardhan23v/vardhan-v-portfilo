@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 import { usePreferences } from "../../hooks/usePreferences";
+import { featuredProjects } from "../../data/projects";
+import { ProjectCover } from "../ui/ProjectCover";
 
 const GRAIN =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
@@ -17,6 +19,11 @@ export function Wallpaper() {
   const ref = useRef<HTMLDivElement>(null);
   const { prefs } = usePreferences();
   const part = daypart();
+  const wp = prefs.wallpaper || "mesh";
+  const isImg = /^(\/|https?:)/.test(wp);
+  const coverSlug = wp.startsWith("cover:") ? wp.slice(6) : null;
+  const coverProject = coverSlug ? featuredProjects.find((p) => p.slug === coverSlug) : null;
+  const grad = wp.startsWith("grad:") ? wp.slice(5) : null;
 
   useEffect(() => {
     const el = ref.current;
@@ -47,7 +54,9 @@ export function Wallpaper() {
   }, [prefs.reduceMotion]);
 
   return (
-    <div className={`mac-wallpaper is-${part}`} ref={ref} aria-hidden="true">
+    <div className={`mac-wallpaper is-${part}${grad ? ` mac-wallpaper--${grad}` : ""}${isImg || coverProject ? " has-image" : ""}`} ref={ref} aria-hidden="true">
+      {isImg && <img className="mac-wallpaper__img" src={wp} alt="" />}
+      {coverProject && <div className="mac-wallpaper__img mac-wallpaper__cover"><ProjectCover project={coverProject} size="lg" ratio="16/9" /></div>}
       <div className="mac-wallpaper__layer mac-wallpaper__layer--a" />
       <div className="mac-wallpaper__layer mac-wallpaper__layer--b" />
       <div className="mac-wallpaper__layer mac-wallpaper__layer--c" />

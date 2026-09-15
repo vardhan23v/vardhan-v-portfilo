@@ -2,7 +2,6 @@ import { useRef, useState, useCallback, useEffect, type ReactNode, type PointerE
 import { useWindowManager, type AppId } from "../../hooks/useWindowManager";
 import { useShell } from "../../hooks/useShell";
 import { AppGlyph } from "../ui/AppGlyph";
-import { play } from "../../lib/sounds";
 
 interface Props {
   id: AppId;
@@ -75,7 +74,6 @@ export function WindowFrame({ id, title, children, expose }: Props) {
   /** Play the exit animation, then hand off to the window manager. */
   const leave = useCallback((kind: "close" | "minimize") => {
     const done = () => (kind === "close" ? closeWindow(id) : minimizeWindow(id));
-    play("whoosh");
     if (motionOff()) return done();
     const frame = frameRef.current;
     const tile = dockTile(id);

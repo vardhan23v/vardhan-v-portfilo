@@ -12,7 +12,8 @@ import {
   Play,
 } from "lucide-react";
 import { useShell } from "../hooks/useShell";
-import { play } from "../lib/sounds";
+import { featuredProjects } from "../data/projects";
+import { ProjectCover } from "../components/ui/ProjectCover";
 import { useTheme } from "../hooks/useTheme";
 import { useWindowManager } from "../hooks/useWindowManager";
 import { usePreferences, type Preferences } from "../hooks/usePreferences";
@@ -152,11 +153,37 @@ function Appearance({
 }
 
 /* ── Desktop panel ──────────────────────────────────────────── */
+const GRADS = [
+  { id: "mesh", label: "Mesh (accent)" },
+  { id: "grad:sequoia", label: "Sequoia" },
+  { id: "grad:sonoma", label: "Sonoma" },
+  { id: "grad:ink", label: "Ink" },
+  { id: "grad:ember", label: "Ember" },
+];
+
 function DesktopPanel() {
   const { iconsHidden, setIconsHidden, setBooted } = useShell();
+  const { prefs, set } = usePreferences();
+  const shots = featuredProjects.flatMap((p) => (p.screenshots ?? []).map((s) => ({ src: s, p })));
   return (
     <>
-      <div className="settingsapp__head">Desktop</div>
+      <div className="settingsapp__head">Desktop &amp; Wallpaper</div>
+      <div className="settingsapp__group">
+        <div className="settingsrow" style={{ flexDirection: "column", alignItems: "stretch", gap: 10 }}>
+          <div className="settingsrow__text"><div className="settingsrow__label">Wallpaper</div><div className="settingsrow__sub">Gradient presets, project screenshots, or any Photos item via “Set as wallpaper”</div></div>
+          <div className="wp-grid">
+            {GRADS.map((g) => (
+              <button key={g.id} className={`wp-tile wp-tile--${g.id.replace("grad:", "")}${prefs.wallpaper === g.id ? " is-selected" : ""}`} onClick={() => set("wallpaper", g.id)} aria-label={g.label} title={g.label}><span>{g.label}</span></button>
+            ))}
+            {shots.map(({ src, p }) => (
+              <button key={src} className={`wp-tile wp-tile--img${prefs.wallpaper === src ? " is-selected" : ""}`} onClick={() => set("wallpaper", src)} aria-label={`${p.name} screenshot`} title={p.name}><img src={src} alt="" loading="lazy" /></button>
+            ))}
+            {featuredProjects.slice(0, 4).map((p) => (
+              <button key={p.slug} className={`wp-tile wp-tile--img${prefs.wallpaper === `cover:${p.slug}` ? " is-selected" : ""}`} onClick={() => set("wallpaper", `cover:${p.slug}`)} aria-label={`${p.name} cover`} title={p.name}><ProjectCover project={p} size="sm" ratio="16/9" /></button>
+            ))}
+          </div>
+        </div>
+      </div>
       <div className="settingsapp__group">
         <div className="settingsrow">
           <div className="settingsrow__text">
@@ -287,23 +314,14 @@ function Network({
 function Sound({
   prefs,
   set,
-  toggle,
 }: {
   prefs: Preferences;
   set: <K extends keyof Preferences>(key: K, value: Preferences[K]) => void;
-  toggle: (k: "sounds") => void;
 }) {
   return (
     <>
       <div className="settingsapp__head">Sound</div>
       <div className="settingsapp__group">
-        <div className="settingsrow">
-          <div className="settingsrow__text">
-            <div className="settingsrow__label">Interface sounds</div>
-            <div className="settingsrow__sub">Boot chime, Dock pops, notification dings, window whooshes</div>
-          </div>
-          <Sw on={prefs.sounds} label="Interface sounds" onToggle={() => { toggle("sounds"); if (!prefs.sounds) play("ding"); }} />
-        </div>
         <div className="settingsrow">
           <div className="settingsrow__text">
             <div className="settingsrow__label">Output volume</div>
@@ -432,7 +450,7 @@ export function SettingsApp() {
         {section === "focus" && <Focus prefs={prefs} toggle={toggle} />}
         {section === "dock" && <Dock prefs={prefs} toggle={toggle} />}
         {section === "network" && <Network prefs={prefs} toggle={toggle} />}
-        {section === "sound" && <Sound prefs={prefs} set={set} toggle={toggle} />}
+        {section === "sound" && <Sound prefs={prefs} set={set} />}
         {section === "general" && (
           <General
             prefs={prefs}

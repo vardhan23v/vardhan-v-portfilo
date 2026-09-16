@@ -69,6 +69,137 @@ function useIstTime() {
   return t;
 }
 
+const SECTIONS = [
+  { id: "home", label: "Home" },
+  { id: "work", label: "Work" },
+  { id: "stack", label: "Stack" },
+  { id: "experience", label: "Experience" },
+  { id: "education", label: "Education" },
+  { id: "about", label: "About" },
+  { id: "contact", label: "Contact" },
+] as const;
+
+const HUES = [
+  { id: "violet", label: "Violet", deg: 0, swatch: "#a78bfa" },
+  { id: "cyan", label: "Cyan", deg: -70, swatch: "#22d3ee" },
+  { id: "pink", label: "Pink", deg: 40, swatch: "#f472b6" },
+  { id: "mint", label: "Mint", deg: -120, swatch: "#34d399" },
+] as const;
+type HueId = (typeof HUES)[number]["id"];
+const HUE_KEY = "au.hue";
+
+function readHue(): HueId {
+  try {
+    const v = localStorage.getItem(HUE_KEY);
+    return HUES.some((h) => h.id === v) ? (v as HueId) : "violet";
+  } catch {
+    return "violet";
+  }
+}
+
+function repoOf(url: string) {
+  const m = url.match(/github\.com\/([^/]+\/[^/#?]+)/);
+  return m ? m[1] : null;
+}
+
+function relTime(iso: string) {
+  const d = (Date.now() - new Date(iso).getTime()) / 864e5;
+  if (d < 1) return "today";
+  if (d < 2) return "yesterday";
+  const unit = (n: number, w: string) => `${n} ${w}${n === 1 ? "" : "s"} ago`;
+  if (d < 30) return unit(Math.round(d), "day");
+  if (d < 365) return unit(Math.max(1, Math.round(d / 30)), "month");
+  return unit(Math.max(1, Math.round(d / 365)), "year");
+}
+
+/** Stars and last push for a repo, cached for the session; null while loading or when GitHub is unreachable. */
+function useRepoStats(github: string) {
+  const [stats, setStats] = useState<{ stars: number; pushed: string } | null>(null);
+  useEffect(() => {
+    const repo = repoOf(github);
+    if (!repo) return;
+    const key = `au.gh.${repo}`;
+    try {
+      const cached = sessionStorage.getItem(key);
+      if (cached) {
+        setStats(JSON.parse(cached));
+        return;
+      }
+    } catch {
+      /* ignore */
+    }
+    let alive = true;
+    fetch(`https://api.github.com/repos/${repo}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (!alive || !j) return;
+        const s = { stars: j.stargazers_count ?? 0, pushed: j.pushed_at ?? "" };
+        setStats(s);
+        try {
+          sessionStorage.setItem(key, JSON.stringify(s));
+        } catch {
+          /* ignore */
+        }
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [github]);
+  return stats;
+}
+
+/** Types each word out, holds, deletes, moves on. Static first word when motion is reduced. */
+function Typer({ words }: { words: string[] }) {
+  const [text, setText] = useState(motionReduced() ? words[0] : "");
+  useEffect(() => {
+    if (motionReduced()) return;
+    let w = 0;
+    let i = 0;
+    let deleting = false;
+    let t = 0;
+    const step = () => {
+      const word = words[w];
+      if (!deleting) {
+        i++;
+        setText(word.slice(0, i));
+        if (i === word.length) {
+          deleting = true;
+          t = window.setTimeout(step, 1700);
+          return;
+        }
+        t = window.setTimeout(step, 46);
+      } else {
+        i--;
+        setText(word.slice(0, i));
+        if (i === 0) {
+          deleting = false;
+          w = (w + 1) % words.length;
+          t = window.setTimeout(step, 320);
+          return;
+        }
+        t = window.setTimeout(step, 24);
+      }
+    };
+    t = window.setTimeout(step, 900);
+    return () => clearTimeout(t);
+  }, [words]);
+  return (
+    <span className="au-typer">
+      {text}
+      <i className="au-typer-caret" aria-hidden="true" />
+    </span>
+  );
+}
+
+/** Sets --sx/--sy on the element so a spotlight can follow the pointer. */
+function spotlight(e: React.MouseEvent<HTMLElement>) {
+  const el = e.currentTarget;
+  const r = el.getBoundingClientRect();
+  el.style.setProperty("--sx", `${e.clientX - r.left}px`);
+  el.style.setProperty("--sy", `${e.clientY - r.top}px`);
+}
+
 // ---------- engineering details (inline) ----------
 
 export function AuroraDetails({ p }: { p: Project }) {
@@ -141,7 +272,8 @@ function AuroraStat({ value, label, sub, i }: { value: number | null; label: str
     return () => io.disconnect();
   }, [value]);
   return (
-    <div className="au-stat" style={{ "--i": i } as React.CSSProperties}>
+    <div className="au-stat" style={{ "--i": i } as React.CSSProperties} onMouseMove={spotlight}>
+      <span className="au-spot" aria-hidden="true" />
       <span className="au-stat-value" ref={ref}>
         {value === null ? "—" : 0}
       </span>
@@ -153,20 +285,49 @@ function AuroraStat({ value, label, sub, i }: { value: number | null; label: str
 
 // ---------- project modal ----------
 
-function ProjectModal({ p, onClose }: { p: Project; onClose: () => void }) {
+function ProjectModal({
+  p,
+  index,
+  total,
+  dir,
+  onClose,
+  onStep,
+  onToast,
+}: {
+  p: Project;
+  index: number;
+  total: number;
+  dir: 1 | -1;
+  onClose: () => void;
+  onStep: (d: 1 | -1) => void;
+  onToast: (msg: string) => void;
+}) {
   const overlayRef = useRef<HTMLDivElement>(null);
+  const gh = useRepoStats(p.github);
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
+      else if (e.key === "ArrowRight") onStep(1);
+      else if (e.key === "ArrowLeft") onStep(-1);
     };
     window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prev;
       window.removeEventListener("keydown", onKey);
     };
-  }, [onClose]);
+  }, [onClose, onStep]);
+
+  const copyLink = async () => {
+    const url = `${site.url}/aurora#p=${p.slug}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      onToast(`Link to ${p.name} copied.`);
+    } catch {
+      onToast(url);
+    }
+  };
 
   return (
     <div
@@ -179,10 +340,21 @@ function ProjectModal({ p, onClose }: { p: Project; onClose: () => void }) {
         if (e.target === overlayRef.current) onClose();
       }}
     >
-      <div className="au-modal">
+      <div className="au-modal" key={p.slug} data-dir={dir}>
         <button type="button" className="au-modal-close" onClick={onClose} aria-label="Close">
           <Icon.close width={16} height={16} />
         </button>
+        <div className="au-modal-nav">
+          <button type="button" onClick={() => onStep(-1)} aria-label="Previous project" disabled={total < 2}>
+            ←
+          </button>
+          <span>
+            {index + 1} / {total}
+          </span>
+          <button type="button" onClick={() => onStep(1)} aria-label="Next project" disabled={total < 2}>
+            →
+          </button>
+        </div>
         <div className="au-modal-head" style={{ "--pa1": p.accent[0] } as React.CSSProperties}>
           <span className="au-modal-emoji" aria-hidden="true">
             {p.emoji}
@@ -193,6 +365,12 @@ function ProjectModal({ p, onClose }: { p: Project; onClose: () => void }) {
             </span>
             <h3 className="au-modal-title">{p.name}</h3>
             <p className="au-modal-tagline">{p.tagline}</p>
+            {gh && (
+              <span className="au-modal-gh">
+                ★ {gh.stars} {gh.stars === 1 ? "star" : "stars"}
+                {gh.pushed && ` · updated ${relTime(gh.pushed)}`}
+              </span>
+            )}
           </div>
         </div>
         <div className="au-modal-body">
@@ -228,6 +406,9 @@ function ProjectModal({ p, onClose }: { p: Project; onClose: () => void }) {
               Live Demo <span aria-hidden="true">↗</span>
             </a>
           )}
+          <button type="button" className="aurora-btn au-modal-btn" onClick={copyLink}>
+            Copy link <span aria-hidden="true">⧉</span>
+          </button>
           <button type="button" className="aurora-btn au-modal-btn au-modal-ghost" onClick={onClose}>
             Close <span aria-hidden="true">✕</span>
           </button>
@@ -254,7 +435,9 @@ function FeaturedProject({ p, onOpen }: { p: Project; onOpen: () => void }) {
           }
         }}
         aria-label={`Open ${p.name} quick view`}
+        onMouseMove={spotlight}
       >
+        <span className="au-spot" aria-hidden="true" />
         <div className="au-ft-copy">
           <span className="au-rank">Project 01 · flagship — click to explore</span>
           <h3 className="au-ft-name">{p.name}</h3>
@@ -311,7 +494,9 @@ function AuroraCard({ p, n, i, onOpen }: { p: Project; n: string; i: number; onO
           }
         }}
         aria-label={`Open ${p.name} quick view`}
+        onMouseMove={spotlight}
       >
+        <span className="au-spot" aria-hidden="true" />
         <span className="au-rank">{n} · {catOf(p)}</span>
         <h3 className="au-card-name">{p.name}</h3>
         <p className="au-card-tagline">{p.tagline}</p>
@@ -340,6 +525,7 @@ function AuroraCard({ p, n, i, onOpen }: { p: Project; n: string; i: number; onO
 
 function CopyEmail() {
   const [copied, setCopied] = useState(false);
+  const [burst, setBurst] = useState(0);
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(site.email);
@@ -347,6 +533,7 @@ function CopyEmail() {
       /* clipboard unavailable — fall back silently */
     }
     setCopied(true);
+    setBurst((b) => b + 1);
     setTimeout(() => setCopied(false), 2000);
   };
   return (
@@ -357,6 +544,13 @@ function CopyEmail() {
       aria-live="polite"
     >
       {copied ? "copied ✓" : "copy email"}
+      {burst > 0 && (
+        <span className="au-sparks" key={burst} aria-hidden="true">
+          {Array.from({ length: 10 }, (_, i) => (
+            <i key={i} style={{ "--a": `${i * 36}deg`, "--h": `${(i * 47) % 360}` } as React.CSSProperties} />
+          ))}
+        </span>
+      )}
     </button>
   );
 }
@@ -449,6 +643,11 @@ export function AuroraSite() {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [mouse, setMouse] = useState({ x: 50, y: 50 });
+  const [hue, setHue] = useState<HueId>(readHue);
+  const [activeSection, setActiveSection] = useState<string>("home");
+  const [modalDir, setModalDir] = useState<1 | -1>(1);
+  const [rolling, setRolling] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
   const ist = useIstTime();
   const followers = github.followers;
 
@@ -507,13 +706,65 @@ export function AuroraSite() {
   }, []);
 
   useEffect(() => {
+    let raf = 0;
     const onScroll = () => {
       setScrolled(window.scrollY > 24);
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+        navRef.current?.style.setProperty("--sp", String(Math.min(1, window.scrollY / max)));
+      });
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, []);
+
+  // Dot navigation: which section is on screen.
+  useEffect(() => {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) if (e.isIntersecting) setActiveSection(e.target.id);
+      },
+      { rootMargin: "-45% 0px -50% 0px" }
+    );
+    for (const s of SECTIONS) {
+      const el = document.getElementById(s.id);
+      if (el) io.observe(el);
+    }
+    return () => io.disconnect();
+  }, []);
+
+  // Hue preset: persisted, applied as a hue rotation on the glows and gradients.
+  useEffect(() => {
+    try {
+      localStorage.setItem(HUE_KEY, hue);
+    } catch {
+      /* ignore */
+    }
+  }, [hue]);
+
+  // Deep link: /aurora#p=<slug> opens that project's quick view.
+  useEffect(() => {
+    const m = window.location.hash.match(/^#p=([a-z0-9-]+)$/);
+    if (!m) return;
+    const p = auroraProjects.find((x) => x.slug === m[1]);
+    if (!p) return;
+    setActiveProject(p);
+    setTimeout(() => document.getElementById("work")?.scrollIntoView({ block: "start" }), 50);
+  }, []);
+
+  useEffect(() => {
+    if (activeProject) {
+      history.replaceState(null, "", `#p=${activeProject.slug}`);
+    } else if (window.location.hash.startsWith("#p=")) {
+      history.replaceState(null, "", window.location.pathname);
+    }
+  }, [activeProject]);
 
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
@@ -584,8 +835,39 @@ export function AuroraSite() {
 
   const hasActiveFilters = filter !== "all" || !!query.trim() || !!skillFilter || sort !== "default";
 
+  const modalList = filtered.length ? filtered : auroraProjects;
+  const modalIndex = activeProject ? Math.max(0, modalList.findIndex((x) => x.slug === activeProject.slug)) : 0;
+  const stepProject = useCallback(
+    (d: 1 | -1) => {
+      setActiveProject((cur) => {
+        const list = filtered.length ? filtered : auroraProjects;
+        const i = cur ? list.findIndex((x) => x.slug === cur.slug) : 0;
+        return list[(i + d + list.length) % list.length] ?? cur;
+      });
+      setModalDir(d);
+    },
+    [filtered]
+  );
+
+  const randomProject = () => {
+    if (rolling) return;
+    setRolling(true);
+    const pool = auroraProjects.filter((x) => x.slug !== activeProject?.slug);
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    setTimeout(
+      () => {
+        setRolling(false);
+        setModalDir(1);
+        setActiveProject(pick);
+      },
+      motionReduced() ? 0 : 520
+    );
+  };
+
+  const hueDeg = HUES.find((h) => h.id === hue)?.deg ?? 0;
+
   return (
-    <div className="aurora-root" data-cursor-off>
+    <div className="aurora-root" data-cursor-off data-hue={hue} style={{ "--au-hue": `${hueDeg}deg` } as React.CSSProperties}>
       <div className="aurora-bg" aria-hidden="true" style={{ "--mx": `${mouse.x}%`, "--my": `${mouse.y}%` } as React.CSSProperties}>
         <div className="au-glow au-glow-purple" />
         <div className="au-glow au-glow-blue" />
@@ -593,7 +875,35 @@ export function AuroraSite() {
         <div className="au-mouse-glow" style={{ left: `${mouse.x}%`, top: `${mouse.y}%` } as React.CSSProperties} />
       </div>
 
-      {activeProject && <ProjectModal p={activeProject} onClose={() => setActiveProject(null)} />}
+      {activeProject && (
+        <ProjectModal
+          p={activeProject}
+          index={modalIndex}
+          total={modalList.length}
+          dir={modalDir}
+          onClose={() => setActiveProject(null)}
+          onStep={stepProject}
+          onToast={showToast}
+        />
+      )}
+
+      <nav className="au-dots" aria-label="Sections">
+        {SECTIONS.map((s) => (
+          <a
+            key={s.id}
+            href={`#${s.id}`}
+            className={`au-dot${activeSection === s.id ? " is-active" : ""}`}
+            aria-current={activeSection === s.id ? "true" : undefined}
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById(s.id)?.scrollIntoView({ behavior: motionReduced() ? "auto" : "smooth", block: "start" });
+            }}
+          >
+            <span className="au-dot-label">{s.label}</span>
+            <i aria-hidden="true" />
+          </a>
+        ))}
+      </nav>
 
       {toast && (
         <div className="au-toast" role="status" aria-live="polite">
@@ -603,7 +913,7 @@ export function AuroraSite() {
       )}
 
       <div className="aurora-inner">
-        <nav className={`aurora-nav${scrolled ? " is-scrolled" : ""}`} aria-label="Main">
+        <nav className={`aurora-nav${scrolled ? " is-scrolled" : ""}`} aria-label="Main" ref={navRef}>
           <Link to="/" className="aurora-wordmark">
             {site.name}
             <span className="dot">.</span>
@@ -662,11 +972,28 @@ export function AuroraSite() {
                 <kbd>1-6</kbd> switch interfaces
               </span>
               <span>click any card → quick view</span>
+              <span className="au-hue" role="group" aria-label="Aurora colour">
+                aurora
+                {HUES.map((h) => (
+                  <button
+                    key={h.id}
+                    type="button"
+                    className={`au-hue-swatch${hue === h.id ? " is-active" : ""}`}
+                    style={{ "--sw": h.swatch } as React.CSSProperties}
+                    aria-pressed={hue === h.id}
+                    aria-label={h.label}
+                    title={h.label}
+                    onClick={() => setHue(h.id)}
+                  />
+                ))}
+              </span>
             </div>
           </div>
           <div className="au-hero-visual au-reveal" aria-hidden="true">
             <div className="au-sys-head">
-              <span>build system</span>
+              <span>
+                building <Typer words={auroraProjects.map((p) => p.name)} />
+              </span>
               <span className="au-sys-live">
                 <i className="au-sys-dot" /> system online
               </span>
@@ -750,6 +1077,15 @@ export function AuroraSite() {
                   ))}
                 </select>
               </label>
+              <button
+                type="button"
+                className={`au-random${rolling ? " is-rolling" : ""}`}
+                onClick={randomProject}
+                aria-label="Open a random project"
+                title="Random project"
+              >
+                <span aria-hidden="true">⚄</span> random
+              </button>
               <div className="au-view" role="group" aria-label="View mode">
                 <button
                   type="button"

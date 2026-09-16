@@ -2631,3 +2631,281 @@ html:not([data-motion="reduce"]) .au-exp-row.is-open .au-exp-dot::after {
   border-color: rgba(167, 139, 250, 0.55);
   box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.18), 0 0 24px -6px rgba(167, 139, 250, 0.5);
 }
+
+/* ============================================================
+   FEATURES PASS — progress line, dot nav, typewriter, spotlight,
+   quick-view stepping, hue presets, sparks, random roll.
+   ============================================================ */
+
+/* 1. nav light line doubles as scroll progress */
+.aurora-nav::after {
+  right: auto;
+  width: calc((100% - 40px) * var(--sp, 0));
+  min-width: 0;
+  opacity: 0.9;
+  transition: width 0.12s linear;
+}
+
+/* 2. section dots */
+.au-dots {
+  position: fixed;
+  right: 18px;
+  top: 50%;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transform: translateY(-50%);
+}
+.au-dot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 3px;
+  color: var(--ink-2);
+}
+.au-dot i {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease, box-shadow 0.25s ease;
+}
+.au-dot:hover i {
+  background: rgba(255, 255, 255, 0.6);
+}
+.au-dot.is-active i {
+  background: var(--violet);
+  transform: scale(1.5);
+  box-shadow: 0 0 14px rgba(167, 139, 250, 0.9);
+}
+.au-dot-label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  background: rgba(10, 10, 24, 0.7);
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+  white-space: nowrap;
+}
+.au-dot:hover .au-dot-label,
+.au-dot:focus-visible .au-dot-label,
+.au-dots:hover .au-dot.is-active .au-dot-label {
+  opacity: 1;
+  transform: none;
+}
+@media (max-width: 1180px) {
+  .au-dots {
+    display: none;
+  }
+}
+
+/* 3. typewriter */
+.au-typer {
+  color: var(--ink);
+  text-transform: none;
+  letter-spacing: 0.04em;
+}
+.au-typer-caret {
+  display: inline-block;
+  width: 1px;
+  height: 0.95em;
+  margin-left: 2px;
+  vertical-align: -0.12em;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+}
+html:not([data-motion="reduce"]) .au-typer-caret {
+  animation: aupulse 1s steps(2, end) infinite;
+}
+
+/* 4. pointer spotlight */
+.au-spot {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(240px circle at var(--sx, 50%) var(--sy, 50%), rgba(167, 139, 250, 0.16), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.au-card:hover .au-spot,
+.au-ft:hover .au-spot,
+.au-stat:hover .au-spot {
+  opacity: 1;
+}
+@media (pointer: coarse) {
+  .au-spot {
+    display: none;
+  }
+}
+
+/* 5. quick view stepping */
+.au-modal-nav {
+  position: absolute;
+  top: 18px;
+  left: 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--ink-3);
+}
+.au-modal-nav button {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+.au-modal-nav button:hover:not(:disabled) {
+  background: rgba(167, 139, 250, 0.16);
+  color: var(--ink);
+  transform: translateY(-1px);
+}
+.au-modal-nav button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.au-modal-head {
+  padding-top: 52px;
+}
+html:not([data-motion="reduce"]) .au-modal[data-dir="1"] {
+  animation: auSlideL 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+html:not([data-motion="reduce"]) .au-modal[data-dir="-1"] {
+  animation: auSlideR 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes auSlideL {
+  from { opacity: 0; transform: translateX(28px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes auSlideR {
+  from { opacity: 0; transform: translateX(-28px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+/* 7. repo stats */
+.au-modal-gh {
+  display: inline-block;
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  color: var(--mint);
+  animation: auin 0.4s ease both;
+}
+
+/* 8. hue presets */
+.aurora-bg,
+.aurora-grad,
+.au-contact .grad,
+.au-ft-visual {
+  filter: hue-rotate(var(--au-hue, 0deg));
+  transition: filter 0.9s ease;
+}
+.au-hue {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.au-hue-swatch {
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: var(--sw);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--sw) 55%, transparent);
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease;
+}
+.au-hue-swatch:hover {
+  transform: scale(1.2);
+}
+.au-hue-swatch.is-active {
+  border-color: #fff;
+  transform: scale(1.25);
+}
+
+/* 9. sparks on copy */
+.au-copy {
+  position: relative;
+  overflow: visible;
+}
+.au-sparks {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.au-sparks i {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: hsl(var(--h) 90% 70%);
+  box-shadow: 0 0 8px hsl(var(--h) 90% 70%);
+  transform: rotate(var(--a)) translateX(0);
+  opacity: 0;
+}
+html:not([data-motion="reduce"]) .au-sparks i {
+  animation: auSpark 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes auSpark {
+  0% { opacity: 1; transform: rotate(var(--a)) translateX(4px) scale(1); }
+  100% { opacity: 0; transform: rotate(var(--a)) translateX(46px) scale(0.3); }
+}
+
+/* 10. random roll */
+.au-random {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  background: rgba(10, 10, 24, 0.5);
+  color: var(--ink-2);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.au-random:hover {
+  color: var(--ink);
+  border-color: var(--glass-border-2);
+  background: rgba(167, 139, 250, 0.1);
+}
+.au-random span {
+  display: inline-block;
+  font-size: 15px;
+  line-height: 1;
+}
+html:not([data-motion="reduce"]) .au-random.is-rolling span {
+  animation: auRoll 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes auRoll {
+  0% { transform: rotate(0) translateY(0); }
+  50% { transform: rotate(200deg) translateY(-6px); }
+  100% { transform: rotate(360deg) translateY(0); }
+}

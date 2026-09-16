@@ -112,7 +112,7 @@ export function AuroraDetails({ p }: { p: Project }) {
   );
 }
 
-function AuroraStat({ value, label, sub }: { value: number | null; label: string; sub?: string }) {
+function AuroraStat({ value, label, sub, i }: { value: number | null; label: string; sub?: string; i: number }) {
   const ref = useRef<HTMLSpanElement | null>(null);
   useEffect(() => {
     const el = ref.current;
@@ -141,7 +141,7 @@ function AuroraStat({ value, label, sub }: { value: number | null; label: string
     return () => io.disconnect();
   }, [value]);
   return (
-    <div className="au-stat">
+    <div className="au-stat" style={{ "--i": i } as React.CSSProperties}>
       <span className="au-stat-value" ref={ref}>
         {value === null ? "—" : 0}
       </span>
@@ -487,6 +487,25 @@ export function AuroraSite() {
     el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
   };
 
+  // Marks reveal groups as they enter the viewport; drives the staggered
+  // child entrances and the reveal fallback where view() timelines are missing.
+  useEffect(() => {
+    const els = document.querySelectorAll<HTMLElement>(".aurora-root .au-reveal");
+    if (!els.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          e.target.classList.add("is-in");
+          io.unobserve(e.target);
+        }
+      },
+      { rootMargin: "0px 0px -8% 0px", threshold: 0.06 }
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
   useEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 24);
@@ -687,8 +706,8 @@ export function AuroraSite() {
         </div>
 
         <div className="aurora-stats au-reveal" aria-label="Portfolio stats">
-          {statData.map((s) => (
-            <AuroraStat key={s.label} value={s.value} label={s.label} sub={s.sub} />
+          {statData.map((s, i) => (
+            <AuroraStat key={s.label} value={s.value} label={s.label} sub={s.sub} i={i} />
           ))}
         </div>
 
@@ -755,13 +774,14 @@ export function AuroraSite() {
           </div>
 
           <div className="au-filters au-reveal" role="group" aria-label="Filter projects by category">
-            {FILTERS.map((f) => (
+            {FILTERS.map((f, i) => (
               <button
                 key={f.id}
                 type="button"
                 className={`au-filter${filter === f.id ? " is-active" : ""}`}
                 aria-pressed={filter === f.id}
                 onClick={() => setFilter(f.id)}
+                style={{ "--i": i } as React.CSSProperties}
               >
                 {f.label}
                 <span className="au-filter-count">{f.id === "all" ? auroraProjects.length : counts[f.id]}</span>
@@ -837,11 +857,12 @@ export function AuroraSite() {
           </div>
           <div className="au-lab au-reveal">
             <div className="au-lab-pills">
-              {labTechs.map((t) => (
+              {labTechs.map((t, i) => (
                 <button
                   key={t}
                   type="button"
                   className={`au-lab-pill${skillFilter === t ? " is-active" : ""}`}
+                  style={{ "--i": i } as React.CSSProperties}
                   aria-pressed={skillFilter === t}
                   onClick={() => {
                     setSkillFilter((prev) => (prev === t ? null : t));
@@ -891,7 +912,7 @@ export function AuroraSite() {
             {experience.map((e, idx) => {
               const open = expandedExp === idx;
               return (
-                <div className={`au-exp-row${open ? " is-open" : ""}`} key={e.company}>
+                <div className={`au-exp-row${open ? " is-open" : ""}`} key={e.company} style={{ "--i": idx } as React.CSSProperties}>
                   <span className="au-exp-dot" style={{ background: e.accent }} aria-hidden="true" />
                   <div className="au-exp-main">
                     <div className="au-exp-role">{e.role}</div>
@@ -932,8 +953,8 @@ export function AuroraSite() {
           </div>
           <div className="au-edu-grid au-reveal">
             <div className="au-edu-timeline">
-              {education.map((ed) => (
-                <div className="au-edu-card" key={ed.school}>
+              {education.map((ed, i) => (
+                <div className="au-edu-card" key={ed.school} style={{ "--i": i } as React.CSSProperties}>
                   <span className="au-edu-dot" aria-hidden="true" />
                   <div>
                     <h3>{ed.school}</h3>
@@ -947,8 +968,8 @@ export function AuroraSite() {
             <div className="au-cert-panel">
               <span className="au-eng-label">certifications · {certifications.length}</span>
               <div className="au-cert-grid">
-                {certifications.map((c) => (
-                  <span className="au-cert-chip" key={c}>
+                {certifications.map((c, i) => (
+                  <span className="au-cert-chip" key={c} style={{ "--i": i } as React.CSSProperties}>
                     <Icon.cert width={12} height={12} aria-hidden="true" />
                     {c}
                   </span>
@@ -1002,8 +1023,8 @@ export function AuroraSite() {
                 </div>
               </dl>
               <div className="au-skills au-reveal">
-                {skillCategories.map((c) => (
-                  <div className="au-skill-line" key={c.label}>
+                {skillCategories.map((c, i) => (
+                  <div className="au-skill-line" key={c.label} style={{ "--i": i } as React.CSSProperties}>
                     <span className="au-skill-label">{c.label}</span>
                     <span className="au-skill-items">{c.items.map((i) => i.name).join(" · ")}</span>
                   </div>

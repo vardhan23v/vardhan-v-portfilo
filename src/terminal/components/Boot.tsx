@@ -34,7 +34,7 @@ export function Boot({ onDone }: { onDone: () => void }) {
       }, 140 + LINES.length * 170 + 480)
     );
     return () => timers.forEach(clearTimeout);
-  }, [onDone]);
+  }, [onDone, REDUCED]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -45,7 +45,7 @@ export function Boot({ onDone }: { onDone: () => void }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onDone]);
+  }, [onDone, REDUCED]);
 
   return (
     <div className={`boot ${doneRef.current ? "done" : ""}`} aria-hidden="true">

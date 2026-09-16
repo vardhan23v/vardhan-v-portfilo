@@ -12,6 +12,7 @@ export function Education() {
           <div>
             <SectionHead
               eyebrow="Education"
+          index="05"
               title={<>The <span className="grad-text">foundation</span></>}
             />
             <div className="edu-timeline">
@@ -34,6 +35,7 @@ export function Education() {
           <div>
             <SectionHead
               eyebrow="Certifications"
+          index="06"
               title={<>Proof of <span className="grad-text">learning</span></>}
             />
             <div className="cert-grid">
@@ -42,7 +44,8 @@ export function Education() {
                   <span className="cert-icon" aria-hidden="true">
                     <Icon.cert width={18} height={18} />
                   </span>
-                  <span>{c}</span>
+                  <span className="cert-title">{c.split(" — ")[0]}</span>
+                  {c.includes(" — ") && <span className="cert-issuer">{c.split(" — ").slice(1).join(" — ")}</span>}
                 </Reveal>
               ))}
             </div>

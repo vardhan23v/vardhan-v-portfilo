@@ -5,6 +5,7 @@ import { Reveal } from "../hooks/useReveal";
 import { Icon } from "../lib/icons";
 import "./GithubSection.css";
 import { motionReduced } from "../../lib/motion";
+import { github } from "../data/stats";
 
 interface RepoItem {
   name: string;
@@ -34,8 +35,8 @@ const languageColors: Record<string, string> = {
 export function GithubSection() {
   const [run, setRun] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
-  const repoCount = 39;
-  const followersNum = 30;
+  const repoCount = github.repos;
+  const followersNum = github.followers;
   const repos = fallbackRepos;
 
   useEffect(() => {
@@ -55,6 +56,9 @@ export function GithubSection() {
   }, []);
 
   const totalStars = repos.reduce((sum, r) => sum + r.stars, 0);
+  const langs = Object.entries(
+    repos.reduce<Record<string, number>>((acc, r) => ((acc[r.language] = (acc[r.language] ?? 0) + 1), acc), {})
+  ).sort((a, b) => b[1] - a[1]);
 
   const [display, setDisplay] = useState({ repos: 0, stars: 0, followers: 0 });
 
@@ -87,6 +91,7 @@ export function GithubSection() {
       <div className="container">
         <SectionHead
           eyebrow="Building in Public"
+          index="07"
           title={<>Learning by <span className="grad-text">shipping</span></>}
           sub="Most of my learning happens by building. Explore my projects, experiments, and work with AI-powered development."
         />
@@ -115,6 +120,24 @@ export function GithubSection() {
                   vardhan23v <Icon.external width={14} height={14} />
                 </a>
               </div>
+            </div>
+
+            <div className="gh-langs" aria-label="Languages across the repos shown">
+              <div className={`gh-langbar ${run ? "is-run" : ""}`} aria-hidden="true">
+                {langs.map(([lang, n], i) => (
+                  <i
+                    key={lang}
+                    style={{ "--w": `${(n / repos.length) * 100}%`, "--lc": languageColors[lang] ?? "#8b5cf6", "--i": i } as React.CSSProperties}
+                  />
+                ))}
+              </div>
+              <ul className="gh-langlist">
+                {langs.map(([lang, n]) => (
+                  <li key={lang} style={{ "--lc": languageColors[lang] ?? "#8b5cf6" } as React.CSSProperties}>
+                    <i aria-hidden="true" /> {lang} <span>{Math.round((n / repos.length) * 100)}%</span>
+                  </li>
+                ))}
+              </ul>
             </div>
 
             <div className="gh-repos">

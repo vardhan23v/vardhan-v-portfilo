@@ -18,7 +18,8 @@ export function About() {
   return (
     <section id="about">
       <div className="container">
-        <SectionHead eyebrow="About" title={<>Builder first, student second — <span className="grad-text">shipping with AI</span></>} />
+        <SectionHead eyebrow="About"
+          index="01" title={<>Builder first, student second — <span className="grad-text">shipping with AI</span></>} />
 
         <div className="about-grid">
           <Reveal>

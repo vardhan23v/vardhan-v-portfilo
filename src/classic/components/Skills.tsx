@@ -3,6 +3,7 @@ import { SectionHead } from "./SectionHead";
 import { Reveal } from "../hooks/useReveal";
 import { Icon, type IconName } from "../lib/icons";
 import "./Skills.css";
+import { usedIn } from "../data/stats";
 
 const techGlyphs: Record<string, string> = {
   js: "</>",
@@ -78,6 +79,7 @@ export function Skills() {
       <div className="container">
         <SectionHead
           eyebrow="Tech Stack"
+          index="04"
           title={<>Tools I <span className="grad-text">actually build with</span></>}
           sub="No percentage bars — just the languages, frameworks, and AI APIs I've shipped real applications with."
         />
@@ -92,18 +94,23 @@ export function Skills() {
                 <h3>{cat.label}</h3>
               </div>
               <div className="skill-chips">
-                {cat.items.map((item, j) => (
-                  <span
-                    key={item.name}
-                    className="skill-chip"
-                    style={{ "--cd": `${j * 34}ms` } as React.CSSProperties}
-                  >
-                    <span className="skill-chip-glyph" aria-hidden="true">
-                      {glyphFor(item.icon).glyph}
+                {cat.items.map((item, j) => {
+                  const n = usedIn(item.name);
+                  return (
+                    <span
+                      key={item.name}
+                      className="skill-chip"
+                      style={{ "--cd": `${j * 34}ms` } as React.CSSProperties}
+                      title={n ? `used in ${n} project${n === 1 ? "" : "s"}` : undefined}
+                    >
+                      <span className="skill-chip-glyph" aria-hidden="true">
+                        {glyphFor(item.icon).glyph}
+                      </span>
+                      {item.name}
+                      {n > 0 && <span className="skill-chip-count" aria-label={`used in ${n} projects`}>×{n}</span>}
                     </span>
-                    {item.name}
-                  </span>
-                ))}
+                  );
+                })}
               </div>
             </Reveal>
           ))}

@@ -394,3 +394,13 @@ html[data-motion="reduce"] .classic-root *::after {
     -webkit-backdrop-filter: none;
   }
 }
+
+/* ---------- Section index (editorial numbering) ---------- */
+
+.classic-root .section-index {
+  color: var(--text-faint);
+  letter-spacing: 0.08em;
+  padding-right: 10px;
+  border-right: 1px solid var(--border-strong);
+  margin-right: 2px;
+}

@@ -53,7 +53,7 @@ export function Contact() {
         <div className="contact-wrap">
           <Reveal>
             <div className="contact-copy">
-              <span className="section-eyebrow">Contact</span>
+              <span className="section-eyebrow"><span className="section-index" aria-hidden="true">08</span>Contact</span>
               <h2 className="section-title">
                 Have an idea? <span className="grad-text">Let's build it.</span>
               </h2>

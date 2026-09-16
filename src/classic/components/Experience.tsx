@@ -10,6 +10,7 @@ export function Experience() {
       <div className="container">
         <SectionHead
           eyebrow="Experience"
+          index="03"
           title={<>Where I've been <span className="grad-text">building</span></>}
           sub="Internships and product communities where I shipped real work and learned how products actually get made."
         />
@@ -18,11 +19,18 @@ export function Experience() {
           {experience.map((e, i) => (
             <Reveal key={e.company} as="div" className="timeline-item" delay={i % 2 ? "reveal-d1" : undefined}>
               <div className="timeline-dot" style={{ "--td": e.accent } as React.CSSProperties} aria-hidden="true" />
-              <article className="timeline-card card">
+              <article className="timeline-card card" style={{ "--td": e.accent } as React.CSSProperties}>
                 <div className="timeline-head">
                   <div>
                     <span className="timeline-role">{e.role}</span>
-                    <h3>{e.company}</h3>
+                    <h3>
+                      {e.company}
+                      {/present/i.test(e.period) && (
+                        <span className="timeline-current">
+                          <i aria-hidden="true" /> current
+                        </span>
+                      )}
+                    </h3>
                   </div>
                   <span className="timeline-period">
                     <Icon.clock width={13} height={13} /> {e.period}

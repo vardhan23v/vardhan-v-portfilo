@@ -162,3 +162,22 @@ html[data-motion="reduce"] .classic-root .skill-chip {
 html[data-motion="reduce"] .classic-root .skill-chip-glyph {
     transform: none;
   }
+/* ---------- "used in N projects" counts ---------- */
+
+.classic-root .skill-chip {
+  position: relative;
+}
+
+.classic-root .skill-chip-count {
+  margin-left: 6px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-faint);
+  opacity: 0.7;
+  transition: color 0.18s ease, opacity 0.18s ease;
+}
+
+.classic-root .skill-chip:hover .skill-chip-count {
+  color: var(--accent-2);
+  opacity: 1;
+}

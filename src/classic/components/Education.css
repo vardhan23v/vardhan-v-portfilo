@@ -142,3 +142,30 @@
     gap: 48px;
   }
 }
+/* ---------- issuer chip ---------- */
+
+.classic-root .cert-card {
+  flex-wrap: wrap;
+}
+
+.classic-root .cert-title {
+  flex: 1 1 200px;
+}
+
+.classic-root .cert-issuer {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 9px;
+  white-space: nowrap;
+}
+
+.classic-root .cert-card:hover .cert-issuer {
+  color: var(--green);
+  border-color: rgba(52, 211, 153, 0.3);
+}

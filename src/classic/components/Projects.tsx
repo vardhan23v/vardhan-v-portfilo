@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ProjectDrawer } from "./ProjectDrawer";
 import type { Project } from "../data/projects";
 import { featuredProjects, otherProjects } from "../data/projects";
 import { SectionHead } from "./SectionHead";
@@ -49,7 +50,7 @@ function Mark({ text, query }: { text: string; query: string }) {
   return <>{nodes}</>;
 }
 
-function ProjectCard({ project, query }: { project: Project; query: string }) {
+function ProjectCard({ project, query, onOpen }: { project: Project; query: string; onOpen: (p: Project) => void }) {
   const [a1, a2, a3] = project.accent;
   const ref = useTilt<HTMLDivElement>(4, ".project-card");
   const onMove = (e: React.MouseEvent<HTMLElement>) => {
@@ -70,7 +71,7 @@ function ProjectCard({ project, query }: { project: Project; query: string }) {
         }
         onMouseMove={onMove}
       >
-      <div className="project-visual" aria-hidden="true">
+      <div className={`project-visual${project.cover ? " has-cover" : ""}`} aria-hidden="true">
         <div className="project-chrome">
           <span className="terminal-dot terminal-dot-r" />
           <span className="terminal-dot terminal-dot-y" />
@@ -80,18 +81,29 @@ function ProjectCard({ project, query }: { project: Project; query: string }) {
           </span>
           <span className="project-chrome-icon">{project.emoji}</span>
         </div>
-        <div className="project-code">
-          <span style={{ "--pi": 0 } as React.CSSProperties}>&gt; {project.slug}.build()</span>
-          <span style={{ "--pi": 1 } as React.CSSProperties}>&gt; llm.connect("groq")</span>
-          <span style={{ "--pi": 2 } as React.CSSProperties}>&gt; dispatch(&#123; deploy: true &#125;)</span>
-          <span className="project-code-ok" style={{ "--pi": 3 } as React.CSSProperties}>&gt; ✓ shipped</span>
-        </div>
+        {project.cover ? (
+          <img className="project-cover" src={project.cover} alt="" loading="lazy" decoding="async" />
+        ) : (
+          <div className="project-code">
+            <span style={{ "--pi": 0 } as React.CSSProperties}>&gt; {project.slug}.build()</span>
+            <span style={{ "--pi": 1 } as React.CSSProperties}>&gt; stack.load([{project.tech.slice(0, 3).map((t) => `"${t}"`).join(", ")}])</span>
+            <span style={{ "--pi": 2 } as React.CSSProperties}>&gt; deploy({project.live ? "{ target: \"vercel\" }" : "{ target: \"github\" }"})</span>
+            <span className="project-code-ok" style={{ "--pi": 3 } as React.CSSProperties}>&gt; ✓ shipped</span>
+          </div>
+        )}
+        <button type="button" className="project-peek" onClick={() => onOpen(project)} tabIndex={-1}>
+          quick view
+        </button>
       </div>
 
       <div className="project-body">
         <div className="project-top">
           <div>
-            <h3 className="project-name"><Mark text={project.name} query={query} /></h3>
+            <h3 className="project-name">
+              <button type="button" className="project-name-btn" onClick={() => onOpen(project)} aria-haspopup="dialog">
+                <Mark text={project.name} query={query} />
+              </button>
+            </h3>
             <p className="project-tagline"><Mark text={project.tagline} query={query} /></p>
           </div>
           {project.highlight && <span className="project-badge">Flagship</span>}
@@ -138,7 +150,23 @@ function ProjectCard({ project, query }: { project: Project; query: string }) {
 export function Projects() {
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
+  const [active, setActive] = useState<Project | null>(null);
+  const [showAll, setShowAll] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const OTHERS_PREVIEW = 6;
+
+  const close = useCallback(() => setActive(null), []);
+  const step = useCallback(
+    (dir: 1 | -1) =>
+      setActive((cur) => {
+        if (!cur) return cur;
+        const i = featuredProjects.findIndex((p) => p.slug === cur.slug);
+        return featuredProjects[(i + dir + featuredProjects.length) % featuredProjects.length];
+      }),
+    []
+  );
+  const prev = useCallback(() => step(-1), [step]);
+  const next = useCallback(() => step(1), [step]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -167,6 +195,7 @@ export function Projects() {
       <div className="container">
         <SectionHead
           eyebrow="Featured Projects"
+          index="02"
           title={<>Things I've actually <span className="grad-text">built and shipped</span></>}
           sub="AI-powered developer tools, assistants, and full-stack apps — each one solving a real problem."
         />
@@ -223,7 +252,7 @@ export function Projects() {
               className={p.highlight ? "project-wrap-featured" : ""}
               style={{ "--i": i } as React.CSSProperties}
             >
-              <ProjectCard project={p} query={q} />
+              <ProjectCard project={p} query={q} onOpen={setActive} />
             </Reveal>
           ))}
         </div>
@@ -251,7 +280,7 @@ export function Projects() {
               <Icon.folder width={20} height={20} /> Other things I've built
             </h3>
             <div className="others-grid">
-              {otherProjects.map((p) => (
+              {(showAll ? otherProjects : otherProjects.slice(0, OTHERS_PREVIEW)).map((p) => (
                 <a
                   key={p.name}
                   href={p.github}
@@ -276,6 +305,11 @@ export function Projects() {
               ))}
             </div>
             <div className="others-more">
+              {otherProjects.length > OTHERS_PREVIEW && (
+                <button type="button" className="btn btn-ghost" onClick={() => setShowAll((v) => !v)} aria-expanded={showAll}>
+                  {showAll ? "Show fewer" : `Show ${otherProjects.length - OTHERS_PREVIEW} more`}
+                </button>
+              )}
               <a href={site.github} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">
                 View All Projects on GitHub <Icon.arrowRight width={17} height={17} />
               </a>
@@ -283,6 +317,7 @@ export function Projects() {
           </div>
         </Reveal>
       </div>
+      <ProjectDrawer project={active} onClose={close} onPrev={prev} onNext={next} />
     </section>
   );
 }

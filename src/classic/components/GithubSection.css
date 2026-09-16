@@ -175,3 +175,61 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+/* ---------- language breakdown ---------- */
+
+.classic-root .gh-langs {
+  margin: 0 0 22px;
+}
+
+.classic-root .gh-langbar {
+  display: flex;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  gap: 2px;
+}
+
+.classic-root .gh-langbar i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--lc);
+  transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--i, 0) * 0.12s + 0.2s);
+}
+
+.classic-root .gh-langbar.is-run i {
+  width: var(--w);
+}
+
+.classic-root .gh-langlist {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.classic-root .gh-langlist i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--lc);
+  margin-right: 2px;
+  vertical-align: -1px;
+}
+
+.classic-root .gh-langlist span {
+  color: var(--text-faint);
+}
+
+html[data-motion="reduce"] .classic-root .gh-langbar i {
+  transition: none;
+  width: var(--w);
+}

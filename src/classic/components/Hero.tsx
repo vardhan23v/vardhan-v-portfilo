@@ -5,6 +5,9 @@ import { Terminal } from "./Terminal";
 import { Reveal } from "../hooks/useReveal";
 import "./Hero.css";
 import { motionReduced } from "../../lib/motion";
+import { useMagnetic } from "../../hooks/useMagnetic";
+import { stats } from "../data/stats";
+import { CountUp } from "./CountUp";
 
 const roles = [
   "Generative AI Developer",
@@ -72,6 +75,7 @@ function useClassicHeroFX() {
           const ty = y * 0.1;
           hero.style.opacity = String(fade);
           hero.style.transform = `translateY(${ty}px)`;
+          hero.classList.toggle("is-scrolled", y > 60);
         }
         if (visual) {
           visual.style.transform = `translateY(${y * -0.05}px)`;
@@ -94,8 +98,16 @@ function useClassicHeroFX() {
   }, []);
 }
 
+const HERO_STATS: { value: number; label: string; suffix?: string }[] = [
+  { value: stats.projects, label: "projects built" },
+  { value: stats.repos, label: "public repos" },
+  { value: stats.roles, label: "internships & roles" },
+  { value: stats.tools, label: "tools shipped with", suffix: "+" },
+];
+
 export function Hero() {
   useClassicHeroFX();
+  useMagnetic(".classic-root .hero-actions .btn", 0.24, 8);
   return (
     <section className="hero" id="top">
       <div className="container hero-grid">
@@ -146,6 +158,19 @@ export function Hero() {
                 <Icon.download width={17} height={17} /> Download Resume
               </a>
             </div>
+          </Reveal>
+
+          <Reveal delay="reveal-d4">
+            <dl className="hero-stats" aria-label="At a glance">
+              {HERO_STATS.map((s) => (
+                <div className="hero-stat" key={s.label}>
+                  <dt>{s.label}</dt>
+                  <dd>
+                    <CountUp to={s.value} suffix={s.suffix} />
+                  </dd>
+                </div>
+              ))}
+            </dl>
           </Reveal>
 
           <Reveal delay="reveal-d4">
@@ -202,6 +227,11 @@ export function Hero() {
           </Reveal>
         </div>
       </div>
+
+      <a href="#about" className="hero-scroll" aria-label="Scroll to the about section">
+        <span className="hero-scroll-mouse" aria-hidden="true"><i /></span>
+        <span>scroll</span>
+      </a>
 
       <div className="hero-float hero-float-code" aria-hidden="true">
         <Icon.code width={16} height={16} /> const ship = (idea) =&gt; build(idea)

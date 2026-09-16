@@ -118,8 +118,6 @@ export const featuredProjects: Project[] = [
     github: "https://github.com/vardhan23v/Disastermind-ai",
     accent: ["#f97316", "#fb923c", "#facc15"],
     emoji: "🛰️",
-    cover: "/work/disastermind-ops.jpg",
-    screenshots: ["/work/disastermind-ops.jpg", "/work/disastermind-map.jpg"],
   },
   {
     name: "DriveNest",

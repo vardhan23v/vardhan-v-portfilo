@@ -50,12 +50,6 @@ function Entry({ p }: { p: Project }) {
         <p className="paper-lede">{p.tagline}</p>
         <p>{p.problem}</p>
         <p>Includes {sentence(p.features.slice(0, 4))}.</p>
-        {p.cover && (
-          <figure className="paper-figure">
-            <img src={p.cover} alt={`${p.name} interface`} loading="lazy" width={1280} height={800} />
-            <figcaption>{p.name}, operations view.</figcaption>
-          </figure>
-        )}
       </div>
     </article>
   );

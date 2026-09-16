@@ -325,64 +325,7 @@ html:not([data-motion="reduce"]) .paper-titlepage > * {
 
 .paper-text > p + p,
 .paper-text > p + ul,
-.paper-text > .paper-figure {
-  margin-top: 14px;
-}
-
-.paper-entry-title {
-  margin: 0;
-  font-size: 27px;
-  font-weight: 500;
-  line-height: 1.15;
-  letter-spacing: -0.012em;
-  color: var(--ink);
-}
-
-.paper-entry-title--sm {
-  font-size: 21px;
-}
-
-.paper-entry-title + .paper-lede {
-  margin-top: 8px;
-}
-
-.paper-lede {
-  font-size: 19px;
-  line-height: 1.5;
-  color: var(--ink);
-}
-
-.paper-list {
-  margin: 0;
-  padding-left: 1.1em;
-}
-
-.paper-list li + li {
-  margin-top: 4px;
-}
-
-.paper-list li::marker {
-  color: var(--ink-3);
-}
-
-.paper-figure {
-  margin: 22px 0 0;
-}
-
-.paper-figure img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border: 1px solid var(--rule);
-}
-
-.paper-figure figcaption {
-  margin-top: 8px;
-  font-size: 15px;
-  color: var(--ink-3);
-}
-
-.paper-email {
+.paper-text > .paper-email {
   font-size: 27px;
   line-height: 1.2;
   letter-spacing: -0.01em;

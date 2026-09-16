@@ -9,6 +9,7 @@ import { featuredProjects, type Project } from "../classic/data/projects";
 import { experience } from "../classic/data/experience";
 import { skillCategories } from "../classic/data/skills";
 import { site } from "../classic/data/site";
+import { github } from "../classic/data/stats";
 import "./styles/forge.css";
 import { motionReduced } from "../lib/motion";
 
@@ -96,7 +97,28 @@ const INTERFACES: { to: string; name: string; desc: string; key: string }[] = [
   { to: "/classic", name: "Classic", desc: "the original design", key: "⌘" },
   { to: "/paper", name: "Paper", desc: "light editorial", key: "¶" },
   { to: "/aurora", name: "Aurora", desc: "luminous glass", key: "✦" },
+  { to: "/mac", name: "macOS", desc: "a working desktop", key: "⌥" },
 ];
+
+const STOKE_KEY = "fg.stoked";
+function readStoked() {
+  try {
+    return localStorage.getItem(STOKE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/** Ember sparks that fly out of a button while it is hovered. */
+function Sparks() {
+  return (
+    <i className="fg-sparks" aria-hidden="true">
+      {Array.from({ length: 7 }, (_, i) => (
+        <b key={i} style={{ "--a": `${-70 + i * 24}deg`, "--d": `${(i * 0.09) % 0.5}s` } as CSSProperties} />
+      ))}
+    </i>
+  );
+}
 
 function SectionEyebrow({ id, left }: { id: string; left?: boolean }) {
   const [idx, name] = SECTION_META[id];
@@ -125,8 +147,39 @@ function useLede() {
   return idx;
 }
 
+/** Followers and repo count from GitHub, cached per session; static numbers until it answers. */
 function useGithubStats() {
-  return { followers: 30, repos: 39 };
+  const [s, setS] = useState<{ followers: number; repos: number }>({ followers: github.followers, repos: github.repos });
+  useEffect(() => {
+    const key = "fg.gh";
+    try {
+      const cached = sessionStorage.getItem(key);
+      if (cached) {
+        setS(JSON.parse(cached));
+        return;
+      }
+    } catch {
+      /* ignore */
+    }
+    let alive = true;
+    fetch(`https://api.github.com/users/${site.githubUser}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (!alive || !j) return;
+        const next = { followers: j.followers ?? github.followers, repos: j.public_repos ?? github.repos };
+        setS(next);
+        try {
+          sessionStorage.setItem(key, JSON.stringify(next));
+        } catch {
+          /* ignore */
+        }
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+  return s;
 }
 
 function useForgeReveals() {
@@ -256,6 +309,24 @@ function useForgeTimelineReveal() {
 
 function ForgeNav() {
   const [open, setOpen] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+        navRef.current?.style.setProperty("--sp", String(Math.min(1, window.scrollY / max)));
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
   const links: [string, string][] = [
     ["#work", "Projects"],
     ["#stack", "Stack"],
@@ -268,7 +339,7 @@ function ForgeNav() {
     setOpen(false);
   };
   return (
-    <nav className="fg-nav" aria-label="Main">
+    <nav className="fg-nav" aria-label="Main" ref={navRef}>
       <Link to="/" className="fg-nav-name">
         Sree Vardhan <span className="fg-dot">V.</span>
       </Link>
@@ -332,12 +403,12 @@ const BUILD_LOG = [
   "▸ deploying → vercel ... ✓ live",
 ];
 
-function BuildLog() {
+function BuildLog({ override }: { override?: number | null }) {
   const [line, setLine] = useState(0);
   const [chars, setChars] = useState(BUILD_LOG[0].length);
 
   useEffect(() => {
-    if (motionReduced()) return;
+    if (motionReduced() || override != null) return;
     let i = 0;
     let c = 0;
     let t = 0;
@@ -356,11 +427,12 @@ function BuildLog() {
     };
     t = window.setTimeout(typeNext, 800);
     return () => window.clearTimeout(t);
-  }, []);
+  }, [override]);
 
+  const text = override != null ? BUILD_LOG[override] : BUILD_LOG[line].slice(0, chars);
   return (
     <span className="fg-pipe-log">
-      {BUILD_LOG[line].slice(0, chars)}
+      {text}
       <i className="fg-pipe-caret" aria-hidden="true" />
     </span>
   );
@@ -381,10 +453,35 @@ function StaggerHeading({ text, className = "" }: { text: string; className?: st
   );
 }
 
-function Hero() {
+function Hero({ stoked, onStoke }: { stoked: boolean; onStoke: () => void }) {
   const ledeIdx = useLede();
   const uptime = useUptime();
   const [trace, setTrace] = useState<number | null>(null);
+  const [step, setStep] = useState<number | null>(null);
+  const [builds, setBuilds] = useState(0);
+  const [passed, setPassed] = useState(false);
+
+  // "Run build": rows go queued → running → ok in sequence, the log follows, prod flashes.
+  const runBuild = () => {
+    if (step !== null) return;
+    setPassed(false);
+    const fast = motionReduced();
+    let i = 0;
+    setStep(0);
+    const tick = () => {
+      i += 1;
+      if (i < 5) {
+        setStep(i);
+        window.setTimeout(tick, fast ? 0 : 520);
+      } else {
+        setStep(null);
+        setPassed(true);
+        setBuilds((b) => b + 1);
+        window.setTimeout(() => setPassed(false), 2400);
+      }
+    };
+    window.setTimeout(tick, fast ? 0 : 520);
+  };
   const pipeRef = useTilt<HTMLDivElement>(5, ".fg-pipe");
   const pipeline: [string, string, string][] = [
     ["Frontend", "React · Tailwind UI", "#7DD3FC"],
@@ -395,7 +492,7 @@ function Hero() {
   ];
   return (
     <header className="fg-hero">
-      <EmberField />
+      <EmberField stoked={stoked} />
       <div className="fg-hero-copy">
         <p className="fg-eyebrow fg-enter" style={{ "--d": "0s" } as CSSProperties}>
           generative ai · full-stack · product engineering
@@ -422,23 +519,33 @@ function Hero() {
           </LiquidButton>
           <a className="fg-btn" href={site.github} target="_blank" rel="noopener noreferrer">
             GitHub <span aria-hidden="true">↗</span>
+            <Sparks />
           </a>
           <a className="fg-btn" href={site.resume} target="_blank" rel="noopener noreferrer">
             Resume <span aria-hidden="true">↗</span>
+            <Sparks />
           </a>
         </div>
         <div className="fg-context fg-enter" style={{ "--d": "0.58s" } as CSSProperties}>
           <span>generative ai</span>
           <span>full-stack engineering</span>
           <span>agentic systems</span>
+          <button type="button" className={`fg-stoke${stoked ? " is-on" : ""}`} onClick={onStoke} aria-pressed={stoked}>
+            <i aria-hidden="true" /> {stoked ? "forge stoked" : "stoke the forge"}
+          </button>
         </div>
       </div>
       <div ref={pipeRef} className="fg-hero-visual fg-enter" style={{ "--d": "0.34s" } as CSSProperties} aria-hidden="true">
-        <div className="fg-pipe">
+        <div className={`fg-pipe${step !== null ? " is-building" : ""}${passed ? " is-passed" : ""}`}>
           <div className="fg-pipe-head">
-            <span>build pipeline</span>
-            <span className="fg-pipe-status">
-              <i className="fg-pipe-dot" /> prod
+            <span>build pipeline{builds > 0 && <span className="fg-pipe-count"> · #{builds}</span>}</span>
+            <span className="fg-pipe-head-right">
+              <button type="button" className="fg-pipe-run" onClick={runBuild} disabled={step !== null}>
+                {step !== null ? "building…" : "run build ▶"}
+              </button>
+              <span className="fg-pipe-status">
+                <i className="fg-pipe-dot" /> {passed ? "passed ✓" : "prod"}
+              </span>
             </span>
           </div>
           <div className="fg-pipe-rows">
@@ -447,14 +554,14 @@ function Hero() {
               <div
                 className={`fg-pipe-row${
                   trace !== null ? (i >= trace ? " is-downstream" : " is-dimmed") : ""
-                }`}
+                }${step !== null && i === step ? " is-running" : ""}${(step !== null && i < step) || passed ? " is-done" : ""}`}
                 key={name}
                 style={{ "--pc": color, "--i": i } as CSSProperties}
                 onMouseEnter={() => setTrace(i)}
                 onMouseLeave={() => setTrace(null)}
               >
                 <span className="fg-pipe-idx">
-                  {String(i + 1).padStart(2, "0")}
+                  {(step !== null && i < step) || passed ? "ok" : String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="fg-pipe-name">{name}</span>
                 <span className="fg-pipe-arrow">→</span>
@@ -463,7 +570,7 @@ function Hero() {
             ))}
           </div>
           <div className="fg-pipe-foot">
-            <BuildLog />
+            <BuildLog override={step} />
             <span className="fg-pipe-uptime">
               <i className="fg-pipe-dot" /> uptime {uptime}
             </span>
@@ -596,8 +703,10 @@ function Stack() {
               <h3>{c.label}</h3>
               <span className="fg-stack-desc">{STACK_CONTEXT[c.label] ?? ""}</span>
               <div className="fg-stack-items">
-                {c.items.map((name) => (
-                  <span key={name}>{name}</span>
+                {c.items.map((name, ci) => (
+                  <span key={name} style={{ "--ci": ci } as CSSProperties}>
+                    {name}
+                  </span>
                 ))}
               </div>
             </div>
@@ -647,16 +756,71 @@ function ProjectCard({ p, i }: { p: (typeof FORGE_PROJECTS)[number]; i: number }
   const ai = p.tech.filter((t) => AI_TECHS.has(t));
   const features = p.features.slice(0, 4);
   const featured = p.highlight === true;
+  const [flipped, setFlipped] = useState(false);
+  const [turns, setTurns] = useState(0);
+  const flip = (to: boolean) => {
+    setFlipped(to);
+    setTurns((t) => t + 1);
+  };
   return (
-    <div className="fg-proj-wrap" style={{ "--i": i } as CSSProperties}>
+    <div className="fg-proj-wrap" style={{ "--i": i } as CSSProperties} data-slug={p.slug}>
       <article
-        className={`fg-proj-card${featured ? " fg-proj-featured" : ""}`}
+        className={`fg-proj-card${featured ? " fg-proj-featured" : ""}${flipped ? " is-flipped" : ""}${turns ? ` fg-turn-${turns % 2}` : ""}`}
         style={{ "--pa1": p.accent[0] } as CSSProperties}
         onMouseMove={onMove}
       >
+        <div className="fg-proj-back" aria-hidden={!flipped} inert={!flipped}>
+          <div className="fg-proj-top">
+            <span className="fg-proj-num">{p.num} · spec sheet</span>
+            <button type="button" className="fg-proj-flip" onClick={() => flip(false)}>
+              back <span aria-hidden="true">⟲</span>
+            </button>
+          </div>
+          <h3 className="fg-proj-title fg-proj-title-sm">{p.name}</h3>
+          <dl className="fg-spec">
+            <div>
+              <dt>category</dt>
+              <dd>{p.cat}</dd>
+            </div>
+            <div>
+              <dt>stack</dt>
+              <dd>{p.tech.join(" · ")}</dd>
+            </div>
+            <div>
+              <dt>ai engine</dt>
+              <dd>{ai.length ? ai.join(" · ") : "none"}</dd>
+            </div>
+            <div>
+              <dt>features</dt>
+              <dd>{p.features.join(" · ")}</dd>
+            </div>
+            <div>
+              <dt>source</dt>
+              <dd>
+                <a href={p.github} target="_blank" rel="noopener noreferrer">
+                  {p.github.replace("https://github.com/", "")}
+                </a>
+              </dd>
+            </div>
+            {p.live && (
+              <div>
+                <dt>live</dt>
+                <dd>
+                  <a href={p.live} target="_blank" rel="noopener noreferrer">
+                    {p.live.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                  </a>
+                </dd>
+              </div>
+            )}
+          </dl>
+        </div>
+        <div className="fg-proj-front" aria-hidden={flipped} inert={flipped}>
         <div className="fg-proj-top">
           <span className="fg-proj-num">{p.num}</span>
           <span className="fg-proj-topright">
+            <button type="button" className="fg-proj-flip" onClick={() => flip(true)} aria-label={`Show ${p.name} spec sheet`}>
+              specs <span aria-hidden="true">⟳</span>
+            </button>
             {featured && <span className="fg-proj-badge">featured</span>}
             <span className="fg-proj-cat" style={{ color: p.accent[0] }}>
               {p.cat}
@@ -701,6 +865,7 @@ function ProjectCard({ p, i }: { p: (typeof FORGE_PROJECTS)[number]; i: number }
           )}
         </div>
         <span className="fg-proj-emoji" aria-hidden="true">{p.emoji}</span>
+        </div>
       </article>
     </div>
   );
@@ -720,6 +885,35 @@ function Work() {
     () => FORGE_PROJECTS.filter((p) => active.match(p.cat)),
     [active]
   );
+
+  // j / k step through the cards, f cycles the filter (digits are taken by the edition switcher).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      if (e.key === "j" || e.key === "k") {
+        const wraps = [...document.querySelectorAll<HTMLElement>(".fg-proj-wrap")];
+        if (!wraps.length) return;
+        const cur = wraps.findIndex((w) => w.classList.contains("is-focus"));
+        let next = e.key === "j" ? cur + 1 : cur - 1;
+        if (cur === -1) next = e.key === "j" ? 0 : wraps.length - 1;
+        next = Math.max(0, Math.min(wraps.length - 1, next));
+        wraps.forEach((w) => w.classList.remove("is-focus"));
+        const w = wraps[next];
+        w.classList.add("is-focus");
+        w.scrollIntoView({ behavior: motionReduced() ? "auto" : "smooth", block: "start" });
+        e.preventDefault();
+      } else if (e.key === "f") {
+        setFilter((cur) => {
+          const i = WORK_FILTERS.findIndex((f) => f.key === cur);
+          return WORK_FILTERS[(i + 1) % WORK_FILTERS.length].key;
+        });
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
   return (
     <section className="fg-section fg-work" id="work">
       <div className="fg-work-head fg-reveal">
@@ -728,6 +922,10 @@ function Work() {
         <p className="fg-subhead">
           A selection of AI-powered products, full-stack applications, and developer
           tools — ordered by AI engineering relevance.
+        </p>
+        <p className="fg-keys" aria-hidden="true">
+          <kbd>j</kbd>
+          <kbd>k</kbd> cards <kbd>f</kbd> filter <kbd>specs</kbd> flips a card
         </p>
         <div className="fg-work-filters" role="group" aria-label="Filter projects">
           {WORK_FILTERS.map((f) => (
@@ -768,9 +966,11 @@ function Contact() {
           </MetalButton>
           <a className="fg-btn" href={site.github} target="_blank" rel="noopener noreferrer">
             GitHub <span aria-hidden="true">↗</span>
+            <Sparks />
           </a>
           <a className="fg-btn" href={site.linkedin} target="_blank" rel="noopener noreferrer">
             LinkedIn <span aria-hidden="true">↗</span>
+            <Sparks />
           </a>
         </div>
       </div>
@@ -785,7 +985,7 @@ function Interfaces() {
         <SectionEyebrow id="interfaces" />
         <StaggerHeading text="Other interfaces" />
         <p className="fg-subhead">
-          Five interfaces, one portfolio — every edition runs the same work through a
+          Six interfaces, one portfolio — every edition runs the same work through a
           different design system. This is Forge; here are the rest.
         </p>
         <div className="fg-interfaces-grid">
@@ -832,19 +1032,53 @@ export function ForgeSite() {
   useForgeScrollFX();
   useForgeSpy();
   useForgeTimelineReveal();
+  const [stoked, setStoked] = useState(readStoked);
+  const bgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(STOKE_KEY, stoked ? "1" : "0");
+    } catch {
+      /* ignore */
+    }
+  }, [stoked]);
+
+  // The background grid glows where the pointer is.
+  useEffect(() => {
+    if (window.matchMedia("(pointer: coarse)").matches || motionReduced()) return;
+    let raf = 0;
+    let x = 0;
+    let y = 0;
+    const onMove = (e: globalThis.MouseEvent) => {
+      x = e.clientX;
+      y = e.clientY;
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        bgRef.current?.style.setProperty("--gx", `${x}px`);
+        bgRef.current?.style.setProperty("--gy", `${y}px`);
+      });
+    };
+    window.addEventListener("mousemove", onMove, { passive: true });
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
-    <div className="forge-root" id="fg-top" data-cursor-accent="forge">
-      <div className="fg-bg" aria-hidden="true">
+    <div className="forge-root" id="fg-top" data-cursor-accent="forge" data-stoked={stoked ? "1" : undefined}>
+      <div className="fg-bg" aria-hidden="true" ref={bgRef}>
         <div className="fg-grid" />
+        <div className="fg-glow-cursor" />
       </div>
       <main className="forge-main">
         <ForgeNav />
-        <Hero />
+        <Hero stoked={stoked} onStoke={() => setStoked((s) => !s)} />
         <StatsStrip />
         <Marquee />
         <Work />

@@ -18,7 +18,7 @@ type Ember = {
  * up from the bottom with a little mouse "wind". Canvas is capped, pauses when
  * the tab is hidden, and skips entirely for reduced-motion / coarse pointers.
  */
-export function EmberField() {
+export function EmberField({ stoked = false }: { stoked?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -28,8 +28,11 @@ export function EmberField() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const COUNT = window.matchMedia("(pointer: coarse)").matches ? 26 : 46;
-    const HUES = [195, 210, 255, 265]; // forge cyans + violets
+    const BASE = window.matchMedia("(pointer: coarse)").matches ? 26 : 46;
+    const COUNT = stoked ? Math.round(BASE * 1.9) : BASE;
+    const SPEED = stoked ? 1.5 : 1;
+    // forge cyans + violets, or embers when the forge is stoked
+    const HUES = stoked ? [18, 28, 38, 12] : [195, 210, 255, 265];
     let w = 0;
     let h = 0;
     let wind = 0;
@@ -51,8 +54,8 @@ export function EmberField() {
       e.x = Math.random() * w;
       e.y = initial ? Math.random() * h : h + 6;
       e.vx = (Math.random() - 0.5) * 0.18;
-      e.vy = -(0.22 + Math.random() * 0.5);
-      e.r = 0.7 + Math.random() * 1.7;
+      e.vy = -(0.22 + Math.random() * 0.5) * SPEED;
+      e.r = (0.7 + Math.random() * 1.7) * (stoked ? 1.25 : 1);
       e.hue = HUES[Math.floor(Math.random() * HUES.length)];
       e.flicker = Math.random() * Math.PI * 2;
       e.maxLife = 460 + Math.random() * 340;
@@ -107,7 +110,7 @@ export function EmberField() {
       window.removeEventListener("mousemove", onMove);
       document.removeEventListener("visibilitychange", onVis);
     };
-  }, []);
+  }, [stoked]);
 
   return <canvas ref={canvasRef} className="fg-embers" aria-hidden="true" />;
 }

@@ -1791,6 +1791,7 @@ html[data-motion="reduce"] {
 .fg-h-clip {
   display: inline-block;
   overflow: hidden;
+  margin-right: 0.22em;
   vertical-align: bottom;
   padding-bottom: 0.08em;
   margin-bottom: -0.08em;
@@ -1867,3 +1868,352 @@ html:not([data-motion="reduce"]) .fg-work-stack .fg-proj-wrap {
 html[data-motion="reduce"] .fg-embers { display: none; }
 html[data-motion="reduce"] .fg-pipe { transform: none; }
 html[data-motion="reduce"] .fg-h-word { transform: none; opacity: 1; animation: none; }
+
+/* ============================================================
+   FORGE ADDITIONS — heat bar, run-build, sparks, cursor glow,
+   chip ignition, timeline tip, spec-sheet flip, keys, stoke.
+   ============================================================ */
+
+/* 1. heat bar: the nav underline is scroll progress */
+.fg-nav::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  height: 2px;
+  width: calc(100% * var(--sp, 0));
+  background: linear-gradient(90deg, var(--fg-cyan), var(--fg-violet) 70%, #f472b6);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--fg-cyan) 70%, transparent);
+  transition: width 0.12s linear;
+  pointer-events: none;
+}
+
+/* 2. run build */
+.fg-pipe-head-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.fg-pipe-count {
+  color: var(--fg-faint);
+}
+.fg-pipe-run {
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--fg-line-2);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--fg-cyan);
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.fg-pipe-run:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--fg-cyan) 14%, transparent);
+  border-color: color-mix(in srgb, var(--fg-cyan) 50%, transparent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--fg-cyan) 25%, transparent);
+}
+.fg-pipe-run:disabled {
+  color: var(--fg-muted);
+  cursor: progress;
+}
+.fg-pipe-row.is-running {
+  background: color-mix(in srgb, var(--pc) 8%, transparent);
+}
+.fg-pipe-row.is-running .fg-pipe-name {
+  color: var(--pc);
+}
+.fg-pipe-row.is-running::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--pc) 22%, transparent), transparent);
+  pointer-events: none;
+}
+html:not([data-motion="reduce"]) .fg-pipe-row.is-running::before {
+  animation: fg-run-sweep 0.55s linear infinite;
+}
+@keyframes fg-run-sweep {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+.fg-pipe-row.is-done .fg-pipe-idx {
+  color: #86efac;
+}
+.fg-pipe.is-passed .fg-pipe-status {
+  color: #86efac;
+}
+html:not([data-motion="reduce"]) .fg-pipe.is-passed {
+  animation: fg-pass-flash 0.9s ease;
+}
+@keyframes fg-pass-flash {
+  0% { box-shadow: 0 30px 80px -32px rgba(0, 0, 0, 0.9), 0 0 0 0 rgba(134, 239, 172, 0.5); }
+  100% { box-shadow: 0 30px 80px -32px rgba(0, 0, 0, 0.9), 0 0 0 18px rgba(134, 239, 172, 0); }
+}
+
+/* 3. sparks on buttons */
+.fg-btn {
+  position: relative;
+  overflow: visible;
+}
+.fg-sparks {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.fg-sparks b {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--fg-cyan);
+  box-shadow: 0 0 6px var(--fg-cyan);
+  opacity: 0;
+}
+html:not([data-motion="reduce"]) .fg-btn:hover .fg-sparks b {
+  animation: fg-spark 0.9s var(--d) ease-out infinite;
+}
+@keyframes fg-spark {
+  0% { opacity: 0; transform: rotate(var(--a)) translateX(10px) translateY(0); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--a)) translateX(34px) translateY(-14px); }
+}
+
+/* 4. cursor glow on the background grid */
+.fg-glow-cursor {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(380px circle at var(--gx, -1000px) var(--gy, -1000px), color-mix(in srgb, var(--fg-cyan) 9%, transparent), transparent 70%);
+  pointer-events: none;
+}
+@media (pointer: coarse) {
+  .fg-glow-cursor {
+    display: none;
+  }
+}
+
+/* 5. stack chips ignite */
+html:not([data-motion="reduce"]) .fg-stack:not(.fg-in) .fg-stack-items span {
+  opacity: 0;
+}
+html:not([data-motion="reduce"]) .fg-stack.fg-in .fg-stack-items span {
+  animation: fg-ignite 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(0.25s + var(--i, 0) * 0.07s + var(--ci, 0) * 0.045s);
+}
+@keyframes fg-ignite {
+  0% { opacity: 0; color: var(--hc); border-color: var(--hc); box-shadow: 0 0 0 0 var(--hc); transform: translateY(6px); }
+  40% { opacity: 1; color: var(--hc); border-color: var(--hc); box-shadow: 0 0 14px color-mix(in srgb, var(--hc) 55%, transparent); transform: none; }
+  100% { opacity: 1; }
+}
+
+/* 6. timeline tip + number fill */
+.fg-timeline::after {
+  content: "";
+  position: absolute;
+  left: 21px;
+  top: calc(10px + (100% - 20px) * var(--tl, 1));
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  transform: translate(-3px, -3px);
+  background: var(--fg-cyan);
+  box-shadow: 0 0 12px var(--fg-cyan), 0 0 28px color-mix(in srgb, var(--fg-cyan) 60%, transparent);
+  pointer-events: none;
+}
+.fg-tl-item.fg-tl-in .fg-timeline-num {
+  border-color: color-mix(in srgb, var(--fg-cyan) 55%, transparent);
+  background: color-mix(in srgb, var(--fg-cyan) 10%, var(--fg-bg));
+}
+html:not([data-motion="reduce"]) .fg-tl-item.fg-tl-in .fg-timeline-num {
+  animation: fg-num-fill 0.6s calc(var(--i, 0) * 0.08s + 0.3s) ease both;
+}
+@keyframes fg-num-fill {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--fg-cyan) 45%, transparent); }
+  100% { box-shadow: 0 0 0 12px transparent; }
+}
+
+/* 7. spec-sheet flip: the card turns edge-on and the faces swap at the midpoint
+   (the card clips its overflow, so a true 3D rotation would flatten and vanish) */
+.fg-proj-front {
+  transition: opacity 0.2s ease 0.24s, visibility 0s linear 0.24s;
+}
+.fg-proj-card.is-flipped .fg-proj-front {
+  opacity: 0;
+  visibility: hidden;
+}
+.forge-root .fg-proj-card > .fg-proj-back {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: clamp(28px, 4vw, 52px);
+  overflow: auto;
+  background: var(--fg-card);
+  border-radius: var(--fg-radius);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease 0.24s, visibility 0s linear 0.24s;
+}
+.fg-proj-card.is-flipped .fg-proj-back {
+  opacity: 1;
+  visibility: visible;
+}
+html:not([data-motion="reduce"]) .forge-root .fg-proj-card.fg-turn-0,
+html:not([data-motion="reduce"]) .forge-root .fg-proj-card.fg-turn-1 {
+  animation: fg-turn 0.5s ease-in-out;
+}
+@keyframes fg-turn {
+  0% { transform: scaleX(1); }
+  50% { transform: scaleX(0.04); }
+  100% { transform: scaleX(1); }
+}
+html[data-motion="reduce"] .fg-proj-front,
+html[data-motion="reduce"] .fg-proj-back {
+  transition: none;
+}
+.fg-proj-flip {
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--fg-line-2);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--fg-muted);
+  font-family: var(--fg-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.fg-proj-flip:hover {
+  color: var(--fg-cyan);
+  border-color: color-mix(in srgb, var(--fg-cyan) 50%, transparent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--fg-cyan) 20%, transparent);
+}
+.fg-proj-title-sm {
+  font-size: clamp(1.4rem, 2.4vw, 2rem);
+}
+.fg-spec {
+  display: grid;
+  gap: 12px;
+  margin: 22px 0 0;
+  max-width: 720px;
+}
+.fg-spec > div {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--fg-line);
+}
+.fg-spec dt {
+  font-family: var(--fg-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  padding-top: 3px;
+}
+.fg-spec dd {
+  margin: 0;
+  font-size: 14px;
+  color: var(--fg-muted);
+  line-height: 1.6;
+}
+.fg-spec a {
+  color: var(--fg-cyan);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--fg-cyan) 35%, transparent);
+}
+@media (max-width: 560px) {
+  .fg-spec > div {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+
+/* 8. keyboard hint + focused card */
+.fg-keys {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  font-family: var(--fg-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+.fg-keys kbd {
+  padding: 2px 6px;
+  border: 1px solid var(--fg-line-2);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  font: inherit;
+  color: var(--fg-muted);
+}
+.fg-proj-wrap.is-focus .fg-proj-card {
+  border-color: color-mix(in srgb, var(--fg-cyan) 60%, transparent);
+  box-shadow: 0 26px 60px -34px rgba(0, 0, 0, 0.9), 0 0 0 1px color-mix(in srgb, var(--fg-cyan) 40%, transparent),
+    0 0 40px -10px color-mix(in srgb, var(--fg-cyan) 40%, transparent);
+}
+@media (pointer: coarse) {
+  .fg-keys {
+    display: none;
+  }
+}
+
+/* 9. stoke the forge */
+.fg-stoke {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 13px;
+  border: 1px solid var(--fg-line);
+  border-radius: 999px;
+  background: none;
+  font-family: var(--fg-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+.fg-stoke i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--fg-faint);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+.fg-stoke:hover,
+.fg-stoke.is-on {
+  border-color: color-mix(in srgb, var(--fg-cyan) 45%, transparent);
+  color: var(--fg-text);
+}
+.fg-stoke.is-on i {
+  background: var(--fg-cyan);
+  box-shadow: 0 0 10px var(--fg-cyan);
+}
+html:not([data-motion="reduce"]) .fg-stoke.is-on i {
+  animation: fg-pipe-pulse 1.4s ease-in-out infinite;
+}
+.forge-root[data-stoked] {
+  --fg-cyan: #fb923c;
+  --fg-blue: #fbbf24;
+  --fg-violet: #f97316;
+  --fg-purple: #fdba74;
+}
+.forge-root[data-stoked] ::selection {
+  background: rgba(251, 146, 60, 0.3);
+}
+.forge-root[data-stoked] .fg-contact::before {
+  background: radial-gradient(closest-side, rgba(251, 146, 60, 0.18), transparent);
+}
+.forge-root {
+  transition: color 0.6s ease;
+}

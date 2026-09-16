@@ -51,17 +51,27 @@ export function Experience() {
                 </div>
 
                 <div className="edu-box">
-                  <h3>education &amp; certs</h3>
-                  <div className="edu-meta">
-                    <span className="school">
-                      {education.degree} — {education.school}
-                    </span>
-                    <span className="dim">{education.period}</span>
+                  <div className="exp-headln">
+                    [{education.period}] <b>INFO</b> degree_registered
+                  </div>
+                  <div className="exp-role">{education.degree}</div>
+                  <div className="exp-company">
+                    @ {education.school} <span className="bracket">·</span> {education.period}
+                  </div>
+                  <div className="exp-headln edu-certs-head">
+                    [{certifications.length} entries] <b>INFO</b> certs_verified
                   </div>
                   <ul className="cert-list">
-                    {certifications.map((c) => (
-                      <li key={c}>{c}</li>
-                    ))}
+                    {certifications.map((c, i) => {
+                      const [title, issuer] = c.split(" — ");
+                      return (
+                        <li key={c} style={{ "--i": i } as React.CSSProperties}>
+                          <span className="cert-ok" aria-hidden="true">[ok]</span>
+                          <span className="cert-title">{title}</span>
+                          {issuer && <span className="cert-issuer">{issuer}</span>}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               </div>

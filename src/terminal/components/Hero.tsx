@@ -1,12 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { site } from "../data/site";
-import { techGroups } from "../data/tech";
-import { caseStudies } from "../data/work";
-import { certifications, experience, education, process } from "../data/experience";
 import { TypeText } from "./TypeCmd";
 import { motionReduced } from "../../lib/motion";
-import { PHOSPHORS, getPhosphor, isPhosphor, setPhosphor } from "../lib/phosphor";
 import { banner } from "../lib/banner";
+import { HOST, L, OS_VERSION, complete, loadHistory, runLine, saveHistory, topTable, type Line, type ShellEffect } from "../lib/shell";
 
 function MatrixRain() {
   const ref = useRef<HTMLCanvasElement | null>(null);
@@ -93,458 +90,89 @@ function MatrixRain() {
   return <canvas ref={ref} className="matrix-canvas" aria-hidden="true" />;
 }
 
-type Line = { key: number; text: string; cls: string };
+/* ------------------------------------------------------------------ */
+/* snake                                                                */
 
-let keySeq = 0;
-const K = () => ++keySeq;
-const L = (text: string, cls = "") => ({ key: K(), text, cls });
+const SW = 24;
+const SH = 10;
+type Pt = { x: number; y: number };
+interface Snake {
+  body: Pt[];
+  dir: Pt;
+  next: Pt;
+  food: Pt;
+  score: number;
+  dead: boolean;
+}
 
-const FILES = ["about.txt", "experience.log", "skills.tree", "how_i_work.sh"];
-
-const FORTUNES = [
-  "measure twice, ship once.",
-  "the best debugger is a clean room and a long walk.",
-  "if it works, it ships; if it ships, it scales; if it scales, you made it.",
-  "code is read more often than it is written.",
-  "automate the boring, delegate the impossible.",
-  "a fallback chain is a love letter to your users.",
-  "first make it work, then make it fast, then make it pretty.",
-  "prototype in a day, polish in a week, ship it forever.",
-];
-
-const MAN_PAGES: Record<string, string> = {
-  help: "list available commands",
-  whoami: "who is behind this terminal",
-  work: "selected projects",
-  cd: "change directory (try: cd work)",
-  experience: "work log",
-  tech: "technology stack",
-  tree: "alias for tech",
-  about: "the longer story",
-  opensource: "public repos",
-  contact: "how to reach me",
-  resume: "download résumé",
-  neofetch: "system info",
-  cowsay: "cow says hello",
-  matrix: "follow the white rabbit",
-  ping: "trace a packet",
-  banner: "print a box banner",
-  fortune: "random wisdom",
-  history: "session command history",
-  stats: "portfolio metrics",
-  ssh: "open a session",
-  curl: "fetch the portfolio",
-  theme: "set CRT phosphor: green | amber | cyan | white",
-  clear: "wipe the session",
+const spawnFood = (body: Pt[]): Pt => {
+  for (;;) {
+    const p = { x: Math.floor(Math.random() * SW), y: Math.floor(Math.random() * SH) };
+    if (!body.some((b) => b.x === p.x && b.y === p.y)) return p;
+  }
 };
 
-const COMMANDS = [
-  "help",
-  "whoami",
-  "me",
-  "ls",
-  "pwd",
-  "work",
-  "cd work",
-  "projects",
-  "experience",
-  "cat about.txt",
-  "cat experience.log",
-  "cat skills.tree",
-  "cat how_i_work.sh",
-  "tech",
-  "tree",
-  "about",
-  "open",
-  "remote",
-  "opensource",
-  "contact",
-  "mail",
-  "email",
-  "social",
-  "links",
-  "resume",
-  "neofetch",
-  "fetch",
-  "matrix",
-  "cowsay",
-  "ping",
-  "sh how_i_work.sh",
-  "how_i_work.sh",
-  "uptime",
-  "date",
-  "time",
-  "clear",
-  "sudo",
-  "who",
-  "exit",
-  "vim",
-  "nano",
-  "man",
-  "ssh",
-  "curl",
-  "banner",
-  "fortune",
-  "history",
-  "stats",
-  "hello",
-  "hi",
-  "hey",
-  "rm",
-  "42",
-  "theme",
-  "theme green",
-  "theme amber",
-  "theme cyan",
-  "theme white",
-];
+const newSnake = (): Snake => {
+  const body = [{ x: 6, y: 5 }, { x: 5, y: 5 }, { x: 4, y: 5 }];
+  return { body, dir: { x: 1, y: 0 }, next: { x: 1, y: 0 }, food: spawnFood(body), score: 0, dead: false };
+};
 
-function scrollToSection(id: string) {
-  const reduced = motionReduced();
-  document.getElementById(id)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
-}
-
-function uptime() {
-  const mins = Math.floor(performance.now() / 60000);
-  const days = Math.floor(mins / 1440);
-  const hours = Math.floor((mins % 1440) / 60);
-  const m = mins % 60;
-  return days > 0 ? `${days}d ${hours}h ${m}m` : `${hours}h ${m}m`;
-}
-
-function runCmd(raw: string, getHistory: () => string[]): Line[] {
-  const parts = raw.trim().split(/\s+/);
-  const cmd = parts[0] ?? "";
-  const arg = raw.trim().slice(cmd.length).trim();
-  const out: Line[] = [];
-  const push = (t: string, c = "") => out.push(L(t, c));
-
-  const catFile = (file: string) => {
-    switch (file) {
-      case "about.txt":
-        push("┌─ about.txt", "cyan");
-        push(site.headline);
-        push(`${site.subheadline}`);
-        push("");
-        push(`${education.degree.toLowerCase()} @ ${education.school}`, "dim");
-        push(`${education.period} · ${site.location}`, "dim");
-        push("");
-        push(`certifications: ${certifications.map((c) => c.split(" — ")[0].toLowerCase()).join(", ")}`, "dim");
-        push("└─ end of file", "cyan");
-        break;
-      case "experience.log":
-        push("┌─ experience.log", "cyan");
-        experience.forEach((e) => push(`[${e.period}] ${e.company} — ${e.role}`, "green"));
-        push("└─ end of file", "cyan");
-        break;
-      case "skills.tree":
-        push("┌─ skills.tree", "cyan");
-        techGroups.forEach((g) => push(`${g.label.toLowerCase().padEnd(10)} → ${g.items.join(", ")}`, "green"));
-        push("└─ end of file", "cyan");
-        break;
-      case "how_i_work.sh":
-        push("┌─ how_i_work.sh", "cyan");
-        push("#!/usr/bin/env bash", "green");
-        process.forEach((s) => push(`# ${s.step} ${s.label.toLowerCase().padEnd(9)} — ${s.text}`));
-        push('echo "pipeline: healthy"', "green");
-        push("└─ end of file", "cyan");
-        break;
-      default:
-        push(`cat: ${file || "(no file)"}: no such file`, "red");
-        push(`try: ${FILES.join(", ")}`, "dim");
-    }
-  };
-
-  switch (cmd) {
-    case "":
-      return [];
-    case "help":
-    case "?":
-      push("available commands:", "cyan");
-      push("  help                     show this list");
-      push("  whoami / me              who is behind this terminal");
-      push("  ls / pwd                 where you are");
-      push("  work / cd work           selected projects");
-      push("  experience               what I have been doing");
-      push("  tech / tree              technology stack");
-      push("  about                    the longer story");
-      push("  open / remote            open-source repos");
-      push("  contact / mail           how to reach me");
-      push("  social / links           my links");
-      push("  resume                   download résumé");
-      push("  neofetch / fetch         system info");
-      push("  cat <file>               read a file: about.txt, experience.log, skills.tree, how_i_work.sh");
-      push("  cowsay [msg]             cow says hello");
-      push("  matrix                   follow the white rabbit");
-      push("  ping [host]              trace a packet");
-      push("  banner [text]            print a box banner");
-      push("  fortune                  random wisdom");
-      push("  history                  session command history");
-      push("  stats                    portfolio metrics");
-      push("  man <cmd>                manual page for a command");
-      push("  ssh / curl               open a session / fetch the portfolio");
-      push("  uptime / date            terminal facts");
-      push("  theme <colour>           CRT phosphor: green · amber · cyan · white");
-      push("  clear                    wipe the session", "dim");
-      push("  ctrl+l                   wipe the session too", "dim");
-      push("  ` or ?                   focus this terminal from anywhere", "dim");
-      push("  j / k · gg · G           vim-style scrolling", "dim");
-      push("  :                        vim command line — :work, :e mac, :theme amber, :q", "dim");
-      push("  tab / ↑↓                 completion / command history", "dim");
-      break;
-    case "whoami":
-    case "me":
-      push("sre_vardhan_v", "green b");
-      push(`${site.role}`, "amber");
-      push(`${site.fullName} · b.tech CSE @ nmam institute · ${site.location}`, "dim");
-      push(site.intro);
-      break;
-    case "ls":
-    case "pwd":
-      push(`/home/vardhan/portfolio`, "green");
-      push("about.txt  experience.log  skills.tree  how_i_work.sh  work/  repos/", "dim");
-      break;
-    case "work":
-    case "projects":
-      push("opening  ~/work", "cyan");
-      scrollToSection("work");
-      break;
-    case "cd":
-      if (arg === "work" || arg === "work/") {
-        push("opening  ~/work", "cyan");
-        scrollToSection("work");
-      } else {
-        push(`cd: ${arg || "(no dir)"}: no such directory`, "red");
-        push("try: cd work", "dim");
-      }
-      break;
-    case "experience":
-      push("tailing  ~/experience.log", "cyan");
-      scrollToSection("experience");
-      break;
-    case "tech":
-    case "tree":
-      push("rendering  ~/skills.tree", "cyan");
-      scrollToSection("tech");
-      break;
-    case "about":
-      push("rendering  ~/about.txt", "cyan");
-      scrollToSection("about");
-      break;
-    case "open":
-    case "remote":
-    case "opensource":
-      push("git remote -v               # repos", "cyan");
-      scrollToSection("opensource");
-      break;
-    case "contact":
-    case "mail":
-    case "email":
-      push(`opening mail session → ${site.email}`, "cyan");
-      scrollToSection("contact");
-      break;
-    case "social":
-    case "links":
-      push("github   " + site.github, "green");
-      push("linkedin " + site.linkedin, "green");
-      push(`email    ${site.email}`, "green");
-      push("opening github + linkedin in new tabs…", "dim");
-      window.open(site.github, "_blank", "noopener,noreferrer");
-      window.open(site.linkedin, "_blank", "noopener,noreferrer");
-      break;
-    case "resume":
-      push("fetching  ~/resume.pdf", "cyan");
-      push(site.resume, "green");
-      push("  downloading sree-vardhan-v-resume.pdf", "dim");
-      const a = document.createElement("a");
-      a.href = site.resume;
-      a.download = "sree-vardhan-v-resume.pdf";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      break;
-    case "neofetch":
-    case "fetch":
-      push(
-        `        ██╗   ██╗
-        ██║   ██║    vardhan@folio
-        ██║   ██║    ───────────────────────────
-        ╚██████╔╝    OS:       portfolio_os x64
-         ╚═════╝     Kernel:   react-19
-                     Shell:    bash 5.2
-                     Uptime:   ${uptime()}
-                     DE:       CRT 60Hz ${getPhosphor()} phosphor
-                     Theme:    terminal-v3.0.0
-                     Location: ${site.location}
-                     Role:     ${site.role.toLowerCase()}`,
-        "green"
-      );
-      push("type 'help' to explore the rest.", "dim");
-      break;
-    case "cat":
-      catFile(arg);
-      break;
-    case "sh":
-    case "how_i_work.sh":
-      push("executing  ./how_i_work.sh --pipeline", "cyan");
-      scrollToSection("process");
-      break;
-    case "matrix":
-      push("wake up, neo…", "dim");
-      const KATA = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜ012";
-      for (let i = 0; i < 9; i++) {
-        let s = "";
-        const n = 38 + Math.floor(Math.random() * 28);
-        for (let j = 0; j < n; j++) {
-          s += Math.random() < 0.62 ? KATA[Math.floor(Math.random() * KATA.length)] : " ";
-        }
-        push(s, "green");
-      }
-      push("status: following the white rabbit", "dim");
-      break;
-    case "cowsay":
-      const msg = arg || "hello, i am a portfolio cow.";
-      push(" " + "_".repeat(msg.length + 2), "cyan");
-      push(`< ${msg} >`, "cyan");
-      push(" " + "-".repeat(msg.length + 2), "cyan");
-      push("        \\   ^__^", "green");
-      push("         \\  (oo)\\_______", "green");
-      push("            (__)\\       )\\/\\", "green");
-      push("                ||----w |", "green");
-      push("                ||     ||", "green");
-      break;
-    case "ping":
-      const host = arg || "google.com";
-      push(`PING ${host} (142.250.191.78): 56 data bytes`, "dim");
-      let t = 12.4;
-      for (let i = 0; i < 3; i++) {
-        t += Math.random() * 2.4 - 1.2;
-        push(`64 bytes from 142.250.191.78: icmp_seq=${i} ttl=115 time=${t.toFixed(1)} ms`, "dim");
-      }
-      push(`--- ${host} ping statistics ---`, "dim");
-      push("3 packets transmitted, 3 received, 0% packet loss", "dim");
-      break;
-    case "uptime":
-      push(`up ${uptime()}, load: building_products`, "green");
-      break;
-    case "fortune":
-      push(`fortune: ${FORTUNES[Math.floor(Math.random() * FORTUNES.length)]}`, "amber");
-      break;
-    case "banner": {
-      const t = arg || "vardhan";
-      const rail = t.replace(/./g, "─");
-      push(`╭─${rail}─╮`, "green");
-      push(`│ ${t} │`, "green");
-      push(`╰─${rail}─╯`, "green");
-      break;
-    }
-    case "history": {
-      const h = getHistory();
-      if (h.length === 0) {
-        push("history: session is empty", "dim");
-        break;
-      }
-      h.forEach((c, i) => push(`${String(i + 1).padStart(3)}  ${c}`, "green"));
-      break;
-    }
-    case "stats": {
-      const skills = techGroups.reduce((s, g) => s + g.items.length, 0);
-      push("portfolio metrics", "cyan");
-      push(`projects shipped : ${caseStudies.length}`, "green");
-      push(`roles logged     : ${experience.length}`, "green");
-      push(`skills indexed   : ${skills}`, "green");
-      push(`certifications   : ${certifications.length}`, "green");
-      push("uptime: building products", "dim");
-      break;
-    }
-    case "man": {
-      if (arg && MAN_PAGES[arg]) push(`man ${arg}: ${MAN_PAGES[arg]}`, "green");
-      else if (arg) push(`man: no manual entry for ${arg}`, "red");
-      else {
-        push("usage: man <command>", "amber");
-        push("try: man work · man matrix · man banner", "dim");
-      }
-      break;
-    }
-    case "ssh":
-      push("ssh vardhan@folio", "dim");
-      push("connecting…", "dim");
-      push("welcome, operator. session established (session id: 0x1f44)", "green");
-      break;
-    case "curl":
-      push("HTTP/2 200", "green");
-      push("content-type: text/plain; charset=utf-8", "dim");
-      push("", "dim");
-      push(site.headline, "cyan");
-      push(site.subheadline, "dim");
-      push("status: accepting interesting problems", "amber");
-      break;
-    case "date":
-    case "time":
-      push(new Date().toString().slice(0, 24), "amber");
-      break;
-    case "hello":
-    case "hi":
-    case "hey":
-      push("hello, visitor. type 'help' to see what I can do.", "green");
-      break;
-    case "rm":
-      push("nice try. nothing was deleted (exit status: 0).", "amber");
-      push("this terminal is sandboxed; so is your ego.", "dim");
-      break;
-    case "sudo":
-      push("user 99 is NOT in the sudoers file. this incident will be reported.", "red");
-      break;
-    case "who":
-      push("you are the visitor. i am the portfolio.", "green");
-      break;
-    case "vim":
-    case "nano":
-      push("this is a portfolio, not a text editor. (0 saved changes)", "red");
-      break;
-    case "42":
-      push("the answer to life, the universe, and everything.", "amber");
-      break;
-    case "exit":
-      push("this is not a chat-ssh. press f5 to reboot.", "dim");
-      break;
-    case "theme":
-    case "phosphor": {
-      if (!arg) {
-        push(`current phosphor: ${getPhosphor()}`, "green");
-        push(`usage: theme <${PHOSPHORS.join(" | ")}>`, "dim");
-        break;
-      }
-      if (!isPhosphor(arg)) {
-        push(`theme: unknown phosphor '${arg}'`, "red");
-        push(`try: ${PHOSPHORS.join(", ")}`, "dim");
-        break;
-      }
-      setPhosphor(arg);
-      push(`phosphor set to ${arg}. persisted for this browser.`, "green");
-      break;
-    }
-    default:
-      push(`bash: ${cmd}: command not found`, "red");
-      push("type 'help' for the manual.", "dim");
+const stepSnake = (s: Snake): Snake => {
+  const dir = s.next;
+  const head = { x: s.body[0].x + dir.x, y: s.body[0].y + dir.y };
+  if (head.x < 0 || head.y < 0 || head.x >= SW || head.y >= SH || s.body.some((b) => b.x === head.x && b.y === head.y)) {
+    return { ...s, dir, dead: true };
   }
-  return out;
-}
+  const ate = head.x === s.food.x && head.y === s.food.y;
+  const body = [head, ...s.body.slice(0, ate ? undefined : -1)];
+  return { ...s, dir, body, food: ate ? spawnFood(body) : s.food, score: ate ? s.score + 10 : s.score };
+};
 
-const quickCmds = ["help", "whoami", "ls", "work", "neofetch", "contact"];
+const readHi = () => {
+  try {
+    return Number(localStorage.getItem("folio.snake-hi") ?? 0);
+  } catch {
+    return 0;
+  }
+};
+
+const drawSnake = (s: Snake, hi: number): string[] => {
+  const grid: string[][] = Array.from({ length: SH }, () => Array(SW).fill(" "));
+  s.body.forEach((b, i) => (grid[b.y][b.x] = i === 0 ? "█" : "▓"));
+  grid[s.food.y][s.food.x] = "●";
+  const top = `┌${"─".repeat(SW)}┐  snake · score ${s.score} · hi ${Math.max(hi, s.score)}`;
+  const rows = grid.map((r) => `│${r.join("")}│`);
+  const bottom = `└${"─".repeat(SW)}┘  ${s.dead ? "game over — r to restart, q to quit" : "arrows / wasd · q quits"}`;
+  return [top, ...rows, bottom];
+};
+
+const quickCmds = ["help", "whoami", "ls -la", "work", "neofetch", "snake"];
+
+/* ------------------------------------------------------------------ */
 
 export function Hero() {
-  const [lines, setLines] = useState<Line[]>([
-    L("PORTFOLIO_OS session established.", "dim"),
+  const [lines, setLines] = useState<Line[]>(() => [
+    L(`PORTFOLIO_OS ${OS_VERSION} session established.`, "dim"),
     L("type 'help' to explore, or use the buttons below.", "dim"),
   ]);
   const [input, setInput] = useState("");
+  const [remote, setRemote] = useState(false);
+  const [train, setTrain] = useState(false);
+  const [game, setGame] = useState<Snake | null>(null);
+  const [busy, setBusy] = useState<"top" | "snake" | null>(null);
   const histIdxRef = useRef<number | null>(null);
   const boxRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const heroRef = useRef<HTMLElement | null>(null);
   const historyRef = useRef<string[]>([]);
+  const remoteRef = useRef(false);
+  const touchedRef = useRef(false);
   const mounted = useRef(false);
+  const topTimer = useRef(0);
+  const topKeys = useRef<number[]>([]);
+  const gameKeys = useRef<number[]>([]);
+  const gameRef = useRef<Snake | null>(null);
+  const hiRef = useRef(0);
   const bootDelay = (() => {
     try {
       return sessionStorage.getItem("folio.booted") ? 250 : 1750;
@@ -554,43 +182,275 @@ export function Hero() {
   })();
 
   useEffect(() => {
+    historyRef.current = loadHistory();
+    hiRef.current = readHi();
+  }, []);
+
+  useEffect(() => {
     if (!mounted.current) {
       mounted.current = true;
       return;
     }
-    boxRef.current?.scrollTo({ top: boxRef.current.scrollHeight, behavior: "smooth" });
+    boxRef.current?.scrollTo({ top: boxRef.current.scrollHeight, behavior: motionReduced() ? "auto" : "smooth" });
   }, [lines]);
 
+  const stopTop = () => {
+    window.clearInterval(topTimer.current);
+    topTimer.current = 0;
+    topKeys.current = [];
+    setBusy((b) => (b === "top" ? null : b));
+  };
+
+  /** Replace the lines with the given keys in place (no remount, no re-animation). */
+  const patch = (keys: number[], texts: string[], cls: string) =>
+    setLines((prev) => {
+      const map = new Map(keys.map((k, i) => [k, texts[i]] as const));
+      return prev.map((l) => (map.has(l.key) ? { ...l, text: map.get(l.key)!, cls } : l));
+    });
+
+  const startTop = () => {
+    stopTop();
+    const first = topTable(0);
+    const keys = first.map(() => 0);
+    const fresh = first.map((t, i) => {
+      const line = L(t, i < 2 ? "row cyan" : i === 3 ? "row b" : "row green");
+      keys[i] = line.key;
+      return line;
+    });
+    topKeys.current = keys;
+    setLines((prev) => [...prev, ...fresh]);
+    setBusy("top");
+    let tick = 0;
+    topTimer.current = window.setInterval(() => {
+      tick++;
+      const table = topTable(tick);
+      setLines((prev) => prev.map((l) => {
+        const i = topKeys.current.indexOf(l.key);
+        return i === -1 ? l : { ...l, text: table[i] };
+      }));
+      if (tick >= 8) {
+        stopTop();
+        setLines((prev) => [...prev, L("top: exited after 4s — run it again any time.", "dim")]);
+      }
+    }, 500);
+  };
+
+  const endGame = useCallback((quit: boolean) => {
+    const g = gameRef.current;
+    gameRef.current = null;
+    setGame(null);
+    setBusy(null);
+    if (g && g.score > hiRef.current) {
+      hiRef.current = g.score;
+      try { localStorage.setItem("folio.snake-hi", String(g.score)); } catch { /* ignore */ }
+    }
+    if (quit) setLines((prev) => [...prev, L(`snake: ${g ? `final score ${g.score}` : "closed"} · hi ${hiRef.current}`, "dim")]);
+    gameKeys.current = [];
+  }, []);
+
+  const startSnake = () => {
+    if (motionReduced()) {
+      setLines((prev) => [...prev, L("snake needs animations on — see the landing footer or ⌘K → Animations.", "amber")]);
+      return;
+    }
+    stopTop();
+    const s = newSnake();
+    const rows = drawSnake(s, hiRef.current);
+    const fresh = rows.map((t) => L(t, "row green"));
+    gameKeys.current = fresh.map((l) => l.key);
+    gameRef.current = s;
+    setGame(s);
+    setBusy("snake");
+    setLines((prev) => [...prev, ...fresh]);
+    inputRef.current?.focus();
+  };
+
+  // game loop
   useEffect(() => {
+    if (!game || game.dead) return;
+    const t = window.setInterval(() => {
+      const cur = gameRef.current;
+      if (!cur || cur.dead) return;
+      const next = stepSnake(cur);
+      gameRef.current = next;
+      setGame(next);
+      patch(gameKeys.current, drawSnake(next, hiRef.current), next.dead ? "row amber" : "row green");
+    }, 120);
+    return () => window.clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game?.dead, game === null]);
+
+  const runEffects = (effects: ShellEffect[]) => {
+    for (const e of effects) {
+      switch (e.type) {
+        case "scroll": {
+          const el = e.id === "hero" ? heroRef.current : document.getElementById(e.id);
+          el?.scrollIntoView({ behavior: motionReduced() ? "auto" : "smooth", block: "start" });
+          break;
+        }
+        case "navigate":
+          window.dispatchEvent(new CustomEvent("folio:navigate", { detail: e.to }));
+          break;
+        case "open":
+          window.open(e.url, "_blank", "noopener,noreferrer");
+          break;
+        case "download": {
+          const a = document.createElement("a");
+          a.href = e.url;
+          a.download = e.name;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          break;
+        }
+        case "clear":
+          setLines([]);
+          break;
+        case "remote":
+          remoteRef.current = e.on;
+          setRemote(e.on);
+          break;
+        case "top":
+          startTop();
+          break;
+        case "sl":
+          if (!motionReduced()) {
+            setTrain(true);
+            window.setTimeout(() => setTrain(false), 3200);
+          }
+          break;
+        case "snake":
+          startSnake();
+          break;
+        case "history-clear":
+          historyRef.current = [];
+          saveHistory([]);
+          break;
+        case "announce":
+          window.dispatchEvent(new CustomEvent("folio:announce", { detail: e.text }));
+          break;
+      }
+    }
+  };
+
+  const submitRef = useRef<(raw: string) => void>(() => {});
+  const submit = (rawIn: string) => {
+    let raw = rawIn.trim();
+    if (!raw) return;
+    touchedRef.current = true;
+    stopTop();
+    // !n / !! history expansion
+    const bang = /^!(\d+|!)$/.exec(raw);
+    if (bang) {
+      const h = historyRef.current;
+      const entry = bang[1] === "!" ? h[h.length - 1] : h[Number(bang[1]) - 1];
+      if (!entry) {
+        setLines((prev) => [...prev, L(`bash: ${raw}: event not found`, "red")]);
+        return;
+      }
+      raw = entry;
+    }
+    historyRef.current = [...historyRef.current.filter((c) => c !== raw), raw].slice(-50);
+    saveHistory(historyRef.current);
+    histIdxRef.current = null;
+    const { lines: out, effects } = runLine(raw, { history: historyRef.current, remote: remoteRef.current });
+    const clears = effects.some((e) => e.type === "clear");
+    if (!clears && out.length) setLines((prev) => [...prev, ...out]);
+    setInput("");
+    runEffects(effects);
+  };
+  submitRef.current = submit;
+
+  const tab = () => {
+    const r = complete(input);
+    if (r.value) setInput(r.value);
+    else if (r.matches.length > 1) setLines((prev) => [...prev, L(r.matches.join("   "), "dim")]);
+  };
+
+  const onKey = (e: React.KeyboardEvent) => {
+    // snake owns the keys while it is running
+    if (gameRef.current) {
+      const g = gameRef.current;
+      const dirs: Record<string, Pt> = {
+        ArrowUp: { x: 0, y: -1 }, w: { x: 0, y: -1 },
+        ArrowDown: { x: 0, y: 1 }, s: { x: 0, y: 1 },
+        ArrowLeft: { x: -1, y: 0 }, a: { x: -1, y: 0 },
+        ArrowRight: { x: 1, y: 0 }, d: { x: 1, y: 0 },
+      };
+      e.preventDefault();
+      if (e.key === "q" || e.key === "Escape") return endGame(true);
+      if (e.key === "r" && g.dead) { endGame(false); startSnake(); return; }
+      const d = dirs[e.key];
+      if (d && !(d.x === -g.dir.x && d.y === -g.dir.y)) gameRef.current = { ...g, next: d };
+      return;
+    }
+    if (e.key === "Enter") {
+      submit(input);
+    } else if (e.key === "Escape") {
+      (e.target as HTMLInputElement).blur();
+    } else if (e.key === "l" && e.ctrlKey) {
+      e.preventDefault();
+      stopTop();
+      setLines([]);
+      setInput("");
+    } else if (e.key === "c" && e.ctrlKey) {
+      e.preventDefault();
+      stopTop();
+      setLines((prev) => [...prev, L("^C", "dim")]);
+      setInput("");
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      const h = historyRef.current;
+      if (h.length === 0) return;
+      const idx = histIdxRef.current === null ? h.length - 1 : Math.max(0, histIdxRef.current - 1);
+      histIdxRef.current = idx;
+      setInput(h[idx]);
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (histIdxRef.current === null) return;
+      const idx = histIdxRef.current + 1;
+      if (idx >= historyRef.current.length) {
+        histIdxRef.current = null;
+        setInput("");
+      } else {
+        histIdxRef.current = idx;
+        setInput(historyRef.current[idx]);
+      }
+    } else if (e.key === "Tab") {
+      e.preventDefault();
+      tab();
+    }
+  };
+
+  // ` or ? focus the shell from anywhere; the bottom bar hands commands over via folio:shell
+  useEffect(() => {
+    const focus = () => {
+      heroRef.current?.scrollIntoView({ behavior: motionReduced() ? "auto" : "smooth", block: "start" });
+      inputRef.current?.focus();
+    };
     const onGlobal = (e: KeyboardEvent) => {
       if (e.key !== "`" && e.key !== "?") return;
       if (e.altKey || e.ctrlKey || e.metaKey) return;
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
       e.preventDefault();
-      heroRef.current?.scrollIntoView({ behavior: motionReduced() ? "auto" : "smooth", block: "start" });
-      inputRef.current?.focus();
+      focus();
       if (e.key === "?") submitRef.current("help");
     };
-    window.addEventListener("keydown", onGlobal);
-    return () => window.removeEventListener("keydown", onGlobal);
-  }, []);
-
-  const submitRef = useRef<(raw: string) => void>(() => {});
-  const touchedRef = useRef(false); // user has typed or run something
-
-  // The bottom bar's `:` mode and other chrome can hand a command to this shell.
-  useEffect(() => {
     const onShell = (e: Event) => {
       const cmd = (e as CustomEvent<string>).detail;
       if (!cmd) return;
       touchedRef.current = true;
-      heroRef.current?.scrollIntoView({ behavior: motionReduced() ? "auto" : "smooth", block: "start" });
-      inputRef.current?.focus();
+      focus();
       submitRef.current(cmd);
     };
+    window.addEventListener("keydown", onGlobal);
     window.addEventListener("folio:shell", onShell);
-    return () => window.removeEventListener("folio:shell", onShell);
+    return () => {
+      window.removeEventListener("keydown", onGlobal);
+      window.removeEventListener("folio:shell", onShell);
+      window.clearInterval(topTimer.current);
+    };
   }, []);
 
   // First visit: the shell types `neofetch` by itself so the box is never empty.
@@ -619,73 +479,14 @@ export function Hero() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const submit = (raw: string) => {
-    const cmds = raw.trim().toLowerCase().split(/[;&]+/).map((c) => c.trim()).filter(Boolean);
-    if (cmds.length > 0) {
-      historyRef.current = [...historyRef.current, raw.trim()].slice(-100);
-      histIdxRef.current = null;
-    }
-    const next: Line[] = [];
-    for (const c of cmds) {
-      if (c === "clear") {
-        setLines([]);
-        setInput("");
-        continue;
-      }
-      next.push(L(`$ ${c}`, "cmd"));
-      next.push(...runCmd(c, () => historyRef.current));
-    }
-    if (next.length === 0) return;
-    setLines((prev) => [...prev, ...next]);
-    setInput("");
-  };
-  submitRef.current = submit;
 
-  const complete = () => {
-    const parts = input.trim().split(/\s+/);
-    const last = parts[parts.length - 1] ?? "";
-    const isCat = parts.length > 1 && parts[0] === "cat";
-    const matches = isCat
-      ? FILES.filter((f) => f.startsWith(last))
-      : COMMANDS.filter((c) => c.startsWith(last));
-    if (matches.length === 1) {
-      const done = matches[0];
-      setInput(parts.length > 1 ? `${parts.slice(0, -1).join(" ")} ${done} ` : `${done} `);
-    } else if (matches.length > 1) {
-      setLines((prev) => [...prev, L(matches.join("   "), "dim")]);
-    }
-  };
-
-  const onKey = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      submit(input);
-    } else if (e.key === "l" && e.ctrlKey) {
-      e.preventDefault();
-      setLines([]);
-      setInput("");
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      const h = historyRef.current;
-      if (h.length === 0) return;
-      const idx = histIdxRef.current === null ? h.length - 1 : Math.max(0, histIdxRef.current - 1);
-      histIdxRef.current = idx;
-      setInput(h[idx]);
-    } else if (e.key === "ArrowDown") {
-      e.preventDefault();
-      if (histIdxRef.current === null) return;
-      const idx = histIdxRef.current + 1;
-      if (idx >= historyRef.current.length) {
-        histIdxRef.current = null;
-        setInput("");
-      } else {
-        histIdxRef.current = idx;
-        setInput(historyRef.current[idx]);
-      }
-    } else if (e.key === "Tab") {
-      e.preventDefault();
-      complete();
-    }
-  };
+  const host = remote ? "remote" : HOST;
+  const Prompt = () => (
+    <span className="prompt">
+      vardhan@{host}<span className="path">:~</span>
+      <span className="dollar">$</span>
+    </span>
+  );
 
   return (
     <section className="hero" aria-label="Introduction" ref={heroRef}>
@@ -709,12 +510,7 @@ export function Hero() {
 
           <div className="hero-chips" role="group" aria-label="Quick commands">
             {quickCmds.map((c) => (
-              <button
-                key={c}
-                type="button"
-                className="hero-quick"
-                onClick={() => { touchedRef.current = true; submit(c); }}
-              >
+              <button key={c} type="button" className="hero-quick" onClick={() => submit(c)}>
                 <b>$</b> {c}
               </button>
             ))}
@@ -739,26 +535,37 @@ export function Hero() {
           </p>
         </div>
 
-        <div className="shell-win">
+        <div className={`shell-win${busy ? ` is-${busy}` : ""}`}>
           <div className="term">
             <div className="term-bar" aria-hidden="true">
               <span className="term-dot r" />
               <span className="term-dot a" />
               <span className="term-dot g" />
               <span className="term-title">
-                <b>vardhan@folio</b>:~$ interactive
+                <b>vardhan@{host}</b>:~$ {busy ?? "interactive"}
               </span>
             </div>
             <div className="term-body">
-              <div className="shell-lines" ref={boxRef} aria-live="polite">
+              {train && (
+                <pre className="shell-train" aria-hidden="true">
+{String.raw`      ====        ________                ___________
+  _D _|  |_______/        \__I_I_____===__|_________|
+   |(_)---  |   H\________/ |   |        =|___ ___|
+   /     |  |   H  |  |     |   |         ||_| |_||
+  |      |  |   H  |__--------------------| [___] |
+  | ________|___H__/__|_____/[][]~\_______|       |
+  |/ |   |-----------I_____I [][] []  D   |=======|__
+__/ =| o |=-~~\  /~~\  /~~\  /~~\ ____Y___________|__
+ |/-=|___|=    ||    ||    ||    |_____/~\___/
+  \_/      \O=====O=====O=====O_/      \_/`}
+                </pre>
+              )}
+              <div className="shell-lines" ref={boxRef} role="log" aria-live={busy ? "off" : "polite"}>
                 {lines.map((l) => (
                   <span key={l.key} className={`shell-ln ${l.cls}`}>
                     {l.cls === "cmd" ? (
                       <>
-                        <span className="prompt">
-                          vardhan@folio<span className="path">:~</span>
-                          <span className="dollar">$</span>
-                        </span>
+                        <Prompt />
                         {l.text.slice(2)}
                       </>
                     ) : (
@@ -768,10 +575,7 @@ export function Hero() {
                 ))}
               </div>
               <div className="shell-entry">
-                <span className="prompt" aria-hidden="true">
-                  vardhan@folio<span className="path">:~</span>
-                  <span className="dollar">$</span>
-                </span>
+                <Prompt />
                 <input
                   ref={inputRef}
                   className="shell-input"
@@ -779,7 +583,7 @@ export function Hero() {
                   onChange={(e) => { touchedRef.current = true; setInput(e.target.value); }}
                   onFocus={() => { touchedRef.current = true; }}
                   onKeyDown={onKey}
-                  placeholder="type a command…"
+                  placeholder={game ? "snake: arrows · q quits" : "type a command…"}
                   aria-label="Terminal — type a command and press Enter"
                   autoComplete="off"
                   spellCheck={false}
@@ -787,9 +591,9 @@ export function Hero() {
               </div>
               <div className="shell-foot">
                 <span>
-                  [ <span className="shell-cmd">?=help · `=focus</span> ] 5 procs alive
+                  [ <span className="shell-cmd">?=help · `=focus · tab</span> ] {busy ? `${busy} running` : "5 procs alive"}
                 </span>
-                <span className="bracket">terminal v3.0.0 · port 443</span>
+                <span className="bracket">terminal v{OS_VERSION} · port 443</span>
               </div>
             </div>
           </div>

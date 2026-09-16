@@ -1,18 +1,22 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { site } from "../data/site";
+import { usePhosphor } from "../hooks/usePhosphor";
+import { OS_VERSION, loadHistory, uptime } from "../lib/shell";
 
 export function Footer() {
-  const [clock, setClock] = useState(() => new Date());
-  const [uptime, setUptime] = useState(() => Math.floor(performance.now() / 60000));
+  const phosphor = usePhosphor();
+  const [tick, setTick] = useState(0);
 
+  // once a minute is plenty for uptime and the clock
   useEffect(() => {
-    const t = setInterval(() => {
-      setClock(new Date());
-      setUptime(Math.floor(performance.now() / 60000));
-    }, 1000);
+    const t = setInterval(() => setTick((n) => n + 1), 60000);
     return () => clearInterval(t);
   }, []);
+
+  const commands = loadHistory().length;
+  const stamp = new Date().toISOString().slice(0, 16).replace("T", " ");
+  void tick;
 
   return (
     <footer className="footer">
@@ -26,8 +30,8 @@ export function Footer() {
             react + typescript <span className="bracket">·</span> no template was harmed
           </span>
           <span>
-            <span className="amber">uptime:</span> {uptime}m <span className="bracket">·</span>{" "}
-            <Link to="/">↺ editions</Link> <span className="bracket">·</span> <Link to="/terminal#work">~/work</Link> <span className="bracket">·</span>{" "}
+            <Link to="/">↺ editions</Link> <span className="bracket">·</span> <Link to="/terminal#work">~/work</Link>{" "}
+            <span className="bracket">·</span>{" "}
             <a href={site.github} target="_blank" rel="noopener noreferrer">
               github
             </a>{" "}
@@ -37,9 +41,13 @@ export function Footer() {
             </a>
           </span>
         </div>
-        <div className="footer-inner" style={{ marginTop: 10 }}>
-          <span className="bracket">{clock.toISOString().slice(0, 19).replace("T", " ")} UTC · tty 1</span>
-          <span className="bracket">exit status: 0</span>
+        <div className="footer-session" aria-label="Session summary">
+          <span><b>session</b> {stamp} utc</span>
+          <span><b>uptime</b> {uptime()}</span>
+          <span><b>commands</b> {commands} in history</span>
+          <span><b>phosphor</b> {phosphor}</span>
+          <span><b>os</b> portfolio_os {OS_VERSION}</span>
+          <span><b>tty</b> 1</span>
         </div>
       </div>
     </footer>

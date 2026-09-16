@@ -3,21 +3,42 @@ import { site } from "../data/site";
 import { Reveal } from "../hooks/useReveal";
 import { TypeCmd } from "./TypeCmd";
 
+const strip = (u: string) => u.replace(/^https?:\/\/(www\.)?/, "");
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export function Contact() {
   const [from, setFrom] = useState("");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState<{ text: string; err?: boolean } | null>(null);
+  const [copied, setCopied] = useState(false);
+  const fromInvalid = from.length > 0 && !EMAIL_RE.test(from);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!EMAIL_RE.test(from)) {
+      setStatus({ text: "E: from: is not a valid address — fix it and :wq again.", err: true });
+      return;
+    }
     const target = `mailto:${site.email}?subject=${encodeURIComponent(subject || "hello from your site")}&body=${encodeURIComponent(
-      `${body}\n\n— ${from} (via vardhan-v-portfilo.vercel.app)`
+      `${body}\n\n— ${from} (via ${site.host})`
     )}`;
     window.location.href = target;
-    setSent(true);
-    setTimeout(() => setSent(false), 3500);
+    setStatus({ text: "message staged — your mail app should have opened ✓" });
+    window.setTimeout(() => setStatus(null), 4000);
   };
+
+  const copyEmail = () => {
+    navigator.clipboard?.writeText(site.email).then(
+      () => {
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 1800);
+      },
+      () => setStatus({ text: "E: clipboard unavailable — select the address manually.", err: true })
+    );
+  };
+
+  const now = new Date().toUTCString();
 
   return (
     <section className="section" id="contact" aria-labelledby="contact-title">
@@ -31,7 +52,7 @@ export function Contact() {
               </h2>
             </div>
             <p className="shell-sub">
-              one shell prompt away. respond time: usually within a day, exit status: 0.
+              one shell prompt away. response time: usually within a day, exit status: 0.
             </p>
           </Reveal>
 
@@ -42,28 +63,28 @@ export function Contact() {
                 <span className="term-dot a" />
                 <span className="term-dot g" />
                 <span className="term-title">
-                  <b>vardhan@folio</b>:~$ mail --interactive
+                  <b>vardhan@folio</b>:~$ mail --compose <span className="bracket">— insert</span>
                 </span>
               </div>
-              <div className="term-body">
-                <form className="mail-form" onSubmit={onSubmit}>
+              <div className="term-body compose">
+                <form className="mail-form" onSubmit={onSubmit} noValidate>
                   <div className="mail-row">
-                    <label className="lbl" htmlFor="cf-from">
-                      from:
-                    </label>
+                    <label className="lbl" htmlFor="cf-from">from:</label>
                     <input
                       id="cf-from"
                       className="mail-input"
+                      type="email"
+                      required
                       value={from}
                       onChange={(e) => setFrom(e.target.value)}
                       placeholder="you@somewhere.com"
                       autoComplete="email"
+                      aria-invalid={fromInvalid || undefined}
+                      aria-describedby="cf-status"
                     />
                   </div>
                   <div className="mail-row">
-                    <label className="lbl" htmlFor="cf-subject">
-                      subject:
-                    </label>
+                    <label className="lbl" htmlFor="cf-subject">subject:</label>
                     <input
                       id="cf-subject"
                       className="mail-input"
@@ -73,9 +94,7 @@ export function Contact() {
                     />
                   </div>
                   <div className="mail-row">
-                    <label className="lbl" htmlFor="cf-body">
-                      body:
-                    </label>
+                    <label className="lbl" htmlFor="cf-body">body:</label>
                     <textarea
                       id="cf-body"
                       className="mail-input"
@@ -86,30 +105,51 @@ export function Contact() {
                   </div>
                   <div className="mail-actions">
                     <button type="submit" className="btn btn-solid">
-                      send via mail client
+                      :wq <span className="bracket"># send</span>
                     </button>
-                    <span className="bracket" style={{ fontSize: 12 }}>
-                      {sent ? "> message staged — your mail app should have opened ✓" : "note: opens your mail app"}
+                    <span id="cf-status" className={`mail-status ${status?.err ? "is-err" : ""}`} role="status" aria-live="polite">
+                      {status ? status.text : "opens your mail app · nothing is stored here"}
                     </span>
                   </div>
                 </form>
 
+                <aside className="mail-preview" aria-label="Message preview">
+                  <div className="mail-preview-head">
+                    <span className="bracket">~/outbox/draft.eml</span>
+                  </div>
+                  <pre className="mail-preview-body">
+{`From:    ${from || "<you>"}
+To:      ${site.email}
+Subject: ${subject || "hello from your site"}
+Date:    ${now}
+X-Via:   ${site.host}
+
+${body || "(empty body — say hi, ask a question, or pitch a problem.)"}
+
+-- 
+${from ? from.split("@")[0] : "visitor"}`}
+                  </pre>
+                </aside>
+
                 <div className="contact-channels">
-                  <div>
-                    <span className="ch">$ tty </span>
-                    <a href={site.linkedin} target="_blank" rel="noopener noreferrer">
-                      linkedin.com/in/vardhan-v23
-                    </a>
-                  </div>
-                  <div>
-                    <span className="ch">$ ping </span>
-                    <a href={site.github} target="_blank" rel="noopener noreferrer">
-                      github.com/vardhan23v
-                    </a>
-                  </div>
                   <div>
                     <span className="ch">$ whois </span>
                     <a href={`mailto:${site.email}`}>{site.email}</a>
+                    <button type="button" className="copy-btn" onClick={copyEmail} aria-live="polite">
+                      {copied ? "copied ✓" : "copy"}
+                    </button>
+                  </div>
+                  <div>
+                    <span className="ch">$ ping </span>
+                    <a href={site.github} target="_blank" rel="noopener noreferrer">{strip(site.github)}</a>
+                  </div>
+                  <div>
+                    <span className="ch">$ tty </span>
+                    <a href={site.linkedin} target="_blank" rel="noopener noreferrer">{strip(site.linkedin)}</a>
+                  </div>
+                  <div>
+                    <span className="ch">$ curl </span>
+                    <a href={site.resume} download>resume.pdf</a>
                   </div>
                 </div>
               </div>

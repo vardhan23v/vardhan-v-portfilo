@@ -1,3 +1,7 @@
+/**
+ * Terminal-edition copy of the CV data (shorter, log-style wording). The classic
+ * edition keeps its own in src/classic/data/experience.ts — update both.
+ */
 export const experience = [
   {
     company: "OxCode",

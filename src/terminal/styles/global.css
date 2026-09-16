@@ -22,31 +22,15 @@
   --font-crt: "VT323", "JetBrains Mono", ui-monospace, monospace;
   --radius: 10px;
   --max-w: 1080px;
-  --nav-h: 0px;
   --bar-h: 34px;
   --glow: 0 0 14px rgba(var(--green-rgb), 0.22);
-}
+  --bg-rgb: 5, 8, 7;
+  --red-rgb: 255, 95, 107;
+  --on-accent: #03140a; /* ink on a phosphor-coloured surface */
 
-.terminal-root *, .terminal-root *::before, .terminal-root *::after {
-  box-sizing: border-box;
-}
-
-.terminal-root {
-  scroll-behavior: smooth;
-  scroll-padding-top: 28px;
-}
-
-/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
-html[data-motion="reduce"] .terminal-root {
-    scroll-behavior: auto;
-  }
-
-.terminal-root {
-  animation: tfade 0.3s ease both;
-}
-
-.terminal-root {
   margin: 0;
+  min-height: 100vh;
+  padding-bottom: var(--bar-h); /* room for the bottom bar */
   font-family: var(--font-mono);
   font-size: 15px;
   line-height: 1.7;
@@ -54,6 +38,22 @@ html[data-motion="reduce"] .terminal-root {
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  animation: tfade 0.3s ease both;
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+.terminal-root *, .terminal-root *::before, .terminal-root *::after {
+  box-sizing: border-box;
+}
+
+/* the scrolling element is <html>, not the wrapper */
+html:has(.terminal-root) {
+  scroll-behavior: smooth;
+  scroll-padding-top: 28px;
+}
+
+html[data-motion="reduce"]:has(.terminal-root) {
+  scroll-behavior: auto;
 }
 
 /* ---------- CRT overlays ---------- */
@@ -91,6 +91,37 @@ html[data-motion="reduce"] .terminal-root {
   to { opacity: 1; }
 }
 
+/* slow bright band drifting down the screen */
+.terminal-root .crt-sweep {
+  position: fixed;
+  inset-inline: 0;
+  height: 18vh;
+  top: -20vh;
+  z-index: 62;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(var(--green-rgb), 0.05) 50%, transparent);
+  animation: crt-sweep 12s linear infinite;
+}
+
+@keyframes crt-sweep {
+  to { transform: translateY(140vh); }
+}
+
+/* `crt off` (persisted) removes every overlay */
+.terminal-root[data-crt="off"]::before,
+.terminal-root[data-crt="off"]::after,
+.terminal-root[data-crt="off"] .crt-sweep {
+  display: none;
+}
+
+html[data-motion="reduce"] .terminal-root .crt-sweep {
+  display: none;
+}
+
+html[data-motion="reduce"] .terminal-root::after {
+  animation: none;
+}
+
 @keyframes crt-flicker {
   0%, 100% { opacity: 0.32; }
   10% { opacity: 0.3; }
@@ -102,7 +133,7 @@ html[data-motion="reduce"] .terminal-root {
 
 .terminal-root ::selection {
   background: var(--green);
-  color: #03140a;
+  color: var(--on-accent);
 }
 
 .terminal-root img, .terminal-root svg {
@@ -127,18 +158,6 @@ html[data-motion="reduce"] .terminal-root {
   outline: 2px solid var(--green);
   outline-offset: 3px;
   border-radius: 4px;
-}
-
-.terminal-root .sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-  border: 0;
 }
 
 .terminal-root .visually-hidden {
@@ -180,7 +199,7 @@ html[data-motion="reduce"] .terminal-root {
 .terminal-root .term {
   border: 1px solid var(--line-2);
   border-radius: var(--radius);
-  background: linear-gradient(180deg, rgba(14, 23, 16, 0.9), rgba(6, 10, 8, 0.94));
+  background: linear-gradient(180deg, rgba(var(--bg-rgb), 0.72), rgba(var(--bg-rgb), 0.94));
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.55),
     0 24px 70px -32px rgba(0, 0, 0, 0.9),
@@ -195,7 +214,7 @@ html[data-motion="reduce"] .terminal-root {
   gap: 8px;
   padding: 10px 14px;
   border-bottom: 1px solid var(--line-2);
-  background: rgba(10, 15, 11, 0.9);
+  background: rgba(var(--bg-rgb), 0.9);
   user-select: none;
 }
 
@@ -206,7 +225,7 @@ html[data-motion="reduce"] .terminal-root {
   flex: none;
 }
 
-.terminal-root .term-dot.r { background: var(--red); box-shadow: 0 0 6px rgba(255, 95, 107, 0.6); }
+.terminal-root .term-dot.r { background: var(--red); box-shadow: 0 0 6px rgba(var(--red-rgb), 0.6); }
 .terminal-root .term-dot.a { background: #ffbd2e; box-shadow: 0 0 6px rgba(255, 189, 46, 0.6); }
 .terminal-root .term-dot.g { background: #28c840; box-shadow: 0 0 6px rgba(40, 200, 64, 0.6); }
 
@@ -297,6 +316,21 @@ html[data-motion="reduce"] .terminal-root {
   font-family: var(--font-crt);
   letter-spacing: 0.02em;
   color: var(--ink);
+  text-shadow: 0 0 12px rgba(var(--green-rgb), 0.18);
+  position: relative;
+}
+
+/* glitch on hover: two clipped copies jitter for 0.4s */
+.terminal-root .shell-title:hover {
+  animation: title-glitch 0.4s steps(2) 1;
+}
+
+@keyframes title-glitch {
+  0% { clip-path: inset(0 0 60% 0); transform: translateX(-2px); text-shadow: 2px 0 var(--cyan), -2px 0 var(--red); }
+  25% { clip-path: inset(40% 0 20% 0); transform: translateX(2px); }
+  50% { clip-path: inset(70% 0 0 0); transform: translateX(-1px); text-shadow: -2px 0 var(--cyan), 2px 0 var(--red); }
+  75% { clip-path: inset(10% 0 50% 0); transform: translateX(1px); }
+  100% { clip-path: none; transform: none; text-shadow: 0 0 12px rgba(var(--green-rgb), 0.18); }
 }
 
 .terminal-root .shell-title .dim {
@@ -350,17 +384,17 @@ html[data-motion="reduce"] .terminal-root {
 .terminal-root .btn-solid {
   background: var(--green);
   border-color: var(--green);
-  color: #03140a;
+  color: var(--on-accent);
 }
 
 .terminal-root .btn-solid::before {
   content: "▸ ";
-  color: #03140a;
+  color: var(--on-accent);
 }
 
 .terminal-root .btn-solid:hover {
   background: var(--green-2);
-  color: #03140a;
+  color: var(--on-accent);
 }
 
 .terminal-root .btn-sm {
@@ -489,9 +523,34 @@ html[data-motion="reduce"] .terminal-root {
   cursor: pointer;
 }
 
-.terminal-root .boot-skip:hover {
+.terminal-root .boot-skip:hover,
+.terminal-root .boot-skip:focus-visible {
   color: var(--green);
   border-color: var(--green-dim);
+}
+
+/* invisible full-screen "tap anywhere" target under the content */
+.terminal-root .boot-tap {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.terminal-root .boot-lines,
+.terminal-root .boot-skip,
+.terminal-root .boot-progress {
+  position: relative;
+  z-index: 1;
+}
+
+.terminal-root .boot-skip {
+  position: absolute;
+}
+
+.terminal-root .boot-progress {
+  position: absolute;
 }
 
 .terminal-root .boot-progress {
@@ -617,6 +676,7 @@ html[data-motion="reduce"] .terminal-root {
 }
 
 .terminal-root .type-caret {
+  position: relative;
   display: inline-block;
   width: 8px;
   height: 1em;
@@ -624,6 +684,17 @@ html[data-motion="reduce"] .terminal-root {
   background: var(--green);
   vertical-align: text-bottom;
   animation: caret-blink 0.9s steps(1) infinite;
+}
+
+/* phosphor afterimage trailing the caret */
+.terminal-root .type-caret::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  opacity: 0.35;
+  transform: translateX(-6px);
+  filter: blur(1px);
 }
 
 .terminal-root .type-caret.is-done {
@@ -657,6 +728,7 @@ html[data-motion="reduce"] .terminal-root {
   transition: all 0.15s ease;
 }
 
+.terminal-root .hero-quick:focus-visible,
 .terminal-root .hero-quick:hover {
   color: var(--green);
   border-color: var(--green);
@@ -727,6 +799,53 @@ html[data-motion="reduce"] .terminal-root {
 
 .terminal-root .shell-ln .prompt {
   margin-right: 8px;
+}
+
+.terminal-root .shell-ln.row {
+  white-space: pre;
+  overflow-x: auto;
+}
+
+.terminal-root .shell-ln.cmd {
+  animation: ln-in 0.22s ease-out both, cmd-flash 0.5s ease-out both;
+}
+
+@keyframes cmd-flash {
+  0% { text-shadow: 0 0 10px rgba(var(--green-rgb), 0.9); }
+  100% { text-shadow: none; }
+}
+
+.terminal-root .shell-win .term-body {
+  position: relative;
+}
+
+.terminal-root .shell-train {
+  position: absolute;
+  inset-inline: 0;
+  top: 30px;
+  margin: 0;
+  z-index: 3;
+  pointer-events: none;
+  font-size: 10px;
+  line-height: 1.1;
+  color: var(--green);
+  text-shadow: 0 0 8px rgba(var(--green-rgb), 0.6);
+  white-space: pre;
+  animation: train-run 3.2s linear both;
+}
+
+@keyframes train-run {
+  from { transform: translateX(100%); }
+  to { transform: translateX(-110%); }
+}
+
+.terminal-root .shell-win.is-snake .shell-lines {
+  scroll-behavior: auto;
+}
+
+.terminal-root .shell-win.is-top .term-title,
+.terminal-root .shell-win.is-snake .term-title {
+  color: var(--amber);
 }
 
 .terminal-root .shell-ln .green { color: var(--green); }
@@ -804,6 +923,7 @@ html[data-motion="reduce"] .terminal-root {
   line-height: 1.1;
 }
 
+.terminal-root .prog-name:focus-visible,
 .terminal-root .prog-name:hover {
   text-shadow: var(--glow);
   color: var(--green-2);
@@ -877,36 +997,79 @@ html[data-motion="reduce"] .terminal-root {
 
 .terminal-root .other-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 12px;
+  grid-template-columns: 1fr;
+  gap: 8px;
   margin-top: 16px;
 }
 
+@media (min-width: 900px) {
+  .terminal-root .other-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 14px;
+  }
+}
+
 .terminal-root .other-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto 16px;
+  gap: 12px;
+  align-items: start;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 14px 16px;
-  background: rgba(10, 16, 12, 0.5);
-  transition: border-color 0.15s ease;
+  padding: 12px 14px;
+  background: rgba(var(--bg-rgb), 0.5);
+  color: inherit;
+  transition: border-color 0.15s ease, transform 0.2s ease;
 }
 
-.terminal-root .other-item:hover {
+.terminal-root .other-item:hover,
+.terminal-root .other-item:focus-visible {
   border-color: var(--line-2);
+  transform: translateY(-1px);
 }
 
-.terminal-root .other-item a {
+.terminal-root .other-idx {
+  font-size: 11.5px;
+  color: var(--ink-3);
+  padding-top: 2px;
+}
+
+.terminal-root .other-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.terminal-root .other-name {
   font-size: 13.5px;
   color: var(--green);
+  font-weight: 500;
 }
 
-.terminal-root .other-item a:hover {
+.terminal-root .other-item:hover .other-name {
   color: var(--amber);
 }
 
-.terminal-root .other-item p {
+.terminal-root .other-note {
   font-size: 12px;
   color: var(--ink-3);
-  margin-top: 5px;
+  line-height: 1.55;
+}
+
+.terminal-root .other-item .remote-lang {
+  padding-top: 2px;
+}
+
+.terminal-root .other-go {
+  color: var(--ink-3);
+  padding-top: 1px;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.terminal-root .other-item:hover .other-go {
+  color: var(--green);
+  transform: translate(2px, -2px);
 }
 
 /* ---------- Case study page ---------- */
@@ -1007,25 +1170,26 @@ html[data-motion="reduce"] .terminal-root {
   color: var(--ink-3);
 }
 
-.terminal-root .arch-list {
-  border-left: 1px solid var(--line-2);
-  margin-left: 8px;
-  padding-left: 18px;
-  display: flex;
-  flex-direction: column;
+.terminal-root .arch-tree {
+  font-size: 13px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+}
+
+.terminal-root .arch-root {
+  color: var(--cyan);
+  font-weight: 500;
 }
 
 .terminal-root .arch-row {
   position: relative;
-  padding: 9px 0;
-  font-size: 13px;
+  padding: 3px 0 3px 0;
+  animation: ln-in 0.3s ease both;
+  animation-delay: calc(var(--i, 0) * 0.07s);
 }
 
-.terminal-root .arch-row::before {
-  content: "▸";
-  position: absolute;
-  left: -22px;
-  color: var(--green-dim);
+.terminal-root .arch-branch {
+  color: var(--ink-3);
 }
 
 .terminal-root .arch-row b {
@@ -1037,7 +1201,15 @@ html[data-motion="reduce"] .terminal-root {
   display: block;
   color: var(--ink-3);
   font-size: 12px;
-  margin-top: 2px;
+}
+
+.terminal-root .arch-arrow {
+  position: absolute;
+  left: 27px;
+  bottom: -6px;
+  color: var(--green-dim);
+  font-size: 11px;
+  line-height: 1;
 }
 
 .terminal-root .decision {
@@ -1063,16 +1235,30 @@ html[data-motion="reduce"] .terminal-root {
 }
 
 .terminal-root .decision h3 .dec-no {
-  color: var(--amber);
-  font-family: var(--font-crt);
-  font-size: 18px;
+  color: var(--green);
+  font-weight: 700;
   margin-right: 8px;
+}
+
+.terminal-root .dec-hash {
+  color: var(--amber);
 }
 
 .terminal-root .decision p {
   font-size: 13px;
   color: var(--ink-2);
   margin-top: 6px;
+  padding: 6px 10px 6px 26px;
+  position: relative;
+  border-left: 2px solid rgba(var(--green-rgb), 0.35);
+  background: rgba(var(--green-rgb), 0.04);
+  border-radius: 0 6px 6px 0;
+}
+
+.terminal-root .dec-plus {
+  position: absolute;
+  left: 10px;
+  color: var(--green);
 }
 
 .terminal-root .learn-list {
@@ -1140,12 +1326,39 @@ html[data-motion="reduce"] .terminal-root {
   color: var(--ink-3);
 }
 
+.terminal-root .case-prevnext .pn-name {
+  display: block;
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+.terminal-root .case-prevnext .pn-tag {
+  display: block;
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
 .terminal-root .case-prevnext a.next-a {
   text-align: right;
 }
 
 .terminal-root .case-prevnext .ext {
   color: var(--green);
+}
+
+.terminal-root .case-keys {
+  margin-left: auto;
+  font-size: 11px;
+}
+
+@media (max-width: 640px) {
+  .terminal-root .case-prevnext {
+    grid-template-columns: 1fr;
+  }
+  .terminal-root .case-keys {
+    display: none;
+  }
 }
 
 /* ---------- Experience log ---------- */
@@ -1216,35 +1429,15 @@ html[data-motion="reduce"] .terminal-root {
   padding-top: 24px;
 }
 
-.terminal-root .edu-box h3 {
-  font-size: 13.5px;
-  color: var(--amber);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.terminal-root .edu-meta {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 13.5px;
-}
-
-.terminal-root .edu-meta .school {
-  color: var(--ink);
-  font-weight: 500;
-}
-
-.terminal-root .edu-meta .dim {
-  color: var(--ink-3);
+.terminal-root .edu-certs-head {
+  margin-top: 18px;
 }
 
 .terminal-root .cert-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 14px;
+  gap: 6px;
+  margin-top: 10px;
   list-style: none;
   padding: 0;
 }
@@ -1252,16 +1445,37 @@ html[data-motion="reduce"] .terminal-root {
 .terminal-root .cert-list li {
   font-size: 12.5px;
   color: var(--ink-2);
-  padding-left: 22px;
-  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: baseline;
 }
 
-.terminal-root .cert-list li::before {
-  content: "[✓]";
-  position: absolute;
-  left: 0;
-  color: var(--green-dim);
+.terminal-root .reveal.is-visible .cert-list li {
+  animation: ln-in 0.3s ease both;
+  animation-delay: calc(0.35s + var(--i, 0) * 0.07s);
+}
+
+.terminal-root .cert-ok {
+  color: var(--green);
   font-size: 11px;
+  font-weight: 700;
+}
+
+.terminal-root .cert-issuer {
+  color: var(--ink-3);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .terminal-root .cert-list li {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .terminal-root .cert-issuer {
+    grid-column: 2;
+    white-space: normal;
+  }
 }
 
 /* ---------- Process pipeline ---------- */
@@ -1278,7 +1492,7 @@ html[data-motion="reduce"] .terminal-root {
   border: 1px solid var(--line-2);
   border-radius: 8px;
   padding: 16px 18px;
-  background: rgba(10, 16, 12, 0.55);
+  background: rgba(var(--bg-rgb), 0.55);
   position: relative;
 }
 
@@ -1296,10 +1510,75 @@ html[data-motion="reduce"] .terminal-root {
   font-size: 12px;
 }
 
+.terminal-root .pipe-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .terminal-root .pipe-step {
   font-family: var(--font-crt);
   font-size: 20px;
   color: var(--green);
+}
+
+.terminal-root .pipe-chip {
+  font-size: 10.5px;
+  color: var(--green-dim);
+  letter-spacing: 0.04em;
+  opacity: 0;
+}
+
+.terminal-root .reveal.is-visible .pipe-chip {
+  animation: chip-in 0.3s ease both;
+  animation-delay: calc(0.5s + var(--i, 0) * 0.28s);
+}
+
+@keyframes chip-in {
+  from { opacity: 0; transform: translateX(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.terminal-root .pipe-cmd {
+  margin-top: 10px;
+  font-size: 11.5px;
+  color: var(--ink-3);
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.terminal-root .pipe-node:hover .pipe-cmd,
+.terminal-root .pipe-node:focus-within .pipe-cmd {
+  opacity: 1;
+  transform: none;
+}
+
+.terminal-root .pipe-rail {
+  margin-top: 18px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.terminal-root .pipe-rail i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, var(--green-dim), var(--green));
+  box-shadow: 0 0 10px rgba(var(--green-rgb), 0.5);
+}
+
+.terminal-root .reveal.is-visible .pipe-rail i {
+  animation: rail-fill 1.6s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both;
+}
+
+@keyframes rail-fill {
+  to { transform: scaleX(1); }
 }
 
 .terminal-root .pipe-label {
@@ -1316,7 +1595,7 @@ html[data-motion="reduce"] .terminal-root {
 }
 
 .terminal-root .pipe-ok {
-  margin-top: 26px;
+  margin-top: 14px;
   display: flex;
   gap: 8px;
   font-size: 12.5px;
@@ -1328,6 +1607,13 @@ html[data-motion="reduce"] .terminal-root {
 }
 
 @media (max-width: 900px) {
+  .terminal-root .pipe-node {
+    flex: 0 0 auto;
+  }
+  .terminal-root .pipe-cmd {
+    opacity: 1;
+    transform: none;
+  }
   .terminal-root .pipe-grid {
     flex-direction: column;
     align-items: stretch;
@@ -1349,7 +1635,7 @@ html[data-motion="reduce"] .terminal-root {
 .terminal-root .tree {
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: rgba(6, 10, 8, 0.6);
+  background: rgba(var(--bg-rgb), 0.6);
   padding: 18px 20px 14px;
   font-size: 13px;
   line-height: 1.85;
@@ -1472,6 +1758,7 @@ html[data-motion="reduce"] .terminal-root {
   transition: background 0.2s ease;
 }
 
+.terminal-root .remote-item:focus-visible,
 .terminal-root .remote-item:hover {
   background: rgba(var(--green-rgb), 0.04);
 }
@@ -1503,9 +1790,10 @@ html[data-motion="reduce"] .terminal-root {
   vertical-align: -1px;
 }
 
-.terminal-root .remote-lang.lang-typescript { color: #4cc9f0; }
-.terminal-root .remote-lang.lang-javascript { color: #ffd35a; }
-.terminal-root .remote-lang.lang-python { color: #8df5b8; }
+.terminal-root .remote-lang.lang-typescript { color: var(--cyan); }
+.terminal-root .remote-lang.lang-javascript { color: var(--amber); }
+.terminal-root .remote-lang.lang-python,
+.terminal-root .remote-lang.lang-html { color: var(--green-2); }
 
 .terminal-root .remote-item:first-of-type {
   border-top: 0;
@@ -1570,20 +1858,87 @@ html[data-motion="reduce"] .terminal-root {
   font-weight: 500;
 }
 
-@media (max-width: 760px) {
-  .terminal-root .remote-item {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
+/* ---------- Contact ---------- */
+
+.terminal-root .compose {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px 24px;
 }
 
-/* ---------- Contact ---------- */
+@media (min-width: 900px) {
+  .terminal-root .compose {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  }
+  .terminal-root .compose .contact-channels {
+    grid-column: 1 / -1;
+  }
+}
 
 .terminal-root .mail-form {
   display: flex;
   flex-direction: column;
   gap: 14px;
   margin-top: 6px;
+  min-width: 0;
+}
+
+.terminal-root .mail-input[aria-invalid="true"] {
+  border-color: var(--red);
+  box-shadow: 0 0 0 1px rgba(var(--red-rgb), 0.3);
+}
+
+.terminal-root .mail-status {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.terminal-root .mail-status.is-err {
+  color: var(--red);
+}
+
+.terminal-root .mail-preview {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(var(--bg-rgb), 0.6);
+  overflow: hidden;
+  min-width: 0;
+}
+
+.terminal-root .mail-preview-head {
+  padding: 8px 12px;
+  border-bottom: 1px dashed var(--line);
+  font-size: 11.5px;
+}
+
+.terminal-root .mail-preview-body {
+  margin: 0;
+  padding: 12px 14px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--ink-2);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.terminal-root .copy-btn {
+  margin-left: 10px;
+  background: none;
+  border: 1px dashed var(--line-2);
+  border-radius: 6px;
+  color: var(--ink-3);
+  font: inherit;
+  font-size: 11px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.terminal-root .copy-btn:hover,
+.terminal-root .copy-btn:focus-visible {
+  color: var(--green);
+  border-color: var(--green-dim);
 }
 
 .terminal-root .mail-row {
@@ -1602,7 +1957,7 @@ html[data-motion="reduce"] .terminal-root {
 .terminal-root .mail-input {
   flex: 1;
   min-width: 200px;
-  background: rgba(6, 10, 8, 0.7);
+  background: rgba(var(--bg-rgb), 0.7);
   border: 1px solid var(--line-2);
   border-radius: 7px;
   color: var(--green);
@@ -1634,7 +1989,9 @@ html[data-motion="reduce"] .terminal-root {
 }
 
 .terminal-root .contact-channels {
-  margin-top: 28px;
+  margin-top: 8px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--line);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -1652,6 +2009,100 @@ html[data-motion="reduce"] .terminal-root {
 .terminal-root .contact-channels a:hover {
   color: var(--green);
   text-decoration: underline;
+}
+
+/* ---------- About (id card + numbered text) ---------- */
+
+.terminal-root .idcard {
+  margin: 8px 0 18px;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: rgba(var(--bg-rgb), 0.55);
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+.terminal-root .idcard-row {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 12px;
+  padding: 4px 0;
+  border-top: 1px dashed var(--line);
+}
+
+.terminal-root .idcard-row:first-child {
+  border-top: 0;
+}
+
+.terminal-root .idcard-k {
+  color: var(--ink-3);
+}
+
+.terminal-root .idcard-k::after {
+  content: "=";
+  color: var(--line-2);
+  margin-left: 4px;
+}
+
+.terminal-root .idcard .amber {
+  color: var(--amber);
+}
+
+.terminal-root .idcard .ok {
+  color: var(--green);
+}
+
+.terminal-root .about-cmd {
+  margin-top: 14px;
+}
+
+.terminal-root .numbered-text {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  counter-reset: ln;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.terminal-root .numbered-text li {
+  position: relative;
+  padding: 3px 0 3px 46px;
+  line-height: 1.7;
+}
+
+.terminal-root .numbered-text li::before {
+  counter-increment: ln;
+  content: counter(ln, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  width: 34px;
+  text-align: right;
+  color: var(--green-dim);
+  font-size: 12px;
+}
+
+.terminal-root .numbered-text li.is-rule {
+  color: var(--green);
+}
+
+.terminal-root .numbered-text li.is-link {
+  color: var(--ink-3);
+}
+
+.terminal-root .about-meta {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.terminal-root .about-meta b {
+  color: var(--amber);
+  font-weight: 500;
+}
+
+.terminal-root .about-body .learn-list {
+  margin-top: 6px;
 }
 
 /* ---------- Footer ---------- */
@@ -1681,6 +2132,23 @@ html[data-motion="reduce"] .terminal-root {
 
 .terminal-root .footer a:hover {
   color: var(--green);
+}
+
+.terminal-root .footer-session {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.terminal-root .footer-session b {
+  color: var(--green-dim);
+  font-weight: 500;
+  margin-right: 6px;
 }
 
 .terminal-root .exit {
@@ -1727,7 +2195,7 @@ html[data-motion="reduce"] .terminal-root *::after {
   left: 16px;
   z-index: 300;
   background: var(--green);
-  color: #03140a;
+  color: var(--on-accent);
   font-weight: 700;
   padding: 10px 16px;
   border-radius: 7px;
@@ -1759,22 +2227,8 @@ html[data-motion="reduce"] .terminal-root *::after {
 .terminal-root ::marker {
   color: var(--ink-3);
 }
-.terminal-root {
-  background: var(--bg);
-  color: var(--ink);
-  font-family: var(--font-mono);
-  font-size: 15px;
-  line-height: 1.7;
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-  min-height: 100vh;
-}
 
 /* ---------- Bottom bar (tmux/vim style) — the edition's only chrome ---------- */
-
-.terminal-root {
-  padding-bottom: var(--bar-h);
-}
 
 .terminal-root .statusline {
   position: fixed;
@@ -1810,7 +2264,7 @@ html[data-motion="reduce"] .terminal-root *::after {
 
 .terminal-root .sl-mode {
   background: var(--green);
-  color: #03140a;
+  color: var(--on-accent);
   font-weight: 700;
   letter-spacing: 0.06em;
   transition: background 0.2s ease;
@@ -1899,13 +2353,13 @@ html[data-motion="reduce"] .terminal-root *::after {
 }
 
 .terminal-root .sl-windows .is-active {
-  color: #03140a;
+  color: var(--on-accent);
   background: rgba(var(--green-rgb), 0.85);
   font-weight: 700;
 }
 
 .terminal-root .sl-windows .is-active b {
-  color: #03140a;
+  color: var(--on-accent);
   opacity: 0.7;
 }
 
@@ -1967,6 +2421,30 @@ html[data-motion="reduce"] .terminal-root *::after {
 }
 
 .terminal-root .sl-phosphor:hover {
+  color: var(--green);
+  background: rgba(var(--green-rgb), 0.08);
+}
+
+.terminal-root .sl-crt {
+  background: none;
+  border: 0;
+  border-right: 1px solid var(--line);
+  font: inherit;
+  color: var(--ink-3);
+  cursor: pointer;
+  text-decoration: line-through;
+  text-decoration-color: var(--red);
+}
+
+.terminal-root .sl-crt.is-on {
+  color: var(--ink-2);
+  text-decoration: none;
+}
+
+.terminal-root .sl-crt:hover,
+.terminal-root .sl-crt:focus-visible,
+.terminal-root .sl-phosphor:focus-visible,
+.terminal-root .sl-burger:focus-visible {
   color: var(--green);
   background: rgba(var(--green-rgb), 0.08);
 }
@@ -2103,8 +2581,13 @@ html[data-motion="reduce"] .terminal-root *::after {
 @media (max-width: 900px) {
   .terminal-root .sl-windows,
   .terminal-root .sl-switcher,
-  .terminal-root .sl-phosphor {
+  .terminal-root .sl-crt {
     display: none;
+  }
+  .terminal-root .sl-phosphor {
+    font-size: 0; /* dot only */
+    gap: 0;
+    padding: 0 12px;
   }
   .terminal-root .sl-burger {
     display: flex;
@@ -2112,6 +2595,13 @@ html[data-motion="reduce"] .terminal-root *::after {
 }
 
 @media (max-width: 640px) {
+  .terminal-root .sl-fill {
+    display: none;
+  }
+  .terminal-root .sl-pos {
+    padding: 0 8px;
+    margin-left: auto;
+  }
   .terminal-root .sl-mode {
     padding: 0 9px;
     font-size: 10.5px;
@@ -2128,11 +2618,6 @@ html:has(.terminal-root) .sc-top {
 
 /* ---------- Phosphor palettes (data-phosphor, set by `theme <name>`) ---------- */
 
-.terminal-root {
-  --bg-rgb: 5, 8, 7;
-  transition: background-color 0.35s ease, color 0.35s ease;
-}
-
 .terminal-root[data-phosphor="amber"] {
   --bg: #080604;
   --bg-2: #100c07;
@@ -2145,6 +2630,7 @@ html:has(.terminal-root) .sc-top {
   --green-2: #ffd58f;
   --green-dim: #a5701f;
   --amber: #4cc9f0;
+  --on-accent: #1a1006;
   --ink: #f4e8d3;
   --ink-2: #c6ad86;
   --ink-3: #7b6547;
@@ -2162,6 +2648,7 @@ html:has(.terminal-root) .sc-top {
   --green-2: #a3e6fb;
   --green-dim: #1f7f9c;
   --amber: #ffb347;
+  --on-accent: #04161c;
   --ink: #d8f1f8;
   --ink-2: #8fbccb;
   --ink-3: #4f6f7a;
@@ -2179,16 +2666,12 @@ html:has(.terminal-root) .sc-top {
   --green-2: #ffffff;
   --green-dim: #8c8c8c;
   --amber: #ffb347;
+  --on-accent: #111111;
   --ink: #e6e6e6;
   --ink-2: #a8a8a8;
   --ink-3: #6a6a6a;
 }
 
-.terminal-root[data-phosphor="white"] .sl-mode,
-.terminal-root[data-phosphor="white"] .btn-solid,
-.terminal-root[data-phosphor="white"] .skip-link {
-  color: #111;
-}
 
 /* ---------- Case-study screenshots ---------- */
 
@@ -2223,6 +2706,7 @@ html:has(.terminal-root) .sc-top {
   transition: filter 0.4s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.terminal-root .case-shot:focus-within img,
 .terminal-root .case-shot:hover img {
   filter: none;
   transform: scale(1.02);
@@ -2238,7 +2722,7 @@ html:has(.terminal-root) .sc-top {
 /* ---------- Interface switcher ---------- */
 
 .terminal-root .iswitcher {
-  --sw-bg: rgba(10, 16, 12, 0.72);
+  --sw-bg: rgba(var(--bg-rgb), 0.72);
   --sw-border: var(--line-2);
   --sw-text: var(--ink);
   --sw-dim: var(--ink-2);
@@ -2312,6 +2796,11 @@ html:has(.terminal-root) .sc-top {
 }
 
 /* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] .terminal-root .shell-title:hover,
+html[data-motion="reduce"] .terminal-root .reveal.is-visible .pipe-chip,
+html[data-motion="reduce"] .terminal-root .reveal.is-visible .pipe-rail i,
+html[data-motion="reduce"] .terminal-root .reveal.is-visible .cert-list li,
+html[data-motion="reduce"] .terminal-root .arch-row,
 html[data-motion="reduce"] .terminal-root .reveal.is-visible .pipe-node,
 html[data-motion="reduce"] .terminal-root .reveal.is-visible .tree > div,
 html[data-motion="reduce"] .terminal-root .reveal.is-visible .tree-root,

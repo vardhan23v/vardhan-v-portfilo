@@ -4,8 +4,8 @@ import { editionRoutes } from "../../editions";
 import { InterfaceSwitcher } from "../../interface-switcher/InterfaceSwitcher";
 import { site } from "../data/site";
 import { useActiveSection } from "../hooks/useActiveSection";
-import { usePhosphor } from "../hooks/usePhosphor";
-import { isPhosphor, nextPhosphor, setPhosphor, PHOSPHORS } from "../lib/phosphor";
+import { useCrt, usePhosphor } from "../hooks/usePhosphor";
+import { isPhosphor, nextPhosphor, setPhosphor, setCrt, PHOSPHORS } from "../lib/phosphor";
 import { motionReduced } from "../../lib/motion";
 
 const WINDOWS = [
@@ -43,6 +43,14 @@ export function StatusLine() {
     msgTimer.current = window.setTimeout(() => setMsg(null), err ? 3200 : 2200);
   };
 
+  // shell-side changes (theme/crt commands) announce through the bar
+  useEffect(() => {
+    const onAnnounce = (e: Event) => say((e as CustomEvent<string>).detail);
+    window.addEventListener("folio:announce", onAnnounce);
+    return () => window.removeEventListener("folio:announce", onAnnounce);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const runEx = (raw: string) => {
     const line = raw.trim();
     setCmd(null);
@@ -67,7 +75,9 @@ export function StatusLine() {
         if (isPhosphor(arg)) { setPhosphor(arg); return say(`phosphor → ${arg}`); }
         return say(`E185: unknown phosphor "${arg}" — ${PHOSPHORS.join(" | ")}`, true);
       case "set":
+        if (arg === "crt" || arg === "nocrt") { setCrt(arg === "crt"); return say(`crt overlays ${arg === "crt" ? "on" : "off"}`); }
         if (/^(no)?motion$/.test(arg)) return say("use the landing footer or ⌘K → Animations");
+        if (isPhosphor(arg.replace(/^phosphor=/, ""))) { const p = arg.replace(/^phosphor=/, ""); if (isPhosphor(p)) setPhosphor(p); return say(`phosphor → ${p}`); }
         return say(`E518: unknown option: ${arg}`, true);
       case "top": case "0": case "gg":
         return window.scrollTo({ top: 0, behavior });
@@ -83,7 +93,7 @@ export function StatusLine() {
         window.location.href = `mailto:${site.email}`;
         return;
       case "h": case "help":
-        say(":1-5 sections · :e <edition> · :theme <p> · :q · :!<shell cmd>");
+        say(":1-5 sections · :e <edition> · :theme <p> · :set nocrt · :q · :!<shell cmd>");
         return window.dispatchEvent(new CustomEvent("folio:shell", { detail: "help" }));
       case "sh": case "!":
         return window.dispatchEvent(new CustomEvent("folio:shell", { detail: arg }));
@@ -94,6 +104,7 @@ export function StatusLine() {
     }
   };
   const phosphor = usePhosphor();
+  const crt = useCrt();
   const [pct, setPct] = useState(0);
   const [line, setLine] = useState(1);
   const [insert, setInsert] = useState(false);
@@ -239,11 +250,20 @@ export function StatusLine() {
         <button
           type="button"
           className="sl-phosphor"
-          onClick={() => setPhosphor(nextPhosphor(phosphor))}
+          onClick={() => { const p = nextPhosphor(phosphor); setPhosphor(p); say(`phosphor → ${p}`); }}
           title="Cycle CRT phosphor (also: `theme <name>` in the shell)"
           aria-label={`Phosphor: ${phosphor}. Click to change.`}
         >
           <i aria-hidden="true" /> {phosphor}
+        </button>
+        <button
+          type="button"
+          className={`sl-crt ${crt ? "is-on" : ""}`}
+          onClick={() => { setCrt(!crt); say(`crt overlays ${crt ? "off" : "on"}`); }}
+          title="Toggle scanlines, vignette and flicker (also: `crt` in the shell, :set nocrt)"
+          aria-pressed={crt}
+        >
+          crt
         </button>
         <span className="sl-pos" aria-label={`Reading ${cwd}, ${pos}`}>
           ln {line} · {pos}
@@ -280,7 +300,7 @@ export function StatusLine() {
           <a href={`mailto:${site.email}`}>{site.email}</a>
         </div>
       </div>
-      {open && <button type="button" className="sl-scrim" aria-label="Close menu" onClick={() => setOpen(false)} />}
+      {open && <button type="button" className="sl-scrim" aria-label="Close menu" tabIndex={-1} onClick={() => setOpen(false)} />}
     </>
   );
 }

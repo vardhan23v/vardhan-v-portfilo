@@ -2,6 +2,8 @@ import { process } from "../data/experience";
 import { Reveal } from "../hooks/useReveal";
 import { TypeCmd } from "./TypeCmd";
 
+const FLAGS = ["--problem", "--flow", "--mvp", "--failures", "--observe"];
+
 export function Process() {
   return (
     <section className="section" id="process" aria-labelledby="proc-title">
@@ -11,27 +13,48 @@ export function Process() {
             <div className="shell-head">
               <TypeCmd cmd="sh ./how_i_work.sh --pipeline" />
               <h2 className="shell-title" id="proc-title">
-                HOW_I_WORK <span className="dim">// 5 stages</span>
+                HOW_I_WORK <span className="dim">// {process.length} stages</span>
               </h2>
             </div>
           </Reveal>
 
           <Reveal>
-            <div className="pipe-grid" role="list" aria-label="My process, five stages">
-              {process.map((s, i) => (
-                <div className="pipe-node" role="listitem" key={s.step} data-spot style={{ "--i": i } as React.CSSProperties}>
-                  <div className="pipe-step">{s.step}</div>
-                  <div className="pipe-label">
-                    {s.label.toLowerCase()}
-                    <span className="bracket">/</span>
-                  </div>
-                  <div className="pipe-text">{s.text.toLowerCase()}</div>
+            <div className="term">
+              <div className="term-bar" aria-hidden="true">
+                <span className="term-dot r" />
+                <span className="term-dot a" />
+                <span className="term-dot g" />
+                <span className="term-title">
+                  <b>vardhan@folio</b>:~$ ./how_i_work.sh <span className="bracket">— running</span>
+                </span>
+              </div>
+              <div className="term-body">
+                <div className="pipe-grid" role="list" aria-label="My process, five stages">
+                  {process.map((s, i) => (
+                    <div className="pipe-node" role="listitem" key={s.step} data-spot style={{ "--i": i } as React.CSSProperties}>
+                      <div className="pipe-top">
+                        <div className="pipe-step">{s.step}</div>
+                        <span className="pipe-chip" aria-hidden="true">[ ok ] 0.{String(12 + i * 7).padStart(2, "0")}s</span>
+                      </div>
+                      <div className="pipe-label">
+                        {s.label.toLowerCase()}
+                        <span className="bracket">/</span>
+                      </div>
+                      <div className="pipe-text">{s.text.toLowerCase()}</div>
+                      <div className="pipe-cmd" aria-hidden="true">
+                        <span className="dollar">$</span> {s.label.toLowerCase()} {FLAGS[i] ?? ""}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <div className="pipe-ok">
-              <span className="ok">●</span>
-              <span>pipeline status: healthy — order matters, shortcuts don't last.</span>
+                <div className="pipe-rail" aria-hidden="true">
+                  <i />
+                </div>
+                <div className="pipe-ok">
+                  <span className="ok">●</span>
+                  <span>pipeline status: healthy — {process.length}/{process.length} stages passed · order matters, shortcuts don't last.</span>
+                </div>
+              </div>
             </div>
           </Reveal>
         </div>

@@ -1,26 +1,56 @@
-import { Link, Navigate, useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { caseStudies } from "../data/work";
+
+/** Old terminal slugs → current ones (kept so shared links keep working). */
+const LEGACY: Record<string, string> = { "code-reviewer": "ai-code-reviewer" };
+
+const shortHash = (s: string) => {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+  return h.toString(16).slice(0, 7).padStart(7, "0");
+};
 
 export function WorkDetail() {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const idx = caseStudies.findIndex((p) => p.slug === slug);
-  if (idx === -1) return <Navigate to="/" replace />;
+  const total = caseStudies.length;
+  const prev = caseStudies[(idx - 1 + total) % total];
+  const next = caseStudies[(idx + 1) % total];
 
+  // [ and ] move between case studies
+  useEffect(() => {
+    if (idx === -1) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+      if (e.key === "[") navigate(`/terminal/work/${prev.slug}`, { viewTransition: true });
+      else if (e.key === "]") navigate(`/terminal/work/${next.slug}`, { viewTransition: true });
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [idx, prev, next, navigate]);
+
+  if (idx === -1) {
+    const to = slug && LEGACY[slug];
+    return <Navigate to={to ? `/terminal/work/${to}` : "/terminal#work"} replace />;
+  }
   const p = caseStudies[idx];
-  const prev = caseStudies[(idx - 1 + caseStudies.length) % caseStudies.length];
-  const next = caseStudies[(idx + 1) % caseStudies.length];
 
   return (
     <section className="case" aria-labelledby="case-title">
       <div className="container">
         <div className="case-nav-top">
-          <Link to="/terminal#work">← ~/work</Link>
+          <Link to="/terminal#work">$ cd ..</Link>
           <span className="bracket">·</span>
-          <span>reading {p.number}/05</span>
+          <span>reading {p.number}/{String(total).padStart(2, "0")}</span>
           <span className="bracket">·</span>
           <a href={p.github} target="_blank" rel="noopener noreferrer">
             git clone ../{p.slug}
           </a>
+          <span className="bracket case-keys" aria-hidden="true">[ / ] prev · next</span>
         </div>
 
         <h1 className="case-title" id="case-title">
@@ -28,24 +58,17 @@ export function WorkDetail() {
         </h1>
 
         <div className="case-meta">
-          <span>
-            <b>PROJECT:</b> {p.tagline}
-          </span>
-          <span>
-            <b>STATUS:</b> {p.live ? "deployed" : "source-only"}
-          </span>
-          <span>
-            <b>ROLE:</b> sole builder
-          </span>
+          <span><b>PROJECT:</b> {p.tagline}</span>
+          <span><b>STATUS:</b> {p.live ? "deployed" : "source-only"}</span>
+          <span><b>ROLE:</b> sole builder</span>
+          <span><b>STACK:</b> {p.tech.length} tools</span>
         </div>
 
         <p className="case-lead">{p.description}</p>
 
         <div className="prog-tech">
           {p.tech.map((t) => (
-            <span className="chip" key={t}>
-              {t}
-            </span>
+            <span className="chip" key={t}>{t}</span>
           ))}
         </div>
 
@@ -91,66 +114,68 @@ export function WorkDetail() {
             </div>
 
             <div className="man-section">
-              <h2 className="man-h">
-                <span className="hash">##</span> the_problem
-              </h2>
+              <h2 className="man-h"><span className="hash">##</span> the_problem</h2>
               <p className="man-p">{p.problem}</p>
             </div>
 
             <div className="man-section">
-              <h2 className="man-h">
-                <span className="hash">##</span> the_approach
-              </h2>
+              <h2 className="man-h"><span className="hash">##</span> the_approach</h2>
               <p className="man-p">{p.approach}</p>
             </div>
 
             <div className="man-section">
-              <h2 className="man-h">
-                <span className="hash">##</span> architecture
-              </h2>
+              <h2 className="man-h"><span className="hash">##</span> architecture</h2>
               <p className="man-p man-dim">$ tree ./system — top-level flow</p>
-              <div className="arch-list">
-                {p.architecture.map((a, i) => (
-                  <div className="arch-row" key={i}>
-                    <b>{a.label}</b>
-                    {a.note && <span className="note">{a.note}</span>}
-                  </div>
-                ))}
+              <div className="arch-tree" role="list">
+                <div className="arch-root">./system</div>
+                {p.architecture.map((a, i) => {
+                  const last = i === p.architecture.length - 1;
+                  return (
+                    <div className="arch-row" role="listitem" key={i} style={{ "--i": i } as React.CSSProperties}>
+                      <span className="arch-branch" aria-hidden="true">{last ? "└── " : "├── "}</span>
+                      <b>{a.label}</b>
+                      {a.note && (
+                        <span className="note">
+                          <span className="arch-branch" aria-hidden="true">{last ? "    " : "│   "}└ </span>
+                          {a.note}
+                        </span>
+                      )}
+                      {!last && <span className="arch-arrow" aria-hidden="true">↓</span>}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
             <div className="man-section">
-              <h2 className="man-h">
-                <span className="hash">##</span> engineering_decisions
-              </h2>
-              <p className="man-p man-dim">$ git log --oneline --reverse | head -4</p>
+              <h2 className="man-h"><span className="hash">##</span> engineering_decisions</h2>
+              <p className="man-p man-dim">$ git log --oneline --reverse | head -{p.decisions.length}</p>
               {p.decisions.map((d, i) => (
                 <div className="decision" key={i}>
                   <div className="dec-idx">
-                    commit {String(i + 1).padStart(7, "0")} — file: {d.title.toLowerCase().replace(/[^a-z0-9]+/g, "_")}
+                    <span className="dec-hash">{shortHash(p.slug + d.title)}</span> {d.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")} <span className="bracket">(#{i + 1})</span>
                   </div>
                   <h3>
-                    <span className="dec-no">{i + 1}</span>
+                    <span className="dec-no">+</span>
                     {d.title}
                   </h3>
-                  <p>{d.text}</p>
+                  <p className="dec-diff">
+                    <span className="dec-plus" aria-hidden="true">+</span>
+                    {d.text}
+                  </p>
                 </div>
               ))}
             </div>
 
             <div className="man-section">
-              <h2 className="man-h">
-                <span className="hash">##</span> outcome
-              </h2>
+              <h2 className="man-h"><span className="hash">##</span> outcome</h2>
               <div className="outcome-box">
                 <p className="man-p">{p.outcome}</p>
               </div>
             </div>
 
             <div className="man-section">
-              <h2 className="man-h">
-                <span className="hash">##</span> what_i_learned
-              </h2>
+              <h2 className="man-h"><span className="hash">##</span> what_i_learned</h2>
               <p className="man-p man-dim">$ grep -n "lesson" ./NOTES.md</p>
               <ul className="learn-list">
                 {p.learned.map((s, i) => (
@@ -170,16 +195,14 @@ export function WorkDetail() {
 
         <nav className="case-prevnext" aria-label="Adjacent case studies">
           <Link to={`/terminal/work/${prev.slug}`}>
-            <span className="dir">← ../</span>
-            <span>
-              ./<span className="ext">{prev.name.toLowerCase().replace(/\s+/g, "-")}</span>
-            </span>
+            <span className="dir">← [ prev · {prev.number}</span>
+            <span className="pn-name">./<span className="ext">{prev.slug}</span></span>
+            <span className="pn-tag">{prev.tagline}</span>
           </Link>
           <Link to={`/terminal/work/${next.slug}`} className="next-a">
-            <span className="dir">../ →</span>
-            <span>
-              ./<span className="ext">{next.name.toLowerCase().replace(/\s+/g, "-")}</span>
-            </span>
+            <span className="dir">next · {next.number} ] →</span>
+            <span className="pn-name">./<span className="ext">{next.slug}</span></span>
+            <span className="pn-tag">{next.tagline}</span>
           </Link>
         </nav>
       </div>

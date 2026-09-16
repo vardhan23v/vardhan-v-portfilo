@@ -12,7 +12,7 @@ export function Work() {
             <div className="shell-head">
               <TypeCmd cmd="ls -l ./work/" />
               <h2 className="shell-title" id="work-title">
-                SELECTED_PROJECTS <span className="dim">// 05 shipped</span>
+                SELECTED_PROJECTS <span className="dim">// {String(caseStudies.length).padStart(2, "0")} shipped</span>
               </h2>
             </div>
           </Reveal>
@@ -85,20 +85,37 @@ export function Work() {
           <Reveal>
             <div className="other-work">
               <div className="shell-head">
-                <TypeCmd cmd="ls ./also_built/" />
+                <TypeCmd cmd="ls -1 ./also_built/" />
                 <h3 className="shell-title">
-                  ALSO_BUILT <span className="dim">// experiments &amp; tools</span>
+                  ALSO_BUILT <span className="dim">// {otherWork.length} experiments &amp; tools</span>
                 </h3>
               </div>
-              <div className="other-grid">
+              <div className="other-grid" role="list">
                 {otherWork.map((o, i) => (
-                  <div className="other-item" key={o.name} style={{ "--i": i } as React.CSSProperties}>
-                    <a href={o.url} target="_blank" rel="noopener noreferrer">
-                      {o.name}
-                      <span className="bracket">/</span>
-                    </a>
-                    <p>{o.note}</p>
-                  </div>
+                  <a
+                    className="other-item"
+                    role="listitem"
+                    key={o.name}
+                    href={o.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-spot
+                    style={{ "--i": i } as React.CSSProperties}
+                  >
+                    <span className="other-idx" aria-hidden="true">[{String(i).padStart(2, "0")}]</span>
+                    <span className="other-main">
+                      <span className="other-name">
+                        {o.name}
+                        <span className="bracket">/</span>
+                      </span>
+                      <span className="other-note">{o.note}</span>
+                    </span>
+                    <span className={`remote-lang lang-${(o.lang ?? "").toLowerCase()}`}>
+                      <i aria-hidden="true" />
+                      {o.lang ?? "—"}
+                    </span>
+                    <span className="other-go" aria-hidden="true">↗</span>
+                  </a>
                 ))}
               </div>
             </div>

@@ -10,5 +10,4 @@ export const site = {
     "Computer Science undergraduate focused on Generative AI, full-stack development, and developer tooling.",
   intro:
     "I enjoy taking ideas from interface to API, database, and AI integration — and turning them into working products.",
-  url: "https://vardhan-v-portfilo.vercel.app",
 } as const;

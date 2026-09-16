@@ -36,3 +36,30 @@ export function subscribePhosphor(cb: () => void) {
   window.addEventListener(EVENT, cb);
   return () => window.removeEventListener(EVENT, cb);
 }
+
+/* ---- CRT overlays (scanlines / vignette / flicker) ---- */
+const CRT_KEY = "folio.crt";
+const CRT_EVENT = "folio:crt";
+
+export function getCrt(): boolean {
+  try {
+    return localStorage.getItem(CRT_KEY) !== "off";
+  } catch {
+    return true;
+  }
+}
+
+export function setCrt(on: boolean) {
+  try {
+    if (on) localStorage.removeItem(CRT_KEY);
+    else localStorage.setItem(CRT_KEY, "off");
+  } catch {
+    /* private mode */
+  }
+  window.dispatchEvent(new CustomEvent(CRT_EVENT, { detail: on }));
+}
+
+export function subscribeCrt(cb: () => void) {
+  window.addEventListener(CRT_EVENT, cb);
+  return () => window.removeEventListener(CRT_EVENT, cb);
+}

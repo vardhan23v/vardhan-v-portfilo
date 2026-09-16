@@ -1,3 +1,8 @@
+/**
+ * Terminal-edition case studies. Kept separate from src/classic/data/projects.ts on
+ * purpose: these carry long-form prose (problem / approach / decisions / lessons)
+ * the other editions do not render. Slugs match the classic edition.
+ */
 export interface CaseStudy {
   slug: string;
   number: string;
@@ -66,7 +71,7 @@ export const caseStudies: CaseStudy[] = [
     live: "https://extension-ai-five.vercel.app/",
   },
   {
-    slug: "code-reviewer",
+    slug: "ai-code-reviewer",
     number: "02",
     name: "AI Code Reviewer",
     tagline: "AI-powered code analysis and review tool",
@@ -256,60 +261,71 @@ export const caseStudies: CaseStudy[] = [
   },
 ];
 
-export const otherWork = [
+export const otherWork: { name: string; note: string; url: string; lang?: string }[] = [
   {
     name: "HPL Auction",
     note: "Live cricket auction — Next.js 16, Socket.IO, Prisma, server-authoritative timer & purse engine. 6 teams, auctioneer console.",
     url: "https://github.com/vardhan23v/hpl-auction",
+    lang: "TypeScript",
   },
   {
     name: "Apex Retail ERP",
     note: "Inventory & billing for retail — POS with barcode, GST invoices (PDFKit), stock audit, analytics, RBAC.",
     url: "https://github.com/vardhan23v/inventory-management",
+    lang: "JavaScript",
   },
   {
     name: "Dayflow HRMS",
     note: "Employee directory, attendance, leave, payroll with PDF payslips, LinkedIn OAuth. TS monorepo on Vercel.",
     url: "https://github.com/vardhan23v/Human-Resource-Management-System",
+    lang: "TypeScript",
   },
   {
     name: "Campus Compass",
     note: "College discovery and comparison — Next.js 16, PostgreSQL, Prisma, NextAuth.",
     url: "https://github.com/vardhan23v/campus-compass",
+    lang: "JavaScript",
   },
   {
     name: "SEM5 Learning Hub",
     note: "Animated revision site — CNC, TOC, DS, OS with live SVG, automata simulators & CPU scheduler.",
     url: "https://github.com/vardhan23v/sem5-learning-hub",
+    lang: "JavaScript",
   },
   {
     name: "SEM5",
     note: "PDF reader & study hub for 5th sem — organized notes and PDFs with dark UI.",
     url: "https://github.com/vardhan23v/sem5",
+    lang: "HTML",
   },
   {
     name: "DriveNest",
     note: "Vehicle rental platform — Node.js, MySQL, booking and billing flows.",
     url: "https://github.com/vardhan23v/Drivenest",
+    lang: "JavaScript",
   },
   {
     name: "LoanEase",
     note: "Multi-step loan application wizard — React 19, TypeScript, validation, autosave.",
     url: "https://github.com/vardhan23v/LoanEase-Multi-Step-Form",
+    lang: "JavaScript",
   },
   {
     name: "Task Tracker SaaS",
     note: "MERN task management with a glassmorphism interface.",
     url: "https://github.com/vardhan23v/task-tracker-saas",
+    lang: "TypeScript",
   },
   {
     name: "NoteVault",
     note: "PDF reader and study hub for engineering students.",
     url: "https://github.com/vardhan23v/NoteVault",
+    lang: "JavaScript",
   },
   {
     name: "UNO Game",
     note: "Playable card game in vanilla JavaScript with an AI opponent.",
     url: "https://github.com/vardhan23v/uno-game",
+    lang: "JavaScript",
   },
 ];

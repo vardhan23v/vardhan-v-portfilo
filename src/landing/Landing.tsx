@@ -334,8 +334,8 @@ export function Landing() {
       <header className="landing-top" data-reveal>
         <span className="lt-mark">✦ <em>{site.name}</em></span>
         <nav className="lt-nav" aria-label="Quick links">
-          <a href="#work">Work</a>
           <a href="#editions">Editions</a>
+          <a href="#work">Work</a>
           <a href={site.github} target="_blank" rel="noopener">GitHub<span className="sr-only"> (opens in a new tab)</span> ↗</a>
           <a href={`mailto:${site.email}`} className="lt-hire">Hire me</a>
         </nav>
@@ -358,9 +358,9 @@ export function Landing() {
                 <b>{site.title}.</b> I build AI-powered products, developer tools and full-stack systems — and ship them open-source.
               </p>
               <div className="landing-ctas">
-                <a className="l-cta l-cta-primary" href="#work">See the work <span aria-hidden="true">→</span></a>
+                <a className="l-cta l-cta-primary" href="#editions">Pick an interface <span aria-hidden="true">↓</span></a>
                 <a className="l-cta" href={site.resume} target="_blank" rel="noopener">Resume<span className="sr-only"> (PDF, opens in a new tab)</span> <span aria-hidden="true">↗</span></a>
-                <a className="l-cta l-cta-ghost" href="#editions">Pick an interface <span aria-hidden="true">↓</span></a>
+                <a className="l-cta l-cta-ghost" href="#work">See the work <span aria-hidden="true">→</span></a>
               </div>
               <div className="landing-pipeline" aria-hidden="true">
                 <span>frontend</span><i>→</i><span>api</span><i>→</i><span>database</span><i>→</i><span>llm</span><i>→</i><span>product</span>
@@ -390,9 +390,22 @@ export function Landing() {
           <Stat value={experience.length} label="roles & internships" />
         </section>
 
+        <section className="editions" id="editions" aria-labelledby="editions-h2">
+          <div className="section-head" data-reveal>
+            <span className="section-kicker">start here</span>
+            <h2 className="section-title" id="editions-h2">Same work, <em>six interfaces.</em></h2>
+            <p className="section-sub">Every edition has the same projects, experience and contact — pick the one that suits how you read. Press <kbd>1</kbd>–<kbd>6</kbd> from any page to switch.</p>
+          </div>
+          <div className="edition-grid" role="list" aria-label="Portfolio editions" ref={cardsRef}>
+            {EDITIONS.map((e, i) => (
+              <EditionCard key={e.to} ed={e} keyNum={String(i + 1)} onClick={onLinkClick} />
+            ))}
+          </div>
+        </section>
+
         <section className="land-projects" id="work" data-reveal aria-labelledby="work-h2">
           <div className="section-head">
-            <span className="section-kicker">index</span>
+            <span className="section-kicker">or skim the index</span>
             <h2 className="section-title" id="work-h2">Selected <em>work.</em></h2>
             <p className="section-sub">{featuredProjects.length} featured projects, {live} of them live. Every one ships with source.</p>
           </div>
@@ -406,19 +419,6 @@ export function Landing() {
                 <span className={`lr-status${p.live ? " is-live" : ""}`}>{p.live ? "live" : "source"}<span className="sr-only">, opens in a new tab</span></span>
                 <span className="lr-arrow" aria-hidden="true">↗</span>
               </a>
-            ))}
-          </div>
-        </section>
-
-        <section className="editions" id="editions" aria-labelledby="editions-h2">
-          <div className="section-head" data-reveal>
-            <span className="section-kicker">contents</span>
-            <h2 className="section-title" id="editions-h2">Same work, <em>six interfaces.</em></h2>
-            <p className="section-sub">Every edition has the same projects, experience and contact — pick the one that suits how you read. Press <kbd>1</kbd>–<kbd>6</kbd> from any page to switch.</p>
-          </div>
-          <div className="edition-grid" role="list" aria-label="Portfolio editions" ref={cardsRef}>
-            {EDITIONS.map((e, i) => (
-              <EditionCard key={e.to} ed={e} keyNum={String(i + 1)} onClick={onLinkClick} />
             ))}
           </div>
         </section>

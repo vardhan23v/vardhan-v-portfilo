@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Boot } from "./components/Boot";
-import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import { useSpotlight } from "./hooks/useSpotlight";
 import { usePhosphor } from "./hooks/usePhosphor";
@@ -52,7 +51,6 @@ export function TerminalLayout() {
       <a href="#main" className="skip-link">
         Skip to content
       </a>
-      <Navbar />
       <main id="main">
         <Outlet />
       </main>

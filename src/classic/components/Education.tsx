@@ -13,7 +13,7 @@ export function Education() {
             <SectionHead
               eyebrow="Education"
           index="05"
-              title={<>The <span className="grad-text">foundation</span></>}
+              title="Education"
             />
             <div className="edu-timeline">
               {education.map((e, i) => (
@@ -36,7 +36,7 @@ export function Education() {
             <SectionHead
               eyebrow="Certifications"
           index="06"
-              title={<>Proof of <span className="grad-text">learning</span></>}
+              title="Certifications"
             />
             <div className="cert-grid">
               {certifications.map((c, i) => (

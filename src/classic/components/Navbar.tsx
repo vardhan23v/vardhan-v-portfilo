@@ -116,7 +116,7 @@ export function Navbar() {
             </a>
           </div>
           <a href={site.resume} className="btn btn-primary btn-sm nav-resume" download>
-            Resume
+            Résumé
           </a>
           <button
             className="nav-burger"
@@ -157,7 +157,7 @@ export function Navbar() {
             <Icon.linkedin width={17} height={17} /> LinkedIn
           </a>
           <a href={site.resume} className="btn btn-primary" download>
-            <Icon.download width={17} height={17} /> Download Resume
+            <Icon.download width={17} height={17} /> Download résumé
           </a>
         </div>
       </div>

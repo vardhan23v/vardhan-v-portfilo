@@ -11,8 +11,8 @@ export function Experience() {
         <SectionHead
           eyebrow="Experience"
           index="03"
-          title={<>Where I've been <span className="grad-text">building</span></>}
-          sub="Internships and product communities where I shipped real work and learned how products actually get made."
+          title="Where I have worked"
+          sub="Internships and builder programmes, newest first. Two are ongoing."
         />
 
         <div className="timeline">

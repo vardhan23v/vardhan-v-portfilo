@@ -11,6 +11,7 @@ import { Contact } from "./components/Contact";
 import { Footer } from "./components/Footer";
 import "./styles/global.css";
 import "./styles/animations.css";
+import "./styles/refine.css";
 import { motionReduced } from "../lib/motion";
 
 function ClassicScrollProgress() {

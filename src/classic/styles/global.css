@@ -1,24 +1,28 @@
 .classic-root {
-  --bg: #05060f;
-  --bg-soft: #0a0b1a;
-  --surface: rgba(255, 255, 255, 0.03);
-  --surface-hover: rgba(255, 255, 255, 0.06);
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.14);
-  --text: #e8eaf6;
-  --text-dim: #9aa1b9;
-  --text-faint: #7b829c;
-  --accent: #7c6cff;
-  --accent-2: #38bdf8;
-  --accent-3: #a78bfa;
-  --green: #34d399;
-  --radius: 18px;
-  --radius-sm: 12px;
+  /* palette: blue-biased ink, one periwinkle accent, green reserved for "live"/"current" */
+  --bg: #0b0e1a;
+  --bg-soft: #10142a;
+  --surface: rgba(150, 164, 214, 0.05);
+  --surface-hover: rgba(150, 164, 214, 0.09);
+  --border: rgba(150, 164, 214, 0.14);
+  --border-strong: rgba(150, 164, 214, 0.26);
+  --text: #e8ecf7;
+  --text-dim: #9aa4c2;
+  --text-faint: #6f7996;
+  --accent: #8f84ff;
+  --accent-ink: #14112e;
+  --accent-2: #8f84ff; /* legacy alias: the second hue is gone */
+  --accent-3: #b3abff;
+  --green: #3ddc97;
+  --radius: 14px;
+  --radius-sm: 10px;
   --max-w: 1120px;
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-display: "Kanit", "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
   --nav-h: 68px;
+  /* type scale, ratio 1.25 */
+  --t-1: 13px; --t0: 16px; --t1: 20px; --t2: 25px; --t3: 31px; --t4: 39px; --t5: 49px; --t6: 61px;
 }
 
 .classic-root *, .classic-root *::before, .classic-root *::after {
@@ -78,9 +82,11 @@ html[data-motion="reduce"] .classic-root {
 
 .classic-root h1, .classic-root h2, .classic-root h3, .classic-root h4 {
   font-family: var(--font-display);
-  line-height: 1.15;
+  font-weight: 600;
+  line-height: 1.1;
   margin: 0;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
 }
 
 .classic-root p {
@@ -128,7 +134,7 @@ html[data-motion="reduce"] .classic-root {
   top: -260px;
   left: 50%;
   transform: translateX(-62%);
-  background: radial-gradient(circle, rgba(124, 108, 255, 0.28), transparent 65%);
+  background: radial-gradient(circle, rgba(143, 132, 255, 0.22), transparent 65%);
 }
 
 .classic-root .bg-glow::after {
@@ -136,7 +142,7 @@ html[data-motion="reduce"] .classic-root {
   height: 520px;
   top: 700px;
   right: -220px;
-  background: radial-gradient(circle, rgba(56, 189, 248, 0.16), transparent 65%);
+  background: radial-gradient(circle, rgba(143, 132, 255, 0.08), transparent 65%);
 }
 
 /* ---------- Layout ---------- */
@@ -160,7 +166,9 @@ html[data-motion="reduce"] .classic-root {
 }
 
 .classic-root .section-head {
-  margin-bottom: 48px;
+  margin-bottom: 40px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
 }
 
 .classic-root .section-eyebrow {
@@ -190,24 +198,21 @@ html[data-motion="reduce"] .classic-root {
 }
 
 .classic-root .section-title {
-  font-size: clamp(28px, 4.4vw, 40px);
-  font-weight: 700;
+  font-size: clamp(var(--t3), 3.6vw, var(--t4));
+  font-weight: 600;
 }
 
 .classic-root .section-sub {
   color: var(--text-dim);
-  max-width: 640px;
-  margin-top: 12px;
-  font-size: 16px;
+  max-width: 60ch;
+  margin-top: 10px;
+  font-size: var(--t0);
+  line-height: 1.6;
 }
 
+/* .grad-text is retired: headlines no longer single out one word */
 .classic-root .grad-text {
-  background: linear-gradient(100deg, #c7bfff 0%, var(--accent-2) 100%);
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: gradslide 7s ease-in-out infinite alternate;
+  color: inherit;
 }
 
 @keyframes gradslide {
@@ -223,8 +228,8 @@ html[data-motion="reduce"] .classic-root {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 22px;
-  border-radius: 12px;
+  padding: 12px 20px;
+  border-radius: 10px;
   font-weight: 600;
   font-size: 15px;
   border: 1px solid transparent;
@@ -234,38 +239,18 @@ html[data-motion="reduce"] .classic-root {
   isolation: isolate;
 }
 
-.classic-root .btn::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(
-    105deg,
-    transparent 35%,
-    rgba(255, 255, 255, 0.35) 50%,
-    transparent 65%
-  );
-  transform: translateX(-120%);
-  transition: transform 0.7s ease;
-}
-
-.classic-root .btn:hover::after {
-  transform: translateX(120%);
-}
 
 .classic-root .btn:active {
   transform: scale(0.97);
 }
 
 .classic-root .btn-primary {
-  background: linear-gradient(120deg, var(--accent), #6d5cff 45%, #4c8dff);
-  color: #fff;
-  box-shadow: 0 6px 24px rgba(110, 92, 255, 0.2);
+  background: var(--accent);
+  color: var(--accent-ink);
 }
 
 .classic-root .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(110, 92, 255, 0.28);
+  background: var(--accent-3);
 }
 
 .classic-root .btn-ghost {
@@ -276,8 +261,7 @@ html[data-motion="reduce"] .classic-root {
 
 .classic-root .btn-ghost:hover {
   background: var(--surface-hover);
-  border-color: rgba(255, 255, 255, 0.24);
-  transform: translateY(-2px);
+  border-color: var(--border-strong);
 }
 
 .classic-root .btn-sm {
@@ -298,14 +282,25 @@ html[data-motion="reduce"] .classic-root {
 
 /* ---------- Reveal animations ---------- */
 
+/* Content is visible at rest; reveal only nudges grids of repeated objects. */
 .classic-root .reveal {
-  opacity: 0;
-  transform: translateY(26px);
-  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity, transform;
+  opacity: 1;
+  transform: none;
 }
 
-.classic-root .reveal.is-visible {
+.classic-root .projects-grid > .reveal,
+.classic-root .skill-cat.reveal,
+.classic-root .cert-card.reveal,
+.classic-root .timeline-item.reveal {
+  opacity: 0.001;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.classic-root .projects-grid > .reveal.is-visible,
+.classic-root .skill-cat.reveal.is-visible,
+.classic-root .cert-card.reveal.is-visible,
+.classic-root .timeline-item.reveal.is-visible {
   opacity: 1;
   transform: none;
 }
@@ -321,13 +316,6 @@ html[data-motion="reduce"] .classic-root .reveal {
     opacity: 1;
     transform: none;
     transition: none;
-  }
-html[data-motion="reduce"] .classic-root .section-eyebrow::before {
-    transform: scaleX(1);
-    transition: none;
-  }
-html[data-motion="reduce"] .classic-root .btn::after {
-    display: none;
   }
 html[data-motion="reduce"] .classic-root *,
 html[data-motion="reduce"] .classic-root *::before,

@@ -21,9 +21,9 @@ const CATEGORY: Record<string, "AI" | "full-stack"> = {
 type Filter = "all" | "AI" | "full-stack";
 
 const FILTERS: { id: Filter; label: string }[] = [
-  { id: "all", label: "all" },
-  { id: "AI", label: "ai" },
-  { id: "full-stack", label: "full-stack" },
+  { id: "all", label: "All" },
+  { id: "AI", label: "AI" },
+  { id: "full-stack", label: "Full-stack" },
 ];
 
 function Mark({ text, query }: { text: string; query: string }) {
@@ -133,11 +133,11 @@ function ProjectCard({ project, query, onOpen }: { project: Project; query: stri
 
         <div className="project-links">
           <a href={project.github} target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-sm">
-            <Icon.github width={16} height={16} /> GitHub
+            <Icon.github width={16} height={16} /> Source
           </a>
           {project.live && (
             <a href={project.live} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-sm">
-              <Icon.external width={15} height={15} /> Live Demo
+              <Icon.external width={15} height={15} /> Open live demo
             </a>
           )}
         </div>
@@ -196,8 +196,8 @@ export function Projects() {
         <SectionHead
           eyebrow="Featured Projects"
           index="02"
-          title={<>Things I've actually <span className="grad-text">built and shipped</span></>}
-          sub="AI-powered developer tools, assistants, and full-stack apps — each one solving a real problem."
+          title="Selected work"
+          sub="Nine products with source you can read. Each one started from a problem someone actually had."
         />
 
         <div className="project-toolbar">
@@ -213,7 +213,7 @@ export function Projects() {
               onKeyDown={(e) => {
                 if (e.key === "Escape") setQuery("");
               }}
-              placeholder="--name llm"
+              placeholder="search by name, stack or feature"
               aria-label="Search projects"
             />
             <span className="project-search-cursor" aria-hidden="true" />
@@ -277,7 +277,7 @@ export function Projects() {
         <Reveal>
           <div className="others">
             <h3 className="others-title">
-              <Icon.folder width={20} height={20} /> Other things I've built
+              Smaller builds and experiments
             </h3>
             <div className="others-grid">
               {(showAll ? otherProjects : otherProjects.slice(0, OTHERS_PREVIEW)).map((p) => (
@@ -311,7 +311,7 @@ export function Projects() {
                 </button>
               )}
               <a href={site.github} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">
-                View All Projects on GitHub <Icon.arrowRight width={17} height={17} />
+                See everything on GitHub
               </a>
             </div>
           </div>

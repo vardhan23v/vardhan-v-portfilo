@@ -1,61 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { site } from "../data/site";
 import { Icon } from "../lib/icons";
-import { Terminal } from "./Terminal";
-import { Reveal } from "../hooks/useReveal";
 import "./Hero.css";
 import { motionReduced } from "../../lib/motion";
-import { useMagnetic } from "../../hooks/useMagnetic";
 import { stats } from "../data/stats";
+import { featuredProjects } from "../data/projects";
 import { CountUp } from "./CountUp";
-
-const roles = [
-  "Generative AI Developer",
-  "Full-Stack Developer",
-  "AI Product Builder",
-];
-
-function useTypewriter(words: string[]) {
-  const [text, setText] = useState("");
-
-  useEffect(() => {
-    if (motionReduced()) {
-      setText(words[0]);
-      return;
-    }
-    let word = 0;
-    let char = 0;
-    let deleting = false;
-    let timer: number;
-    const tick = () => {
-      const target = words[word];
-      if (!deleting) {
-        char += 1;
-        setText(target.slice(0, char));
-        if (char >= target.length) {
-          deleting = true;
-          timer = window.setTimeout(tick, 2200);
-        } else {
-          timer = window.setTimeout(tick, 58);
-        }
-      } else {
-        char -= 1;
-        setText(target.slice(0, char));
-        if (char <= 0) {
-          deleting = false;
-          word = (word + 1) % words.length;
-          timer = window.setTimeout(tick, 350);
-        } else {
-          timer = window.setTimeout(tick, 30);
-        }
-      }
-    };
-    timer = window.setTimeout(tick, 400);
-    return () => window.clearTimeout(timer);
-  }, [words]);
-
-  return text;
-}
 
 function useClassicHeroFX() {
   useEffect(() => {
@@ -63,7 +13,6 @@ function useClassicHeroFX() {
     const hero = document.querySelector<HTMLElement>(".classic-root .hero");
     const visual = document.querySelector<HTMLElement>(".classic-root .hero-visual");
     const neural = document.querySelector<HTMLElement>(".classic-root .hero-neural");
-    const floats = Array.from(document.querySelectorAll<HTMLElement>(".classic-root .hero-float"));
     let raf = 0;
     const onScroll = () => {
       if (raf) return;
@@ -75,7 +24,6 @@ function useClassicHeroFX() {
           const ty = y * 0.1;
           hero.style.opacity = String(fade);
           hero.style.transform = `translateY(${ty}px)`;
-          hero.classList.toggle("is-scrolled", y > 60);
         }
         if (visual) {
           visual.style.transform = `translateY(${y * -0.05}px)`;
@@ -83,10 +31,6 @@ function useClassicHeroFX() {
         if (neural) {
           neural.style.transform = `translateY(${y * 0.06}px)`;
         }
-        floats.forEach((f, i) => {
-          const dir = i % 2 === 0 ? 1 : -1;
-          f.style.transform = `translateY(${y * 0.035 * dir}px) rotate(${dir * (y * 0.005)}deg)`;
-        });
       });
     };
     onScroll();
@@ -99,96 +43,68 @@ function useClassicHeroFX() {
 }
 
 const HERO_STATS: { value: number; label: string; suffix?: string }[] = [
-  { value: stats.projects, label: "projects built" },
-  { value: stats.repos, label: "public repos" },
-  { value: stats.roles, label: "internships & roles" },
-  { value: stats.tools, label: "tools shipped with", suffix: "+" },
+  { value: stats.shipped, label: "products shipped" },
+  { value: stats.repos, label: "public repositories" },
+  { value: stats.roles, label: "internships and roles" },
 ];
+
+const latest = featuredProjects[0];
 
 export function Hero() {
   useClassicHeroFX();
-  useMagnetic(".classic-root .hero-actions .btn", 0.24, 8);
   return (
     <section className="hero" id="top">
       <div className="container hero-grid">
         <div className="hero-copy">
-          <Reveal>
-            <p className="hero-availability">
-              <span className="hero-availability-dot" aria-hidden="true" />
-              Open to internships & AI product builds
-            </p>
-          </Reveal>
+          <p className="hero-availability">
+            <span className="hero-availability-dot" aria-hidden="true" />
+            Open to internships and AI product work
+          </p>
 
-          <Reveal delay="reveal-d1">
-            <h1 className="hero-name">
-              Sree Vardhan <span className="grad-text">V</span>
-            </h1>
-          </Reveal>
+          <h1 className="hero-name">
+            Sree Vardhan V builds AI products end to end.
+          </h1>
 
-          <Reveal delay="reveal-d2">
-            <p className="hero-role">
-              <span className="hero-type" aria-label={roles.join(", ")}>
-                {useTypewriter(roles)}
-              </span>
-              <span className="hero-type-cursor" aria-hidden="true" />
-            </p>
-          </Reveal>
+          <p className="hero-desc">
+            Computer science undergraduate at NMAM Institute of Technology. I take an idea from
+            interface to API, database and model integration, then deploy it and keep it running.
+            The latest one turns a plain-English prompt into a working Chrome extension.
+          </p>
 
-          <Reveal delay="reveal-d3">
-            <p className="hero-desc">
-              Computer Science undergraduate who ships AI-powered products end-to-end —
-              from LLM integration to deployed app. Latest flagship: Extension AI, which
-              turns plain-English prompts into Chrome extensions.
-            </p>
-          </Reveal>
+          <div className="hero-actions">
+            <a href="#projects" className="btn btn-primary">
+              View projects
+            </a>
+            <a href={site.resume} className="btn btn-ghost" download>
+              <Icon.download width={17} height={17} /> Download résumé
+            </a>
+          </div>
 
-          <Reveal delay="reveal-d3">
-            <p className="hero-tagline">
-              <Icon.sparkles width={17} height={17} />
-              {site.tagline}
-            </p>
-          </Reveal>
+          <dl className="hero-stats" aria-label="At a glance">
+            {HERO_STATS.map((s) => (
+              <div className="hero-stat" key={s.label}>
+                <dd>
+                  <CountUp to={s.value} suffix={s.suffix} />
+                </dd>
+                <dt>{s.label}</dt>
+              </div>
+            ))}
+          </dl>
 
-          <Reveal delay="reveal-d4">
-            <div className="hero-actions">
-              <a href="#projects" className="btn btn-primary">
-                View Projects <Icon.arrowRight width={17} height={17} />
-              </a>
-              <a href={site.resume} className="btn btn-ghost" download>
-                <Icon.download width={17} height={17} /> Download Resume
-              </a>
-            </div>
-          </Reveal>
-
-          <Reveal delay="reveal-d4">
-            <dl className="hero-stats" aria-label="At a glance">
-              {HERO_STATS.map((s) => (
-                <div className="hero-stat" key={s.label}>
-                  <dt>{s.label}</dt>
-                  <dd>
-                    <CountUp to={s.value} suffix={s.suffix} />
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </Reveal>
-
-          <Reveal delay="reveal-d4">
-            <div className="hero-links">
-              <a href={site.github} target="_blank" rel="noopener noreferrer">
-                <Icon.github width={17} height={17} /> GitHub
-              </a>
-              <a href={site.linkedin} target="_blank" rel="noopener noreferrer">
-                <Icon.linkedin width={16} height={16} /> LinkedIn
-              </a>
-              <a href={`mailto:${site.email}`}>
-                <Icon.mail width={17} height={17} /> Email
-              </a>
-              <span className="hero-location">
-                <Icon.mapPin width={15} height={15} /> {site.location}
-              </span>
-            </div>
-          </Reveal>
+          <div className="hero-links">
+            <a href={site.github} target="_blank" rel="noopener noreferrer">
+              <Icon.github width={17} height={17} /> GitHub
+            </a>
+            <a href={site.linkedin} target="_blank" rel="noopener noreferrer">
+              <Icon.linkedin width={16} height={16} /> LinkedIn
+            </a>
+            <a href={`mailto:${site.email}`}>
+              <Icon.mail width={17} height={17} /> Email
+            </a>
+            <span className="hero-location">
+              <Icon.mapPin width={15} height={15} /> {site.location}
+            </span>
+          </div>
         </div>
 
         <div className="hero-visual">
@@ -208,40 +124,61 @@ export function Hero() {
               <path d="M70 300 L330 300" stroke="url(#lg1)" opacity="0.5" />
               <defs>
                 <linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1">
-                  <stop stopColor="#7c6cff" stopOpacity="0.55" />
-                  <stop offset="1" stopColor="#38bdf8" stopOpacity="0.18" />
+                  <stop stopColor="#8f84ff" stopOpacity="0.5" />
+                  <stop offset="1" stopColor="#8f84ff" stopOpacity="0.1" />
                 </linearGradient>
                 <linearGradient id="lg2" x1="1" y1="0" x2="0" y2="1">
-                  <stop stopColor="#38bdf8" stopOpacity="0.4" />
-                  <stop offset="1" stopColor="#7c6cff" stopOpacity="0.12" />
+                  <stop stopColor="#8f84ff" stopOpacity="0.35" />
+                  <stop offset="1" stopColor="#8f84ff" stopOpacity="0.08" />
                 </linearGradient>
                 <linearGradient id="lg3" x1="0" y1="0" x2="1" y2="1">
-                  <stop stopColor="#a78bfa" stopOpacity="0.4" />
-                  <stop offset="1" stopColor="#38bdf8" stopOpacity="0.15" />
+                  <stop stopColor="#b3abff" stopOpacity="0.35" />
+                  <stop offset="1" stopColor="#8f84ff" stopOpacity="0.1" />
                 </linearGradient>
               </defs>
             </svg>
           </div>
-          <Reveal delay="reveal-d2">
-            <Terminal />
-          </Reveal>
+
+          <article className="hero-latest" aria-labelledby="hero-latest-title">
+            <header className="hero-latest-head">
+              <span className="hero-latest-kicker">Latest shipped</span>
+              <span className={`hero-latest-status ${latest.live ? "is-live" : ""}`}>
+                <i aria-hidden="true" /> {latest.live ? "Live" : "Source"}
+              </span>
+            </header>
+            <h2 id="hero-latest-title" className="hero-latest-title">
+              <span className="hero-latest-emoji" aria-hidden="true">{latest.emoji}</span>
+              {latest.name}
+            </h2>
+            <p className="hero-latest-tagline">{latest.tagline}</p>
+            <ul className="hero-latest-facts">
+              {latest.features.slice(0, 3).map((f) => (
+                <li key={f}>
+                  <Icon.check width={14} height={14} />
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <div className="hero-latest-stack" aria-label="Stack">
+              {latest.tech.slice(0, 5).map((t) => (
+                <span key={t}>{t}</span>
+              ))}
+            </div>
+            <div className="hero-latest-actions">
+              {latest.live && (
+                <a href={latest.live} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-sm">
+                  <Icon.external width={15} height={15} /> Open live demo
+                </a>
+              )}
+              <a href={latest.github} target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-sm">
+                <Icon.github width={15} height={15} /> Source
+              </a>
+            </div>
+          </article>
         </div>
       </div>
 
-      <a href="#about" className="hero-scroll" aria-label="Scroll to the about section">
-        <span className="hero-scroll-mouse" aria-hidden="true"><i /></span>
-        <span>scroll</span>
-      </a>
 
-      <div className="hero-float hero-float-code" aria-hidden="true">
-        <Icon.code width={16} height={16} /> const ship = (idea) =&gt; build(idea)
-      </div>
-      <div className="hero-float hero-float-llm" aria-hidden="true">
-        <Icon.sparkles width={16} height={16} /> model.groq · 70B
-      </div>
-      <div className="hero-float hero-float-ts" aria-hidden="true">
-        λ stream.toJSON()
-      </div>
     </section>
   );
 }

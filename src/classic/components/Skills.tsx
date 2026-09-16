@@ -80,8 +80,8 @@ export function Skills() {
         <SectionHead
           eyebrow="Tech Stack"
           index="04"
-          title={<>Tools I <span className="grad-text">actually build with</span></>}
-          sub="No percentage bars — just the languages, frameworks, and AI APIs I've shipped real applications with."
+          title="Tools I ship with"
+          sub="Grouped by where they sit in a product. The count next to a tool is how many of the projects above use it."
         />
 
         <div className="skills-grid">
@@ -120,7 +120,7 @@ export function Skills() {
               <span className="skill-cat-icon" aria-hidden="true">
                 <Icon.book width={19} height={19} />
               </span>
-              <h3>Currently Exploring</h3>
+              <h3>Currently exploring</h3>
             </div>
             <ul className="exploring-list">
               {exploring.map((e) => (

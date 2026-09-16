@@ -53,13 +53,9 @@ export function Contact() {
         <div className="contact-wrap">
           <Reveal>
             <div className="contact-copy">
-              <span className="section-eyebrow"><span className="section-index" aria-hidden="true">08</span>Contact</span>
-              <h2 className="section-title">
-                Have an idea? <span className="grad-text">Let's build it.</span>
-              </h2>
+              <h2 className="section-title">Get in touch</h2>
               <p className="contact-desc">
-                I'm always interested in building interesting products, experimenting with AI, and
-                working on challenging problems.
+                Internship offers, product ideas and hard problems are all welcome. I reply within a day.
               </p>
 
               <div className="contact-channels">
@@ -143,15 +139,15 @@ export function Contact() {
                 />
               </div>
               <button type="submit" className="btn btn-primary form-submit">
-                <Icon.send width={16} height={16} /> Send Message
+                <Icon.send width={16} height={16} /> Send message
               </button>
               {sent && (
                 <p className="form-note" role="status">
-                  Opening your email app — hit send there and I'll get back to you.
+                  Your email app opened with the message. Send it there and I will reply within a day.
                 </p>
               )}
               <p className="form-legal">
-                Opens your email client — no server involved.
+                Opens your email app. Nothing is stored on this site.
               </p>
             </form>
           </Reveal>

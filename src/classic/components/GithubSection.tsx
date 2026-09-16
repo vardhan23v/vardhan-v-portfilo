@@ -92,8 +92,8 @@ export function GithubSection() {
         <SectionHead
           eyebrow="Building in Public"
           index="07"
-          title={<>Learning by <span className="grad-text">shipping</span></>}
-          sub="Most of my learning happens by building. Explore my projects, experiments, and work with AI-powered development."
+          title="On GitHub"
+          sub="Everything is public. These are the repositories people ask about most."
         />
 
         <Reveal>
@@ -175,7 +175,7 @@ export function GithubSection() {
 
             <div className="gh-cta">
               <a href={site.github} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
-                <Icon.github width={17} height={17} /> Explore all repositories
+                <Icon.github width={17} height={17} /> All repositories
               </a>
             </div>
           </div>

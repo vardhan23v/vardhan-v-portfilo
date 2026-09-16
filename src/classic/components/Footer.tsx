@@ -19,8 +19,7 @@ export function Footer() {
             </span>
           </a>
           <p>
-            Student → Builder → AI Developer → Full-Stack Engineer. Built with AI, shipped with
-            code.
+            Computer science student shipping AI products end to end.
           </p>
         </div>
 
@@ -51,7 +50,7 @@ export function Footer() {
           © {year} Sree Vardhan V · {site.location}
         </p>
         <p className="footer-made">
-          Designed &amp; built by me · <span className="grad-text">no template involved</span>
+          Designed and built by hand, no template.
         </p>
       </Reveal>
     </footer>

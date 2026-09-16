@@ -4,9 +4,9 @@ import { Icon } from "../lib/icons";
 import "./About.css";
 
 const strengths = [
-  { icon: "sparkles", title: "Generative AI", text: "LLM integration, prompt engineering, agents, and MCP tooling." },
-  { icon: "server", title: "Full-Stack", text: "React frontends, Node.js APIs, and databases wired end-to-end." },
-  { icon: "rocket", title: "Product Thinker", text: "I ship working applications, not just demos and tutorials." },
+  { icon: "sparkles", title: "Generative AI", text: "LLM integration, prompt design, agents and MCP tooling." },
+  { icon: "server", title: "Full-stack", text: "React frontends, Node.js APIs, and databases wired end-to-end." },
+  { icon: "rocket", title: "Product thinker", text: "I ship working applications, not just demos and tutorials." },
 ] as const;
 
 function StrengthGlyph({ icon }: { icon: string }) {
@@ -19,11 +19,11 @@ export function About() {
     <section id="about">
       <div className="container">
         <SectionHead eyebrow="About"
-          index="01" title={<>Builder first, student second — <span className="grad-text">shipping with AI</span></>} />
+          index="01" title="Builder first, student second" />
 
         <div className="about-grid">
           <Reveal>
-            <div className="about-card card">
+            <div className="about-card">
               <p className="about-lead">
                 I'm a Computer Science undergraduate at <strong>NMAM Institute of Technology</strong>{" "}
                 focused on full-stack development and AI-integrated applications.

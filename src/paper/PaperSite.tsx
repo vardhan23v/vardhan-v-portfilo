@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { featuredProjects, type Project } from "../classic/data/projects";
@@ -56,8 +56,14 @@ function Entry({ p }: { p: Project }) {
 }
 
 export function PaperSite() {
+  const [words, setWords] = useState(0);
+
   useEffect(() => {
     window.scrollTo(0, 0);
+    const main = document.getElementById("paper-main");
+    if (!main) return;
+    const n = (main.innerText.match(/\S+/g) ?? []).length;
+    setWords(Math.round(n / 50) * 50);
   }, []);
 
   useEffect(() => {
@@ -113,6 +119,7 @@ export function PaperSite() {
           </p>
           <p className="paper-imprint">
             Paper edition, September 2026. {site.location}.
+            {words > 0 && ` About ${words.toLocaleString("en-IN")} words, a ${Math.max(1, Math.round(words / 220))}-minute read.`}
           </p>
           <ol className="paper-contents" aria-label="Contents">
             {CHAPTERS.map((c, i) => (

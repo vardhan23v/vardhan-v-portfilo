@@ -6,8 +6,8 @@ import { motionReduced } from "../lib/motion";
 const ACCENTS: Record<string, string> = {
   landing: "#7c6cff",
   term: "#36e57c",
-  classic: "#7c6cff",
-  paper: "#be4b2a",
+  classic: "#8f84ff",
+  paper: "#1e3f8a",
   aurora: "#f0abfc",
   forge: "#7dd3fc",
 };
@@ -18,9 +18,20 @@ export function ScrollChrome() {
   const [showTop, setShowTop] = useState(false);
 
   useEffect(() => {
-    const root = document.querySelector<HTMLElement>("[data-cursor-accent], [data-cursor-off]");
-    const key = root?.dataset.cursorAccent ?? (root?.dataset.cursorOff !== undefined ? "aurora" : "landing");
-    setAccent(ACCENTS[key] ?? "#7c6cff");
+    // Editions load lazily, so the root may not exist yet on the first render.
+    const resolve = () => {
+      const root = document.querySelector<HTMLElement>("[data-cursor-accent], [data-cursor-off]");
+      if (!root) return false;
+      const key = root.dataset.cursorAccent ?? (root.dataset.cursorOff !== undefined ? "aurora" : "landing");
+      setAccent(ACCENTS[key] ?? "#7c6cff");
+      return true;
+    };
+    if (resolve()) return;
+    const mo = new MutationObserver(() => {
+      if (resolve()) mo.disconnect();
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+    return () => mo.disconnect();
   }, [location.pathname]);
 
   useEffect(() => {

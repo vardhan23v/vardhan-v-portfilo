@@ -41,6 +41,16 @@
 
 .paper-root p {
   margin: 0;
+  text-wrap: pretty;
+}
+
+.paper-text > p {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
+html:has(.paper-root):not([data-motion="reduce"]) {
+  scroll-behavior: smooth;
 }
 
 .paper-root :focus-visible {
@@ -490,6 +500,77 @@ html:not([data-motion="reduce"]) .paper-titlepage > * {
   .paper-email {
     font-size: 22px;
     overflow-wrap: anywhere;
+  }
+}
+
+/* ---------- print ---------- */
+
+@media print {
+  @page {
+    margin: 2cm;
+  }
+
+  .paper-root {
+    --paper: #fff;
+    --measure: 100%;
+    --margin-col: 4cm;
+    --gutter: 0.8cm;
+    background: #fff;
+    font-size: 11pt;
+    line-height: 1.5;
+  }
+
+  .paper-head,
+  .paper-skip,
+  .paper-actions,
+  .paper-colophon-links,
+  .sc-progress,
+  .sc-top,
+  .cur-fx {
+    display: none !important;
+  }
+
+  .paper-main,
+  .paper-colophon {
+    max-width: none;
+    padding: 0;
+  }
+
+  .paper-titlepage {
+    padding: 0 0 2cm;
+    max-width: none;
+  }
+
+  .paper-titlepage > * {
+    animation: none !important;
+  }
+
+  .paper-h1 {
+    font-size: 40pt;
+  }
+
+  .paper-chapter {
+    break-before: page;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .paper-entry {
+    break-inside: avoid;
+  }
+
+  .paper-text a::after,
+  .paper-margin a::after {
+    content: " (" attr(href) ")";
+    font-size: 8.5pt;
+    color: var(--ink-3);
+    word-break: break-all;
+  }
+
+  .paper-text a,
+  .paper-margin a {
+    color: var(--ink);
+    text-decoration: none;
   }
 }
 

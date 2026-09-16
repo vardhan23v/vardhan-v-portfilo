@@ -1507,6 +1507,29 @@
   .aurora-nav {
     top: 10px;
   }
+  /* Once scrolled, the phone nav collapses to the tab row so it stops covering content. */
+  .aurora-nav.is-scrolled .aurora-wordmark,
+  .aurora-nav.is-scrolled .iswitcher {
+    display: none;
+  }
+  .aurora-nav.is-scrolled {
+    padding: 8px 10px;
+  }
+  .aurora-nav.is-scrolled .et {
+    order: 0;
+  }
+  .aurora-section {
+    scroll-margin-top: 84px;
+  }
+  .aurora-head {
+    flex-direction: column;
+    gap: 6px;
+  }
+  .aurora-head .tag {
+    order: -1;
+    padding-top: 0;
+    white-space: normal;
+  }
   .aurora-hero {
     padding: 72px 0 96px;
   }

@@ -6,6 +6,7 @@ import { featuredProjects, type Project } from "../classic/data/projects";
 import { experience, education, certifications } from "../classic/data/experience";
 import { skillCategories, exploring } from "../classic/data/skills";
 import { site } from "../classic/data/site";
+import { github } from "../classic/data/stats";
 import { Icon } from "../classic/lib/icons";
 import { ExpandableTabs, type ExpandableTabItem } from "../components/ui/expandable-tabs";
 import "./styles/aurora.css";
@@ -30,9 +31,10 @@ const SORTS: { id: Sort; label: string }[] = [
   { id: "tech", label: "Most stack" },
 ];
 
+// Same order as the page: home, work, experience, about, contact.
 const NAV_TABS: ExpandableTabItem[] = [
   { type: "tab", title: "Home", icon: <Icon.home width={16} height={16} />, value: "home" },
-  { type: "tab", title: "About", icon: <Icon.user width={16} height={16} />, value: "about" },
+  { type: "tab", title: "Projects", icon: <Icon.folderKanban width={16} height={16} />, value: "work" },
   {
     type: "tab",
     title: "Experience",
@@ -40,7 +42,7 @@ const NAV_TABS: ExpandableTabItem[] = [
     value: "experience",
   },
   { type: "separator" },
-  { type: "tab", title: "Projects", icon: <Icon.folderKanban width={16} height={16} />, value: "work" },
+  { type: "tab", title: "About", icon: <Icon.user width={16} height={16} />, value: "about" },
   { type: "tab", title: "Contact", icon: <Icon.mail width={16} height={16} />, value: "contact" },
 ];
 
@@ -148,8 +150,6 @@ function AuroraStat({ value, label, sub }: { value: number | null; label: string
     </div>
   );
 }
-
-const GITHUB_FOLLOWERS = 30;
 
 // ---------- project modal ----------
 
@@ -379,11 +379,13 @@ function ContactForm({ onToast }: { onToast: (msg: string) => void }) {
     ev.preventDefault();
     if (!validate()) return;
     setSending(true);
+    const subject = `Hello from ${form.name.trim()}`;
+    const body = `${form.message.trim()}\n\n— ${form.name.trim()} (${form.email.trim()})`;
+    window.location.href = `mailto:${site.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     setTimeout(() => {
       setSending(false);
-      onToast(`Thanks ${form.name.split(" ")[0]} — message queued. I'll reply at ${form.email} soon.`);
-      setForm({ name: "", email: "", message: "" });
-    }, 900);
+      onToast(`Opening your email app with the message to ${site.email}.`);
+    }, 600);
   };
 
   return (
@@ -427,9 +429,9 @@ function ContactForm({ onToast }: { onToast: (msg: string) => void }) {
       </label>
       <div className="au-form-actions">
         <button type="submit" className="aurora-btn aurora-btn-solid" disabled={sending}>
-          {sending ? "sending…" : "Send message"} <span aria-hidden="true">{sending ? "⟳" : "→"}</span>
+          {sending ? "opening…" : "Send message"} <span aria-hidden="true">{sending ? "⟳" : "→"}</span>
         </button>
-        <span className="au-form-hint">or email directly — replies within 24h</span>
+        <span className="au-form-hint">opens in your email app — replies within 24h</span>
       </div>
     </form>
   );
@@ -448,7 +450,7 @@ export function AuroraSite() {
   const [toast, setToast] = useState<string | null>(null);
   const [mouse, setMouse] = useState({ x: 50, y: 50 });
   const ist = useIstTime();
-  const followers = GITHUB_FOLLOWERS;
+  const followers = github.followers;
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
@@ -616,7 +618,7 @@ export function AuroraSite() {
             </p>
             <div className="au-hero-meta">
               <span className="au-availability">
-                <i className="au-av-dot" aria-hidden="true" /> Available for internships — Summer 2026
+                <i className="au-av-dot" aria-hidden="true" /> {site.availability}
               </span>
               <span className="au-hero-location">
                 <Icon.mapPin width={12} height={12} aria-hidden="true" /> {site.location} · IST {ist || "--:--"}
@@ -638,7 +640,7 @@ export function AuroraSite() {
                 <kbd>⌘K</kbd> palette
               </span>
               <span>
-                <kbd>1-5</kbd> switch interfaces
+                <kbd>1-6</kbd> switch interfaces
               </span>
               <span>click any card → quick view</span>
             </div>
@@ -996,7 +998,7 @@ export function AuroraSite() {
                 </div>
                 <div className="au-meta-row">
                   <dt>Currently</dt>
-                  <dd>Available for Summer 2026 internships & collaborations</dd>
+                  <dd>{site.availability}</dd>
                 </div>
               </dl>
               <div className="au-skills au-reveal">
@@ -1034,8 +1036,8 @@ export function AuroraSite() {
                   </a>
                 </div>
                 <p className="au-contact-note">
-                  Prefer a form? Drop a message — it stays on your device, no backend. I&apos;ll get an email prompt on
-                  submit.
+                  Prefer a form? Fill it in and it opens your email app with the message ready to send — nothing is
+                  stored here.
                 </p>
               </div>
               <ContactForm onToast={showToast} />
@@ -1044,7 +1046,7 @@ export function AuroraSite() {
         </section>
 
         <footer className="aurora-foot au-reveal">
-          <span>© 2026 {site.name} — Aurora edition · last deployed today · IST {ist}</span>
+          <span>© 2026 {site.name} — Aurora edition · IST {ist}</span>
           <span className="aurora-foot-links">
             <Link to="/">editions</Link>
             <a href={site.github} target="_blank" rel="noopener noreferrer">

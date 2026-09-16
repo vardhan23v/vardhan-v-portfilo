@@ -116,7 +116,7 @@ function answer(q: string): Answer {
 
   if (/(deploy|live|host|website|production|vercel|where can i see)/.test(norm)) {
     return {
-      text: `Vardhan ships on Vercel — this very VardhanOS runs live at [vardhan23v.dev](https://vardhan23v.dev/mac). Open [About This Mac](app:about-mac) for the system rundown.`,
+      text: `Vardhan ships on Vercel — this very Vardhan OS runs live at [vardhan-v-portfilo.vercel.app/mac](https://vardhan-v-portfilo.vercel.app/mac). Open [About This Mac](app:about-mac) for the system rundown.`,
     };
   }
 

@@ -9,5 +9,8 @@ export const site = {
   githubUser: "vardhan23v",
   linkedin: "https://www.linkedin.com/in/vardhan-v23",
   resume: "/resume/resume.pdf",
-  ogUrl: "https://vardhan23v.dev/",
+  /** Canonical public origin — used by canonical/og tags, sitemap and the landing stage. */
+  url: "https://vardhan-v-portfilo.vercel.app",
+  host: "vardhan-v-portfilo.vercel.app",
+  availability: "Open to internships & freelance",
 } as const;

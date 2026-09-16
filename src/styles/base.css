@@ -1,0 +1,33 @@
+/* ============================================================
+   Global base — tokens + resets shared by every edition
+   ============================================================ */
+:root {
+  --bg: #0b0f1a;
+  --text: #f2f3f8;
+  --text-2: #a9afc3;
+  --text-3: #8690ab; /* 4.7:1 min on every landing surface (WCAG AA for the mono microcopy) */
+  --border: rgba(255, 255, 255, 0.09);
+  --border-2: rgba(255, 255, 255, 0.2);
+  --card: rgba(18, 24, 40, 0.62);
+  --card-strong: rgba(18, 24, 40, 0.86);
+  --accent: #6ea8ff;
+  --accent-2: #b48cff;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --wp-h1: 225; --wp-h2: 262; --wp-h3: 196;
+}
+html { scroll-padding-top: 72px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+*, *::before, *::after { box-sizing: border-box; }
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, p { margin: 0; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+::selection { background: rgba(110, 168, 255, 0.35); color: #fff; }
+kbd { font-family: var(--font-mono); font-size: 0.8em; padding: 1px 5px; border-radius: 4px; border: 0.5px solid var(--border-2); background: rgba(255,255,255,0.04); }
+
+/* visually hidden, still read by screen readers */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }

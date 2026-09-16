@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://vardhan-v-portfilo.vercel.app/</loc><lastmod>2026-09-15</lastmod><changefreq>monthly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://vardhan-v-portfilo.vercel.app/editions</loc><lastmod>2026-09-15</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://vardhan-v-portfilo.vercel.app/mac</loc><lastmod>2026-09-15</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://vardhan-v-portfilo.vercel.app/terminal</loc><lastmod>2026-09-15</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://vardhan-v-portfilo.vercel.app/classic</loc><lastmod>2026-09-15</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://vardhan-v-portfilo.vercel.app/paper</loc><lastmod>2026-09-15</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://vardhan-v-portfilo.vercel.app/aurora</loc><lastmod>2026-09-15</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://vardhan-v-portfilo.vercel.app/forge</loc><lastmod>2026-09-15</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://vardhan-v-portfilo.vercel.app/</loc><lastmod>2026-09-16</lastmod><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://vardhan-v-portfilo.vercel.app/terminal</loc><lastmod>2026-09-16</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://vardhan-v-portfilo.vercel.app/classic</loc><lastmod>2026-09-16</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://vardhan-v-portfilo.vercel.app/paper</loc><lastmod>2026-09-16</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://vardhan-v-portfilo.vercel.app/aurora</loc><lastmod>2026-09-16</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://vardhan-v-portfilo.vercel.app/forge</loc><lastmod>2026-09-16</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://vardhan-v-portfilo.vercel.app/mac</loc><lastmod>2026-09-16</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://vardhan-v-portfilo.vercel.app/terminal/work/extension-ai</loc><lastmod>2026-09-16</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://vardhan-v-portfilo.vercel.app/terminal/work/code-reviewer</loc><lastmod>2026-09-16</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://vardhan-v-portfilo.vercel.app/terminal/work/careerforge-pro</loc><lastmod>2026-09-16</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://vardhan-v-portfilo.vercel.app/terminal/work/vard-ai</loc><lastmod>2026-09-16</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://vardhan-v-portfilo.vercel.app/terminal/work/disastermind-ai</loc><lastmod>2026-09-16</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
 </urlset>

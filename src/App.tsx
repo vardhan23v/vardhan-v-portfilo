@@ -4,8 +4,10 @@ import { CursorFX } from "./CursorFX";
 import { ScrollChrome } from "./components/ScrollChrome";
 import { CommandPalette } from "./components/CommandPalette";
 import { KonamiFX } from "./components/KonamiFX";
-import "./landing/Landing.css";
 import "./styles/motion.css";
+import { EDITIONS, editionRoutes } from "./editions";
+import { site } from "./classic/data/site";
+import { NotFound } from "./components/NotFound";
 
 const Landing = lazy(() => import("./landing/Landing").then((m) => ({ default: m.Landing })));
 const ClassicSite = lazy(() => import("./classic/ClassicSite").then((m) => ({ default: m.ClassicSite })));
@@ -17,65 +19,43 @@ const TerminalLayout = lazy(() => import("./terminal/TerminalLayout").then((m) =
 const TerminalHome = lazy(() => import("./terminal/TerminalHome").then((m) => ({ default: m.TerminalHome })));
 const WorkDetail = lazy(() => import("./terminal/components/WorkDetail").then((m) => ({ default: m.WorkDetail })));
 
-const interfaceRoutes = ["/terminal", "/classic", "/paper", "/aurora", "/forge", "/mac"];
+const interfaceRoutes = editionRoutes;
 
-const ROUTE_SEO: Record<string, { title: string; description: string }> = {
-  "/": {
-    title: "Sree Vardhan V | Generative AI Developer & Full-Stack Developer",
-    description:
-      "Six portfolio interfaces by Sree Vardhan V — a Generative AI developer and full-stack engineer building AI-powered products, developer tools, and full-stack systems.",
-  },
-  "/editions": {
-    title: "Editions — Sree Vardhan V | Generative AI Developer",
-    description:
-      "Six portfolio interfaces by Sree Vardhan V — Terminal, Classic, Paper, Aurora, Forge, and macOS.",
-  },
-  "/terminal": {
-    title: "Terminal — Sree Vardhan V | Generative AI Developer",
-    description:
-      "Interactive terminal edition of Sree Vardhan V's portfolio — a Generative AI and full-stack developer.",
-  },
-  "/classic": {
-    title: "Classic — Sree Vardhan V | Generative AI Developer & Full-Stack Developer",
-    description:
-      "Portfolio of Sree Vardhan V — a Computer Science undergraduate shipping AI-powered web applications.",
-  },
-  "/paper": {
-    title: "Paper — Sree Vardhan V | Generative AI Developer",
-    description:
-      "Editorial edition of Sree Vardhan V's portfolio — selected work, experience, skills, and contact.",
-  },
-  "/aurora": {
-    title: "Aurora — Sree Vardhan V | Generative AI Developer",
-    description:
-      "Aurora edition — AI-powered products and full-stack systems, shipped end-to-end.",
-  },
-  "/forge": {
-    title: "Forge — Sree Vardhan V | Generative AI Developer",
-    description:
-      "Forge edition — Generative AI developer building LLM-powered products and full-stack systems.",
-  },
-  "/mac": {
-    title: "macOS — Sree Vardhan V | Generative AI Developer",
-    description:
-      "macOS edition of Sree Vardhan V's portfolio — a premium desktop-inspired experience. Overview, projects, experience, skills, and contact.",
-  },
+const LANDING_SEO = {
+  title: `${site.name} | ${site.title}`,
+  description: `Portfolio of ${site.name} — a Generative AI and full-stack developer building AI-powered products, developer tools and full-stack systems. Six interfaces, one body of work.`,
 };
+const ROUTE_SEO: Record<string, { title: string; description: string }> = {
+  "/": LANDING_SEO,
+  "/editions": LANDING_SEO,
+  ...Object.fromEntries(EDITIONS.map((e) => [e.to, e.seo])),
+};
+const NOT_FOUND_SEO = { title: `Not found — ${site.name}`, description: "There is nothing at this address." };
 
+const setMeta = (selector: string, content: string) => document.querySelector(selector)?.setAttribute("content", content);
+
+/** Per-route title/description/og/canonical. Nested routes inherit their edition's entry by prefix. */
 function RouteSeo() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    const seo = ROUTE_SEO[pathname] ?? ROUTE_SEO["/"];
-    const meta = document.querySelector('meta[name="description"]');
-    const prevTitle = document.title;
-    const prevDesc = meta?.getAttribute("content") ?? null;
+    const base = "/" + pathname.split("/")[1];
+    const known = pathname === "/" || pathname === "/editions" || interfaceRoutes.includes(base);
+    const seo = known ? (ROUTE_SEO[pathname] ?? ROUTE_SEO[base]) : NOT_FOUND_SEO;
+    const url = `${site.url}${pathname === "/editions" ? "/" : pathname}`;
     document.title = seo.title;
-    meta?.setAttribute("content", seo.description);
-    return () => {
-      document.title = prevTitle;
-      if (meta && prevDesc !== null) meta.setAttribute("content", prevDesc);
-    };
+    setMeta('meta[name="description"]', seo.description);
+    setMeta('meta[property="og:title"]', seo.title);
+    setMeta('meta[property="og:description"]', seo.description);
+    setMeta('meta[property="og:url"]', url);
+    setMeta('meta[name="twitter:title"]', seo.title);
+    setMeta('meta[name="twitter:description"]', seo.description);
+    document.querySelector('link[rel="canonical"]')?.setAttribute("href", url);
+    let robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
+    if (!known) {
+      if (!robots) { robots = document.createElement("meta"); robots.name = "robots"; document.head.appendChild(robots); }
+      robots.content = "noindex";
+    } else robots?.remove();
   }, [pathname]);
 
   return null;
@@ -150,7 +130,7 @@ export default function App() {
             <Route index element={<TerminalHome />} />
             <Route path="work/:slug" element={<WorkDetail />} />
           </Route>
-          <Route path="*" element={<Landing />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

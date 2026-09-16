@@ -42,6 +42,7 @@ The macOS interface was rebuilt from the visual layer up: a **dark-glass OS with
 - **New surfaces** — boot → login screen (`sessionStorage mac-booted`, `?noboot=1` bypass, replay from Settings → Desktop), draggable **desktop icons** (positions in `localStorage mac-desktop-icons`, snap to a 96px grid), a **Widgets panel** behind the menu-bar clock (IST clock, GitHub stats, status, links), full-screen **Launchpad** (Dock item · View menu · Spotlight), and **project covers** (`Project.cover` / `Project.screenshots`, generated gradient fallback via `src/mac/components/ui/ProjectCover.tsx`).
 - **Design system** — 7 stylesheets replace 15: `tokens` (glass/elevation/z/accent matrix that also steers the wallpaper hues) · `shell` · `window` · `components` · `pages` · `apps` · `responsive`, all under `src/mac/styles/`. Flat editorial app tiles via `src/mac/components/ui/AppGlyph.tsx`.
 - **Pages** — Overview masthead + lead cover + ledger, Projects gallery with a right-side quick-view drawer and screenshot strip, Experience/Education ledgers, Skills type-specimen cards, numbered certification plates, About essay with drop cap, Contact with a display-size mailto. Finder gained icon/list views and a preview pane.
+- **Landing, senior pass (Sep 16)** — one source of truth for the six editions (`src/editions.ts` drives Landing, routing, `ROUTE_SEO` and the interface switcher); global tokens split into `src/styles/base.css` so `Landing.css` only loads on `/`; refs + `usePrefersReducedMotion` instead of DOM queries; stage segments follow the APG tabs contract (roving tabindex, ←/→/Home/End, pause button, `aria-live`); name-first `<h1>`; live GitHub repo stat; ledger status chips; canonical/og:url on the real origin, `og:image` (`public/og/cover.jpg`), JSON-LD Person/WebSite, a static pre-JS shell + `<noscript>`, a real 404 route with `noindex`, and a build-time sitemap (`scripts/sitemap.mjs`).
 - **Round 3** — ⌥Tab **app switcher**, **Mission Control** (⌃↑ / F3), edge **window snapping** with live preview, ⇧⌘D show desktop, idle **screensaver** (`?saver=1`), time-of-day wallpaper tint, **genie** minimize/restore, circular **light/dark reveal** (View Transitions), Finder **Quick Look** (Space), **notification banners** with app glyphs + actions, Terminal `matrix` + typewriter intro + confetti on `sudo hire vardhan`.
 - **Hygiene** — dead `AppShell`/Sidebar/Toolbar/StatusBar/TabBar removed; `useTilt`/`CountUp` honour the in-app Reduce-motion toggle; QA scripts cover `/?noboot=1` and `/editions`.
 
@@ -198,7 +199,7 @@ Content in two places:
 ```bash
 npm install
 npm run dev        # http://localhost:5173  (Vite)
-npm run build      # tsc -b + vite build → dist/  — 103 modules
+npm run build      # tsc -b + vite build + sitemap → dist/
 npm run preview    # preview dist/ (use --port 4173 for scripts)
 npm run lint       # oxlint — 5 warnings, 0 errors baseline
 ```

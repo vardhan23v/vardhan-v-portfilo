@@ -1,15 +1,10 @@
 import { Link } from "react-router-dom";
+import { EDITIONS } from "../editions";
 import { useMagnetic } from "../hooks/useMagnetic";
 import "./interface-switcher.css";
 
-const editionRoutes = [
-  { num: "01", label: "Terminal", role: "Developer", to: "/terminal", key: "terminal" },
-  { num: "02", label: "Classic", role: "Professional", to: "/classic", key: "classic" },
-  { num: "03", label: "Paper", role: "Editorial", to: "/paper", key: "paper" },
-  { num: "04", label: "Aurora", role: "Visual", to: "/aurora", key: "aurora" },
-  { num: "05", label: "Forge", role: "Builder", to: "/forge", key: "forge" },
-  { num: "06", label: "macOS", role: "Application", to: "/mac", key: "mac" },
-];
+const ROLE_SHORT: Record<string, string> = { term: "Developer", classic: "Professional", paper: "Editorial", aurora: "Visual", forge: "Builder", mac: "Application" };
+const editionRoutes = EDITIONS.map((e) => ({ num: e.num, label: e.label, role: ROLE_SHORT[e.tone], to: e.to, key: e.tone === "term" ? "terminal" : e.tone }));
 
 export function InterfaceSwitcher({ current }: { current: string }) {
   useMagnetic(".iswitcher-item", 0.22, 6);

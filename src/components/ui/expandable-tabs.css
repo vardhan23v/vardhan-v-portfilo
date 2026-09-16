@@ -6,8 +6,8 @@
   border-radius: 999px;
   background: rgba(15, 15, 30, 0.55);
   border: 1px solid rgba(215, 226, 234, 0.1);
-  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
 .et-sep {

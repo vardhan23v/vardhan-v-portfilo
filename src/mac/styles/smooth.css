@@ -1,0 +1,191 @@
+/* ═══ Smoothness pass — loaded last.
+       Windows move on the compositor (transform), never through layout; every
+       system transition uses the one curve; every rule that parks something
+       off-screen is zeroed by the reduce-motion gates in tokens.css. ═══ */
+
+/* ── Windows ──────────────────────────────────────────────── */
+/* Open/zoom/tile now play through the Web Animations API from WindowFrame. */
+.mac-desktop-window { animation: none; will-change: transform; }
+.mac-desktop-window.is-expose.is-min { animation: winIn 0.4s var(--ease-cinema) both; }
+/* No layout transitions: bound changes animate as a FLIP transform. */
+.mac-desktop-window { --win-tx: 0s; }
+.mac-desktop-window:not(.is-dragging):not(.is-resizing):not(.is-leaving) {
+  transition: box-shadow 220ms var(--ease-cinema), border-radius 320ms var(--ease-cinema), opacity 200ms, transform var(--win-tx) var(--ease-cinema);
+}
+/* Inactive windows keep their glass (no re-blur on focus change); only the shadow and title step back. */
+.mac-desktop-window:not(.is-active) {
+  opacity: 1;
+  -webkit-backdrop-filter: blur(22px) saturate(1.5);
+  backdrop-filter: blur(22px) saturate(1.5);
+  box-shadow: var(--el-2), var(--glass-inset), 0 0 0 0.5px rgba(0, 0, 0, 0.45);
+}
+.mac-root[data-theme="light"] .mac-desktop-window:not(.is-active) { box-shadow: var(--el-2), var(--glass-inset), 0 0 0 0.5px rgba(0, 0, 0, 0.1); }
+.mac-desktop-window:not(.is-active) .mac-desktop-window__body { opacity: 0.92; }
+.mac-desktop-window__body { transition: opacity 200ms; }
+.mac-desktop-window.is-dragging { cursor: grabbing; }
+.mac-desktop-window.is-dragging .mac-desktop-window__header { cursor: grabbing; }
+
+/* Show Desktop: windows glide off the nearest edge and glide back. */
+.mac-desktop-window.is-parked { --win-tx: 460ms; pointer-events: none; opacity: 0.9; }
+/* Mission Control: thumbnails glide into the grid as well as out of it. */
+.mac-desktop-window.is-expose { --win-tx: 460ms; }
+/* Glide home about the same origin the thumbnail used, or the first frame pops. */
+.mac-desktop__area.is-settling .mac-desktop-window { --win-tx: 460ms; transform-origin: top left; }
+.mac-desktop__catcher { position: absolute; inset: 0; z-index: 1; pointer-events: auto; cursor: pointer; background: none; border: 0; padding: 0; border-radius: 0; }
+.mac-desktop__catcher:focus-visible { outline: none; box-shadow: inset 0 0 0 3px var(--accent); }
+
+/* Launchpad: the desktop recedes behind the grid. */
+.mac-desktop__area { transition: transform 320ms var(--ease-cinema), filter 320ms var(--ease-cinema); transform-origin: 50% 45%; }
+.mac-desktop__area.is-behind { transform: scale(0.95); }
+
+/* ── Tiling menu (hover the green light) ───────────────────── */
+.traffic-lights { position: relative; }
+.mac-tile-menu {
+  position: absolute; top: calc(100% + 8px); left: -6px; z-index: var(--z-popover);
+  display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 5px; min-width: 176px;
+  border-radius: 12px; background: var(--glass-bg-strong); border: 0.5px solid var(--glass-border);
+  box-shadow: var(--el-3), var(--glass-inset);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  animation: tileMenuIn 180ms var(--ease-cinema) both; transform-origin: 8px 0;
+}
+@keyframes tileMenuIn { from { opacity: 0; transform: translateY(-4px) scale(0.96); } }
+.mac-tile-menu button {
+  display: flex; align-items: center; gap: 7px; padding: 6px 8px; border-radius: 8px;
+  font-size: 12px; color: var(--text-primary); white-space: nowrap; transition: background 80ms;
+}
+.mac-tile-menu button:hover { background: var(--accent); color: var(--accent-ink); }
+.mac-tile-menu__glyph { width: 18px; height: 12px; border: 1.5px solid currentColor; border-radius: 3px; opacity: 0.9; position: relative; flex: 0 0 auto; }
+.mac-tile-menu__glyph--left::before, .mac-tile-menu__glyph--right::before { content: ""; position: absolute; top: 1px; bottom: 1px; width: 6px; background: currentColor; border-radius: 1px; }
+.mac-tile-menu__glyph--left::before { left: 1px; }
+.mac-tile-menu__glyph--right::before { right: 1px; }
+.mac-tile-menu__glyph--full::before { content: ""; position: absolute; inset: 1px; background: currentColor; border-radius: 1px; }
+.mac-tile-menu__glyph--zoom::before { content: ""; position: absolute; inset: 3px; border: 1.5px solid currentColor; border-radius: 1px; }
+
+/* ── Dock: pointer-tracked magnification ───────────────────── */
+.mac-dock { contain: layout; }
+.mac-dock__item {
+  --s: 1; --press: 1;
+  transform: translateY(calc((var(--s) - 1) * -14px)) scale(calc(var(--s) * var(--press)));
+  margin: 0 calc((var(--s) - 1) * 24px);
+  transition: transform 90ms linear, margin 90ms linear;
+  will-change: transform, margin;
+}
+.mac-dock.is-settling .mac-dock__item { transition: transform 300ms var(--ease-spring), margin 300ms var(--ease-spring); }
+.mac-dock__item:hover, .mac-dock__item:has(+ .mac-dock__item:hover), .mac-dock__item:hover + .mac-dock__item {
+  transform: translateY(calc((var(--s) - 1) * -14px)) scale(calc(var(--s) * var(--press)));
+}
+.mac-dock__item:active { --press: 0.9; }
+.mac-dock__item.is-bouncing { animation: dockBounce 0.9s var(--ease-cinema) 2; }
+@keyframes dockBounce {
+  0%, 100% { transform: translateY(calc((var(--s) - 1) * -14px)) scale(var(--s)); }
+  35% { transform: translateY(calc((var(--s) - 1) * -14px - 22px)) scale(var(--s)); }
+  65% { transform: translateY(calc((var(--s) - 1) * -14px - 4px)) scale(var(--s)); }
+}
+/* Labels stay the same size whatever the tile's scale. */
+.mac-dock__tip { transform: translateX(-50%) scale(calc(1 / var(--s))); transform-origin: 50% 100%; }
+.mac-dock__item .mac-dock__dot { transform: scale(calc(1 / var(--s))); }
+.mac-dock__item.is-open .mac-dock__dot, .mac-dock__item.is-active .mac-dock__dot { transform: scale(calc(1 / var(--s))); }
+/* Reordering */
+.mac-dock__item.is-dragging { transition: none; z-index: 3; cursor: grabbing; }
+.mac-dock__item.is-dragging .mac-dock__tip { opacity: 0; }
+.mac-dock.is-reordering .mac-dock__item:not(.is-dragging) { --s: 1; }
+@media (max-width: 640px) {
+  .mac-dock__item { transform: none !important; margin: 0 !important; }
+  /* The Dock scrolls sideways on phones instead of clipping. */
+  .mac-dock-wrap { max-width: calc(100vw - 16px); }
+  .mac-dock { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .mac-dock::-webkit-scrollbar { display: none; }
+}
+
+/* ── Context menu ─────────────────────────────────────────── */
+.mac-ctx {
+  position: absolute; z-index: var(--z-palette);
+  min-width: 196px; padding: 5px; border-radius: var(--radius-md);
+  background: var(--glass-bg-strong); border: 0.5px solid var(--glass-border);
+  box-shadow: var(--el-3), var(--glass-inset);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  display: flex; flex-direction: column; gap: 1px;
+  animation: ctxIn 140ms var(--ease-cinema) both;
+}
+@keyframes ctxIn { from { opacity: 0; transform: scale(0.96); } }
+.mac-ctx__title { padding: 5px 9px 4px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-tertiary); }
+.mac-ctx__item { width: 100%; display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 6px; font-size: 13px; color: var(--text-primary); text-align: left; cursor: default; transition: background 60ms; }
+.mac-ctx__item:hover:not(:disabled), .mac-ctx__item:focus-visible { background: var(--accent); color: var(--accent-ink); outline: none; }
+.mac-ctx__item:focus:not(:focus-visible) { outline: none; }
+.mac-ctx__item:disabled { opacity: 0.4; }
+.mac-ctx__check { width: 12px; flex: 0 0 12px; font-size: 11px; }
+.mac-ctx__label { flex: 1; white-space: nowrap; }
+.mac-ctx__shortcut { font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); margin-left: 12px; }
+.mac-ctx__item:hover:not(:disabled) .mac-ctx__shortcut { color: inherit; opacity: 0.8; }
+.mac-ctx__sep { height: 1px; background: var(--border); margin: 4px 8px; }
+
+/* ── Hot corners ──────────────────────────────────────────── */
+.mac-corner-fx {
+  position: absolute; z-index: var(--z-toast); width: 120px; height: 120px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 45%, transparent), transparent 62%);
+  animation: cornerFx 520ms var(--ease-cinema) both;
+}
+.mac-corner-fx--bl { left: -60px; bottom: -60px; }
+.mac-corner-fx--br { right: -60px; bottom: -60px; }
+.mac-corner-fx--tr { right: -60px; top: -60px; }
+.mac-corner-fx--tl { left: -60px; top: -60px; }
+@keyframes cornerFx { from { opacity: 0; transform: scale(0.3); } 40% { opacity: 1; } to { opacity: 0; transform: scale(1.6); } }
+
+/* ── Launchpad exit ───────────────────────────────────────── */
+.mac-launchpad.is-closing { animation: lpOut 200ms var(--ease-cinema) both; pointer-events: none; }
+@keyframes lpOut { to { opacity: 0; } }
+.mac-launchpad.is-closing .mac-launchpad__inner { animation: lpScaleOut 200ms var(--ease-cinema) both; }
+@keyframes lpScaleOut { to { transform: scale(1.06); opacity: 0; } }
+.mac-launchpad.is-closing .mac-launchpad__app { animation: none; }
+
+/* ── Notifications: swipeable ─────────────────────────────── */
+.mac-toast { pointer-events: auto; touch-action: pan-y; cursor: default; user-select: none; }
+
+/* ── Menus fade in from the trigger ───────────────────────── */
+.mac-menubar__drop { transform-origin: 12px 0; }
+
+/* ── Compositing: brightness is an overlay, not a filter over the whole desktop ── */
+/* Keep the desktop one stacking context (the old brightness filter made it one) so overlays sit above the Dock. */
+.mac-desktop { filter: none; isolation: isolate; }
+.mac-dim { position: absolute; inset: 0; z-index: 850; background: #000; pointer-events: none; transition: opacity 200ms; }
+
+/* ── Windows: glide home after Mission Control / Show Desktop, quick close, lights animate on mount only ── */
+.mac-desktop-window.is-leaving--close { animation: winCloseSmooth 0.18s cubic-bezier(0.42, 0, 1, 1) forwards; }
+@keyframes winCloseSmooth { to { opacity: 0; transform: scale(0.96); } }
+.mac-desktop-window.is-active .traffic-light, .mac-desktop-window .traffic-light { animation: lightIn 0.4s var(--ease-spring) both; }
+.mac-desktop-window.is-active .traffic-light--minimize, .mac-desktop-window .traffic-light--minimize { animation-delay: 60ms; }
+.mac-desktop-window.is-active .traffic-light--maximize, .mac-desktop-window .traffic-light--maximize { animation-delay: 120ms; }
+/* Dragging keeps the glass (lighter blur) instead of popping to an opaque surface. */
+.mac-desktop-window.is-dragging, .mac-desktop-window.is-resizing {
+  -webkit-backdrop-filter: blur(10px) saturate(1.3); backdrop-filter: blur(10px) saturate(1.3);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+}
+.mac-desktop-window__header, .mac-desktop-window__resize { touch-action: none; }
+.mac-desktop-window__body { animation-duration: 220ms; animation-delay: 40ms; }
+.mac-content { scroll-behavior: auto; }
+
+/* ── Dock sits above Launchpad, like the real one ── */
+.mac-dock-wrap { z-index: 160; }
+
+/* ── Desktop icons move on the compositor; the drop-in plays on the tile, not the positioned box ── */
+.mac-dicon { left: 0; top: 0; transform: translate3d(var(--x), var(--y), 0); transition: background 120ms, transform 220ms var(--ease-cinema); animation: none; will-change: transform; }
+.mac-dicon.is-dragging { transition: background 120ms; }
+.mac-dicon > * { animation: iconDrop 0.55s var(--ease-spring) both; animation-delay: calc(var(--i, 0) * 70ms + 200ms); }
+
+/* ── Progress bars on transform ── */
+.mac-toast__timer { width: 100%; transform-origin: left; animation-name: toastTimerX; }
+@keyframes toastTimerX { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+.mac-boot__bar span { width: 100%; transform-origin: left; transform: scaleX(0); animation-name: bootBarX; }
+@keyframes bootBarX { to { transform: scaleX(1); } }
+
+/* ── Menus and panels fade out; hover-switching does not replay the drop-in ── */
+.mac-menubar__drop.is-hover, .mac-menubar__drop.is-hover .mac-menubar__drop-item { animation: none; }
+.mac-menubar__drop.is-closing { animation: menuOut 140ms var(--ease-cinema) both; pointer-events: none; }
+.mac-menubar__drop.is-closing .mac-menubar__drop-item { animation: none; }
+@keyframes menuOut { to { opacity: 0; transform: translateY(-2px); } }
+.cc-drop.is-closing { animation: menuOut 160ms var(--ease-cinema) both; pointer-events: none; }
+.cc-drop.is-closing .cc-tile, .cc-drop.is-closing .cc-panel, .cc-drop.is-closing .cc-action { animation: none; }
+.mac-widgets.is-closing { animation: widgetsOut 220ms var(--ease-cinema) both; pointer-events: none; }
+.mac-widgets.is-closing .mac-widget { animation: none; }
+@keyframes widgetsOut { to { opacity: 0; transform: translateX(24px); } }
+.mac-snap-preview.is-hidden { opacity: 0; transform: scale(0.98); transition: opacity 180ms, transform 180ms; animation: none; }

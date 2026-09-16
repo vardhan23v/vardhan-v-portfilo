@@ -1,3 +1,4 @@
+import { useId } from "react";
 import type { AppId } from "../../hooks/useWindowManager";
 
 export type GlyphId = AppId | "launchpad" | "github" | "resume" | "linkedin";
@@ -192,11 +193,9 @@ function Icon({ id, uid }: { id: GlyphId; uid: string }) {
   }
 }
 
-let counter = 0;
-
 /** macOS-style app icon (squircle). Size in px. */
 export function AppGlyph({ id, size = 44, className = "" }: { id: GlyphId; size?: number; className?: string }) {
-  const uid = `g${(counter++ % 10000).toString(36)}`;
+  const uid = `g${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
   return (
     <span className={`mac-glyph mac-glyph--${id} ${className}`} style={{ width: size, height: size }} aria-hidden="true">
       <svg viewBox="0 0 128 128" width={size} height={size}>

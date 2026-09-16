@@ -53,7 +53,9 @@ export function HelpOverlay() {
             <dl>
               <dt><kbd>1</kbd>–<kbd>7</kbd></dt><dd>Overview / About / Projects / Experience / Skills / Achievements / Contact</dd>
               <dt><kbd>↑</kbd> <kbd>↓</kbd> + <kbd>↵</kbd></dt><dd>Navigate Spotlight results</dd>
-              <dt>Click Dock</dt><dd>Open / focus app · Launchpad opens the app grid</dd>
+              <dt>Click Dock</dt><dd>Open / focus app · Launchpad opens the app grid · drag tiles to reorder</dd>
+              <dt>Hot corners</dt><dd>Bottom-left Launchpad · top-right Mission Control · bottom-right Show desktop</dd>
+              <dt>Notifications</dt><dd>Swipe a banner right to dismiss it</dd>
               <dt>Click clock</dt><dd>Widgets panel (IST, GitHub, status, links)</dd>
               <dt>Desktop icons</dt><dd>Drag to arrange · double-click to open</dd>
             </dl>
@@ -66,7 +68,10 @@ export function HelpOverlay() {
               <dt>Drag corner</dt><dd>Resize</dd>
               <dt><kbd>⌘M</kbd></dt><dd>Minimize active window</dd>
               <dt><kbd>⌃↑</kbd> / <kbd>F3</kbd></dt><dd>Mission Control — every window in a grid</dd>
-              <dt><kbd>⇧⌘D</kbd></dt><dd>Show desktop</dd>
+              <dt><kbd>⇧⌘D</kbd></dt><dd>Show desktop — windows glide off the nearest edge; click the desktop to bring them back</dd>
+              <dt><kbd>⌘`</kbd></dt><dd>Cycle windows</dd>
+              <dt>Green light</dt><dd>Hover it (or focus it and press ↓) to tile left / right / fill / zoom · <kbd>⌃⌥←</kbd> <kbd>⌃⌥→</kbd> <kbd>⌃⌥↵</kbd> tile the active window</dd>
+              <dt>Right-click</dt><dd>Menus on the desktop, Dock tiles and window titles</dd>
               <dt><kbd>⌃⌘Q</kbd></dt><dd>Lock screen · ✦ menu has Sleep / Restart / Shut Down</dd>
               <dt><kbd>⌥Tab</kbd></dt><dd>App switcher — hold ⌥, tap Tab to cycle, release to focus</dd>
               <dt>Drag to an edge</dt><dd>Snap left / right half · top edge fills the desk</dd>

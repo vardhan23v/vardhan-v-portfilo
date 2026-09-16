@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { ArrowUpRight, Mail } from "lucide-react";
 import { useShell } from "../../hooks/useShell";
+import { usePresence } from "../../hooks/usePresence";
 import { useIstTime } from "../../hooks/useIstTime";
 import { useGithub } from "../../hooks/useGithub";
 import { useWindowManager } from "../../hooks/useWindowManager";
@@ -27,6 +28,7 @@ export function WidgetsPanel() {
   const { followers, repos, loading } = useGithub();
   const ref = useRef<HTMLDivElement>(null);
   const open = overlay === "widgets";
+  const { mounted, closing } = usePresence(open, 220);
   const latest = featuredProjects[0];
 
   useEffect(() => {
@@ -47,10 +49,10 @@ export function WidgetsPanel() {
     };
   }, [open, setOverlay]);
 
-  if (!open) return null;
+  if (!mounted) return null;
 
   return (
-    <aside className="mac-widgets" ref={ref} aria-label="Widgets">
+    <aside className={`mac-widgets${closing ? " is-closing" : ""}`} ref={ref} aria-label="Widgets">
       <section className="mac-widget mac-widget--clock" style={{ "--i": 0 } as React.CSSProperties}>
         <div className="mac-widget__eyebrow mac-caps">{day} · IST</div>
         <div className="mac-widget__time">{ist}</div>

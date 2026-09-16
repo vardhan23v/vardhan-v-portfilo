@@ -71,8 +71,8 @@
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 10px;
   background: var(--toolbar-bg);
-  backdrop-filter: blur(20px) saturate(1.7);
   -webkit-backdrop-filter: blur(20px) saturate(1.7);
+  backdrop-filter: blur(20px) saturate(1.7);
   border-bottom: 0.5px solid var(--toolbar-border);
   z-index: var(--z-menubar);
   user-select: none;
@@ -98,7 +98,7 @@
   border-radius: var(--radius-md);
   background: var(--glass-bg-strong); border: 0.5px solid var(--glass-border);
   box-shadow: var(--el-3), var(--glass-inset);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
   display: flex; flex-direction: column; gap: 1px;
   animation: menuDropIn 0.16s var(--ease-cinema) both;
 }
@@ -137,7 +137,7 @@
   border-radius: var(--radius-xl);
   background: var(--glass-bg-strong); border: 0.5px solid var(--glass-border);
   box-shadow: var(--el-3), var(--glass-inset);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
   display: flex; flex-direction: column; gap: 8px;
   animation: menuDropIn 0.18s var(--ease-cinema) both;
 }
@@ -215,7 +215,7 @@
   border-radius: 22px;
   background: var(--glass-bg); border: 0.5px solid var(--glass-border);
   box-shadow: var(--el-3), var(--glass-inset);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
 }
 .mac-dock__item {
   position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 2px 2px 3px;
@@ -313,7 +313,7 @@
 .mac-launchpad {
   position: absolute; inset: 0; z-index: var(--z-launchpad);
   background: var(--overlay);
-  backdrop-filter: blur(28px) saturate(1.4); -webkit-backdrop-filter: blur(28px) saturate(1.4);
+  -webkit-backdrop-filter: blur(28px) saturate(1.4); backdrop-filter: blur(28px) saturate(1.4);
   display: flex; align-items: center; justify-content: center; padding: 48px 24px 110px;
   animation: lpIn 220ms var(--ease-cinema) both;
 }
@@ -352,7 +352,7 @@
   padding: 14px 16px; border-radius: 16px;
   background: var(--glass-bg-strong); border: 0.5px solid var(--glass-border);
   box-shadow: var(--el-2), var(--glass-inset);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
   color: var(--text-primary);
 }
 .mac-widget__eyebrow { margin-bottom: 6px; }
@@ -380,7 +380,7 @@
 /* ── Mission Control (expose) ─────────────────────────────── */
 .mac-desktop__area.is-expose::before {
   content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: auto;
-  background: var(--overlay); backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  background: var(--overlay); -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
   animation: lpIn 220ms var(--ease-cinema) both;
 }
 .mac-desktop-window.is-expose {
@@ -456,7 +456,7 @@
   position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); z-index: var(--z-launchpad);
   display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px 22px 14px; border-radius: 22px;
   background: var(--glass-bg-strong); border: 0.5px solid var(--glass-border); box-shadow: var(--el-4), var(--glass-inset);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat)); backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
   animation: switcherIn 160ms var(--ease-spring) both;
 }
 @keyframes switcherIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); } }

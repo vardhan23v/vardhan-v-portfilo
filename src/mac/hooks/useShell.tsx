@@ -1,6 +1,6 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 
-export type ShellOverlay = "none" | "launchpad" | "widgets" | "expose" | "saver";
+export type ShellOverlay = "none" | "launchpad" | "widgets" | "expose" | "saver" | "desktop";
 export type SysState = "none" | "lock" | "sleep" | "restart" | "shutdown";
 export interface PreviewItem { src: string; title: string; sub?: string }
 
@@ -16,6 +16,8 @@ interface ShellCtx {
   setSysState: (s: SysState) => void;
   preview: PreviewItem | null;
   setPreview: (p: PreviewItem | null) => void;
+  /** True for ~500ms after Mission Control or Show Desktop ends, so windows glide home. */
+  settling: boolean;
 }
 
 const BOOT_KEY = "mac-booted";
@@ -33,6 +35,7 @@ const Ctx = createContext<ShellCtx>({
   setSysState: () => {},
   preview: null,
   setPreview: () => {},
+  settling: false,
 });
 
 function readBooted(): boolean {
@@ -56,7 +59,23 @@ function readIconsHidden(): boolean {
 
 /** Shell-level UI that is not a window: overlays, boot gate, desktop-icon visibility. */
 export function ShellProvider({ children }: { children: ReactNode }) {
-  const [overlay, setOverlay] = useState<ShellOverlay>("none");
+  const [overlay, setOverlayState] = useState<ShellOverlay>("none");
+  const [settling, setSettling] = useState(false);
+  const overlayRef = useRef<ShellOverlay>("none");
+  const settleTimer = useRef(0);
+
+  // Leaving an overlay that moved windows (Mission Control, Show Desktop) raises `settling`
+  // in the same render, so the CSS transition is already on when the transforms come off.
+  const setOverlay = useCallback((o: ShellOverlay) => {
+    const cur = overlayRef.current;
+    if (o !== cur && (cur === "expose" || cur === "desktop")) {
+      setSettling(true);
+      window.clearTimeout(settleTimer.current);
+      settleTimer.current = window.setTimeout(() => setSettling(false), 520);
+    }
+    overlayRef.current = o;
+    setOverlayState(o);
+  }, []);
   const [booted, setBootedState] = useState<boolean>(readBooted);
   const [iconsHidden, setIconsHiddenState] = useState<boolean>(readIconsHidden);
   const [sysState, setSysState] = useState<SysState>("none");
@@ -83,13 +102,16 @@ export function ShellProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const toggleOverlay = useCallback((o: Exclude<ShellOverlay, "none">) => {
-    setOverlay((cur) => (cur === o ? "none" : o));
-  }, []);
+  const toggleOverlay = useCallback(
+    (o: Exclude<ShellOverlay, "none">) => {
+      setOverlay(overlayRef.current === o ? "none" : o);
+    },
+    [setOverlay]
+  );
 
   const value = useMemo(
-    () => ({ overlay, setOverlay, toggleOverlay, booted, setBooted, iconsHidden, setIconsHidden, sysState, setSysState, preview, setPreview }),
-    [overlay, toggleOverlay, booted, setBooted, iconsHidden, setIconsHidden, sysState, preview]
+    () => ({ overlay, setOverlay, toggleOverlay, booted, setBooted, iconsHidden, setIconsHidden, sysState, setSysState, preview, setPreview, settling }),
+    [overlay, setOverlay, toggleOverlay, booted, setBooted, iconsHidden, setIconsHidden, sysState, preview, settling]
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

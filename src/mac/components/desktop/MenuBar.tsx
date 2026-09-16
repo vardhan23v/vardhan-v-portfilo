@@ -10,6 +10,7 @@ import { useShell } from "../../hooks/useShell";
 import { ControlCenter } from "./ControlCenter";
 import { DevPanel } from "./DevPanel";
 import { motionReduced } from "../../../lib/motion";
+import { usePresence } from "../../hooks/usePresence";
 
 type MenuId = "apple" | "app" | "file" | "edit" | "view" | "window" | "help";
 
@@ -30,6 +31,37 @@ const exec = (command: string) => () => {
   }
 };
 
+/** One dropdown: stays mounted briefly to fade out; opened by hover-switch it skips the drop-in. */
+function MenuDrop({ open, hover, label, items, onPick }: { open: boolean; hover: boolean; label: string; items: MenuEntry[]; onPick: () => void }) {
+  const { mounted, closing } = usePresence(open, 140);
+  if (!mounted) return null;
+  return (
+    <div className={`mac-menubar__drop${hover ? " is-hover" : ""}${closing ? " is-closing" : ""}`} role="menu" aria-label={label}>
+      {items.map((entry, i) => {
+        if ("kind" in entry && entry.kind === "sep") return <div className="mac-menubar__drop-sep" key={i} role="separator" />;
+        if ("kind" in entry && entry.kind === "label") return <div className="mac-menubar__drop-label" key={i}>{entry.label}</div>;
+        return (
+          <button
+            type="button"
+            role="menuitem"
+            key={i}
+            className="mac-menubar__drop-item"
+            disabled={entry.disabled}
+            onClick={() => {
+              onPick();
+              entry.action?.();
+            }}
+          >
+            <span className="mac-menubar__drop-check">{entry.checked ? <Check /> : null}</span>
+            <span className="mac-menubar__drop-labeltext">{entry.label}</span>
+            {entry.shortcut && <span className="mac-menubar__drop-shortcut">{entry.shortcut}</span>}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export function MenuBar() {
   const {
     windows,
@@ -40,13 +72,14 @@ export function MenuBar() {
     maximizeWindow,
     focusWindow,
     bringToFront,
+    snapWindow,
   } = useWindowManager();
   const { setOpen } = usePalette();
   const { theme, toggle } = useTheme();
   const { prefs } = usePreferences();
   const ist = useIstTime(false);
   const routerNavigate = useNavigate();
-  const { setOverlay, toggleOverlay, setSysState } = useShell();
+  const { overlay, setOverlay, toggleOverlay, setSysState } = useShell();
   const [menuState, setMenuState] = useState<{ id: MenuId; src: "click" | "hover" } | null>(null);
   const openMenu = menuState?.id ?? null;
   const [ccOpen, setCcOpen] = useState(false);
@@ -203,7 +236,7 @@ export function MenuBar() {
         { label: "Mission Control", shortcut: "⌃↑", action: () => setOverlay("expose") },
         { label: "Launchpad", action: () => setOverlay("launchpad") },
         { label: "Widgets", action: () => toggleOverlay("widgets") },
-        { label: "Show Desktop", shortcut: "⇧⌘D", disabled: !anyVisible, action: () => { for (const w of windows) if (!w.minimized) minimizeWindow(w.id); } },
+        { label: overlay === "desktop" ? "Bring Windows Back" : "Show Desktop", shortcut: "⇧⌘D", disabled: !anyVisible, action: () => toggleOverlay("desktop") },
         { kind: "sep" },
         { label: "Reset Workspace", action: resetWorkspace },
       ],
@@ -214,6 +247,10 @@ export function MenuBar() {
       items: [
         { label: "Minimize", shortcut: "⌘M", disabled: !activeId, action: () => activeId && minimizeWindow(activeId) },
         { label: "Zoom", disabled: !activeId, action: () => activeId && maximizeWindow(activeId) },
+        { kind: "sep" },
+        { label: "Tile Left", shortcut: "⌃⌥←", disabled: !activeId, action: () => activeId && snapWindow(activeId, "left") },
+        { label: "Tile Right", shortcut: "⌃⌥→", disabled: !activeId, action: () => activeId && snapWindow(activeId, "right") },
+        { label: "Fill Desktop", shortcut: "⌃⌥↵", disabled: !activeId, action: () => activeId && snapWindow(activeId, "full") },
         { kind: "sep" },
         {
           label: "Bring All to Front",
@@ -266,31 +303,7 @@ export function MenuBar() {
               >
                 {menu.id === "window" && windows.length > 0 ? `${menu.label} (${windows.length})` : menu.label}
               </button>
-              {openMenu === menu.id && (
-                <div className="mac-menubar__drop" role="menu" aria-label={menu.label}>
-                  {menu.items.map((entry, i) => {
-                    if ("kind" in entry && entry.kind === "sep") return <div className="mac-menubar__drop-sep" key={i} role="separator" />;
-                    if ("kind" in entry && entry.kind === "label") return <div className="mac-menubar__drop-label" key={i}>{entry.label}</div>;
-                    return (
-                      <button
-                        type="button"
-                        role="menuitem"
-                        key={i}
-                        className="mac-menubar__drop-item"
-                        disabled={entry.disabled}
-                        onClick={() => {
-                          close();
-                          entry.action?.();
-                        }}
-                      >
-                        <span className="mac-menubar__drop-check">{entry.checked ? <Check /> : null}</span>
-                        <span className="mac-menubar__drop-labeltext">{entry.label}</span>
-                        {entry.shortcut && <span className="mac-menubar__drop-shortcut">{entry.shortcut}</span>}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
+              <MenuDrop open={openMenu === menu.id} hover={menuState?.src === "hover"} label={menu.label} items={menu.items} onPick={close} />
             </div>
           ))}
         </nav>
@@ -321,7 +334,7 @@ export function MenuBar() {
           >
             <SlidersHorizontal />
           </button>
-          {ccOpen && <ControlCenter />}
+          <ControlCenter open={ccOpen} />
         </div>
         <button className="mac-menubar__btn" onClick={() => setOpen(true)} aria-label="Open Spotlight search" title="Spotlight (⌘K)">
           <Search />

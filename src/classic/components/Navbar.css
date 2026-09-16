@@ -10,8 +10,8 @@
 
 .classic-root .nav-scrolled {
   background: rgba(5, 6, 15, 0.72);
-  backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
   border-bottom-color: var(--border);
 }
 
@@ -217,8 +217,8 @@
   position: fixed;
   inset: var(--nav-h) 0 0 0;
   background: rgba(5, 6, 15, 0.96);
-  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   padding: 28px 24px 40px;
   display: flex;
   flex-direction: column;

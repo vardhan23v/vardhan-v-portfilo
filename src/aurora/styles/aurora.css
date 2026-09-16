@@ -132,8 +132,8 @@
   border-radius: 18px;
   border: 1px solid var(--glass-border);
   background: rgba(10, 10, 24, 0.5);
-  backdrop-filter: blur(20px) saturate(150%);
   -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), inset 0 0 46px -22px rgba(167, 139, 250, 0.22),
     0 14px 40px -22px rgba(0, 0, 0, 0.8);
 }
@@ -315,8 +315,8 @@
   font-weight: 600;
   border: 1px solid var(--glass-border);
   background: var(--glass);
-  backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
   transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s ease,
     border-color 0.2s ease, box-shadow 0.3s ease;
 }
@@ -368,8 +368,8 @@
   border: 1px solid var(--glass-border);
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.045);
-  backdrop-filter: blur(22px) saturate(140%);
   -webkit-backdrop-filter: blur(22px) saturate(140%);
+  backdrop-filter: blur(22px) saturate(140%);
   padding: 26px 28px;
   font-family: var(--mono);
   box-shadow: 0 30px 80px -40px rgba(0, 0, 0, 0.8);
@@ -542,8 +542,8 @@
   border-radius: 18px;
   border: 1px solid var(--glass-border);
   background: var(--glass);
-  backdrop-filter: blur(18px) saturate(140%);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
   transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s ease, background 0.25s ease;
 }
 
@@ -692,8 +692,8 @@
   width: 100%;
   padding: clamp(26px, 3.4vw, 44px);
   background: var(--glass);
-  backdrop-filter: blur(24px) saturate(150%);
   -webkit-backdrop-filter: blur(24px) saturate(150%);
+  backdrop-filter: blur(24px) saturate(150%);
   border: 1px solid var(--glass-border);
   border-radius: 28px;
   overflow: hidden;
@@ -937,8 +937,8 @@
   align-items: flex-start;
   width: 100%;
   background: var(--glass);
-  backdrop-filter: blur(20px) saturate(140%);
   -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(20px) saturate(140%);
   border: 1px solid var(--glass-border);
   border-radius: 22px;
   padding: 28px;
@@ -1342,8 +1342,8 @@
     radial-gradient(120% 160% at 50% 0%, rgba(244, 114, 182, 0.14), transparent 55%),
     radial-gradient(120% 160% at 50% 100%, rgba(34, 211, 238, 0.12), transparent 55%),
     var(--glass);
-  backdrop-filter: blur(22px) saturate(150%);
   -webkit-backdrop-filter: blur(22px) saturate(150%);
+  backdrop-filter: blur(22px) saturate(150%);
   border: 1px solid var(--glass-border);
 }
 
@@ -1612,8 +1612,8 @@ html[data-motion="reduce"] .au-mouse-glow { display: none; }
   border-radius: 999px;
   background: rgba(10, 10, 24, 0.88);
   border: 1px solid rgba(167, 139, 250, 0.28);
-  backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
   color: var(--ink);
   font-size: 13px;
   line-height: 1.4;
@@ -1728,8 +1728,8 @@ html[data-motion="reduce"] .au-mouse-glow { display: none; }
   border-radius: 999px;
   background: rgba(255,255,255,0.06);
   border: 1px solid var(--glass-border);
-  backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
   transition: border-color 0.2s ease, background 0.2s ease;
 }
 .au-search:focus-within {
@@ -1928,8 +1928,8 @@ html[data-motion="reduce"] .au-mouse-glow { display: none; }
   place-items: center;
   padding: 24px;
   background: rgba(5, 6, 15, 0.56);
-  backdrop-filter: blur(14px) saturate(130%);
   -webkit-backdrop-filter: blur(14px) saturate(130%);
+  backdrop-filter: blur(14px) saturate(130%);
   animation: auModalIn 0.28s cubic-bezier(0.22,1,0.36,1) both;
 }
 @keyframes auModalIn {
@@ -2065,8 +2065,8 @@ html[data-motion="reduce"] .au-mouse-glow { display: none; }
   border-radius: 24px;
   background: var(--glass);
   border: 1px solid var(--glass-border);
-  backdrop-filter: blur(20px) saturate(140%);
   -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(20px) saturate(140%);
   padding: 28px;
   display: grid;
   gap: 24px;
@@ -2421,8 +2421,8 @@ html[data-motion="reduce"] .au-mouse-glow { display: none; }
   .aurora-root .iswitcher {
     border: none;
     background: none;
-    backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
 /* ============================================================

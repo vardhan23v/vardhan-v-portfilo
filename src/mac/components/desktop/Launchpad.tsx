@@ -4,6 +4,7 @@ import { useShell } from "../../hooks/useShell";
 import { useWindowManager, type AppId } from "../../hooks/useWindowManager";
 import { useNav, type PageId } from "../../hooks/useNav";
 import { AppGlyph } from "../ui/AppGlyph";
+import { motionReduced } from "../../../lib/motion";
 
 const LAUNCH_APPS: { id: AppId; label: string; hint: string }[] = [
   { id: "overview", label: "Overview", hint: "front page" },
@@ -24,7 +25,7 @@ const LAUNCH_APPS: { id: AppId; label: string; hint: string }[] = [
 
 const PAGE_IDS = new Set<string>(["overview", "about", "projects", "experience", "skills", "achievements", "contact"]);
 
-/** Full-screen searchable app grid (overlay, not a window). */
+/** Full-screen searchable app grid (overlay, not a window). Zooms in on open and back out on close. */
 export function Launchpad() {
   const { overlay, setOverlay } = useShell();
   const { openWindow } = useWindowManager();
@@ -33,6 +34,10 @@ export function Launchpad() {
   const [idx, setIdx] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const open = overlay === "launchpad";
+  const [visible, setVisible] = useState(open);
+  const [closing, setClosing] = useState(false);
+  const prevFocus = useRef<HTMLElement | null>(null);
+  const launched = useRef(false);
 
   const list = useMemo(() => {
     const s = q.trim().toLowerCase();
@@ -40,29 +45,52 @@ export function Launchpad() {
     return LAUNCH_APPS.filter((a) => a.label.toLowerCase().includes(s) || a.hint.includes(s) || a.id.includes(s));
   }, [q]);
 
+  // Stay mounted for the exit animation, then leave.
   useEffect(() => {
     if (open) {
+      prevFocus.current = document.activeElement as HTMLElement | null;
+      launched.current = false;
+      setVisible(true);
+      setClosing(false);
       setQ("");
       setIdx(0);
       const t = window.setTimeout(() => inputRef.current?.focus(), 30);
       return () => window.clearTimeout(t);
     }
+    if (!visible) return;
+    setClosing(true);
+    const t = window.setTimeout(
+      () => {
+        setVisible(false);
+        setClosing(false);
+        // Keyboard focus goes back to whatever opened Launchpad, unless an app was launched.
+        const el = prevFocus.current;
+        if (!launched.current && el && el.isConnected && el !== document.body) el.focus({ preventScroll: true });
+      },
+      motionReduced() ? 0 : 200
+    );
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   useEffect(() => {
     setIdx(0);
   }, [q]);
 
-  if (!open) return null;
+  if (!visible) return null;
 
   const launch = (id: AppId) => {
+    if (closing) return;
+    launched.current = true;
     if (PAGE_IDS.has(id)) navigate(id as PageId);
     openWindow(id);
     setOverlay("none");
   };
 
   const onKey = (e: React.KeyboardEvent) => {
-    const cols = window.innerWidth <= 640 ? 3 : 6;
+    if (closing) return;
+    const grid = (e.currentTarget as HTMLElement).querySelector(".mac-launchpad__grid");
+    const cols = grid ? getComputedStyle(grid).gridTemplateColumns.split(" ").length : 6;
     if (e.key === "Escape") { e.preventDefault(); setOverlay("none"); }
     else if (e.key === "Enter") { e.preventDefault(); if (list[idx]) launch(list[idx].id); }
     else if (e.key === "ArrowRight") { e.preventDefault(); setIdx((i) => Math.min(list.length - 1, i + 1)); }
@@ -72,7 +100,16 @@ export function Launchpad() {
   };
 
   return (
-    <div className="mac-launchpad" role="dialog" aria-modal="true" aria-label="Launchpad" onClick={() => setOverlay("none")} onKeyDown={onKey}>
+    <div
+      className={`mac-launchpad${closing ? " is-closing" : ""}`}
+      role="dialog"
+      aria-modal={closing ? undefined : "true"}
+      aria-hidden={closing || undefined}
+      inert={closing}
+      aria-label="Launchpad"
+      onClick={() => setOverlay("none")}
+      onKeyDown={onKey}
+    >
       <div className="mac-launchpad__inner" onClick={(e) => e.stopPropagation()}>
         <label className="mac-launchpad__search">
           <Search />

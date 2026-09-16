@@ -2243,8 +2243,8 @@ html[data-motion="reduce"] .terminal-root *::after {
   color: var(--ink-2);
   background: rgba(var(--bg-rgb), 0.94);
   border-top: 1px solid var(--line);
-  backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   animation: sl-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both;
 }
 
@@ -2389,8 +2389,8 @@ html[data-motion="reduce"] .terminal-root *::after {
   border: 0;
   padding: 0;
   gap: 0;
-  backdrop-filter: none;
   -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 .terminal-root .sl-switcher .iswitcher-item {
@@ -2501,8 +2501,8 @@ html[data-motion="reduce"] .terminal-root *::after {
   padding: 14px 18px 18px;
   border-top: 1px solid var(--line);
   background: rgba(var(--bg-rgb), 0.97);
-  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
 .terminal-root .sl-sheet.is-open {
@@ -2735,8 +2735,8 @@ html:has(.terminal-root) .sc-top {
   .terminal-root .iswitcher {
     border: none;
     background: none;
-    backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
 

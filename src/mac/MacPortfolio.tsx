@@ -4,6 +4,7 @@ import { NavProvider } from "./hooks/useNav";
 import { PaletteProvider } from "./hooks/usePalette";
 import { ShellProvider, useShell } from "./hooks/useShell";
 import { ToastProvider } from "./components/ui/Toast";
+import { ContextMenuProvider } from "./hooks/useContextMenu";
 import { WindowManagerProvider } from "./hooks/useWindowManager";
 import { PreferencesProvider, usePreferences } from "./hooks/usePreferences";
 import { Desktop } from "./components/desktop/Desktop";
@@ -28,15 +29,17 @@ function MacInner() {
       <PaletteProvider>
         <NavProvider>
           <ToastProvider>
-            {booted ? (
-              <>
-                <Desktop />
-                <CommandPalette />
-                <HelpOverlay />
-              </>
-            ) : (
-              <BootScreen onDone={() => setBooted(true)} />
-            )}
+            <ContextMenuProvider>
+              {booted ? (
+                <>
+                  <Desktop />
+                  <CommandPalette />
+                  <HelpOverlay />
+                </>
+              ) : (
+                <BootScreen onDone={() => setBooted(true)} />
+              )}
+            </ContextMenuProvider>
           </ToastProvider>
         </NavProvider>
       </PaletteProvider>

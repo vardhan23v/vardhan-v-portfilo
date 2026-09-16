@@ -6,7 +6,7 @@
   background: color-mix(in srgb, var(--surface) 84%, transparent);
   border: 0.5px solid var(--glass-border);
   box-shadow: var(--el-3), var(--glass-inset), 0 0 0 0.5px rgba(0,0,0,0.5);
-  backdrop-filter: blur(22px) saturate(1.5); -webkit-backdrop-filter: blur(22px) saturate(1.5);
+  -webkit-backdrop-filter: blur(22px) saturate(1.5); backdrop-filter: blur(22px) saturate(1.5);
   pointer-events: auto;
   animation: winIn 0.36s var(--ease-cinema) both;
   transform: translateZ(0);
@@ -17,8 +17,8 @@
 @keyframes winIn { from { opacity: 0; transform: translateY(12px) scale(0.985); } }
 .mac-desktop-window.is-active { box-shadow: var(--el-4), var(--glass-inset), 0 0 0 0.5px rgba(0,0,0,0.6), 0 0 0 1px var(--accent-border); }
 .mac-root[data-theme="light"] .mac-desktop-window.is-active { box-shadow: var(--el-4), var(--glass-inset), 0 0 0 1px var(--accent-border); }
-.mac-desktop-window:not(.is-active) { opacity: 0.94; backdrop-filter: blur(12px) saturate(1.3); -webkit-backdrop-filter: blur(12px) saturate(1.3); }
-.mac-desktop-window.is-dragging, .mac-desktop-window.is-resizing { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--surface); transition: none; }
+.mac-desktop-window:not(.is-active) { opacity: 0.94; -webkit-backdrop-filter: blur(12px) saturate(1.3); backdrop-filter: blur(12px) saturate(1.3); }
+.mac-desktop-window.is-dragging, .mac-desktop-window.is-resizing { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--surface); transition: none; }
 .mac-desktop-window.is-maximized { border-radius: 0; }
 
 .mac-desktop-window__header {

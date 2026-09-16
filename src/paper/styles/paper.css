@@ -665,7 +665,7 @@ html[data-motion="reduce"] {
   .paper-root .iswitcher {
     border: none;
     background: none;
-    backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }

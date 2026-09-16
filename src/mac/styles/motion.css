@@ -18,8 +18,8 @@
 .mac-desktop-window.is-leaving { pointer-events: none; }
 .mac-desktop-window.is-leaving--close { animation: winClose 0.22s var(--ease-cinema) forwards; }
 @keyframes winClose { to { opacity: 0; transform: scale(0.94) translateY(6px); filter: blur(4px); } }
-.mac-desktop-window.is-leaving--minimize { animation: none; will-change: transform, clip-path; backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--surface); }
-.mac-desktop-window.is-restoring { animation: none; will-change: transform, clip-path; backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--surface); }
+.mac-desktop-window.is-leaving--minimize { animation: none; will-change: transform, clip-path; -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--surface); }
+.mac-desktop-window.is-restoring { animation: none; will-change: transform, clip-path; -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--surface); }
 .mac-desktop-window.is-restoring .mac-desktop-window__body { animation: none; }
 /* the Dock tile "catches" the genie */
 .mac-dock__item.is-catching .mac-glyph { animation: dockCatch 0.6s 0.3s var(--ease-spring); }

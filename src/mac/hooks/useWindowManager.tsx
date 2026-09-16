@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useRef, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useRef, useEffect, useMemo, type ReactNode } from "react";
 import type { PageId } from "./useNav";
 
 export type AppId = PageId | "finder" | "terminal" | "vardhan-ai" | "settings" | "about-mac" | "notes" | "photos" | "preview";
@@ -37,6 +37,15 @@ const APP_TITLES: Record<AppId, string> = {
 
 export const MENU_H = 28;
 export const DOCK_H = 84;
+
+/** Bounds a tile produces. Shared with WindowFrame so a drop that changes nothing is detectable. */
+export function snapBounds(side: "left" | "right" | "full") {
+  const { vw, vh } = viewport();
+  const h = vh - MENU_H - DOCK_H;
+  const half = Math.floor(vw / 2);
+  if (side === "full") return { x: 8, y: MENU_H + 4, w: vw - 16, h: h - 8 };
+  return { x: side === "left" ? 0 : half, y: MENU_H, w: half, h };
+}
 
 /** Viewport size that never reports 0 (some embedded browsers lay out at 0×0
  *  for the first frame, which used to produce invisible 0px-wide windows). */
@@ -85,6 +94,8 @@ interface WindowManagerCtx {
   isOpen: (id: AppId) => boolean;
   isMinimized: (id: AppId) => boolean;
   bringToFront: (id: AppId) => void;
+  /** ⌘` — bring the window at the back of the stack to the front. */
+  cycleWindow: () => void;
 }
 
 const Ctx = createContext<WindowManagerCtx | null>(null);
@@ -133,121 +144,158 @@ export function WindowManagerProvider({ children }: { children: ReactNode }) {
   const isOpen = useCallback((id: AppId) => windows.some((w) => w.id === id && !w.minimized), [windows]);
   const isMinimized = useCallback((id: AppId) => windows.some((w) => w.id === id && w.minimized), [windows]);
 
+  // Mirror of the latest state for updaters that must pick the next active window
+  // from the array they just produced (never from a stale closure).
+  const latest = useRef<WindowInstance[]>(windows);
+  latest.current = windows;
+  const topVisible = (list: WindowInstance[]) => {
+    const vis = list.filter((w) => !w.minimized);
+    if (!vis.length) return null;
+    return vis.reduce((a, b) => (b.z > a.z ? b : a)).id;
+  };
+
   const bringToFront = useCallback((id: AppId) => {
-    // Renormalize z-index before it can grow past overlay layers (palette/toast sit at 2000+).
     setWindows((prev) => {
+      const target = prev.find((w) => w.id === id);
+      if (!target) return prev;
       let max = 10;
       for (const w of prev) if (w.z > max) max = w.z;
+      // Already frontmost: leave the array alone so nothing re-renders.
+      if (target.z === max && !target.minimized) return prev;
+      // Renormalize z-index before it can grow past overlay layers (palette/toast sit at 2000+).
       if (max > 500) {
         const sorted = [...prev].sort((a, b) => a.z - b.z);
         const remapped = sorted.map((w, i) => ({ ...w, z: 10 + i }));
         zRef.current = 10 + remapped.length;
-        return remapped.map((w) => (w.id === id ? { ...w, z: ++zRef.current } : w));
+        const next = remapped.map((w) => (w.id === id ? { ...w, z: ++zRef.current } : w));
+        latest.current = next;
+        return next;
       }
       zRef.current = max + 1;
-      return prev.map((w) => (w.id === id ? { ...w, z: zRef.current } : w));
+      const next = prev.map((w) => (w.id === id ? { ...w, z: zRef.current } : w));
+      latest.current = next;
+      return next;
     });
-    setActiveId(id);
+    setActiveId((prev) => (prev === id ? prev : id));
   }, []);
 
-  const focusWindow = useCallback((id: AppId) => {
-    bringToFront(id);
-    // un-minimize on focus
-    setWindows((prev) => prev.map((w) => (w.id === id ? { ...w, minimized: false } : w)));
-  }, [bringToFront]);
+  const focusWindow = useCallback(
+    (id: AppId) => {
+      // un-minimize on focus
+      setWindows((prev) => {
+        if (!prev.some((w) => w.id === id && w.minimized)) return prev;
+        const next = prev.map((w) => (w.id === id ? { ...w, minimized: false } : w));
+        latest.current = next;
+        return next;
+      });
+      bringToFront(id);
+    },
+    [bringToFront]
+  );
 
-  const openWindow = useCallback((id: AppId) => {
-    const existing = windows.find((w) => w.id === id);
-    if (existing) {
+  const openWindow = useCallback(
+    (id: AppId) => {
+      setWindows((prev) => {
+        if (prev.some((w) => w.id === id)) return prev;
+        const { vw, vh } = viewport();
+        const b = defaultBounds(id, prev.length, vw, vh);
+        zRef.current += 1;
+        const next: WindowInstance[] = [...prev, { id, title: APP_TITLES[id] ?? id, ...b, z: zRef.current, minimized: false, maximized: false }];
+        latest.current = next;
+        return next;
+      });
       focusWindow(id);
-      return;
-    }
-    const { vw, vh } = viewport();
-    const b = defaultBounds(id, windows.length, vw, vh);
-    zRef.current += 1;
-    const next: WindowInstance = {
-      id,
-      title: APP_TITLES[id] ?? id,
-      ...b,
-      z: zRef.current,
-      minimized: false,
-      maximized: false,
-    };
-    setWindows((prev) => [...prev, next]);
-    setActiveId(id);
-  }, [windows, focusWindow]);
+    },
+    [focusWindow]
+  );
 
   const closeWindow = useCallback((id: AppId) => {
-    setWindows((prev) => prev.filter((w) => w.id !== id));
-    setActiveId((prev) => {
-      if (prev !== id) return prev;
-      const remaining = windows.filter((w) => w.id !== id);
-      return remaining.length ? remaining[remaining.length - 1].id : null;
+    setWindows((prev) => {
+      const next = prev.filter((w) => w.id !== id);
+      latest.current = next;
+      return next;
     });
-  }, [windows]);
+    setActiveId((prev) => (prev === id ? topVisible(latest.current) : prev));
+  }, []);
 
   const minimizeWindow = useCallback((id: AppId) => {
-    setWindows((prev) => prev.map((w) => (w.id === id ? { ...w, minimized: true } : w)));
-    // focus next topmost
-    const remaining = windows.filter((w) => w.id !== id && !w.minimized);
-    if (remaining.length) {
-      const top = [...remaining].sort((a, b) => b.z - a.z)[0];
-      setActiveId(top.id);
-    } else setActiveId(null);
-  }, [windows]);
+    setWindows((prev) => {
+      const next = prev.map((w) => (w.id === id ? { ...w, minimized: true } : w));
+      latest.current = next;
+      return next;
+    });
+    setActiveId((prev) => (prev === id ? topVisible(latest.current) : prev));
+  }, []);
 
   const maximizeWindow = useCallback((id: AppId) => {
     const { vw, vh } = viewport();
-    setWindows((prev) => prev.map((w) => {
-      if (w.id !== id) return w;
-      if (w.maximized) {
-        // restore
-        const p = w.prev ?? defaultBounds(id, 0, vw, vh);
-        return { ...w, maximized: false, x: p.x, y: p.y, w: p.w, h: p.h, prev: undefined };
-      }
-      // maximize: fill desktop (minus menu + dock)
-      return {
-        ...w,
-        prev: { x: w.x, y: w.y, w: w.w, h: w.h },
-        maximized: true,
-        x: 0,
-        y: MENU_H,
-        w: vw,
-        h: vh - MENU_H - DOCK_H,
-      };
-    }));
+    setWindows((prev) => {
+      const next = prev.map((w) => {
+        if (w.id !== id) return w;
+        if (w.maximized) {
+          const p = w.prev ?? defaultBounds(id, 0, vw, vh);
+          return { ...w, maximized: false, x: p.x, y: p.y, w: p.w, h: p.h, prev: undefined };
+        }
+        return { ...w, prev: { x: w.x, y: w.y, w: w.w, h: w.h }, maximized: true, x: 0, y: MENU_H, w: vw, h: vh - MENU_H - DOCK_H };
+      });
+      latest.current = next;
+      return next;
+    });
     bringToFront(id);
   }, [bringToFront]);
 
   const updateWindowPos = useCallback((id: AppId, x: number, y: number) => {
     const { vw, vh } = viewport();
-    setWindows((prev) => prev.map((w) => {
-      if (w.id !== id || w.maximized) return w;
-      // clamp
-      const clampedX = Math.max(-w.w + 80, Math.min(vw - 80, x));
-      const clampedY = Math.max(MENU_H, Math.min(vh - DOCK_H - 40, y));
-      return { ...w, x: clampedX, y: clampedY };
-    }));
+    setWindows((prev) => {
+      const next = prev.map((w) => {
+        if (w.id !== id || w.maximized) return w;
+        const clampedX = Math.max(-w.w + 80, Math.min(vw - 80, x));
+        const clampedY = Math.max(MENU_H, Math.min(vh - DOCK_H - 40, y));
+        if (clampedX === w.x && clampedY === w.y) return w;
+        return { ...w, x: clampedX, y: clampedY };
+      });
+      latest.current = next;
+      return next;
+    });
   }, []);
 
   const updateWindowSize = useCallback((id: AppId, w: number, h: number) => {
-    setWindows((prev) => prev.map((win) => win.id === id && !win.maximized ? { ...win, w: Math.max(360, w), h: Math.max(260, h) } : win));
+    setWindows((prev) => {
+      const next = prev.map((win) => {
+        if (win.id !== id || win.maximized) return win;
+        const nw = Math.max(360, w);
+        const nh = Math.max(260, h);
+        if (nw === win.w && nh === win.h) return win;
+        return { ...win, w: nw, h: nh };
+      });
+      latest.current = next;
+      return next;
+    });
   }, []);
 
   const snapWindow = useCallback((id: AppId, side: "left" | "right" | "full") => {
-    const { vw, vh } = viewport();
-    const h = vh - MENU_H - DOCK_H;
-    const half = Math.floor(vw / 2);
-    setWindows((prev) => prev.map((w) => {
-      if (w.id !== id) return w;
-      if (side === "full") return { ...w, maximized: false, x: 8, y: MENU_H + 4, w: vw - 16, h: h - 8 };
-      return { ...w, maximized: false, x: side === "left" ? 0 : half, y: MENU_H, w: half, h };
-    }));
+    const b = snapBounds(side);
+    setWindows((prev) => {
+      const next = prev.map((w) => (w.id !== id ? w : { ...w, maximized: false, ...b }));
+      latest.current = next;
+      return next;
+    });
     bringToFront(id);
   }, [bringToFront]);
 
+  const cycleWindow = useCallback(() => {
+    const vis = latest.current.filter((w) => !w.minimized).sort((a, b) => a.z - b.z);
+    if (vis.length < 2) return;
+    bringToFront(vis[0].id);
+  }, [bringToFront]);
+
+  const value = useMemo(
+    () => ({ windows, activeId, openWindow, closeWindow, minimizeWindow, maximizeWindow, focusWindow, updateWindowPos, updateWindowSize, snapWindow, isOpen, isMinimized, bringToFront, cycleWindow }),
+    [windows, activeId, openWindow, closeWindow, minimizeWindow, maximizeWindow, focusWindow, updateWindowPos, updateWindowSize, snapWindow, isOpen, isMinimized, bringToFront, cycleWindow]
+  );
+
   return (
-    <Ctx.Provider value={{ windows, activeId, openWindow, closeWindow, minimizeWindow, maximizeWindow, focusWindow, updateWindowPos, updateWindowSize, snapWindow, isOpen, isMinimized, bringToFront }}>
+    <Ctx.Provider value={value}>
       {children}
     </Ctx.Provider>
   );

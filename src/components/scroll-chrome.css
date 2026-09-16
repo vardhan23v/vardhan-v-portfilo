@@ -27,8 +27,8 @@
   color: var(--sc-accent, #7c6cff);
   background: color-mix(in srgb, var(--sc-accent, #7c6cff) 14%, transparent);
   border: 1px solid color-mix(in srgb, var(--sc-accent, #7c6cff) 45%, transparent);
-  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   opacity: 0;
   transform: translateY(10px) scale(0.9);
   pointer-events: none;

@@ -107,7 +107,7 @@
 
 /* Quick Look */
 .finder { position: relative; outline: none; }
-.finder__ql { position: absolute; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; padding: 18px; background: var(--overlay); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); animation: lpIn 160ms var(--ease-cinema) both; }
+.finder__ql { position: absolute; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; padding: 18px; background: var(--overlay); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); animation: lpIn 160ms var(--ease-cinema) both; }
 .finder__ql-card { width: min(640px, 100%); border-radius: 16px; overflow: hidden; background: var(--glass-bg-strong); border: 0.5px solid var(--glass-border); box-shadow: var(--el-4), var(--glass-inset); animation: qlIn 300ms var(--ease-spring) both; }
 @keyframes qlIn { from { opacity: 0; transform: scale(0.9) translateY(10px); } }
 .finder__ql-bar { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-bottom: 0.5px solid var(--border); }

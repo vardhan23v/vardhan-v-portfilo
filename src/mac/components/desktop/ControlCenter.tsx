@@ -12,10 +12,12 @@ import {
 import { useWindowManager } from "../../hooks/useWindowManager";
 import { usePreferences } from "../../hooks/usePreferences";
 import { useTheme } from "../../hooks/useTheme";
+import { usePresence } from "../../hooks/usePresence";
 
 /** Phase-3 Control Center: connectivity/focus tiles + real display/sound
  *  controls, all backed by the persisted preferences store. */
-export function ControlCenter() {
+export function ControlCenter({ open = true }: { open?: boolean }) {
+  const { mounted, closing } = usePresence(open, 160);
   const { prefs, toggle, set } = usePreferences();
   const { theme, setTheme } = useTheme();
   const { windows, minimizeWindow } = useWindowManager();
@@ -24,8 +26,9 @@ export function ControlCenter() {
     for (const w of windows) if (!w.minimized) minimizeWindow(w.id);
   };
 
+  if (!mounted) return null;
   return (
-    <div className="cc-drop" role="dialog" aria-label="Control Center">
+    <div className={`cc-drop${closing ? " is-closing" : ""}`} role="dialog" aria-label="Control Center">
       <div className="cc-grid">
         <button
           type="button"

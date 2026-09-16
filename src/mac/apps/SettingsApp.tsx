@@ -161,9 +161,9 @@ function SiteMotionRow() {
   const pref = getMotionPreference();
   const os = osPrefersReducedMotion();
   const opts: { id: MotionPreference; label: string }[] = [
-    { id: "auto", label: "System" },
     { id: "on", label: "On" },
     { id: "off", label: "Off" },
+    { id: "auto", label: "System" },
   ];
   return (
     <div className="settingsrow">
@@ -175,7 +175,7 @@ function SiteMotionRow() {
               ? "Your system asks for reduced motion, so animations are paused. Choose On to override."
               : "Following your system setting (motion is on)"
             : pref === "on"
-              ? "Always animate, even when the system asks for reduced motion"
+              ? "Always animate (default), even when the system asks for reduced motion"
               : "Never animate"}
         </div>
       </div>

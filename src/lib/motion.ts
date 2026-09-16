@@ -1,8 +1,8 @@
 /**
  * Site-wide motion preference.
  *
- * The OS "Reduce motion" setting is only a default here. Visitors can force
- * animations on or off; the resolved state lives on `<html data-motion>` and
+ * Animations are ON by default. Visitors can turn them off, or opt into
+ * following the OS "Reduce motion" setting ("auto"); the resolved state lives on `<html data-motion>` and
  * every CSS gate (`html[data-motion="reduce"] …`) and JS check reads that,
  * never the media query directly. The inline script in index.html applies the
  * stored preference before first paint so nothing flashes.
@@ -16,12 +16,12 @@ const QUERY = "(prefers-reduced-motion: reduce)";
 const hasDom = () => typeof window !== "undefined" && typeof document !== "undefined";
 
 export function getMotionPreference(): MotionPreference {
-  if (!hasDom()) return "auto";
+  if (!hasDom()) return "on";
   try {
     const v = localStorage.getItem(MOTION_STORAGE_KEY);
-    return v === "on" || v === "off" ? v : "auto";
+    return v === "auto" || v === "off" ? v : "on";
   } catch {
-    return "auto";
+    return "on";
   }
 }
 
@@ -42,7 +42,7 @@ export function applyMotion(pref: MotionPreference = getMotionPreference()) {
 
 export function setMotionPreference(pref: MotionPreference) {
   try {
-    if (pref === "auto") localStorage.removeItem(MOTION_STORAGE_KEY);
+    if (pref === "on") localStorage.removeItem(MOTION_STORAGE_KEY);
     else localStorage.setItem(MOTION_STORAGE_KEY, pref);
   } catch {
     /* private mode */
@@ -54,7 +54,7 @@ export function setMotionPreference(pref: MotionPreference) {
 export function motionReduced(): boolean {
   if (!hasDom()) return false;
   const attr = document.documentElement.getAttribute("data-motion");
-  return attr ? attr === "reduce" : osPrefersReducedMotion();
+  return attr ? attr === "reduce" : resolve(getMotionPreference()) === "reduce";
 }
 
 /** Subscribe to resolved-state changes (site toggle or OS setting). */
@@ -75,6 +75,6 @@ export function motionSummary(): { pref: MotionPreference; reduced: boolean; lab
   const pref = getMotionPreference();
   const reduced = pref === "off" || (pref === "auto" && osPrefersReducedMotion());
   const label =
-    pref === "on" ? "Animations on" : pref === "off" ? "Animations off" : reduced ? "Animations off (system)" : "Animations auto";
+    pref === "on" ? "Animations on" : pref === "off" ? "Animations off" : reduced ? "Animations off (system)" : "Animations on (system)";
   return { pref, reduced, label };
 }

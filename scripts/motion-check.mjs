@@ -52,7 +52,7 @@ async function check(base, label, motion) {
 const out = [];
 // usage: node scripts/motion-check.mjs [baseUrl] — runs once following the OS setting and once with the site override "on".
 const base = process.argv[2] || "https://vardhan-v-portfilo.vercel.app";
-for (const [label, motion] of [["OS default", null], ["override: on", "on"], ["override: off", "off"]]) {
+for (const [label, motion] of [["default (unset)", null], ["follow system", "auto"], ["off", "off"]]) {
   try { out.push(await check(base, label, motion)); } catch (e) { out.push({ label, error: String(e).slice(0, 200) }); }
 }
 console.log(JSON.stringify(out, null, 1));

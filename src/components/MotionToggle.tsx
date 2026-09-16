@@ -1,9 +1,9 @@
 import { motionSummary, setMotionPreference, type MotionPreference } from "../lib/motion";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 
-const NEXT: Record<MotionPreference, MotionPreference> = { auto: "on", on: "off", off: "auto" };
+const NEXT: Record<MotionPreference, MotionPreference> = { on: "off", off: "auto", auto: "on" };
 
-/** Cycles auto → on → off. Renders as an unstyled button so each page can theme it. */
+/** Cycles on → off → follow system. Renders as an unstyled button so each page can theme it. */
 export function MotionToggle({ className }: { className?: string }) {
   usePrefersReducedMotion(); // re-render when the resolved state changes
   const { pref, reduced, label } = motionSummary();

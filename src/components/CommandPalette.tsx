@@ -137,7 +137,7 @@ export function CommandPalette() {
       }
       if (item.action === "motion") {
         const { pref } = motionSummary();
-        setMotionPreference(pref === "auto" ? "on" : pref === "on" ? "off" : "auto");
+        setMotionPreference(pref === "on" ? "off" : pref === "off" ? "auto" : "on");
         setMotionTick((t) => t + 1);
         return; // stay open so the new state is visible
       }

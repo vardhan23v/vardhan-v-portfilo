@@ -47,7 +47,6 @@ export function ClassicSite() {
       <a href="#main" className="skip-link">
         Skip to content
       </a>
-      <div className="bg-grid" aria-hidden="true" />
       <div className="bg-glow" aria-hidden="true" />
       <Navbar />
       <main id="main">

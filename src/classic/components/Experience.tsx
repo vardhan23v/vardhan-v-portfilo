@@ -33,7 +33,7 @@ export function Experience() {
                     </h3>
                   </div>
                   <span className="timeline-period">
-                    <Icon.clock width={13} height={13} /> {e.period}
+                    {e.period}
                   </span>
                 </div>
                 <ul>

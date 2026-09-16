@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { Project } from "../data/projects";
 import { Icon } from "../lib/icons";
+import { monogram } from "../lib/monogram";
 
 interface Props {
   project: Project | null;
@@ -41,7 +42,7 @@ export function ProjectDrawer({ project, onClose, onPrev, onNext }: Props) {
       <button type="button" className="pd-backdrop" aria-label="Close project details" onClick={onClose} />
       <aside className="pd-panel card" style={{ "--pa1": a1, "--pa2": a2, "--pa3": a3 } as React.CSSProperties}>
         <div className="pd-head">
-          <span className="pd-emoji" aria-hidden="true">{project.emoji}</span>
+          <span className="pd-emoji" aria-hidden="true">{monogram(project.name)}</span>
           <div className="pd-titles">
             <h3 id="pd-title">{project.name}</h3>
             <p>{project.tagline}</p>
@@ -65,20 +66,7 @@ export function ProjectDrawer({ project, onClose, onPrev, onNext }: Props) {
               <img key={s} src={s} alt={`${project.name} screenshot ${i + 1}`} loading="lazy" decoding="async" />
             ))}
           </div>
-        ) : (
-          <div className="pd-cover" aria-hidden="true">
-            <div className="project-chrome">
-              <span className="terminal-dot terminal-dot-r" />
-              <span className="terminal-dot terminal-dot-y" />
-              <span className="terminal-dot terminal-dot-g" />
-              <span className="project-chrome-path">{project.slug}.tsx</span>
-            </div>
-            <pre className="pd-code">{`export default function ${project.name.replace(/[^a-zA-Z0-9]/g, "")}() {
-  const stack = [${project.tech.slice(0, 4).map((t) => `"${t}"`).join(", ")}];
-  return ship(stack, { live: ${project.live ? "true" : "false"} });
-}`}</pre>
-          </div>
-        )}
+        ) : null}
 
         <section className="pd-section">
           <h4>The problem</h4>

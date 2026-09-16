@@ -905,3 +905,131 @@ html[data-motion="reduce"] .classic-root .hero-visual,
 html[data-motion="reduce"] .classic-root .hero-latest-status.is-live i {
   animation: none;
 }
+
+/* ---------- second pass: content-first project cards, marks instead of emoji ---------- */
+
+.classic-root .project-wrap-featured .project-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.classic-root .project-card::after {
+  display: none;
+}
+
+.classic-root .project-card::before {
+  display: none;
+}
+
+.classic-root .project-cover-wrap {
+  aspect-ratio: 16 / 8;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+
+.classic-root .project-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  transform: none;
+  filter: none;
+}
+
+.classic-root .project-card:hover .project-cover {
+  transform: none;
+}
+
+.classic-root .project-wrap-featured .project-body {
+  padding: 30px 32px 30px;
+}
+
+@media (min-width: 901px) {
+  .classic-root .project-wrap-featured .project-features {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.classic-root .project-search-input {
+  font-family: var(--font-sans);
+  font-size: 14px;
+}
+
+.classic-root .project-search-input::placeholder {
+  color: var(--text-faint);
+}
+
+.classic-root .nav-mobile {
+  background: rgba(11, 14, 26, 0.985);
+}
+
+.classic-root .project-top {
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.classic-root .project-titles {
+  flex: 1;
+  min-width: 0;
+}
+
+.classic-root .project-mark,
+.classic-root .others-card-icon,
+.classic-root .pd-emoji,
+.classic-root .hero-latest-emoji {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--accent-3);
+  background: rgba(143, 132, 255, 0.12);
+  border: 1px solid rgba(143, 132, 255, 0.26);
+  border-radius: 10px;
+}
+
+.classic-root .project-mark {
+  width: 44px;
+  height: 44px;
+  font-size: 15px;
+  color: color-mix(in srgb, var(--pa2, var(--accent-3)) 80%, white);
+  background: color-mix(in srgb, var(--pa1, var(--accent)) 16%, transparent);
+  border-color: color-mix(in srgb, var(--pa1, var(--accent)) 34%, transparent);
+}
+
+.classic-root .others-card-icon {
+  width: 34px;
+  height: 34px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.classic-root .pd-emoji {
+  width: 54px;
+  height: 54px;
+  font-size: 18px;
+  border-radius: 14px;
+  color: color-mix(in srgb, var(--pa2, var(--accent-3)) 80%, white);
+  background: color-mix(in srgb, var(--pa1, var(--accent)) 16%, transparent);
+  border-color: color-mix(in srgb, var(--pa1, var(--accent)) 34%, transparent);
+}
+
+.classic-root .hero-latest-emoji {
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+}
+
+.classic-root .timeline-period {
+  padding: 5px 10px;
+}
+
+.classic-root .skill-chip {
+  gap: 0;
+}
+
+/* one soft glow, no grid */
+.classic-root .bg-glow::after {
+  display: none;
+}

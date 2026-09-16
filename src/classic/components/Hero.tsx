@@ -5,6 +5,7 @@ import "./Hero.css";
 import { motionReduced } from "../../lib/motion";
 import { stats } from "../data/stats";
 import { featuredProjects } from "../data/projects";
+import { monogram } from "../lib/monogram";
 import { CountUp } from "./CountUp";
 
 function useClassicHeroFX() {
@@ -147,7 +148,7 @@ export function Hero() {
               </span>
             </header>
             <h2 id="hero-latest-title" className="hero-latest-title">
-              <span className="hero-latest-emoji" aria-hidden="true">{latest.emoji}</span>
+              <span className="hero-latest-emoji" aria-hidden="true">{monogram(latest.name)}</span>
               {latest.name}
             </h2>
             <p className="hero-latest-tagline">{latest.tagline}</p>

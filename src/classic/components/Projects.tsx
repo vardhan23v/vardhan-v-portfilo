@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ProjectDrawer } from "./ProjectDrawer";
+import { monogram } from "../lib/monogram";
 import type { Project } from "../data/projects";
 import { featuredProjects, otherProjects } from "../data/projects";
 import { SectionHead } from "./SectionHead";
@@ -53,11 +54,6 @@ function Mark({ text, query }: { text: string; query: string }) {
 function ProjectCard({ project, query, onOpen }: { project: Project; query: string; onOpen: (p: Project) => void }) {
   const [a1, a2, a3] = project.accent;
   const ref = useTilt<HTMLDivElement>(4, ".project-card");
-  const onMove = (e: React.MouseEvent<HTMLElement>) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    e.currentTarget.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
-    e.currentTarget.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
-  };
   return (
     <div ref={ref}>
       <article
@@ -69,36 +65,17 @@ function ProjectCard({ project, query, onOpen }: { project: Project; query: stri
             "--pa3": a3,
           } as React.CSSProperties
         }
-        onMouseMove={onMove}
       >
-      <div className={`project-visual${project.cover ? " has-cover" : ""}`} aria-hidden="true">
-        <div className="project-chrome">
-          <span className="terminal-dot terminal-dot-r" />
-          <span className="terminal-dot terminal-dot-y" />
-          <span className="terminal-dot terminal-dot-g" />
-          <span className="project-chrome-path">
-            {query ? `~/projects/*${query}*` : `${project.slug}.tsx`}
-          </span>
-          <span className="project-chrome-icon">{project.emoji}</span>
-        </div>
-        {project.cover ? (
+      {project.cover && (
+        <div className="project-cover-wrap" aria-hidden="true">
           <img className="project-cover" src={project.cover} alt="" loading="lazy" decoding="async" />
-        ) : (
-          <div className="project-code">
-            <span style={{ "--pi": 0 } as React.CSSProperties}>&gt; {project.slug}.build()</span>
-            <span style={{ "--pi": 1 } as React.CSSProperties}>&gt; stack.load([{project.tech.slice(0, 3).map((t) => `"${t}"`).join(", ")}])</span>
-            <span style={{ "--pi": 2 } as React.CSSProperties}>&gt; deploy({project.live ? "{ target: \"vercel\" }" : "{ target: \"github\" }"})</span>
-            <span className="project-code-ok" style={{ "--pi": 3 } as React.CSSProperties}>&gt; ✓ shipped</span>
-          </div>
-        )}
-        <button type="button" className="project-peek" onClick={() => onOpen(project)} tabIndex={-1}>
-          quick view
-        </button>
-      </div>
+        </div>
+      )}
 
       <div className="project-body">
         <div className="project-top">
-          <div>
+          <span className="project-mark" aria-hidden="true">{monogram(project.name)}</span>
+          <div className="project-titles">
             <h3 className="project-name">
               <button type="button" className="project-name-btn" onClick={() => onOpen(project)} aria-haspopup="dialog">
                 <Mark text={project.name} query={query} />
@@ -132,6 +109,9 @@ function ProjectCard({ project, query, onOpen }: { project: Project; query: stri
         </div>
 
         <div className="project-links">
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => onOpen(project)} aria-haspopup="dialog">
+            Details
+          </button>
           <a href={project.github} target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-sm">
             <Icon.github width={16} height={16} /> Source
           </a>
@@ -290,7 +270,7 @@ export function Projects() {
                 >
                   <div className="others-card-top">
                     <span className="others-card-icon" aria-hidden="true">
-                      {p.emoji}
+                      {monogram(p.name)}
                     </span>
                     <Icon.external width={16} height={16} className="others-card-ext" />
                   </div>

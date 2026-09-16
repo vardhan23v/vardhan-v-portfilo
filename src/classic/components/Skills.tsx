@@ -5,69 +5,6 @@ import { Icon, type IconName } from "../lib/icons";
 import "./Skills.css";
 import { usedIn } from "../data/stats";
 
-const techGlyphs: Record<string, string> = {
-  js: "</>",
-  ts: "TS",
-  py: "PY",
-  java: "JV",
-  c: "C",
-  sql: "SQL",
-  html: "5",
-  css: "3",
-  react: "⚛",
-  next: "N",
-  vite: "V",
-  tanstack: "TS",
-  tailwind: "TW",
-  motion: "FM",
-  zustand: "Z",
-  router: "RR",
-  responsive: "⇱",
-  dom: "◈",
-  node: "●",
-  express: "Ex",
-  rest: "↔",
-  socket: "↯",
-  jwt: "◉",
-  nextauth: "NA",
-  sequelize: "SQ",
-  zod: "Z",
-  mongo: "🍃",
-  mysql: "SQL",
-  postgres: "🐘",
-  prisma: "P",
-  supabase: "SB",
-  spark: "MS",
-  deepseek: "DS",
-  kimi: "KM",
-  gemini: "✦",
-  claude: "◆",
-  groq: "⚡",
-  llm: "∞",
-  prompt: "›_",
-  agent: "◌",
-  mcp: "MCP",
-  stream: "≋",
-  cloudmysql: "☁",
-  cloudinary: "CL",
-  git: "Git",
-  gh: "GH",
-  vercel: "▲",
-  railway: "RW",
-  vscode: "VS",
-  postman: "Pm",
-  vitest: "VT",
-  playwright: "PW",
-  recharts: "RC",
-  leaflet: "LF",
-  pdf: "PDF",
-  monaco: "MC",
-};
-
-function glyphFor(name: string) {
-  return { name, glyph: techGlyphs[name] ?? name.slice(0, 2).toUpperCase() };
-}
-
 function CategoryGlyph({ icon }: { icon: string }) {
   const Glyph = Icon[icon as IconName];
   return <Glyph width={19} height={19} />;
@@ -103,9 +40,6 @@ export function Skills() {
                       style={{ "--cd": `${j * 34}ms` } as React.CSSProperties}
                       title={n ? `used in ${n} project${n === 1 ? "" : "s"}` : undefined}
                     >
-                      <span className="skill-chip-glyph" aria-hidden="true">
-                        {glyphFor(item.icon).glyph}
-                      </span>
                       {item.name}
                       {n > 0 && <span className="skill-chip-count" aria-label={`used in ${n} projects`}>×{n}</span>}
                     </span>

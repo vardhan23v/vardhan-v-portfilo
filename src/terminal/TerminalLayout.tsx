@@ -4,6 +4,8 @@ import { Boot } from "./components/Boot";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import { useSpotlight } from "./hooks/useSpotlight";
+import { usePhosphor } from "./hooks/usePhosphor";
+import { StatusLine } from "./components/StatusLine";
 import "./styles/global.css";
 
 function ScrollManager() {
@@ -25,6 +27,7 @@ function ScrollManager() {
 
 export function TerminalLayout() {
   useSpotlight();
+  const phosphor = usePhosphor();
   const [booting, setBooting] = useState(() => {
     try {
       return !sessionStorage.getItem("folio.booted");
@@ -43,7 +46,7 @@ export function TerminalLayout() {
   };
 
   return (
-    <div className="terminal-root" data-cursor-accent="term">
+    <div className="terminal-root" data-cursor-accent="term" data-phosphor={phosphor}>
       {booting && <Boot onDone={handleBootDone} />}
       <ScrollManager />
       <a href="#main" className="skip-link">
@@ -54,6 +57,7 @@ export function TerminalLayout() {
         <Outlet />
       </main>
       <Footer />
+      <StatusLine />
     </div>
   );
 }

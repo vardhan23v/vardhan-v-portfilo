@@ -5,6 +5,7 @@ import { caseStudies } from "../data/work";
 import { certifications, experience, education, process } from "../data/experience";
 import { TypeText } from "./TypeCmd";
 import { motionReduced } from "../../lib/motion";
+import { PHOSPHORS, getPhosphor, isPhosphor, setPhosphor } from "../lib/phosphor";
 
 function MatrixRain() {
   const ref = useRef<HTMLCanvasElement | null>(null);
@@ -19,6 +20,17 @@ function MatrixRain() {
     if (!hero) return;
 
     const CHARS = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜ0123456789ABCDEF";
+    // colours follow the active phosphor palette (see data-phosphor in global.css)
+    let bg = "#050807";
+    let head = "#8df5b8";
+    let tail = "rgba(54, 229, 124, 0.5)";
+    const readPalette = () => {
+      const cs = getComputedStyle(hero);
+      bg = cs.getPropertyValue("--bg").trim() || bg;
+      head = cs.getPropertyValue("--green-2").trim() || head;
+      const rgb = cs.getPropertyValue("--green-rgb").trim();
+      if (rgb) tail = `rgba(${rgb}, 0.5)`;
+    };
     const FONT = 14;
     let cols = 0;
     let drops: number[] = [];
@@ -33,7 +45,8 @@ function MatrixRain() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       cols = Math.max(1, Math.floor(hero.clientWidth / FONT));
       drops = Array.from({ length: cols }, () => Math.floor(Math.random() * -40));
-      ctx.fillStyle = "#050807";
+      readPalette();
+      ctx.fillStyle = bg;
       ctx.fillRect(0, 0, hero.clientWidth, hero.clientHeight);
     };
 
@@ -41,12 +54,14 @@ function MatrixRain() {
       raf = requestAnimationFrame(step);
       if (!inView || t - last < 50) return;
       last = t;
-      ctx.fillStyle = "rgba(5, 8, 7, 0.12)";
+      ctx.globalAlpha = 0.12;
+      ctx.fillStyle = bg;
       ctx.fillRect(0, 0, hero.clientWidth, hero.clientHeight);
+      ctx.globalAlpha = 1;
       ctx.font = `${FONT}px "JetBrains Mono", monospace`;
       for (let i = 0; i < cols; i++) {
         const ch = CHARS[Math.floor(Math.random() * CHARS.length)];
-        ctx.fillStyle = Math.random() < 0.08 ? "#8df5b8" : "rgba(54, 229, 124, 0.5)";
+        ctx.fillStyle = Math.random() < 0.08 ? head : tail;
         ctx.fillText(ch, i * FONT, drops[i] * FONT);
         if (drops[i] * FONT > hero.clientHeight && Math.random() > 0.975) drops[i] = 0;
         drops[i]++;
@@ -64,11 +79,13 @@ function MatrixRain() {
     setup();
     raf = requestAnimationFrame(step);
     window.addEventListener("resize", setup);
+    window.addEventListener("folio:phosphor", setup);
 
     return () => {
       cancelAnimationFrame(raf);
       io.disconnect();
       window.removeEventListener("resize", setup);
+      window.removeEventListener("folio:phosphor", setup);
     };
   }, []);
 
@@ -116,6 +133,7 @@ const MAN_PAGES: Record<string, string> = {
   stats: "portfolio metrics",
   ssh: "open a session",
   curl: "fetch the portfolio",
+  theme: "set CRT phosphor: green | amber | cyan | white",
   clear: "wipe the session",
 };
 
@@ -173,6 +191,11 @@ const COMMANDS = [
   "hey",
   "rm",
   "42",
+  "theme",
+  "theme green",
+  "theme amber",
+  "theme cyan",
+  "theme white",
 ];
 
 function scrollToSection(id: string) {
@@ -260,9 +283,11 @@ function runCmd(raw: string, getHistory: () => string[]): Line[] {
       push("  man <cmd>                manual page for a command");
       push("  ssh / curl               open a session / fetch the portfolio");
       push("  uptime / date            terminal facts");
+      push("  theme <colour>           CRT phosphor: green · amber · cyan · white");
       push("  clear                    wipe the session", "dim");
       push("  ctrl+l                   wipe the session too", "dim");
-      push("  `                        focus this terminal from anywhere", "dim");
+      push("  ` or ?                   focus this terminal from anywhere", "dim");
+      push("  j / k · gg · G           vim-style scrolling", "dim");
       push("  tab / ↑↓                 completion / command history", "dim");
       break;
     case "whoami":
@@ -346,7 +371,7 @@ function runCmd(raw: string, getHistory: () => string[]): Line[] {
          ╚═════╝     Kernel:   react-19
                      Shell:    bash 5.2
                      Uptime:   ${uptime()}
-                     DE:       CRT 60Hz amber/green
+                     DE:       CRT 60Hz ${getPhosphor()} phosphor
                      Theme:    terminal-v3.0.0
                      Location: ${site.location}
                      Role:     ${site.role.toLowerCase()}`,
@@ -481,6 +506,22 @@ function runCmd(raw: string, getHistory: () => string[]): Line[] {
     case "exit":
       push("this is not a chat-ssh. press f5 to reboot.", "dim");
       break;
+    case "theme":
+    case "phosphor": {
+      if (!arg) {
+        push(`current phosphor: ${getPhosphor()}`, "green");
+        push(`usage: theme <${PHOSPHORS.join(" | ")}>`, "dim");
+        break;
+      }
+      if (!isPhosphor(arg)) {
+        push(`theme: unknown phosphor '${arg}'`, "red");
+        push(`try: ${PHOSPHORS.join(", ")}`, "dim");
+        break;
+      }
+      setPhosphor(arg);
+      push(`phosphor set to ${arg}. persisted for this browser.`, "green");
+      break;
+    }
     default:
       push(`bash: ${cmd}: command not found`, "red");
       push("type 'help' for the manual.", "dim");
@@ -520,17 +561,20 @@ export function Hero() {
 
   useEffect(() => {
     const onGlobal = (e: KeyboardEvent) => {
-      if (e.key !== "`") return;
+      if (e.key !== "`" && e.key !== "?") return;
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
       e.preventDefault();
-      heroRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      heroRef.current?.scrollIntoView({ behavior: motionReduced() ? "auto" : "smooth", block: "start" });
       inputRef.current?.focus();
+      if (e.key === "?") submitRef.current("help");
     };
     window.addEventListener("keydown", onGlobal);
     return () => window.removeEventListener("keydown", onGlobal);
   }, []);
 
+  const submitRef = useRef<(raw: string) => void>(() => {});
   const submit = (raw: string) => {
     const cmds = raw.trim().toLowerCase().split(/[;&]+/).map((c) => c.trim()).filter(Boolean);
     if (cmds.length > 0) {
@@ -551,6 +595,7 @@ export function Hero() {
     setLines((prev) => [...prev, ...next]);
     setInput("");
   };
+  submitRef.current = submit;
 
   const complete = () => {
     const parts = input.trim().split(/\s+/);

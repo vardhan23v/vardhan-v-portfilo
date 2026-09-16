@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { InterfaceSwitcher } from "../../interface-switcher/InterfaceSwitcher";
 import { site } from "../data/site";
+import { useActiveSection } from "../hooks/useActiveSection";
 
 const links = [
   { label: "work", href: "/terminal#work" },
@@ -16,6 +17,7 @@ export function Navbar() {
   const [now, setNow] = useState(() => new Date());
   const { pathname } = useLocation();
   const onCase = pathname.startsWith("/terminal/work/");
+  const active = useActiveSection();
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
@@ -36,12 +38,17 @@ export function Navbar() {
         </Link>
 
         <span className="nav-path" aria-hidden="true">
-          {onCase ? "~/work/*" : "~"} <span className="bracket">$</span> _
+          {onCase ? "~/work/*" : active ? `~/${active}` : "~"} <span className="bracket">$</span> _
         </span>
 
         <nav className="nav-links" aria-label="Primary">
           {links.map((l) => (
-            <Link key={l.href} to={l.href} title={`$ cd ${l.label}`}>
+            <Link
+              key={l.href}
+              to={l.href}
+              title={`$ cd ${l.label}`}
+              aria-current={!onCase && l.href.endsWith(`#${active}`) ? "location" : undefined}
+            >
               <b>$</b> {l.label}
             </Link>
           ))}

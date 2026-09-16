@@ -13,6 +13,8 @@ export interface CaseStudy {
   tech: string[];
   github: string;
   live?: string;
+  /** Paths under /public, shown as a `$ open ./screenshots/` strip on the case-study page. */
+  screenshots?: { src: string; caption: string }[];
 }
 
 export const caseStudies: CaseStudy[] = [
@@ -204,6 +206,10 @@ export const caseStudies: CaseStudy[] = [
   {
     slug: "disastermind-ai",
     number: "05",
+    screenshots: [
+      { src: "/work/disastermind-ops.jpg", caption: "operations console — feed, analytics, dispatch" },
+      { src: "/work/disastermind-map.jpg", caption: "tactical map — flood overlay + fleet" },
+    ],
     name: "DisasterMind AI",
     tagline: "AI-powered emergency operations interface",
     description:

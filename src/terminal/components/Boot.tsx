@@ -48,7 +48,7 @@ export function Boot({ onDone }: { onDone: () => void }) {
   }, [onDone, REDUCED]);
 
   return (
-    <div className={`boot ${doneRef.current ? "done" : ""}`} aria-hidden="true">
+    <div className={`boot ${doneRef.current ? "done" : ""}`} aria-hidden="true" onClick={onDone}>
       <button type="button" className="boot-skip" onClick={onDone} aria-hidden="true" tabIndex={-1}>
         [ skip — press enter ]
       </button>
@@ -62,6 +62,10 @@ export function Boot({ onDone }: { onDone: () => void }) {
           <div className="sys">_</div>
         </code>
       </pre>
+      <div className="boot-progress" style={{ "--boot-ms": `${REDUCED ? 0 : 140 + LINES.length * 170 + 480}ms` } as React.CSSProperties}>
+        <i style={{ width: `${Math.round((shown / LINES.length) * 100)}%` }} />
+        <span>loading portfolio_os … {Math.round((shown / LINES.length) * 100)}%</span>
+      </div>
     </div>
   );
 }

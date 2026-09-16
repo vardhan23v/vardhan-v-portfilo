@@ -40,7 +40,7 @@ export function TypeCmd({ cmd, suffix, delay = 0 }: { cmd: string; suffix?: Reac
   return (
     <span className="cmdline" ref={ref} aria-hidden="true">
       <span className="dollar">$</span> {cmd.slice(0, n)}
-      <span className="type-caret" aria-hidden="true" />
+      <span className={`type-caret${done ? " is-done" : ""}`} aria-hidden="true" />
       {done ? suffix : null}
     </span>
   );

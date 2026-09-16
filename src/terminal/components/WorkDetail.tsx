@@ -60,6 +60,22 @@ export function WorkDetail() {
           </a>
         </div>
 
+        {p.screenshots?.length ? (
+          <div className="case-shots" aria-label="Screenshots">
+            <p className="man-p man-dim">$ open ./screenshots/ — {p.screenshots.length} files</p>
+            <div className="case-shots-grid">
+              {p.screenshots.map((s, i) => (
+                <figure className="case-shot" key={s.src} style={{ "--i": i } as React.CSSProperties}>
+                  <img src={s.src} alt={`${p.name}: ${s.caption}`} loading="lazy" decoding="async" />
+                  <figcaption>
+                    <span className="bracket">{String(i + 1).padStart(2, "0")}</span> {s.caption}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
         <div className="term man-body" style={{ marginTop: 34 }}>
           <div className="term-bar" aria-hidden="true">
             <span className="term-dot r" />
@@ -135,6 +151,7 @@ export function WorkDetail() {
               <h2 className="man-h">
                 <span className="hash">##</span> what_i_learned
               </h2>
+              <p className="man-p man-dim">$ grep -n "lesson" ./NOTES.md</p>
               <ul className="learn-list">
                 {p.learned.map((s, i) => (
                   <li key={i}>{s}</li>

@@ -1,50 +1,63 @@
-import { useEffect, useState } from "react";
-import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { featuredProjects, type Project } from "../classic/data/projects";
-import { experience } from "../classic/data/experience";
+import { certifications, education, experience } from "../classic/data/experience";
 import { skillCategories } from "../classic/data/skills";
 import { site } from "../classic/data/site";
 import "./styles/paper.css";
 
 export const paperProjects = featuredProjects;
 
-export function EngineeringDetails({ p }: { p: Project }) {
-  const [open, setOpen] = useState(false);
-  const ctrl = `eng-${p.slug}`;
+const CHAPTERS = [
+  { id: "work", title: "Selected work" },
+  { id: "experience", title: "Experience" },
+  { id: "about", title: "About" },
+  { id: "contact", title: "Contact" },
+] as const;
+
+/** "ATS-oriented optimization" stays as is; "Live preview" becomes "live preview". */
+function runIn(s: string) {
+  return s.length > 1 && s[1] === s[1].toLowerCase() ? s[0].toLowerCase() + s.slice(1) : s;
+}
+
+function sentence(items: string[]) {
+  const parts = items.map(runIn);
+  if (parts.length <= 1) return parts.join("");
+  return `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
+}
+
+function Entry({ p }: { p: Project }) {
   return (
-    <div className="paper-eng">
-      <button
-        type="button"
-        className="paper-eng-btn"
-        aria-expanded={open}
-        aria-controls={ctrl}
-        onClick={() => setOpen(!open)}
-      >
-        <span>engineering details</span>
-        <span aria-hidden="true">{open ? "−" : "→"}</span>
-      </button>
-      <div className={`paper-eng-body${open ? " is-open" : ""}`} id={ctrl}>
-          <div className="paper-eng-inner">
-            <div>
-              <span className="paper-eng-label">the problem</span>
-              <p>{p.problem}</p>
-            </div>
-            <div>
-              <span className="paper-eng-label">what it does</span>
-              <ul>
-                {p.features.slice(0, 4).map((f) => (
-                  <li key={f}>{f}</li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <span className="paper-eng-label">stack</span>
-              <p>{p.tech.join(" · ")}</p>
-            </div>
-          </div>
-        </div>
-    </div>
+    <article className="paper-entry paper-entry--work" id={`work-${p.slug}`}>
+      <aside className="paper-margin">
+        <p>{p.tech.slice(0, 5).join(", ")}</p>
+        <p>
+          <a href={p.github} target="_blank" rel="noopener noreferrer">
+            Source on GitHub
+          </a>
+        </p>
+        {p.live && (
+          <p>
+            <a href={p.live} target="_blank" rel="noopener noreferrer">
+              Open live demo
+            </a>
+          </p>
+        )}
+      </aside>
+      <div className="paper-text">
+        <h3 className="paper-entry-title">{p.name}</h3>
+        <p className="paper-lede">{p.tagline}</p>
+        <p>{p.problem}</p>
+        <p>Includes {sentence(p.features.slice(0, 4))}.</p>
+        {p.cover && (
+          <figure className="paper-figure">
+            <img src={p.cover} alt={`${p.name} interface`} loading="lazy" width={1280} height={800} />
+            <figcaption>{p.name}, operations view.</figcaption>
+          </figure>
+        )}
+      </div>
+    </article>
   );
 }
 
@@ -54,40 +67,19 @@ export function PaperSite() {
   }, []);
 
   useEffect(() => {
-    const els = document.querySelectorAll("[data-pp-reveal]");
-    if (!els.length) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("pp-in");
-            io.unobserve(entry.target);
-          }
-        }
-      },
-      { rootMargin: "0px 0px -6% 0px", threshold: 0.05 }
-    );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const ids = ["work", "experience", "about", "contact"];
-    const links = [...document.querySelectorAll<HTMLAnchorElement>(".paper-nav-links a")];
+    const links = [...document.querySelectorAll<HTMLAnchorElement>(".paper-head-nav a")];
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
-          const link = links.find((l) => l.getAttribute("href") === `#${entry.target.id}`);
-          if (!link) return;
-          links.forEach((l) => l.classList.remove("is-active"));
-          link.classList.add("is-active");
+          const href = `#${entry.target.id}`;
+          links.forEach((l) => l.classList.toggle("is-active", l.getAttribute("href") === href));
         }
       },
       { rootMargin: "-35% 0px -55% 0px", threshold: 0 }
     );
-    for (const id of ids) {
-      const el = document.getElementById(id);
+    for (const c of CHAPTERS) {
+      const el = document.getElementById(c.id);
       if (el) io.observe(el);
     }
     return () => io.disconnect();
@@ -98,170 +90,217 @@ export function PaperSite() {
       <a className="paper-skip" href="#paper-main">
         Skip to content
       </a>
-      <nav className="paper-nav" aria-label="Main">
-        <Link to="/" className="paper-wordmark">
-          {site.name}
-          <span className="dot">.</span>
-        </Link>
-        <div className="paper-nav-links">
-          <a href="#work">Work</a>
-          <a href="#experience">Experience</a>
-          <a href="#about">About</a>
-          <a href="#contact">Contact</a>
+
+      <header className="paper-head">
+        <div className="paper-head-inner">
+          <Link to="/" className="paper-head-name">
+            {site.name}
+          </Link>
+          <nav className="paper-head-nav" aria-label="Chapters">
+            {CHAPTERS.map((c) => (
+              <a key={c.id} href={`#${c.id}`}>
+                {c.title}
+              </a>
+            ))}
+          </nav>
+          <InterfaceSwitcher current="paper" />
         </div>
-        <InterfaceSwitcher current="paper" />
-      </nav>
+      </header>
 
       <main className="paper-main" id="paper-main">
-        <header className="paper-masthead">
-          <p className="paper-overline">Generative AI developer · full-stack engineer</p>
-          <h1 className="paper-mast-headline">
-            Sree Vardhan
-            <br />
-            <span className="it">Vardhan V.</span>
+        <section className="paper-titlepage" aria-labelledby="paper-h1">
+          <h1 className="paper-h1" id="paper-h1">
+            Products built with AI, shipped end to end.
           </h1>
-          <p className="paper-mast-sub">
-            {site.title}. I turn interfaces, APIs and LLM backends into working
-            products — and ship them. Currently a computer science
-            undergraduate building with AI + the full stack.
+          <p className="paper-author">
+            {site.name}
+            <br />
+            Generative AI and full-stack developer
           </p>
-          <div className="paper-mast-actions">
+          <p className="paper-imprint">
+            Paper edition, September 2026. {site.location}.
+          </p>
+          <ol className="paper-contents" aria-label="Contents">
+            {CHAPTERS.map((c, i) => (
+              <li key={c.id}>
+                <a href={`#${c.id}`}>
+                  <span>{c.title}</span>
+                  <span className="paper-leader" aria-hidden="true" />
+                  <span className="paper-contents-num">{i + 1}</span>
+                </a>
+              </li>
+            ))}
+          </ol>
+          <div className="paper-actions">
             <a className="paper-btn paper-btn-primary" href={site.resume} download>
-              Download résumé ↓
+              Download résumé
             </a>
-            <a className="paper-btn paper-btn-ghost" href={`mailto:${site.email}`}>
-              Say hello
-            </a>
-          </div>
-          <div className="paper-mast-meta">
-            <span>{site.location}</span>
-            <a href={site.github} target="_blank" rel="noopener noreferrer">
-              github.com/vardhan23v
-            </a>
-            <a href={site.linkedin} target="_blank" rel="noopener noreferrer">
-              linkedin.com/in/vardhan-v23
+            <a className="paper-btn" href={`mailto:${site.email}`}>
+              Write to me
             </a>
           </div>
-        </header>
+        </section>
 
-        <section className="paper-section" id="work" aria-labelledby="paper-work-title">
-          <h2 className="paper-overline" id="paper-work-title" data-pp-reveal>
-            Selected work
-          </h2>
-          {paperProjects.map((p, i) => (
-            <article
-              data-pp-reveal
-              className={`paper-work-item ${i % 2 === 1 ? "paper-work-item--alt" : ""}`}
-              key={p.slug}
-              style={{ "--d": `${Math.min(i * 0.06, 0.3)}s` } as React.CSSProperties}
-            >
-              <span className={`paper-work-num ${i % 2 === 1 ? "paper-work-num--right" : ""}`} aria-hidden="true">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <div>
-                <h3 className="paper-work-name">{p.name}</h3>
-                <p className="paper-work-tagline">{p.tagline}</p>
-                <div className="paper-work-tech">
-                  {p.tech.slice(0, 5).map((t) => (
-                    <span key={t}>{t}</span>
+        <section className="paper-chapter" id="work" aria-labelledby="paper-work-title">
+          <div className="paper-chapter-head">
+            <span className="paper-chapter-num" aria-hidden="true">
+              1
+            </span>
+            <h2 className="paper-h2" id="paper-work-title">
+              Selected work
+            </h2>
+          </div>
+          {paperProjects.map((p) => (
+            <Entry p={p} key={p.slug} />
+          ))}
+        </section>
+
+        <section className="paper-chapter" id="experience" aria-labelledby="paper-exp-title">
+          <div className="paper-chapter-head">
+            <span className="paper-chapter-num" aria-hidden="true">
+              2
+            </span>
+            <h2 className="paper-h2" id="paper-exp-title">
+              Experience
+            </h2>
+          </div>
+          {experience.map((e) => (
+            <article className="paper-entry" key={e.company}>
+              <aside className="paper-margin">
+                <p>{e.period}</p>
+              </aside>
+              <div className="paper-text">
+                <h3 className="paper-entry-title paper-entry-title--sm">{e.role}</h3>
+                <p className="paper-lede">{e.company}</p>
+                <ul className="paper-list">
+                  {e.points.map((pt) => (
+                    <li key={pt}>{pt}</li>
                   ))}
-                </div>
-                <div className="paper-work-links">
-                  <a href={p.github} target="_blank" rel="noopener noreferrer">
-                    github ↗
-                  </a>
-                  {p.live && (
-                    <a href={p.live} target="_blank" rel="noopener noreferrer">
-                      live demo ↗
-                    </a>
-                  )}
-                </div>
-                <EngineeringDetails p={p} />
+                </ul>
               </div>
             </article>
           ))}
         </section>
 
-        <section className="paper-section" id="experience" aria-labelledby="paper-exp-title">
-          <h2 className="paper-overline" id="paper-exp-title" data-pp-reveal>
-            Experience
-          </h2>
-          {experience.map((e) => (
-            <div className="paper-exp-item" data-pp-reveal key={e.company}>
-              <div>
-                <div className="paper-exp-role">{e.role}</div>
-                <div className="paper-exp-company">{e.company}</div>
+        <section className="paper-chapter" id="about" aria-labelledby="paper-about-title">
+          <div className="paper-chapter-head">
+            <span className="paper-chapter-num" aria-hidden="true">
+              3
+            </span>
+            <h2 className="paper-h2" id="paper-about-title">
+              About
+            </h2>
+          </div>
+          <div className="paper-entry">
+            <aside className="paper-margin">
+              <p>{site.availability}</p>
+            </aside>
+            <div className="paper-text">
+              <p className="paper-lede">
+                {site.name} is a computer science undergraduate who builds with language models and ships with
+                the full stack.
+              </p>
+              <p>
+                The work above runs from the interface down to the API, the database and the model call, and
+                each one is a product people can open, not a demo. Most of it pairs several model providers with a
+                fallback chain so the product keeps working when one of them does not.
+              </p>
+            </div>
+          </div>
+
+          {education.slice(0, 2).map((ed) => (
+            <div className="paper-entry" key={ed.school}>
+              <aside className="paper-margin">
+                <p>{ed.period}</p>
+              </aside>
+              <div className="paper-text">
+                <h3 className="paper-entry-title paper-entry-title--sm">{ed.degree}</h3>
+                <p className="paper-lede">{ed.school}</p>
+                {ed.detail && <p>{ed.detail}</p>}
               </div>
-              <span className="paper-exp-period">{e.period}</span>
+            </div>
+          ))}
+
+          <div className="paper-entry">
+            <aside className="paper-margin">
+              <p>Certifications</p>
+            </aside>
+            <div className="paper-text">
+              <ul className="paper-list">
+                {certifications.map((c) => (
+                  <li key={c}>{c}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {skillCategories.map((c) => (
+            <div className="paper-entry paper-entry--tight" key={c.label}>
+              <aside className="paper-margin">
+                <p>{c.label}</p>
+              </aside>
+              <div className="paper-text">
+                <p>{c.items.map((i) => i.name).join(", ")}</p>
+              </div>
             </div>
           ))}
         </section>
 
-        <section className="paper-section" id="about" aria-labelledby="paper-about-title">
-          <h2 className="paper-overline" id="paper-about-title" data-pp-reveal>
-            About
-          </h2>
-          <div className="paper-prose">
-            <p>
-              {site.name} — a Generative AI developer and full-stack
-              engineer in the making. I enjoy taking an idea from interface to
-              API, database, and AI integration, then turning it into a product
-              people actually use.
-            </p>
-            <p>
-              Education: B.Tech — Computer Science &amp; Engineering, NMAM
-              Institute of Technology, NITTE (2024–2028). Certifications
-              include Forage engineering simulations at Electronic Arts and
-              Commonwealth Bank, generative &amp; agentic AI with Python, and
-              PostgreSQL.
-            </p>
+        <section className="paper-chapter" id="contact" aria-labelledby="paper-contact-title">
+          <div className="paper-chapter-head">
+            <span className="paper-chapter-num" aria-hidden="true">
+              4
+            </span>
+            <h2 className="paper-h2" id="paper-contact-title">
+              Contact
+            </h2>
           </div>
-          <div className="paper-skills">
-            {skillCategories.map((c) => (
-              <div className="paper-skill-line" data-pp-reveal key={c.label}>
-                <span className="paper-skill-label">{c.label}</span>
-                <span className="paper-skill-items">
-                  {c.items.map((i) => i.name).join(", ")}
-                </span>
-              </div>
-            ))}
+          <div className="paper-entry">
+            <aside className="paper-margin">
+              <p>
+                <a href={site.github} target="_blank" rel="noopener noreferrer">
+                  GitHub
+                </a>
+              </p>
+              <p>
+                <a href={site.linkedin} target="_blank" rel="noopener noreferrer">
+                  LinkedIn
+                </a>
+              </p>
+            </aside>
+            <div className="paper-text">
+              <p className="paper-lede">
+                {site.availability}. The quickest way to reach me is email, and I answer within a day.
+              </p>
+              <p>
+                <a className="paper-email" href={`mailto:${site.email}`}>
+                  {site.email}
+                </a>
+              </p>
+            </div>
           </div>
-        </section>
-
-        <section className="paper-section" id="contact" aria-labelledby="paper-contact-title">
-          <h2 className="paper-overline" id="paper-contact-title" data-pp-reveal>
-            Contact
-          </h2>
-          <h3 className="paper-contact-head" data-pp-reveal>
-            Let&rsquo;s build something{" "}
-            <span className="it">interesting.</span>
-          </h3>
-          <div className="paper-mast-actions" data-pp-reveal>
-            <a className="paper-btn paper-btn-primary" href={`mailto:${site.email}`}>
-              {site.email}
-            </a>
-          </div>
-          <p className="paper-mast-meta paper-mast-meta-contact" data-pp-reveal>
-            <a href={site.github} target="_blank" rel="noopener noreferrer">
-              github
-            </a>
-            <a href={site.linkedin} target="_blank" rel="noopener noreferrer">
-              linkedin
-            </a>
-          </p>
         </section>
       </main>
 
-      <footer className="paper-foot">
-        <span>© 2026 {site.name}</span>
-        <span className="paper-foot-links">
-          <Link to="/">editions</Link>
-          <a href={site.github} target="_blank" rel="noopener noreferrer">
-            GitHub
-          </a>
-          <a href={`mailto:${site.email}`}>Email</a>
-          <a href="#paper-main">back to top ↑</a>
-        </span>
+      <footer className="paper-colophon">
+        <div className="paper-entry">
+          <aside className="paper-margin">
+            <p>Colophon</p>
+          </aside>
+          <div className="paper-text">
+            <p>
+              This edition is set in Fraunces, printed to the web with React and Vite, and published from{" "}
+              {site.location}. © 2026 {site.name}.
+            </p>
+            <p className="paper-colophon-links">
+              <Link to="/">Other editions</Link>
+              <a href={site.github} target="_blank" rel="noopener noreferrer">
+                GitHub
+              </a>
+              <a href="#paper-main">Back to top</a>
+            </p>
+          </div>
+        </div>
       </footer>
     </div>
   );

@@ -28,7 +28,7 @@ chk("cta github", await p.evaluate(() => !!document.querySelector('a[href="https
 chk("pipeline", await p.evaluate(() => (document.querySelector(".landing-pipeline")?.textContent ?? "").includes("frontend") && (document.querySelector(".landing-pipeline")?.textContent ?? "").includes("product")));
 
 await p.goto(base + "/paper", { waitUntil: "networkidle0" });
-await p.waitForSelector(".paper-entry", { timeout: 10000 });
+await p.waitForSelector(".paper-eng-btn", { timeout: 10000 });
 chk(
   "paper resume button readable",
   await p.evaluate(() => {
@@ -44,7 +44,12 @@ chk(
     return t.indexOf("Extension AI") < t.indexOf("DriveNest") && !t.includes("Campus Compass");
   })
 );
-chk("paper contents", await p.evaluate(() => document.querySelectorAll(".paper-contents li").length === 4));
+await p.evaluate(() => document.querySelector(".paper-eng-btn").click());
+await p.waitForSelector(".paper-eng-body", { timeout: 5000 });
+chk(
+  "paper expander opens",
+  await p.evaluate(() => document.querySelector(".paper-eng-btn").getAttribute("aria-expanded") === "true")
+);
 
 await p.goto(base + "/aurora", { waitUntil: "networkidle0" });
 await p.waitForSelector(".au-ft", { timeout: 10000 });

@@ -554,9 +554,27 @@ html:not([data-motion="reduce"]) .paper-titlepage > * {
     --measure: 100%;
     --margin-col: 4cm;
     --gutter: 0.8cm;
+    width: 100%;
+    max-width: 100%;
+    min-height: 0;
+    overflow: visible;
     background: #fff;
     font-size: 11pt;
     line-height: 1.5;
+  }
+
+  html:has(.paper-root),
+  html:has(.paper-root) body,
+  html:has(.paper-root) #root,
+  html:has(.paper-root) #root > * {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    overflow: visible !important;
+  }
+
+  .paper-contents {
+    max-width: 60%;
   }
 
   .paper-head,
@@ -585,7 +603,8 @@ html:not([data-motion="reduce"]) .paper-titlepage > * {
   }
 
   .paper-h1 {
-    font-size: 40pt;
+    font-size: 34pt;
+    letter-spacing: -0.02em;
   }
 
   .paper-chapter {

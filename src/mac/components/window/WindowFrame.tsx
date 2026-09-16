@@ -2,6 +2,7 @@ import { useRef, useState, useCallback, useEffect, type ReactNode, type PointerE
 import { useWindowManager, type AppId } from "../../hooks/useWindowManager";
 import { useShell } from "../../hooks/useShell";
 import { AppGlyph } from "../ui/AppGlyph";
+import { motionReduced } from "../../../lib/motion";
 
 interface Props {
   id: AppId;
@@ -68,7 +69,7 @@ export function WindowFrame({ id, title, children, expose }: Props) {
   const leaveTimer = useRef(0);
 
   const motionOff = () =>
-    (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) ||
+    (motionReduced()) ||
     frameRef.current?.closest(".mac-root")?.getAttribute("data-mac-motion") === "off";
 
   /** Play the exit animation, then hand off to the window manager. */

@@ -12,6 +12,8 @@ import {
   Play,
 } from "lucide-react";
 import { useShell } from "../hooks/useShell";
+import { getMotionPreference, setMotionPreference, osPrefersReducedMotion, type MotionPreference } from "../../lib/motion";
+import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
 import { featuredProjects } from "../data/projects";
 import { ProjectCover } from "../components/ui/ProjectCover";
 import { useTheme } from "../hooks/useTheme";
@@ -136,7 +138,7 @@ function Appearance({
           <div className="settingsrow__text">
             <div className="settingsrow__label">Reduce motion</div>
             <div className="settingsrow__sub">
-              Animations respect your OS setting automatically
+              Turns off window, dock and wallpaper motion inside this edition
             </div>
           </div>
           <Sw
@@ -147,8 +149,44 @@ function Appearance({
             }}
           />
         </div>
+        <SiteMotionRow />
       </div>
     </>
+  );
+}
+
+/* ── Site-wide animations (all editions) ────────────────────── */
+function SiteMotionRow() {
+  usePrefersReducedMotion();
+  const pref = getMotionPreference();
+  const os = osPrefersReducedMotion();
+  const opts: { id: MotionPreference; label: string }[] = [
+    { id: "auto", label: "System" },
+    { id: "on", label: "On" },
+    { id: "off", label: "Off" },
+  ];
+  return (
+    <div className="settingsrow">
+      <div className="settingsrow__text">
+        <div className="settingsrow__label">Animations (all interfaces)</div>
+        <div className="settingsrow__sub">
+          {pref === "auto"
+            ? os
+              ? "Your system asks for reduced motion, so animations are paused. Choose On to override."
+              : "Following your system setting (motion is on)"
+            : pref === "on"
+              ? "Always animate, even when the system asks for reduced motion"
+              : "Never animate"}
+        </div>
+      </div>
+      <div className="settingsrow__control cc-seg" role="group" aria-label="Animations">
+        {opts.map((o) => (
+          <button key={o.id} className={pref === o.id ? "is-on" : ""} onClick={() => pref !== o.id && setMotionPreference(o.id)}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { motionReduced } from "../../../lib/motion";
 
 /** Animated count-up number. Falls back to instant on reduced motion. */
 export function CountUp({ value, suffix = "" }: { value: number; suffix?: string }) {
@@ -14,7 +15,7 @@ export function CountUp({ value, suffix = "" }: { value: number; suffix?: string
       if (started.current) return;
       started.current = true;
       const motionOff =
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+        motionReduced() ||
         el.closest(".mac-root")?.getAttribute("data-mac-motion") === "off";
       if (motionOff) {
         setDisplay(value);

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { motionReduced } from "../../lib/motion";
 
 const LINES: { text: string; tone: "ok" | "warn" | "sys" | "" }[] = [
   { text: "[ PORTFOLIO OS v2.5.1 ]", tone: "sys" },
@@ -11,9 +12,8 @@ const LINES: { text: string; tone: "ok" | "warn" | "sys" | "" }[] = [
   { text: "> handshake completed. welcome, visitor_", tone: "ok" },
 ];
 
-const REDUCED = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
 export function Boot({ onDone }: { onDone: () => void }) {
+  const REDUCED = motionReduced();
   const [shown, setShown] = useState(0);
   const doneRef = useRef(false);
 

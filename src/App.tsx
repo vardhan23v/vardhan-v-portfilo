@@ -1,5 +1,5 @@
 import { useEffect, lazy, Suspense } from "react";
-import { BrowserRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, Route, RouterProvider, createBrowserRouter, createRoutesFromElements, useLocation, useNavigate } from "react-router-dom";
 import { CursorFX } from "./CursorFX";
 import { ScrollChrome } from "./components/ScrollChrome";
 import { CommandPalette } from "./components/CommandPalette";
@@ -107,9 +107,10 @@ function LoadingFallback() {
   );
 }
 
-export default function App() {
+/** Root layout: global chrome + a Suspense boundary around the lazy edition routes. */
+function Root() {
   return (
-    <BrowserRouter>
+    <>
       <CursorFX />
       <InterfaceShortcuts />
       <ScrollChrome />
@@ -118,21 +119,36 @@ export default function App() {
       <RouteSeo />
       <ScrollToTop />
       <Suspense fallback={<LoadingFallback />}>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/editions" element={<Landing />} />
-          <Route path="/classic" element={<ClassicSite />} />
-          <Route path="/paper" element={<PaperSite />} />
-          <Route path="/aurora" element={<AuroraSite />} />
-          <Route path="/forge" element={<ForgeSite />} />
-          <Route path="/mac" element={<MacPortfolio />} />
-          <Route path="/terminal" element={<TerminalLayout />}>
-            <Route index element={<TerminalHome />} />
-            <Route path="work/:slug" element={<WorkDetail />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <Outlet />
       </Suspense>
-    </BrowserRouter>
+    </>
   );
+}
+
+/*
+ * Data router on purpose: `viewTransition` on <Link>/navigate() is only honoured
+ * by createBrowserRouter — the declarative <BrowserRouter> silently ignores it,
+ * which is why the page-to-page crossfade never ran before.
+ */
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route element={<Root />}>
+      <Route path="/" element={<Landing />} />
+      <Route path="/editions" element={<Landing />} />
+      <Route path="/classic" element={<ClassicSite />} />
+      <Route path="/paper" element={<PaperSite />} />
+      <Route path="/aurora" element={<AuroraSite />} />
+      <Route path="/forge" element={<ForgeSite />} />
+      <Route path="/mac" element={<MacPortfolio />} />
+      <Route path="/terminal" element={<TerminalLayout />}>
+        <Route index element={<TerminalHome />} />
+        <Route path="work/:slug" element={<WorkDetail />} />
+      </Route>
+      <Route path="*" element={<NotFound />} />
+    </Route>
+  )
+);
+
+export default function App() {
+  return <RouterProvider router={router} />;
 }

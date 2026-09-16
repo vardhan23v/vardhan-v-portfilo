@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { motionReduced } from "../../lib/motion";
 
 function useTyped(text: string, speed: number, delay: number, threshold: number) {
   const [n, setN] = useState(0);
@@ -7,7 +8,7 @@ function useTyped(text: string, speed: number, delay: number, threshold: number)
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (motionReduced()) {
       setN(text.length);
       return;
     }

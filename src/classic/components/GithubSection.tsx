@@ -4,6 +4,7 @@ import { SectionHead } from "./SectionHead";
 import { Reveal } from "../hooks/useReveal";
 import { Icon } from "../lib/icons";
 import "./GithubSection.css";
+import { motionReduced } from "../../lib/motion";
 
 interface RepoItem {
   name: string;
@@ -59,7 +60,7 @@ export function GithubSection() {
 
   useEffect(() => {
     if (!run) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (motionReduced()) {
       setDisplay({ repos: repoCount, stars: totalStars, followers: followersNum });
       return;
     }

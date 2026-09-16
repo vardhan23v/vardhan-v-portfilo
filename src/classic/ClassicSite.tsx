@@ -11,13 +11,14 @@ import { Contact } from "./components/Contact";
 import { Footer } from "./components/Footer";
 import "./styles/global.css";
 import "./styles/animations.css";
+import { motionReduced } from "../lib/motion";
 
 function ClassicScrollProgress() {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (motionReduced()) {
       el.style.display = "none";
       return;
     }

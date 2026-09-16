@@ -318,33 +318,32 @@
 }
 
 /* ---------- reduced motion ---------- */
-@media (prefers-reduced-motion: reduce) {
-  .classic-scroll-progress { display: none; }
-  .classic-root .nav,
-  .classic-root .nav-inner > *,
-  .classic-root .hero-availability,
-  .classic-root .hero-name,
-  .classic-root .hero-role,
-  .classic-root .hero-desc,
-  .classic-root .hero-tagline,
-  .classic-root .hero-actions,
-  .classic-root .hero-links,
-  .classic-root .hero-visual,
-  .classic-root .terminal,
-  .classic-root .reveal.is-visible .section-eyebrow,
-  .classic-root .reveal.is-visible .section-title,
-  .classic-root .reveal.is-visible .section-sub,
-  .classic-root .project-card,
-  .classic-root .timeline-card,
-  .classic-root .skill-cat,
-  .classic-root .gh-card {
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] .classic-scroll-progress { display: none; }
+html[data-motion="reduce"] .classic-root .nav,
+html[data-motion="reduce"] .classic-root .nav-inner > *,
+html[data-motion="reduce"] .classic-root .hero-availability,
+html[data-motion="reduce"] .classic-root .hero-name,
+html[data-motion="reduce"] .classic-root .hero-role,
+html[data-motion="reduce"] .classic-root .hero-desc,
+html[data-motion="reduce"] .classic-root .hero-tagline,
+html[data-motion="reduce"] .classic-root .hero-actions,
+html[data-motion="reduce"] .classic-root .hero-links,
+html[data-motion="reduce"] .classic-root .hero-visual,
+html[data-motion="reduce"] .classic-root .terminal,
+html[data-motion="reduce"] .classic-root .reveal.is-visible .section-eyebrow,
+html[data-motion="reduce"] .classic-root .reveal.is-visible .section-title,
+html[data-motion="reduce"] .classic-root .reveal.is-visible .section-sub,
+html[data-motion="reduce"] .classic-root .project-card,
+html[data-motion="reduce"] .classic-root .timeline-card,
+html[data-motion="reduce"] .classic-root .skill-cat,
+html[data-motion="reduce"] .classic-root .gh-card {
     animation: none !important;
     transform: none !important;
   }
-  .classic-root .bg-glow::before,
-  .classic-root .bg-glow::after,
-  .classic-root .bg-grid,
-  .classic-root .hero-node {
+html[data-motion="reduce"] .classic-root .bg-glow::before,
+html[data-motion="reduce"] .classic-root .bg-glow::after,
+html[data-motion="reduce"] .classic-root .bg-grid,
+html[data-motion="reduce"] .classic-root .hero-node {
     animation: none !important;
   }
-}

@@ -9,6 +9,7 @@ import { site } from "../classic/data/site";
 import { Icon } from "../classic/lib/icons";
 import { ExpandableTabs, type ExpandableTabItem } from "../components/ui/expandable-tabs";
 import "./styles/aurora.css";
+import { motionReduced } from "../lib/motion";
 
 export const auroraProjects = featuredProjects;
 
@@ -118,7 +119,7 @@ function AuroraStat({ value, label, sub }: { value: number | null; label: string
       (entries) => {
         if (!entries[0]?.isIntersecting) return;
         io.disconnect();
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        if (motionReduced()) {
           el.textContent = String(value);
           return;
         }
@@ -480,7 +481,7 @@ export function AuroraSite() {
     if (t.type !== "tab" || !t.value) return;
     const el = document.getElementById(t.value);
     if (!el) return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduce = motionReduced();
     el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
   };
 

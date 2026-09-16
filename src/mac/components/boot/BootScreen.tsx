@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { site } from "../../data/site";
 import { usePreferences } from "../../hooks/usePreferences";
+import { motionReduced } from "../../../lib/motion";
 
 const initials = site.name
   .split(" ")
@@ -18,7 +19,7 @@ export function BootScreen({ onDone }: { onDone: () => void }) {
   const { prefs } = usePreferences();
   const instant =
     prefs.reduceMotion ||
-    (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    (motionReduced());
   const [phase, setPhase] = useState<"boot" | "login" | "leaving">(instant ? "login" : "boot");
 
   useEffect(() => {

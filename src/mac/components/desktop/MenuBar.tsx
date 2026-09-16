@@ -9,6 +9,7 @@ import { usePreferences } from "../../hooks/usePreferences";
 import { useShell } from "../../hooks/useShell";
 import { ControlCenter } from "./ControlCenter";
 import { DevPanel } from "./DevPanel";
+import { motionReduced } from "../../../lib/motion";
 
 type MenuId = "apple" | "app" | "file" | "edit" | "view" | "window" | "help";
 
@@ -57,7 +58,7 @@ export function MenuBar() {
   const toggleThemeFrom = (e?: { clientX: number; clientY: number }) => {
     const doc = document as Document & { startViewTransition?: (cb: () => void) => { ready: Promise<void>; finished: Promise<void> } };
     const root = rootRef.current?.closest(".mac-root") as HTMLElement | null;
-    const motionOff = root?.getAttribute("data-mac-motion") === "off" || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const motionOff = root?.getAttribute("data-mac-motion") === "off" || motionReduced();
     if (!doc.startViewTransition || motionOff) return toggle();
     const x = e?.clientX ?? window.innerWidth - 20;
     const y = e?.clientY ?? 14;

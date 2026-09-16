@@ -46,12 +46,13 @@
 }
 
 /* Respect reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] *,
+html[data-motion="reduce"] *::before,
+html[data-motion="reduce"] *::after {
     animation: none !important;
     transition-duration: 0.01ms !important;
   }
-}
 
 /* ============================================================
    1) LANDING — extra depth
@@ -209,9 +210,8 @@
 @media (max-width: 1020px) {
   .classic-root .hero::after { display: none; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .classic-root .hero::after { animation: none; opacity: 0; }
-}
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] .classic-root .hero::after { animation: none; opacity: 0; }
 .classic-root .project-card::after {
   will-change: transform;
 }
@@ -475,14 +475,19 @@
    View Transitions — cross-edition crossfade + rise
    (react-router `viewTransition` navigations; no-op elsewhere)
    ============================================================ */
-@media (prefers-reduced-motion: no-preference) {
-  ::view-transition-old(root) {
+/* motion gate (no-preference) — driven by html[data-motion], see src/lib/motion.ts */
+html:not([data-motion="reduce"])::view-transition-old(root) {
     animation: vt-out 0.28s cubic-bezier(0.4, 0, 1, 1) both;
   }
-  ::view-transition-new(root) {
+html:not([data-motion="reduce"])::view-transition-new(root) {
     animation: vt-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
+/* Reduced: skip the UA default crossfade too — the transition just snaps. */
+html[data-motion="reduce"]::view-transition-old(root),
+html[data-motion="reduce"]::view-transition-new(root) {
+  animation: none !important;
 }
+
 @keyframes vt-out {
   to { opacity: 0; transform: translateY(-10px) scale(0.995); filter: blur(2px); }
 }
@@ -496,19 +501,19 @@
    (progressive: only in browsers with animation-timeline)
    ============================================================ */
 @supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .edition-tilt,
-    .land-stat,
-    .land-project-item,
-    .classic-root .project-card,
-    .paper-root section > * > h2,
-    .fg-card,
-    .au-card {
+  /* motion gate (no-preference) — driven by html[data-motion], see src/lib/motion.ts */
+html:not([data-motion="reduce"]) .edition-tilt,
+html:not([data-motion="reduce"]) .land-stat,
+html:not([data-motion="reduce"]) .land-project-item,
+html:not([data-motion="reduce"]) .classic-root .project-card,
+html:not([data-motion="reduce"]) .paper-root section > * > h2,
+html:not([data-motion="reduce"]) .fg-card,
+html:not([data-motion="reduce"]) .au-card {
       animation: scroll-rise linear both;
       animation-timeline: view();
       animation-range: entry 0% entry 42%;
     }
-  }
+  
 }
 @keyframes scroll-rise {
   from { opacity: 0.15; transform: translateY(26px) scale(0.985); }

@@ -40,11 +40,10 @@
   -webkit-text-size-adjust: 100%;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .classic-root {
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] .classic-root {
     scroll-behavior: auto;
   }
-}
 
 .classic-root {
   margin: 0;
@@ -317,24 +316,25 @@
 .classic-root .reveal-d3 { transition-delay: 0.24s; }
 .classic-root .reveal-d4 { transition-delay: 0.32s; }
 
-@media (prefers-reduced-motion: reduce) {
-  .classic-root .reveal {
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] .classic-root .reveal {
     opacity: 1;
     transform: none;
     transition: none;
   }
-  .classic-root .section-eyebrow::before {
+html[data-motion="reduce"] .classic-root .section-eyebrow::before {
     transform: scaleX(1);
     transition: none;
   }
-  .classic-root .btn::after {
+html[data-motion="reduce"] .classic-root .btn::after {
     display: none;
   }
-  .classic-root *, .classic-root *::before, .classic-root *::after {
+html[data-motion="reduce"] .classic-root *,
+html[data-motion="reduce"] .classic-root *::before,
+html[data-motion="reduce"] .classic-root *::after {
     animation-duration: 0.001s !important;
     animation-iteration-count: 1 !important;
   }
-}
 
 /* ---------- Misc ---------- */
 

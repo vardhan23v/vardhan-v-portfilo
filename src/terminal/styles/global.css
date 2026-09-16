@@ -34,11 +34,10 @@
   scroll-padding-top: calc(var(--nav-h) + 28px);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .terminal-root {
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] .terminal-root {
     scroll-behavior: auto;
   }
-}
 
 .terminal-root {
   animation: tfade 0.3s ease both;
@@ -1650,18 +1649,19 @@
   transform: none;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .terminal-root .reveal {
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] .terminal-root .reveal {
     opacity: 1;
     transform: none;
     transition: none;
   }
-  .terminal-root *, .terminal-root *::before, .terminal-root *::after {
+html[data-motion="reduce"] .terminal-root *,
+html[data-motion="reduce"] .terminal-root *::before,
+html[data-motion="reduce"] .terminal-root *::after {
     animation-duration: 0.001s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001s !important;
   }
-}
 
 /* ---------- Misc ---------- */
 
@@ -1790,13 +1790,12 @@
   100% { box-shadow: 0 0 0 rgba(54, 229, 124, 0); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .terminal-root .reveal.is-visible .pipe-node,
-  .terminal-root .reveal.is-visible .tree > div,
-  .terminal-root .reveal.is-visible .tree-root,
-  .terminal-root .reveal.is-visible .remote-item,
-  .terminal-root .reveal.is-visible .exp-item,
-  .terminal-root .reveal.is-visible .other-item {
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] .terminal-root .reveal.is-visible .pipe-node,
+html[data-motion="reduce"] .terminal-root .reveal.is-visible .tree > div,
+html[data-motion="reduce"] .terminal-root .reveal.is-visible .tree-root,
+html[data-motion="reduce"] .terminal-root .reveal.is-visible .remote-item,
+html[data-motion="reduce"] .terminal-root .reveal.is-visible .exp-item,
+html[data-motion="reduce"] .terminal-root .reveal.is-visible .other-item {
     animation: none;
   }
-}

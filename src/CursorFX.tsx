@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import "./cursor-fx.css";
+import { motionReduced } from "./lib/motion";
 
 export function CursorFX() {
   const fxRef = useRef<HTMLDivElement>(null);
@@ -12,7 +13,7 @@ export function CursorFX() {
     const ring = ringRef.current;
     if (!fx || !dot || !ring) return;
     if (window.matchMedia("(pointer: coarse)").matches) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (motionReduced()) return;
 
     let x = -100;
     let y = -100;

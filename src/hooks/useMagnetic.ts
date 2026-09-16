@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { motionReduced } from "../lib/motion";
 
 /**
  * Magnetic hover: elements matching `selector` ease toward the cursor while
@@ -7,7 +8,7 @@ import { useEffect } from "react";
 export function useMagnetic(selector: string, strength = 0.28, maxShift = 10) {
   useEffect(() => {
     if (window.matchMedia("(pointer: coarse)").matches) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (motionReduced()) return;
 
     const els = Array.from(document.querySelectorAll<HTMLElement>(selector));
     if (!els.length) return;

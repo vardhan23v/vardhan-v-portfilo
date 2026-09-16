@@ -10,6 +10,7 @@ import { experience } from "../classic/data/experience";
 import { skillCategories } from "../classic/data/skills";
 import { site } from "../classic/data/site";
 import "./styles/forge.css";
+import { motionReduced } from "../lib/motion";
 
 const CATEGORY: Record<string, string> = {
   "extension-ai": "AI PRODUCT · DEVELOPER TOOL",
@@ -117,7 +118,7 @@ const LEDES = [
 function useLede() {
   const [idx, setIdx] = useState(0);
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (motionReduced()) return;
     const t = window.setInterval(() => setIdx((v) => (v + 1) % LEDES.length), 4200);
     return () => window.clearInterval(t);
   }, []);
@@ -150,7 +151,7 @@ function useForgeReveals() {
 
 function useMarqueeDrift() {
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (motionReduced()) return;
     const tracks = Array.from(document.querySelectorAll<HTMLElement>(".fg-marquee-track"));
     if (!tracks.length) return;
     let raf = 0;
@@ -178,7 +179,7 @@ function useMarqueeDrift() {
 
 function useForgeScrollFX() {
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (motionReduced()) return;
     const hero = document.querySelector<HTMLElement>(".fg-hero");
     const tl = document.querySelector<HTMLElement>(".fg-timeline");
     let raf = 0;
@@ -313,7 +314,7 @@ function ForgeNav() {
 function useUptime() {
   const [secs, setSecs] = useState(0);
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (motionReduced()) return;
     const t0 = performance.now();
     const id = window.setInterval(() => setSecs(Math.floor((performance.now() - t0) / 1000)), 1000);
     return () => window.clearInterval(id);
@@ -336,7 +337,7 @@ function BuildLog() {
   const [chars, setChars] = useState(BUILD_LOG[0].length);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (motionReduced()) return;
     let i = 0;
     let c = 0;
     let t = 0;

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { motionReduced } from "../../lib/motion";
 
 export function useTilt<T extends HTMLElement>(maxDeg = 6, target?: string) {
   const ref = useRef<T | null>(null);
@@ -6,7 +7,7 @@ export function useTilt<T extends HTMLElement>(maxDeg = 6, target?: string) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (motionReduced()) return;
     if (el.closest(".mac-root")?.getAttribute("data-mac-motion") === "off") return;
     const targetEl = (target ? el.querySelector(target) : el) as HTMLElement | null;
     if (!targetEl) return;

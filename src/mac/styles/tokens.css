@@ -201,14 +201,15 @@
 }
 
 /* ── Motion gate ────────────────────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  .mac-root *, .mac-root *::before, .mac-root *::after {
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] .mac-root *,
+html[data-motion="reduce"] .mac-root *::before,
+html[data-motion="reduce"] .mac-root *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
-}
 .mac-root[data-mac-motion="off"] *,
 .mac-root[data-mac-motion="off"] *::before,
 .mac-root[data-mac-motion="off"] *::after {

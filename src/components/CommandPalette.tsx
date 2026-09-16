@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { site } from "../classic/data/site";
 import "./command-palette.css";
+import { motionReduced, motionSummary, setMotionPreference } from "../lib/motion";
 
 type Item = {
   id: string;
@@ -10,7 +11,7 @@ type Item = {
   keywords?: string;
   path?: string;
   href?: string;
-  action?: "top" | "copy-email" | "copy-link" | "party" | "random";
+  action?: "top" | "copy-email" | "copy-link" | "party" | "random" | "motion";
 };
 
 const ITEMS: Item[] = [
@@ -30,7 +31,11 @@ const ITEMS: Item[] = [
   { id: "mail", label: "Email", hint: "✉", keywords: "contact mail", href: `mailto:${site.email}` },
   { id: "resume", label: "Resume", hint: "↗", keywords: "cv download", href: site.resume },
   { id: "party", label: "Party mode", hint: "🎉", keywords: "confetti easter egg konami fun", action: "party" },
+  { id: "motion", label: "Animations — toggle", hint: "⟲", keywords: "motion reduce animation effects transitions", action: "motion" },
 ];
+
+const withMotionLabel = (items: Item[]): Item[] =>
+  items.map((i) => (i.id === "motion" ? { ...i, label: `${motionSummary().label} — click to change` } : i));
 
 const RECENTS_KEY = "cp-recents";
 const editionPaths = ["/terminal", "/classic", "/paper", "/aurora", "/forge", "/mac"];
@@ -80,24 +85,26 @@ export function CommandPalette() {
   const [copied, setCopied] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const [motionTick, setMotionTick] = useState(0);
   const items = useMemo(() => {
+    void motionTick;
     const q = query.trim().toLowerCase();
     if (!q) {
       const recents = readRecents();
-      if (!recents.length) return ITEMS;
+      if (!recents.length) return withMotionLabel(ITEMS);
       const pinned = recents
         .map((id) => ITEMS.find((i) => i.id === id))
         .filter((i): i is Item => !!i);
-      return [...pinned, ...ITEMS.filter((i) => !recents.includes(i.id))];
+      return withMotionLabel([...pinned, ...ITEMS.filter((i) => !recents.includes(i.id))]);
     }
-    return ITEMS.map((i) => ({
+    return withMotionLabel(ITEMS).map((i) => ({
       item: i,
       score: fuzzyScore(q, `${i.label} ${i.keywords ?? ""} ${i.hint}`.toLowerCase()),
     }))
       .filter((r) => r.score >= 0)
       .sort((a, b) => b.score - a.score)
       .map((r) => r.item);
-  }, [query]);
+  }, [query, motionTick]);
 
   useEffect(() => {
     if (index >= items.length) setIndex(0);
@@ -128,6 +135,12 @@ export function CommandPalette() {
         );
         return;
       }
+      if (item.action === "motion") {
+        const { pref } = motionSummary();
+        setMotionPreference(pref === "auto" ? "on" : pref === "on" ? "off" : "auto");
+        setMotionTick((t) => t + 1);
+        return; // stay open so the new state is visible
+      }
       setOpen(false);
       if (item.action === "party") {
         window.dispatchEvent(new CustomEvent("vardhan:party"));
@@ -143,7 +156,7 @@ export function CommandPalette() {
           window.open(item.href, "_blank", "noopener,noreferrer");
         }
       } else if (item.action === "top") {
-        const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const reduced = motionReduced();
         window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
       }
     },

@@ -278,15 +278,17 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .classic-root .hero-availability-dot, .classic-root .hero-node, .classic-root .hero-float, .classic-root .hero-type-cursor {
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] .classic-root .hero-availability-dot,
+html[data-motion="reduce"] .classic-root .hero-node,
+html[data-motion="reduce"] .classic-root .hero-float,
+html[data-motion="reduce"] .classic-root .hero-type-cursor {
     animation: none;
   }
-  .classic-root .hero-lines path {
+html[data-motion="reduce"] .classic-root .hero-lines path {
     stroke-dashoffset: 0;
     animation: none;
   }
-  .classic-root .terminal {
+html[data-motion="reduce"] .classic-root .terminal {
     transform: none;
   }
-}

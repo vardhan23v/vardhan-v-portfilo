@@ -4,6 +4,7 @@ import { techGroups } from "../data/tech";
 import { caseStudies } from "../data/work";
 import { certifications, experience, education, process } from "../data/experience";
 import { TypeText } from "./TypeCmd";
+import { motionReduced } from "../../lib/motion";
 
 function MatrixRain() {
   const ref = useRef<HTMLCanvasElement | null>(null);
@@ -11,7 +12,7 @@ function MatrixRain() {
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (motionReduced()) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     const hero = canvas.parentElement as HTMLElement | null;
@@ -175,7 +176,7 @@ const COMMANDS = [
 ];
 
 function scrollToSection(id: string) {
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduced = motionReduced();
   document.getElementById(id)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
 }
 

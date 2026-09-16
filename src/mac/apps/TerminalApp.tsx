@@ -5,6 +5,7 @@ import { featuredProjects } from "../data/projects";
 import { skillCategories } from "../data/skills";
 import { experience } from "../data/experience";
 import { useIstTime } from "../hooks/useIstTime";
+import { motionReduced } from "../../lib/motion";
 
 interface Line { text: string; kind: "in" | "out" | "dim"; }
 
@@ -41,7 +42,7 @@ export function TerminalApp() {
   // Typewriter intro line.
   useEffect(() => {
     const full = "Vardhan OS · glass edition — type `help` to start.";
-    const fast = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const fast = motionReduced();
     if (fast) { setIntro(full); return; }
     let i = 0;
     const id = window.setInterval(() => {

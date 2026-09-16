@@ -150,16 +150,15 @@
   color: var(--text-faint);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .classic-root .exploring-dot {
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] .classic-root .exploring-dot {
     animation: none;
   }
-  .classic-root .skill-chip {
+html[data-motion="reduce"] .classic-root .skill-chip {
     opacity: 1;
     transform: none;
     transition: none;
   }
-  .classic-root .skill-chip-glyph {
+html[data-motion="reduce"] .classic-root .skill-chip-glyph {
     transform: none;
   }
-}

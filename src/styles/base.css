@@ -20,7 +20,8 @@
   --wp-h1: 225; --wp-h2: 262; --wp-h3: 196;
 }
 html { scroll-padding-top: 72px; }
-@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+/* motion gate (no-preference) — driven by html[data-motion], see src/lib/motion.ts */
+html:not([data-motion="reduce"]) { scroll-behavior: smooth; } 
 body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 *, *::before, *::after { box-sizing: border-box; }
 a { color: inherit; text-decoration: none; }

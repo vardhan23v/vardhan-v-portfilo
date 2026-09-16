@@ -518,16 +518,17 @@
   text-align: center;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .classic-root .project-code > span, .classic-root .others-card-ext {
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] .classic-root .project-code > span,
+html[data-motion="reduce"] .classic-root .others-card-ext {
     opacity: 1;
     transform: none;
     transition: none;
   }
-  .classic-root .project-code::after, .classic-root .project-search-cursor {
+html[data-motion="reduce"] .classic-root .project-code::after,
+html[data-motion="reduce"] .classic-root .project-search-cursor {
     animation: none;
   }
-  .classic-root .projects-grid > .reveal {
+html[data-motion="reduce"] .classic-root .projects-grid > .reveal {
     transition-delay: 0ms;
   }
-}

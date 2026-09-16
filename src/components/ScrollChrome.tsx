@@ -1,6 +1,7 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { useLocation } from "react-router-dom";
 import "./scroll-chrome.css";
+import { motionReduced } from "../lib/motion";
 
 const ACCENTS: Record<string, string> = {
   landing: "#7c6cff",
@@ -49,7 +50,7 @@ export function ScrollChrome() {
   }, []);
 
   const toTop = () => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = motionReduced();
     window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
   };
 

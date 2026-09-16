@@ -48,8 +48,7 @@
   border-color: var(--sc-accent, #7c6cff);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .sc-top {
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] .sc-top {
     transition: none;
   }
-}

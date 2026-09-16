@@ -1547,18 +1547,17 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .aurora-root *,
-  .aurora-root *::before,
-  .aurora-root *::after {
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] .aurora-root *,
+html[data-motion="reduce"] .aurora-root *::before,
+html[data-motion="reduce"] .aurora-root *::after {
     animation-duration: 0.001s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001s !important;
   }
-  .au-reveal {
+html[data-motion="reduce"] .au-reveal {
     animation: none !important;
   }
-}
 
 /* ============================================================
    AURORA 2.0 — upgraded features
@@ -1579,9 +1578,8 @@
   mix-blend-mode: screen;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .au-mouse-glow { display: none; }
-}
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] .au-mouse-glow { display: none; }
 
 /* toast */
 .au-toast {

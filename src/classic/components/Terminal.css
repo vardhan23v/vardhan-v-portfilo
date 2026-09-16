@@ -127,8 +127,8 @@
   50% { opacity: 0; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .classic-root .terminal-pulse, .classic-root .terminal-cursor {
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] .classic-root .terminal-pulse,
+html[data-motion="reduce"] .classic-root .terminal-cursor {
     animation: none;
   }
-}

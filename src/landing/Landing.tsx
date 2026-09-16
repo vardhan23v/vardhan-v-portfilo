@@ -11,6 +11,7 @@ import { featuredProjects } from "../classic/data/projects";
 import { experience } from "../classic/data/experience";
 import { skillCategories } from "../classic/data/skills";
 import "./Landing.css";
+import { MotionToggle } from "../components/MotionToggle";
 
 const STAGE_INTERVAL_MS = 4200;
 const PORTAL_GROW_MS = 60;
@@ -431,6 +432,7 @@ export function Landing() {
           <a href={site.github} target="_blank" rel="noopener">GitHub</a>
           <a href={site.linkedin} target="_blank" rel="noopener">LinkedIn</a>
           <a href={`mailto:${site.email}`}>{site.email}</a>
+          <MotionToggle className="landing-motion" />
         </span>
       </footer>
     </div>

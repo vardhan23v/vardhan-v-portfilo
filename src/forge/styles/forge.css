@@ -1663,46 +1663,40 @@
 
 /* ---------- motion safety ---------- */
 
-@media (prefers-reduced-motion: reduce) {
-  .forge-root *,
-  .forge-root *::before,
-  .forge-root *::after {
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] .forge-root *,
+html[data-motion="reduce"] .forge-root *::before,
+html[data-motion="reduce"] .forge-root *::after {
     animation-duration: 0.001s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001s !important;
   }
-
-  .fg-reveal,
-  .fg-enter,
-  .fg-stack-card,
-  .fg-tl-item {
+html[data-motion="reduce"] .fg-reveal,
+html[data-motion="reduce"] .fg-enter,
+html[data-motion="reduce"] .fg-stack-card,
+html[data-motion="reduce"] .fg-tl-item {
     opacity: 1 !important;
     transform: none !important;
   }
-
-  .fg-marquee-track,
-  .fg-pipe-pulse::before,
-  .fg-pipe-pulse::after,
-  .fg-bg::before,
-  .fg-bg::after,
-  .fg-contact::before {
+html[data-motion="reduce"] .fg-marquee-track,
+html[data-motion="reduce"] .fg-pipe-pulse::before,
+html[data-motion="reduce"] .fg-pipe-pulse::after,
+html[data-motion="reduce"] .fg-bg::before,
+html[data-motion="reduce"] .fg-bg::after,
+html[data-motion="reduce"] .fg-contact::before {
     transform: none !important;
     animation: none !important;
   }
-
-  .hero-heading,
-  .fg-hero-heading {
+html[data-motion="reduce"] .hero-heading,
+html[data-motion="reduce"] .fg-hero-heading {
     animation: none !important;
   }
-
-  .fg-lede-swap {
+html[data-motion="reduce"] .fg-lede-swap {
     animation: none !important;
   }
-
-  html {
+html[data-motion="reduce"] {
     scroll-behavior: auto;
   }
-}
 
 /* ---------- interface switcher ---------- */
 
@@ -1858,20 +1852,18 @@
 }
 
 /* cards slide in when the filter changes (stack is remounted via key) */
-@media (prefers-reduced-motion: no-preference) {
-  .fg-work-stack .fg-proj-wrap {
+/* motion gate (no-preference) — driven by html[data-motion], see src/lib/motion.ts */
+html:not([data-motion="reduce"]) .fg-work-stack .fg-proj-wrap {
     animation: fg-card-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
     animation-delay: calc(var(--i, 0) * 0.06s);
   }
-}
 @keyframes fg-card-enter {
   /* `to` omits transform so the sticky-stack scale on .fg-proj-wrap resumes */
   from { opacity: 0; transform: translateY(26px) scale(0.985); }
   to { opacity: 1; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .fg-embers { display: none; }
-  .fg-pipe { transform: none; }
-  .fg-h-word { transform: none; opacity: 1; animation: none; }
-}
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] .fg-embers { display: none; }
+html[data-motion="reduce"] .fg-pipe { transform: none; }
+html[data-motion="reduce"] .fg-h-word { transform: none; opacity: 1; animation: none; }

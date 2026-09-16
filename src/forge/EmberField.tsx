@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { motionReduced } from "../lib/motion";
 
 type Ember = {
   x: number;
@@ -21,7 +22,7 @@ export function EmberField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (motionReduced()) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");

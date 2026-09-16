@@ -4,6 +4,7 @@ import { Icon } from "../lib/icons";
 import { Terminal } from "./Terminal";
 import { Reveal } from "../hooks/useReveal";
 import "./Hero.css";
+import { motionReduced } from "../../lib/motion";
 
 const roles = [
   "Generative AI Developer",
@@ -15,7 +16,7 @@ function useTypewriter(words: string[]) {
   const [text, setText] = useState("");
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (motionReduced()) {
       setText(words[0]);
       return;
     }
@@ -55,7 +56,7 @@ function useTypewriter(words: string[]) {
 
 function useClassicHeroFX() {
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (motionReduced()) return;
     const hero = document.querySelector<HTMLElement>(".classic-root .hero");
     const visual = document.querySelector<HTMLElement>(".classic-root .hero-visual");
     const neural = document.querySelector<HTMLElement>(".classic-root .hero-neural");

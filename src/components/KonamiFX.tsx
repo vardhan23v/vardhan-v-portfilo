@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./konami-fx.css";
+import { motionReduced } from "../lib/motion";
 
 const KONAMI = [
   "ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown",
@@ -28,7 +29,7 @@ export function KonamiFX() {
     let toastTimer = 0;
 
     const burst = () => {
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      if (motionReduced()) {
         setToast(true);
         window.clearTimeout(toastTimer);
         toastTimer = window.setTimeout(() => setToast(false), 2600);

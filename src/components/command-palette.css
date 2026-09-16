@@ -114,10 +114,9 @@
   color: var(--text-3);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .cp-backdrop,
-  .cp-panel {
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] .cp-backdrop,
+html[data-motion="reduce"] .cp-panel {
     animation-duration: 0.001s !important;
     animation-iteration-count: 1 !important;
   }
-}

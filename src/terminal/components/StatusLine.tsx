@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { editionRoutes } from "../../editions";
 import { InterfaceSwitcher } from "../../interface-switcher/InterfaceSwitcher";
 import { site } from "../data/site";
 import { useActiveSection } from "../hooks/useActiveSection";
 import { usePhosphor } from "../hooks/usePhosphor";
-import { nextPhosphor, setPhosphor } from "../lib/phosphor";
+import { isPhosphor, nextPhosphor, setPhosphor, PHOSPHORS } from "../lib/phosphor";
 import { motionReduced } from "../../lib/motion";
 
 const WINDOWS = [
@@ -29,7 +30,69 @@ const isTyping = (t: EventTarget | null) => {
  */
 export function StatusLine() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const section = useActiveSection();
+  const [cmd, setCmd] = useState<string | null>(null); // vim ":" command line
+  const [msg, setMsg] = useState<{ text: string; err?: boolean } | null>(null);
+  const cmdRef = useRef<HTMLInputElement | null>(null);
+  const msgTimer = useRef(0);
+
+  const say = (text: string, err = false) => {
+    setMsg({ text, err });
+    window.clearTimeout(msgTimer.current);
+    msgTimer.current = window.setTimeout(() => setMsg(null), err ? 3200 : 2200);
+  };
+
+  const runEx = (raw: string) => {
+    const line = raw.trim();
+    setCmd(null);
+    if (!line) return;
+    const [head, ...rest] = line.split(/\s+/);
+    const arg = rest.join(" ");
+    const behavior: ScrollBehavior = motionReduced() ? "auto" : "smooth";
+    const win = WINDOWS.find((w) => String(w.n) === head || w.label === head || w.id === head);
+    if (win) return navigate(win.href);
+    switch (head) {
+      case "q": case "q!": case "wq": case "x": case "quit": case "exit":
+        say("exiting terminal — back to editions");
+        return navigate("/", { viewTransition: true });
+      case "w": case "write":
+        return say('"portfolio" [readonly] nothing to write');
+      case "e": case "edit": case "tabe": {
+        const to = `/${arg.replace(/^\//, "")}`;
+        if (editionRoutes.includes(to)) return navigate(to, { viewTransition: true });
+        return say(`E32: unknown edition "${arg}" — try ${editionRoutes.map((r) => r.slice(1)).join(", ")}`, true);
+      }
+      case "theme": case "phosphor": case "colo": case "colorscheme":
+        if (isPhosphor(arg)) { setPhosphor(arg); return say(`phosphor → ${arg}`); }
+        return say(`E185: unknown phosphor "${arg}" — ${PHOSPHORS.join(" | ")}`, true);
+      case "set":
+        if (/^(no)?motion$/.test(arg)) return say("use the landing footer or ⌘K → Animations");
+        return say(`E518: unknown option: ${arg}`, true);
+      case "top": case "0": case "gg":
+        return window.scrollTo({ top: 0, behavior });
+      case "$": case "bot": case "bottom": case "G":
+        return window.scrollTo({ top: document.documentElement.scrollHeight, behavior });
+      case "resume": case "cv":
+        window.open(site.resume, "_blank", "noopener");
+        return say("opening resume.pdf");
+      case "gh": case "github":
+        window.open(site.github, "_blank", "noopener");
+        return;
+      case "mail": case "email":
+        window.location.href = `mailto:${site.email}`;
+        return;
+      case "h": case "help":
+        say(":1-5 sections · :e <edition> · :theme <p> · :q · :!<shell cmd>");
+        return window.dispatchEvent(new CustomEvent("folio:shell", { detail: "help" }));
+      case "sh": case "!":
+        return window.dispatchEvent(new CustomEvent("folio:shell", { detail: arg }));
+      default:
+        if (head.startsWith("!")) return window.dispatchEvent(new CustomEvent("folio:shell", { detail: line.slice(1) }));
+        if (/^\d+$/.test(head)) return say(`E486: no window ${head} (0–5)`, true);
+        return say(`E492: Not an editor command: ${line}`, true);
+    }
+  };
   const phosphor = usePhosphor();
   const [pct, setPct] = useState(0);
   const [line, setLine] = useState(1);
@@ -83,6 +146,12 @@ export function StatusLine() {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") return setOpen(false);
       if (e.altKey || e.ctrlKey || e.metaKey || isTyping(e.target)) return;
+      if (e.key === ":") {
+        e.preventDefault();
+        setCmd("");
+        requestAnimationFrame(() => cmdRef.current?.focus());
+        return;
+      }
       const behavior: ScrollBehavior = motionReduced() ? "auto" : "smooth";
       const step = Math.round(window.innerHeight * 0.12);
       if (e.key === "j") window.scrollBy({ top: step, behavior });
@@ -107,9 +176,29 @@ export function StatusLine() {
   return (
     <>
       <div className={`statusline ${open ? "is-open" : ""}`} role="navigation" aria-label="Terminal navigation and status">
-        <span className={`sl-mode ${insert ? "is-insert" : ""}`} role="status">
-          {insert ? "-- INSERT --" : "-- NORMAL --"}
-        </span>
+        {cmd !== null ? (
+          <span className="sl-mode is-cmd">
+            <span aria-hidden="true">:</span>
+            <input
+              ref={cmdRef}
+              className="sl-cmd"
+              value={cmd}
+              onChange={(e) => setCmd(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") runEx(cmd);
+                else if (e.key === "Escape") setCmd(null);
+              }}
+              onBlur={() => setCmd(null)}
+              aria-label="Command line — type a vim command and press Enter"
+              autoComplete="off"
+              spellCheck={false}
+            />
+          </span>
+        ) : (
+          <span className={`sl-mode ${insert ? "is-insert" : ""}`} role="status">
+            {insert ? "-- INSERT --" : "-- NORMAL --"}
+          </span>
+        )}
         <Link to="/terminal" className="sl-brand" aria-label="vardhan.v — back to the shell">
           vardhan.v
         </Link>
@@ -133,9 +222,15 @@ export function StatusLine() {
           )}
         </nav>
 
-        <span className="sl-fill" aria-hidden="true">
-          <i style={{ width: `${pct}%` }} />
-        </span>
+        {msg ? (
+          <span className={`sl-msg ${msg.err ? "is-err" : ""}`} role="status">
+            {msg.text}
+          </span>
+        ) : (
+          <span className="sl-fill" aria-hidden="true">
+            <i style={{ width: `${pct}%` }} />
+          </span>
+        )}
 
         <span className="sl-switcher">
           <InterfaceSwitcher current="terminal" />

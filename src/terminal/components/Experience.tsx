@@ -45,6 +45,9 @@ export function Experience() {
                       </ul>
                     </div>
                   ))}
+                  <div className="exp-tail" aria-hidden="true">
+                    <span className="bracket">[now]</span> <b>INFO</b> tail -f · waiting for the next entry <span className="type-caret" />
+                  </div>
                 </div>
 
                 <div className="edu-box">

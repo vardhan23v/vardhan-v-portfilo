@@ -35,18 +35,18 @@ export function OpenSource() {
               <div className="term-body">
                 <div className="remote-list">
                   {list.map((r, i) => (
-                    <div className="remote-item" key={r.name} data-spot style={{ "--i": i } as React.CSSProperties}>
-                      <span className="remote-name">{r.name}</span>
-                      <span className="rl">
-                        {r.description ? r.description : "(no description)"}
+                    <a className="remote-item" key={r.name} href={r.url} target="_blank" rel="noopener noreferrer" data-spot style={{ "--i": i } as React.CSSProperties}>
+                      <span className="remote-id">
+                        <span className="remote-name">{r.name}</span>
+                        <span className="remote-url">{r.url.replace("https://github.com/", "")}</span>
                       </span>
-                      <span className="remote-lang">{r.language ?? "—"}</span>
-                      <span className="remote-url">
-                        <a href={r.url} target="_blank" rel="noopener noreferrer" className="tlink">
-                          {r.url.replace("https://", "")}
-                        </a>
+                      <span className="rl">{r.description ? r.description : "(no description)"}</span>
+                      <span className={`remote-lang lang-${(r.language ?? "").toLowerCase()}`}>
+                        <i aria-hidden="true" />
+                        {r.language ?? "—"}
                       </span>
-                    </div>
+                      <span className="remote-go" aria-hidden="true">↗</span>
+                    </a>
                   ))}
                 </div>
               </div>

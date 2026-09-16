@@ -6,6 +6,7 @@ import { certifications, experience, education, process } from "../data/experien
 import { TypeText } from "./TypeCmd";
 import { motionReduced } from "../../lib/motion";
 import { PHOSPHORS, getPhosphor, isPhosphor, setPhosphor } from "../lib/phosphor";
+import { banner } from "../lib/banner";
 
 function MatrixRain() {
   const ref = useRef<HTMLCanvasElement | null>(null);
@@ -288,6 +289,7 @@ function runCmd(raw: string, getHistory: () => string[]): Line[] {
       push("  ctrl+l                   wipe the session too", "dim");
       push("  ` or ?                   focus this terminal from anywhere", "dim");
       push("  j / k · gg · G           vim-style scrolling", "dim");
+      push("  :                        vim command line — :work, :e mac, :theme amber, :q", "dim");
       push("  tab / ↑↓                 completion / command history", "dim");
       break;
     case "whoami":
@@ -575,6 +577,48 @@ export function Hero() {
   }, []);
 
   const submitRef = useRef<(raw: string) => void>(() => {});
+  const touchedRef = useRef(false); // user has typed or run something
+
+  // The bottom bar's `:` mode and other chrome can hand a command to this shell.
+  useEffect(() => {
+    const onShell = (e: Event) => {
+      const cmd = (e as CustomEvent<string>).detail;
+      if (!cmd) return;
+      touchedRef.current = true;
+      heroRef.current?.scrollIntoView({ behavior: motionReduced() ? "auto" : "smooth", block: "start" });
+      inputRef.current?.focus();
+      submitRef.current(cmd);
+    };
+    window.addEventListener("folio:shell", onShell);
+    return () => window.removeEventListener("folio:shell", onShell);
+  }, []);
+
+  // First visit: the shell types `neofetch` by itself so the box is never empty.
+  useEffect(() => {
+    if (motionReduced()) return;
+    let cancelled = false;
+    const timers: number[] = [];
+    const start = window.setTimeout(() => {
+      if (cancelled || touchedRef.current) return;
+      const cmd = "neofetch";
+      cmd.split("").forEach((_, i) => {
+        timers.push(window.setTimeout(() => {
+          if (cancelled || touchedRef.current) return;
+          setInput(cmd.slice(0, i + 1));
+        }, i * 70));
+      });
+      timers.push(window.setTimeout(() => {
+        if (cancelled || touchedRef.current) return;
+        submitRef.current(cmd);
+      }, cmd.length * 70 + 260));
+    }, bootDelay + 2600);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(start);
+      timers.forEach(window.clearTimeout);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const submit = (raw: string) => {
     const cmds = raw.trim().toLowerCase().split(/[;&]+/).map((c) => c.trim()).filter(Boolean);
     if (cmds.length > 0) {
@@ -652,7 +696,7 @@ export function Hero() {
             {site.fullName} — {site.role}
           </h1>
           <pre className="hero-banner" aria-hidden="true">
-            {`VARDHAN.V`}
+            {banner("VARDHAN.V")}
           </pre>
           <div className="hero-tag">generative-ai developer :: full-stack developer</div>
           <p className="hero-intro">
@@ -669,7 +713,7 @@ export function Hero() {
                 key={c}
                 type="button"
                 className="hero-quick"
-                onClick={() => submit(c)}
+                onClick={() => { touchedRef.current = true; submit(c); }}
               >
                 <b>$</b> {c}
               </button>
@@ -732,7 +776,8 @@ export function Hero() {
                   ref={inputRef}
                   className="shell-input"
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
+                  onChange={(e) => { touchedRef.current = true; setInput(e.target.value); }}
+                  onFocus={() => { touchedRef.current = true; }}
                   onKeyDown={onKey}
                   placeholder="type a command…"
                   aria-label="Terminal — type a command and press Enter"

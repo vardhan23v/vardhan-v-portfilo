@@ -11,7 +11,7 @@ interface Note { id: string; title: string; body: string; updated: number; kind:
 const KEY = "mac-notes";
 
 function publicNotes(): Note[] {
-  const t = Date.parse("2026-09-15T12:00:00+05:30");
+  const t = Date.parse("2026-10-29T12:00:00+05:30");
   const n: Note[] = [
     { id: "about", kind: "public", updated: t, title: "About me", body:
 `# ${site.name}
@@ -40,8 +40,7 @@ ${exploring.map((e) => `- **${e.name}** — ${e.note}`).join("\n")}
 
 - [x] Rebuild the macOS edition as Vardhan OS 2.0
 - [x] Landing page redesign
-- [ ] Write the case studies
-- [ ] Record demo videos for the flagship projects` },
+- [x] Ship TrustLens, LaunchRadar and ChitChain` },
     { id: "stack", kind: "public", updated: t - 7200e3, title: "Stack", body:
 `# Stack
 ${skillCategories.map((c) => `## ${c.label}\n${c.items.map((i) => `\`${i.name}\``).join(" ")}`).join("\n\n")}` },

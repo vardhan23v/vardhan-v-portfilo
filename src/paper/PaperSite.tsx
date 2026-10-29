@@ -116,7 +116,7 @@ export function PaperSite() {
         <header className="paper-masthead">
           <p className="paper-overline">Generative AI developer · full-stack engineer</p>
           <h1 className="paper-mast-headline">
-            Sree Vardhan
+            Sree
             <br />
             <span className="it">Vardhan V.</span>
           </h1>
@@ -126,7 +126,7 @@ export function PaperSite() {
             undergraduate building with AI + the full stack.
           </p>
           <div className="paper-mast-actions">
-            <a className="paper-btn paper-btn-primary" href={site.resume} download>
+            <a className="paper-btn paper-btn-primary" href={site.resume} download="sree-vardhan-v-resume.pdf">
               Download résumé ↓
             </a>
             <a className="paper-btn paper-btn-ghost" href={`mailto:${site.email}`}>
@@ -253,7 +253,7 @@ export function PaperSite() {
       </main>
 
       <footer className="paper-foot">
-        <span>© 2026 {site.name}</span>
+        <span>© {new Date().getFullYear()} {site.name}</span>
         <span className="paper-foot-links">
           <Link to="/">editions</Link>
           <a href={site.github} target="_blank" rel="noopener noreferrer">

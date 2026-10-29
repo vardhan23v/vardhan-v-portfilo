@@ -59,7 +59,7 @@ export function ContactPage() {
         <div className="page-header__eyebrow">Contact</div>
         <h1 className="page-header__title">Say hello.</h1>
         <p className="page-header__subtitle">
-          Open to opportunities, collaborations, and interesting conversations. Replies within 24 hours.
+          {site.availability} — collaborations and interesting conversations welcome. Replies {site.replyTime}.
         </p>
       </div>
 

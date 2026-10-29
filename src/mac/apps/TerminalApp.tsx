@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useWindowManager, type AppId } from "../hooks/useWindowManager";
 import { site } from "../data/site";
+import { aiStack } from "../../classic/data/stats";
 import { featuredProjects } from "../data/projects";
 import { skillCategories } from "../data/skills";
 import { experience } from "../data/experience";
@@ -133,7 +134,7 @@ export function TerminalApp() {
         print(`Role: ${site.title}`);
         print(`Frontend: React / TypeScript`);
         print(`Backend: Node.js / Express`);
-        print(`AI: Muse Spark / DeepSeek / MCP`);
+        print(`AI: ${aiStack.slice(0, 4).join(" / ")}`);
         print(`Projects: ${featuredProjects.length} featured`);
         print("Status: Building…");
         break;

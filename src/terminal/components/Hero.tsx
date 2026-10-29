@@ -517,7 +517,7 @@ export function Hero() {
           </div>
 
           <div className="hero-cta">
-            <a className="btn btn-solid" href={site.resume} download>
+            <a className="btn btn-solid" href={site.resume} download="sree-vardhan-v-resume.pdf">
               resume.pdf
             </a>
             <a className="btn" href="#work">

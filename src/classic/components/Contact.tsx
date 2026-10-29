@@ -55,7 +55,7 @@ export function Contact() {
             <div className="contact-copy">
               <h2 className="section-title">Get in touch</h2>
               <p className="contact-desc">
-                Internship offers, product ideas and hard problems are all welcome. I reply within a day.
+                Internship offers, product ideas and hard problems are all welcome. I reply {site.replyTime}.
               </p>
 
               <div className="contact-channels">
@@ -143,7 +143,7 @@ export function Contact() {
               </button>
               {sent && (
                 <p className="form-note" role="status">
-                  Your email app opened with the message. Send it there and I will reply within a day.
+                  Your email app opened with the message. Send it there and I will reply {site.replyTime}.
                 </p>
               )}
               <p className="form-legal">

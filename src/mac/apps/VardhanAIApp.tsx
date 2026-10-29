@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Send } from "lucide-react";
 import { site } from "../data/site";
+import { aiStack } from "../../classic/data/stats";
 import { featuredProjects, type Project } from "../data/projects";
 import { skillCategories } from "../data/skills";
 import { experience, education, certifications } from "../data/experience";
@@ -87,7 +88,7 @@ function answer(q: string): Answer {
       .map((i) => i.name)
       .join(", ");
     return {
-      text: `Core stack: ${fe}. Backend: ${be}. For AI he uses Muse Spark, DeepSeek, Groq + MCP tooling. [Open Skills](app:skills) has the full list.`,
+      text: `Core stack: ${fe}. Backend: ${be}. For AI he uses ${aiStack.slice(0, 4).join(", ")}. [Open Skills](app:skills) has the full list.`,
     };
   }
 

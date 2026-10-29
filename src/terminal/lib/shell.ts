@@ -6,6 +6,7 @@
  */
 import { site } from "../data/site";
 import { techGroups, fallbackRepos } from "../data/tech";
+import { github } from "../../classic/data/stats";
 import { caseStudies, otherWork } from "../data/work";
 import { certifications, experience, education, process } from "../data/experience";
 import { PHOSPHORS, getPhosphor, isPhosphor, setPhosphor, getCrt, setCrt } from "./phosphor";
@@ -382,7 +383,7 @@ function runCmd(cmdRaw: string, arg: string, ctx: ShellCtx): ShellResult {
         break;
       }
       if (dir === "repos" || dir === "./repos") {
-        push(`~/repos — ${fallbackRepos.length} public`, "cyan");
+        push(`~/repos — ${github.repos} public · showing ${fallbackRepos.length}`, "cyan");
         rows(fallbackRepos.map((r) => [r.name, r.language ?? "—", r.description.slice(0, 60)]));
         break;
       }
@@ -403,7 +404,7 @@ function runCmd(cmdRaw: string, arg: string, ctx: ShellCtx): ShellResult {
         ["-rw-r--r--", "vardhan", `${experience.length * 212}B`, d, "experience.log"],
         ["-rw-r--r--", "vardhan", `${techGroups.reduce((n, g) => n + g.items.length, 0) * 14}B`, d, "skills.tree"],
         ["-rwxr-xr-x", "vardhan", "512B", d, "how_i_work.sh"],
-        ["-rw-r--r--", "vardhan", "148K", d, "resume.pdf"],
+        ["-rw-r--r--", "vardhan", "45K", d, "resume.pdf"],
       ]);
       break;
     }
@@ -667,7 +668,7 @@ function runCmd(cmdRaw: string, arg: string, ctx: ShellCtx): ShellResult {
       const data: [string, number][] = [
         ["case studies", caseStudies.length],
         ["also built", otherWork.length],
-        ["public repos", fallbackRepos.length],
+        ["public repos", github.repos],
         ["roles logged", experience.length],
         ["skills indexed", skills],
         ["certifications", certifications.length],

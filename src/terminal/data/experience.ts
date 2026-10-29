@@ -1,56 +1,28 @@
 /**
- * Terminal-edition copy of the CV data (shorter, log-style wording). The classic
- * edition keeps its own in src/classic/data/experience.ts — update both.
+ * Terminal-edition view of the CV. Derived from src/classic/data/experience.ts so the
+ * two editions can never drift — only the log-style shaping lives here.
  */
-export const experience = [
-  {
-    company: "OxCode",
-    role: "AI Product Beta Tester",
-    period: "Jul 2026 — Present",
-    points: [
-      "Selected for the Founding Builders community; test AI-powered software engineering workflows.",
-      "Report bugs and product feedback; evaluate developer experience.",
-    ],
-  },
-  {
-    company: "FlyRank AI",
-    role: "Front-end AI Engineering Intern",
-    period: "Jul 2026 — Present",
-    points: [
-      "Build AI-focused frontend interfaces with modern AI + web technologies.",
-    ],
-  },
-  {
-    company: "Zetheta Algorithms",
-    role: "Full Stack Engineer",
-    period: "Jul 2026 — Aug 2026",
-    points: [
-      "Built a multi-step loan application form with custom API integration.",
-      "Connected frontend workflows to backend services.",
-    ],
-  },
-  {
-    company: "Zaalima Development",
-    role: "Web Development Intern",
-    period: "Mar 2026 — Jun 2026",
-    points: [
-      "Built web-based solutions in a startup environment with hands-on problem solving.",
-    ],
-  },
-];
+import {
+  experience as fullExperience,
+  education as fullEducation,
+  certifications as fullCertifications,
+} from "../../classic/data/experience";
 
+export const experience = fullExperience.map((e) => ({
+  company: e.company,
+  role: e.role,
+  period: e.period,
+  points: e.points.slice(0, 3),
+}));
+
+const primary = fullEducation[0];
 export const education = {
-  school: "NMAM Institute of Technology, NITTE",
-  degree: "B.Tech — Computer Science and Engineering",
-  period: "2024–2028",
+  school: primary.school,
+  degree: primary.degree,
+  period: primary.period,
 };
 
-export const certifications = [
-  "Software Engineering Job Simulation — Electronic Arts (Forage)",
-  "Software Engineering Job Simulation — Commonwealth Bank (Forage)",
-  "Full Stack Generative & Agentic AI with Python — Udemy",
-  "PostgreSQL Developer — Infosys Springboard",
-];
+export const certifications: string[] = [...fullCertifications];
 
 export const process = [
   { step: "01", label: "Understand", text: "Clarify the problem before choosing the technology." },

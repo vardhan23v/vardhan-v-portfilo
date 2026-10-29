@@ -26,7 +26,7 @@ export function Footer() {
       <div className="container">
         <div className="footer-inner">
           <span>
-            <span className="green">© 2026</span> {site.fullName} <span className="bracket">·</span> built with
+            <span className="green">© {new Date().getFullYear()}</span> {site.fullName} <span className="bracket">·</span> built with
             react + typescript <span className="bracket">·</span> no template was harmed
           </span>
           <span>

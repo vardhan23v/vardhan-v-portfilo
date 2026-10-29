@@ -59,7 +59,7 @@ export function Experience() {
                     @ {education.school} <span className="bracket">·</span> {education.period}
                   </div>
                   <div className="exp-headln edu-certs-head">
-                    [{certifications.length} entries] <b>INFO</b> certs_verified
+                    [{certifications.length} entries] <b>INFO</b> certs_listed
                   </div>
                   <ul className="cert-list">
                     {certifications.map((c, i) => {

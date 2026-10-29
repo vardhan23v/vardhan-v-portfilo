@@ -4,6 +4,7 @@ import { Icon } from "../lib/icons";
 import "./Hero.css";
 import { motionReduced } from "../../lib/motion";
 import { stats } from "../data/stats";
+import { useGithub } from "../../hooks/useGithub";
 import { featuredProjects } from "../data/projects";
 import { monogram } from "../lib/monogram";
 import { CountUp } from "./CountUp";
@@ -43,23 +44,24 @@ function useClassicHeroFX() {
   }, []);
 }
 
-const HERO_STATS: { value: number; label: string; suffix?: string }[] = [
-  { value: stats.shipped, label: "products shipped" },
-  { value: stats.repos, label: "public repositories" },
-  { value: stats.roles, label: "internships and roles" },
+const heroStats = (repos: number): { value: number; label: string; suffix?: string }[] => [
+  { value: stats.featured, label: "featured projects" },
+  { value: stats.live, label: "live deployments" },
+  { value: repos, label: "public repositories" },
 ];
 
 const latest = featuredProjects[0];
 
 export function Hero() {
   useClassicHeroFX();
+  const gh = useGithub();
   return (
     <section className="hero" id="top">
       <div className="container hero-grid">
         <div className="hero-copy">
           <p className="hero-availability">
             <span className="hero-availability-dot" aria-hidden="true" />
-            Open to internships and AI product work
+            {site.availability}
           </p>
 
           <h1 className="hero-name">
@@ -76,13 +78,13 @@ export function Hero() {
             <a href="#projects" className="btn btn-primary">
               View projects
             </a>
-            <a href={site.resume} className="btn btn-ghost" download>
+            <a href={site.resume} className="btn btn-ghost" download="sree-vardhan-v-resume.pdf">
               <Icon.download width={17} height={17} /> Download résumé
             </a>
           </div>
 
           <dl className="hero-stats" aria-label="At a glance">
-            {HERO_STATS.map((s) => (
+            {heroStats(gh.repos).map((s) => (
               <div className="hero-stat" key={s.label}>
                 <dd>
                   <CountUp to={s.value} suffix={s.suffix} />

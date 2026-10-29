@@ -294,7 +294,7 @@ export function StatusLine() {
         </nav>
         <div className="sl-sheet-meta">
           <InterfaceSwitcher current="terminal" />
-          <a href={site.resume} download>download resume</a>
+          <a href={site.resume} download="sree-vardhan-v-resume.pdf">download resume</a>
           <a href={site.github} target="_blank" rel="noopener noreferrer">github.com/vardhan23v</a>
           <a href={site.linkedin} target="_blank" rel="noopener noreferrer">linkedin.com/in/vardhan-v23</a>
           <a href={`mailto:${site.email}`}>{site.email}</a>

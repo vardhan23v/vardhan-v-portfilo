@@ -10,9 +10,7 @@ export const CATEGORY_LABELS: Record<ProjectCategory, string> = {
 
 /** Same categorisation as Aurora so filters feel consistent. */
 export function catOf(p: Project): ProjectCategory {
-  if (p.slug === "extension-ai") return "tools";
-  if (p.slug === "ai-code-reviewer" || p.slug.endsWith("-ai")) return "ai";
-  return "full-stack";
+  return p.category === "tool" ? "tools" : p.category;
 }
 
 export function categoryCounts(projects: Project[]): Record<ProjectCategory, number> {

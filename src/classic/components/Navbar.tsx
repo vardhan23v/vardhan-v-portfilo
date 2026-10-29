@@ -89,7 +89,7 @@ export function Navbar() {
               <Icon.linkedin width={18} height={18} />
             </a>
           </div>
-          <a href={site.resume} className="btn btn-primary btn-sm nav-resume" download>
+          <a href={site.resume} className="btn btn-primary btn-sm nav-resume" download="sree-vardhan-v-resume.pdf">
             Résumé
           </a>
           <button
@@ -129,7 +129,7 @@ export function Navbar() {
           <a href={site.linkedin} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">
             <Icon.linkedin width={17} height={17} /> LinkedIn
           </a>
-          <a href={site.resume} className="btn btn-primary" download>
+          <a href={site.resume} className="btn btn-primary" download="sree-vardhan-v-resume.pdf">
             <Icon.download width={17} height={17} /> Download résumé
           </a>
         </div>

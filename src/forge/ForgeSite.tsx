@@ -5,28 +5,16 @@ import { LiquidButton, MetalButton } from "../components/ui/LiquidButton";
 import { useTilt } from "../hooks/useTilt";
 import { useMagnetic } from "../hooks/useMagnetic";
 import { EmberField } from "./EmberField";
-import { featuredProjects, type Project } from "../classic/data/projects";
+import { featuredProjects, type Project, CATEGORY_LABEL } from "../classic/data/projects";
 import { experience } from "../classic/data/experience";
 import { skillCategories } from "../classic/data/skills";
 import { site } from "../classic/data/site";
-import { github } from "../classic/data/stats";
+import { github, aiStack } from "../classic/data/stats";
 import "./styles/forge.css";
 import { motionReduced } from "../lib/motion";
 
-const CATEGORY: Record<string, string> = {
-  "extension-ai": "AI PRODUCT · DEVELOPER TOOL",
-  "ai-code-reviewer": "AI · DEVELOPER TOOL",
-  "careerforge-pro": "AI · CAREER PLATFORM",
-  "vard-ai": "AI ASSISTANT",
-  "disastermind-ai": "AI · EMERGENCY OPERATIONS",
-  drivenest: "FULL-STACK · DATABASE",
-  "hpl-auction": "FULL-STACK · REAL-TIME",
-  "apex-retail-erp": "FULL-STACK · ERP",
-  "dayflow-hrms": "FULL-STACK · HRMS",
-};
-
 function getCategory(p: Project): string {
-  return CATEGORY[p.slug] ?? "AI · FULL-STACK";
+  return (p.kicker ?? CATEGORY_LABEL[p.category]).toUpperCase();
 }
 
 const FORGE_PROJECTS = featuredProjects.map((p, i) => ({
@@ -35,7 +23,7 @@ const FORGE_PROJECTS = featuredProjects.map((p, i) => ({
   cat: getCategory(p),
 }));
 
-const AI_TECHS = new Set(["Gemini", "Claude", "Groq", "MCP", "OpenAI", "Mistral", "Cohere", "Muse Spark 1.2", "DeepSeek", "Kimi", "Muse Spark", "DeepSeek API", "Kimi API"]);
+const AI_TECH = /gemini|claude|groq|gpt|openai|mistral|cohere|crewai|mcp|whisper|onnx|llm|agent/i;
 
 const ABOUT_PARAGRAPHS = [
   "I'm a Computer Science undergraduate focused on Generative AI, full-stack development, and shipping useful software products.",
@@ -487,7 +475,7 @@ function Hero({ stoked, onStoke }: { stoked: boolean; onStoke: () => void }) {
     ["Frontend", "React · Tailwind UI", "#7DD3FC"],
     ["API", "Node.js · REST · Cloudinary", "#93C5FD"],
     ["Database", "Cloud MySQL · Prisma", "#A78BFA"],
-    ["LLM", "Muse Spark · DeepSeek · Kimi · MCP", "#C4B5FD"],
+    ["LLM", aiStack.slice(0, 4).join(" · "), "#C4B5FD"],
     ["Product", "Railway · Vercel · live", "#BBCCD7"],
   ];
   return (
@@ -622,10 +610,10 @@ function Stat({ value, label, accent }: { value: number; label: string; accent?:
 function StatsStrip() {
   const { followers, repos } = useGithubStats();
   const items: { value: number; label: string; accent?: boolean }[] = [
-    { value: FORGE_PROJECTS.length, label: "shipped products" },
+    { value: FORGE_PROJECTS.length, label: "featured products" },
     { value: STACK.length, label: "stack groups" },
-    { value: repos ?? 15, label: "public repos" },
-    { value: followers ?? 27, label: "github followers", accent: true },
+    { value: repos ?? github.repos, label: "public repos" },
+    { value: followers ?? github.followers, label: "github followers", accent: true },
   ];
   return (
     <section className="fg-stats fg-reveal" aria-label="Live stats">
@@ -753,7 +741,7 @@ function ProjectCard({ p, i }: { p: (typeof FORGE_PROJECTS)[number]; i: number }
     e.currentTarget.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
     e.currentTarget.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
   };
-  const ai = p.tech.filter((t) => AI_TECHS.has(t));
+  const ai = p.tech.filter((t) => AI_TECH.test(t));
   const features = p.features.slice(0, 4);
   const featured = p.highlight === true;
   const [flipped, setFlipped] = useState(false);
@@ -848,7 +836,7 @@ function ProjectCard({ p, i }: { p: (typeof FORGE_PROJECTS)[number]; i: number }
         )}
         <div className="fg-proj-tech">
           {p.tech
-            .filter((t) => !AI_TECHS.has(t))
+            .filter((t) => !AI_TECH.test(t))
             .slice(0, 6)
             .map((t) => (
               <span key={t}>{t}</span>

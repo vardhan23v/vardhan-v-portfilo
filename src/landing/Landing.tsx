@@ -427,7 +427,7 @@ export function Landing() {
       </main>
 
       <footer className="landing-foot" data-reveal>
-        <span>© 2026 {site.name} · {site.location.split(",").slice(0, 1)}, India</span>
+        <span>© {new Date().getFullYear()} {site.name} · {site.location.split(",").slice(0, 1)}, India</span>
         <span className="landing-links">
           <a href={site.github} target="_blank" rel="noopener">GitHub</a>
           <a href={site.linkedin} target="_blank" rel="noopener">LinkedIn</a>

@@ -3,8 +3,12 @@
  * purpose: these carry long-form prose (problem / approach / decisions / lessons)
  * the other editions do not render. Slugs match the classic edition.
  */
+import { featuredProjects, otherProjects } from "../../classic/data/projects";
+
 export interface CaseStudy {
   slug: string;
+  /** Who built it; shown on the case-study page. */
+  role?: string;
   number: string;
   name: string;
   tagline: string;
@@ -22,7 +26,7 @@ export interface CaseStudy {
   screenshots?: { src: string; caption: string }[];
 }
 
-export const caseStudies: CaseStudy[] = [
+const rawStudies: CaseStudy[] = [
   {
     slug: "extension-ai",
     number: "01",
@@ -124,7 +128,7 @@ export const caseStudies: CaseStudy[] = [
     description:
       "AI-assisted resume builder and career toolkit — content generation, ATS scoring, and PDF export.",
     problem:
-      "Resumes fail ATS filters because of formatting and keyword gaps. Writing 'impact bullets' is slow, and most readers never see the result problem before the screen. I wanted resume building to be assisted end-to-end: content, matching, scoring, export.",
+      "Resumes fail ATS filters because of formatting and keyword gaps. Writing 'impact bullets' is slow, and most readers never see the problem before the screen. I wanted resume building to be assisted end-to-end: content, matching, scoring, export.",
     approach:
       "An eight-section form wizard backed by an AI content forge: describe experience in plain English and get tailored bullet points, rewrite any section, or match a pasted job description. An ATS strength score (0–100) simulates screening performance, keyword injection fills gaps, and four templates export to print-ready PDF.",
     outcome:
@@ -216,7 +220,7 @@ export const caseStudies: CaseStudy[] = [
     description:
       "A multi-agent digital twin of a city under cyclone — tactical map, simulation, dispatch, and reporting.",
     problem:
-      "During a disaster, information is fragmented across weather feeds, roads closures, hospital capacity, SOS calls, and field responders. Commanders lose minutes stitching it together by hand. I wanted an operations console that presents one coherent, explainable picture of a city in crisis.",
+      "During a disaster, information is fragmented across weather feeds, road closures, hospital capacity, SOS calls, and field responders. Commanders lose minutes stitching it together by hand. I wanted an operations console that presents one coherent, explainable picture of a city in crisis.",
     approach:
       "A deterministic multi-agent simulation: ten specialized agents (weather, flood, resources, evacuation, satellite, social, call priority, shelter, chief AI, SITREP) operate as pure decision functions over a shared world state, driven by a single authoritative clock. One-way data flow — world → agents → event bus → chief AI → dispatch — feeds a Leaflet tactical map with SVG overlays, an operations feed, analytics, and automated PDF situation reports.",
     outcome:
@@ -257,71 +261,23 @@ export const caseStudies: CaseStudy[] = [
   },
 ];
 
-export const otherWork: { name: string; note: string; url: string; lang?: string }[] = [
-  {
-    name: "HPL Auction",
-    note: "Live cricket auction — Next.js 16, Socket.IO, Prisma, server-authoritative timer & purse engine. 6 teams, auctioneer console.",
-    url: "https://github.com/vardhan23v/hpl-auction",
-    lang: "TypeScript",
-  },
-  {
-    name: "Apex Retail ERP",
-    note: "Inventory & billing for retail — POS with barcode, GST invoices (PDFKit), stock audit, analytics, RBAC.",
-    url: "https://github.com/vardhan23v/inventory-management",
-    lang: "JavaScript",
-  },
-  {
-    name: "Dayflow HRMS",
-    note: "Employee directory, attendance, leave, payroll with PDF payslips, LinkedIn OAuth. TS monorepo on Vercel.",
-    url: "https://github.com/vardhan23v/Human-Resource-Management-System",
-    lang: "TypeScript",
-  },
-  {
-    name: "Campus Compass",
-    note: "College discovery and comparison — Next.js 16, PostgreSQL, Prisma, NextAuth.",
-    url: "https://github.com/vardhan23v/campus-compass",
-    lang: "JavaScript",
-  },
-  {
-    name: "SEM5 Learning Hub",
-    note: "Animated revision site — CNC, TOC, DS, OS with live SVG, automata simulators & CPU scheduler.",
-    url: "https://github.com/vardhan23v/sem5-learning-hub",
-    lang: "JavaScript",
-  },
-  {
-    name: "SEM5",
-    note: "PDF reader & study hub for 5th sem — organized notes and PDFs with dark UI.",
-    url: "https://github.com/vardhan23v/sem5",
-    lang: "HTML",
-  },
-  {
-    name: "DriveNest",
-    note: "Vehicle rental platform — Node.js, MySQL, booking and billing flows.",
-    url: "https://github.com/vardhan23v/Drivenest",
-    lang: "JavaScript",
-  },
-  {
-    name: "LoanEase",
-    note: "Multi-step loan application wizard — React 19, TypeScript, validation, autosave.",
-    url: "https://github.com/vardhan23v/LoanEase-Multi-Step-Form",
-    lang: "JavaScript",
-  },
-  {
-    name: "Task Tracker SaaS",
-    note: "MERN task management with a glassmorphism interface.",
-    url: "https://github.com/vardhan23v/task-tracker-saas",
-    lang: "TypeScript",
-  },
-  {
-    name: "NoteVault",
-    note: "PDF reader and study hub for engineering students.",
-    url: "https://github.com/vardhan23v/NoteVault",
-    lang: "JavaScript",
-  },
-  {
-    name: "UNO Game",
-    note: "Playable card game in vanilla JavaScript with an AI opponent.",
-    url: "https://github.com/vardhan23v/uno-game",
-    lang: "JavaScript",
-  },
+/**
+ * Case studies keep their long-form prose here, but name, stack, links and role come from the
+ * shared project data so the Terminal never disagrees with the other editions.
+ */
+export const caseStudies: CaseStudy[] = rawStudies.map((cs) => {
+  const base = featuredProjects.find((p) => p.slug === cs.slug);
+  return base ? { ...cs, name: base.name, tech: base.tech, github: base.github, live: base.live, role: base.role } : cs;
+});
+
+const studied = new Set(caseStudies.map((c) => c.slug));
+const langOf = (tech: string[]) =>
+  tech.some((x) => /typescript|tanstack|next\.js/i.test(x)) ? "TypeScript" : tech.some((x) => /python|fastapi/i.test(x)) ? "Python" : tech.some((x) => /java\b|jakarta/i.test(x)) ? "Java" : "JavaScript";
+
+/** Everything else, derived from the shared project lists: featured work without a case study first, then the smaller builds. */
+export const otherWork: { name: string; note: string; url: string; live?: string; lang?: string }[] = [
+  ...featuredProjects
+    .filter((p) => !studied.has(p.slug))
+    .map((p) => ({ name: p.name, note: `${p.tagline} ${p.tech.slice(0, 4).join(", ")}.`, url: p.github, live: p.live, lang: langOf(p.tech) })),
+  ...otherProjects.map((p) => ({ name: p.name, note: p.description, url: p.github, live: p.live, lang: langOf(p.tech) })),
 ];

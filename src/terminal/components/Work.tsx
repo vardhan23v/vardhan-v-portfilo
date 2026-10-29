@@ -12,7 +12,7 @@ export function Work() {
             <div className="shell-head">
               <TypeCmd cmd="ls -l ./work/" />
               <h2 className="shell-title" id="work-title">
-                SELECTED_PROJECTS <span className="dim">// {String(caseStudies.length).padStart(2, "0")} shipped</span>
+                SELECTED_PROJECTS <span className="dim">// {String(caseStudies.length).padStart(2, "0")} case studies</span>
               </h2>
             </div>
           </Reveal>
@@ -66,7 +66,7 @@ export function Work() {
                             href={p.github}
                             target="_blank"
                             rel="noopener noreferrer"
-                            title={`git clone https://github.com/vardhan23v/${p.slug}`}
+                            title={`git clone ${p.github}`}
                           >
                             src
                           </a>

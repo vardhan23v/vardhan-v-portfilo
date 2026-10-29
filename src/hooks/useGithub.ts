@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { site } from "../classic/data/site";
+import { GITHUB_FALLBACK } from "../classic/data/stats";
 
 export interface GithubStats {
   followers: number;
@@ -7,7 +8,7 @@ export interface GithubStats {
   loading: boolean;
 }
 
-const FALLBACK: GithubStats = { followers: 30, repos: 39, loading: false };
+const FALLBACK: GithubStats = { ...GITHUB_FALLBACK, loading: false };
 const CACHE_KEY = "mac-github-stats";
 const CACHE_TTL = 1000 * 60 * 30; // 30 min, per-session-ish
 
@@ -19,7 +20,7 @@ interface CacheEntry {
 
 /**
  * Live GitHub stats with session caching + static fallback.
- * Never throws, never blocks — falls back to 30 followers / 39 repos.
+ * Never throws, never blocks — falls back to the static numbers in classic/data/stats.ts.
  */
 export function useGithub(): GithubStats {
   const [stats, setStats] = useState<GithubStats>({ ...FALLBACK, loading: true });

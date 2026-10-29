@@ -5,7 +5,8 @@ import { Reveal } from "../hooks/useReveal";
 import { Icon } from "../lib/icons";
 import "./GithubSection.css";
 import { motionReduced } from "../../lib/motion";
-import { github } from "../data/stats";
+import { stats } from "../data/stats";
+import { useGithub } from "../../hooks/useGithub";
 
 interface RepoItem {
   name: string;
@@ -16,6 +17,9 @@ interface RepoItem {
 }
 
 const fallbackRepos: RepoItem[] = [
+  { name: "trustlens-ai", description: "TrustLens AI — evidence-backed trust reports for images, video, audio and text. FastAPI, CrewAI, Gemini.", language: "Python", stars: 0, url: "https://github.com/vardhan23v/trustlens-ai" },
+  { name: "launchradar", description: "LaunchRadar — SerpApi-only market research with receipts. Next.js 16, Cloudflare Workers, Groq.", language: "TypeScript", stars: 0, url: "https://github.com/vardhan23v/launchradar" },
+  { name: "chitchain", description: "ChitChain — chit fund in a smart contract on MST testnet, with an AI risk engine and bidding agent.", language: "TypeScript", stars: 1, url: "https://github.com/vardhan23v/chitchain" },
   { name: "hpl-auction", description: "Live cricket auction — Next.js 16, Socket.IO, Prisma, server-authoritative timer & purse engine.", language: "TypeScript", stars: 0, url: "https://github.com/vardhan23v/hpl-auction" },
   { name: "inventory-management", description: "Apex Retail ERP — POS, GST invoices, stock audit, analytics, RBAC. React + Express + MySQL.", language: "JavaScript", stars: 0, url: "https://github.com/vardhan23v/inventory-management" },
   { name: "Human-Resource-Management-System", description: "Dayflow HRMS — attendance, leave, payroll with PDF payslips, LinkedIn OAuth. TS monorepo.", language: "TypeScript", stars: 0, url: "https://github.com/vardhan23v/Human-Resource-Management-System" },
@@ -35,8 +39,9 @@ const languageColors: Record<string, string> = {
 export function GithubSection() {
   const [run, setRun] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
-  const repoCount = github.repos;
-  const followersNum = github.followers;
+  const gh = useGithub();
+  const repoCount = gh.repos;
+  const followersNum = gh.followers;
   const repos = fallbackRepos;
 
   useEffect(() => {
@@ -55,7 +60,7 @@ export function GithubSection() {
     return () => io.disconnect();
   }, []);
 
-  const totalStars = repos.reduce((sum, r) => sum + r.stars, 0);
+  const totalStars = stats.live;
   const langs = Object.entries(
     repos.reduce<Record<string, number>>((acc, r) => ((acc[r.language] = (acc[r.language] ?? 0) + 1), acc), {})
   ).sort((a, b) => b[1] - a[1]);
@@ -105,9 +110,9 @@ export function GithubSection() {
                 <span>repositories</span>
               </div>
               <div className="gh-stat">
-                <Icon.star width={20} height={20} />
+                <Icon.rocket width={20} height={20} />
                 <strong>{display.stars}</strong>
-                <span>stars earned</span>
+                <span>live deployments</span>
               </div>
               <div className="gh-stat">
                 <Icon.user width={20} height={20} />

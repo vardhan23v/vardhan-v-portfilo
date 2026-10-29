@@ -1,30 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ProjectDrawer } from "./ProjectDrawer";
 import { monogram } from "../lib/monogram";
-import type { Project } from "../data/projects";
-import { featuredProjects, otherProjects } from "../data/projects";
+import type { Project, ProjectCategory } from "../data/projects";
+import { CATEGORY_LABEL, featuredProjects, otherProjects } from "../data/projects";
 import { SectionHead } from "./SectionHead";
 import { useTilt } from "../../hooks/useTilt";
 import { Reveal } from "../hooks/useReveal";
 import { Icon } from "../lib/icons";
 import { site } from "../data/site";
+import { stats } from "../data/stats";
 import "./Projects.css";
 
-const CATEGORY: Record<string, "AI" | "full-stack"> = {
-  "extension-ai": "AI",
-  "ai-code-reviewer": "AI",
-  "careerforge-pro": "AI",
-  "vard-ai": "AI",
-  "disastermind-ai": "AI",
-  drivenest: "full-stack",
-};
+type Filter = "all" | ProjectCategory;
 
-type Filter = "all" | "AI" | "full-stack";
-
+/** Only categories that featured work actually uses, in data order. */
 const FILTERS: { id: Filter; label: string }[] = [
   { id: "all", label: "All" },
-  { id: "AI", label: "AI" },
-  { id: "full-stack", label: "Full-stack" },
+  ...([...new Set(featuredProjects.map((p) => p.category))] as ProjectCategory[]).map((c) => ({ id: c as Filter, label: CATEGORY_LABEL[c] })),
 ];
 
 function Mark({ text, query }: { text: string; query: string }) {
@@ -162,7 +154,7 @@ export function Projects() {
 
   const q = query.trim().toLowerCase();
   const visible = featuredProjects.filter((p) => {
-    const catOk = filter === "all" || CATEGORY[p.slug] === filter;
+    const catOk = filter === "all" || p.category === filter;
     if (!q) return catOk;
     const hay = [p.name, p.slug, p.tagline, p.problem, ...p.features, ...p.tech]
       .join(" ")
@@ -177,7 +169,7 @@ export function Projects() {
           eyebrow="Featured Projects"
           index="02"
           title="Selected work"
-          sub="Nine products with source you can read. Each one started from a problem someone actually had."
+          sub={`${featuredProjects.length} products with source you can read, ${stats.live} of them live. Each one started from a problem someone actually had.`}
         />
 
         <div className="project-toolbar">
@@ -200,7 +192,7 @@ export function Projects() {
             <span className="project-search-count" aria-live="polite">
               {q
                 ? `${visible.length} match${visible.length === 1 ? "" : "es"}`
-                : `${featuredProjects.length} shipped`}
+                : `${featuredProjects.length} projects`}
             </span>
           </div>
 
@@ -217,7 +209,7 @@ export function Projects() {
                 <span className="project-filter-count">
                   {f.id === "all"
                     ? featuredProjects.length
-                    : featuredProjects.filter((p) => CATEGORY[p.slug] === f.id).length}
+                    : featuredProjects.filter((p) => p.category === f.id).length}
                 </span>
               </button>
             ))}

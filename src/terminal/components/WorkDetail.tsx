@@ -60,7 +60,7 @@ export function WorkDetail() {
         <div className="case-meta">
           <span><b>PROJECT:</b> {p.tagline}</span>
           <span><b>STATUS:</b> {p.live ? "deployed" : "source-only"}</span>
-          <span><b>ROLE:</b> sole builder</span>
+          <span><b>ROLE:</b> {p.role ?? "sole builder"}</span>
           <span><b>STACK:</b> {p.tech.length} tools</span>
         </div>
 

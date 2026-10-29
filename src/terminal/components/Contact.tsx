@@ -52,7 +52,7 @@ export function Contact() {
               </h2>
             </div>
             <p className="shell-sub">
-              one shell prompt away. response time: usually within a day, exit status: 0.
+              one shell prompt away. response time: usually {site.replyTime}, exit status: 0.
             </p>
           </Reveal>
 
@@ -149,7 +149,7 @@ ${from ? from.split("@")[0] : "visitor"}`}
                   </div>
                   <div>
                     <span className="ch">$ curl </span>
-                    <a href={site.resume} download>resume.pdf</a>
+                    <a href={site.resume} download="sree-vardhan-v-resume.pdf">resume.pdf</a>
                   </div>
                 </div>
               </div>

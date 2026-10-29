@@ -6,7 +6,7 @@ import { featuredProjects, type Project } from "../classic/data/projects";
 import { experience, education, certifications } from "../classic/data/experience";
 import { skillCategories, exploring } from "../classic/data/skills";
 import { site } from "../classic/data/site";
-import { github } from "../classic/data/stats";
+import { github, stats, aiStack } from "../classic/data/stats";
 import { Icon } from "../classic/lib/icons";
 import { ExpandableTabs, type ExpandableTabItem } from "../components/ui/expandable-tabs";
 import "./styles/aurora.css";
@@ -47,9 +47,7 @@ const NAV_TABS: ExpandableTabItem[] = [
 ];
 
 function catOf(p: Project): Exclude<Filter, "all"> {
-  if (p.slug === "extension-ai") return "tools";
-  if (p.slug === "ai-code-reviewer" || p.slug.endsWith("-ai")) return "ai";
-  return "full-stack";
+  return p.category === "tool" ? "tools" : p.category;
 }
 
 function useIstTime() {
@@ -811,7 +809,7 @@ export function AuroraSite() {
   const stackStrip = useMemo(() => skillCategories.flatMap((c) => c.items.map((i) => i.name)), []);
   const statData = useMemo(
     () => [
-      { value: auroraProjects.length, label: "shipped products", sub: "live & open-source" },
+      { value: auroraProjects.length, label: "featured products", sub: `${stats.live} live · all open-source` },
       { value: experience.length, label: "roles & internships", sub: "2026 — present" },
       { value: skillCategories.reduce((s, c) => s + c.items.length, 0), label: "stack technologies", sub: "ai → product" },
       { value: followers, label: "github followers", sub: "@vardhan23v" },
@@ -1333,10 +1331,10 @@ export function AuroraSite() {
                 </p>
                 <div className="au-about-highlights">
                   <span>
-                    <Icon.sparkles width={14} height={14} aria-hidden="true" /> Ships with AI — Muse Spark 1.2, DeepSeek, Kimi, MCP
+                    <Icon.sparkles width={14} height={14} aria-hidden="true" /> Ships with AI — {aiStack.slice(0, 4).join(", ")}
                   </span>
                   <span>
-                    <Icon.rocket width={14} height={14} aria-hidden="true" /> 9+ production products, 4 internships
+                    <Icon.rocket width={14} height={14} aria-hidden="true" /> {auroraProjects.length} featured products, {experience.length} roles
                   </span>
                 </div>
               </div>
@@ -1375,7 +1373,7 @@ export function AuroraSite() {
             <h2 id="aurora-contact-title">
               Let&apos;s build something <span className="grad">beautiful.</span>
             </h2>
-            <p>Open to internships, collaborations and interesting problems. Expect a reply within 24 hours.</p>
+            <p>{site.availability} — collaborations and interesting problems welcome. Expect a reply {site.replyTime}.</p>
             <div className="au-contact-grid">
               <div className="au-contact-direct">
                 <div className="aurora-actions">
@@ -1403,7 +1401,7 @@ export function AuroraSite() {
         </section>
 
         <footer className="aurora-foot au-reveal">
-          <span>© 2026 {site.name} — Aurora edition · IST {ist}</span>
+          <span>© {new Date().getFullYear()} {site.name} — Aurora edition · IST {ist}</span>
           <span className="aurora-foot-links">
             <Link to="/">editions</Link>
             <a href={site.github} target="_blank" rel="noopener noreferrer">

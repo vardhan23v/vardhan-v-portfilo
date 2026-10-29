@@ -13,4 +13,6 @@ export const site = {
   url: "https://vardhan-v-portfilo.vercel.app",
   host: "vardhan-v-portfilo.vercel.app",
   availability: "Open to internships & freelance",
+  /** One promise, used by every contact section. */
+  replyTime: "within a day",
 } as const;

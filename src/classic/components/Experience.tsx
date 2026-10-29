@@ -1,4 +1,5 @@
 import { experience } from "../data/experience";
+import { ongoingRoles } from "../data/stats";
 import { SectionHead } from "./SectionHead";
 import { Reveal } from "../hooks/useReveal";
 import { Icon } from "../lib/icons";
@@ -12,7 +13,7 @@ export function Experience() {
           eyebrow="Experience"
           index="03"
           title="Where I have worked"
-          sub="Internships and builder programmes, newest first. Two are ongoing."
+          sub={`Internships and builder programmes, newest first. ${ongoingRoles === 0 ? "All completed." : ongoingRoles === 1 ? "One is ongoing." : `${ongoingRoles} are ongoing.`}`}
         />
 
         <div className="timeline">

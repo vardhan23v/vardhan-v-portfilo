@@ -27,7 +27,7 @@ const ROUTES = [
 ];
 
 /* Noise we do not treat as failures: third-party/analytics beacons and the GitHub API being rate-limited. */
-const IGNORED_CONSOLE = [/api\.github\.com/, /vercel-insights|va\.vercel-scripts|speed-insights/, /favicon/, /net::ERR_/];
+const IGNORED_CONSOLE = [/api\.github\.com/, /vercel-insights|va\.vercel-scripts|speed-insights|\/_vercel\//, /favicon/, /net::ERR_/];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -75,7 +75,9 @@ try {
     const onConsole = (m) => {
       if (m.type() !== "error") return;
       const text = m.text();
-      if (IGNORED_CONSOLE.some((re) => re.test(text))) return;
+      // Resource errors carry the URL in location(), not in the text (e.g. Vercel's /_vercel/insights script, absent off-Vercel).
+      const url = m.location()?.url ?? "";
+      if (IGNORED_CONSOLE.some((re) => re.test(text) || re.test(url))) return;
       consoleErrors.push(text);
     };
     page.on("pageerror", onPageError);

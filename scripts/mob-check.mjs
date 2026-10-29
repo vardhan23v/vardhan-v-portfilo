@@ -1,6 +1,6 @@
-import puppeteer from "puppeteer-core";
+import { launch } from "./lib/browser.mjs";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const b = await puppeteer.launch({ executablePath: "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser", headless: true, args: ["--no-sandbox"] });
+const b = await launch();
 const p = await b.newPage();
 let bad = 0;
 for (const [w, h] of [[375, 812], [390, 844], [768, 1024], [1024, 768], [1440, 900]]) {

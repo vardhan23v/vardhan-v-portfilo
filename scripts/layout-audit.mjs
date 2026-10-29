@@ -1,4 +1,4 @@
-import puppeteer from "puppeteer-core";
+import { launch } from "./lib/browser.mjs";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -20,11 +20,7 @@ const chk = (l, c) => {
 
 for (const [w, h] of viewports) {
   const profile = mkdtempSync(join(tmpdir(), "audit-"));
-  const b = await puppeteer.launch({
-    executablePath: "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
-    headless: true,
-    args: ["--no-sandbox", `--user-data-dir=${profile}`],
-  });
+  const b = await launch({ args: [`--user-data-dir=${profile}`] });
   const p = await b.newPage();
   await p.setViewport({ width: w, height: h });
   for (const route of routes) {

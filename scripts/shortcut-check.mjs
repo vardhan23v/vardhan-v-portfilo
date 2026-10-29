@@ -1,5 +1,5 @@
-import puppeteer from "puppeteer-core";
-const b = await puppeteer.launch({ executablePath: "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser", headless: true, args: ["--no-sandbox"] });
+import { launch } from "./lib/browser.mjs";
+const b = await launch();
 const p = await b.newPage();
 let f = 0;
 const chk = (l, c) => { if (!c) { console.log("FAIL:", l); f++; } };

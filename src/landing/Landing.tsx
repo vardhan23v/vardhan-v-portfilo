@@ -5,6 +5,7 @@ import { Skin } from "./skins";
 import { useTilt } from "../hooks/useTilt";
 import { useMagnetic } from "../hooks/useMagnetic";
 import { useGithub } from "../hooks/useGithub";
+import { useIstTime } from "../hooks/useIstTime";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import { site } from "../classic/data/site";
 import { featuredProjects } from "../classic/data/projects";
@@ -28,17 +29,6 @@ const MARQUEE = [...new Set(
 const [FIRST, LAST] = [site.name.split(" ").slice(0, -1).join(" "), site.name.split(" ").slice(-1)[0]];
 
 /* ── hooks ─────────────────────────────────────────────────── */
-
-function useIstClock() {
-  const [t, setT] = useState("");
-  useEffect(() => {
-    const tick = () => setT(new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kolkata" }));
-    tick();
-    const i = window.setInterval(tick, 30_000);
-    return () => window.clearInterval(i);
-  }, []);
-  return t;
-}
 
 /** Adds `.is-in` to reveal targets inside `root` once they scroll into view (fail-safe for in-view mounts). */
 function useRevealOnScroll(root: React.RefObject<HTMLElement | null>) {
@@ -293,7 +283,7 @@ function Stat({ value, label, href, loading }: { value: number; label: string; h
 export function Landing() {
   const [index, setIndex] = useState(0);
   const reduced = usePrefersReducedMotion();
-  const ist = useIstClock();
+  const ist = useIstTime(false);
   const gh = useGithub();
   const rootRef = useRef<HTMLDivElement>(null);
   const headRef = useRef<HTMLElement>(null);

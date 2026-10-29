@@ -8,6 +8,7 @@ import "./styles/motion.css";
 import { EDITIONS, editionRoutes } from "./editions";
 import { site } from "./classic/data/site";
 import { NotFound } from "./components/NotFound";
+import { ErrorBoundary, RouteError } from "./components/ErrorBoundary";
 
 const Landing = lazy(() => import("./landing/Landing").then((m) => ({ default: m.Landing })));
 const ClassicSite = lazy(() => import("./classic/ClassicSite").then((m) => ({ default: m.ClassicSite })));
@@ -119,7 +120,9 @@ function Root() {
       <RouteSeo />
       <ScrollToTop />
       <Suspense fallback={<LoadingFallback />}>
-        <Outlet />
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
       </Suspense>
     </>
   );
@@ -132,7 +135,7 @@ function Root() {
  */
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route element={<Root />}>
+    <Route element={<Root />} errorElement={<RouteError />}>
       <Route path="/" element={<Landing />} />
       <Route path="/editions" element={<Landing />} />
       <Route path="/classic" element={<ClassicSite />} />

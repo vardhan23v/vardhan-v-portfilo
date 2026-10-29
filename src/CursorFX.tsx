@@ -13,19 +13,35 @@ export function CursorFX() {
     const ring = ringRef.current;
     if (!fx || !dot || !ring) return;
     if (window.matchMedia("(pointer: coarse)").matches) return;
-    if (motionReduced()) return;
 
     let x = -100;
     let y = -100;
     let rx = -100;
     let ry = -100;
     let raf = 0;
-    let off = false;
+    let off = false; // over a [data-cursor-off] element
+    let reduced = motionReduced(); // follows <html data-motion> at runtime
+
+    const stop = () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+    };
+    const start = () => {
+      if (!raf && !off && !reduced && !document.hidden) raf = requestAnimationFrame(tick);
+    };
+
+    const tick = () => {
+      rx += (x - rx) * 0.16;
+      ry += (y - ry) * 0.16;
+      dot.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+      ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+      raf = requestAnimationFrame(tick);
+    };
 
     const onMove = (e: MouseEvent) => {
       x = e.clientX;
       y = e.clientY;
-      if (!off && !raf) raf = requestAnimationFrame(tick);
+      start();
     };
 
     const onOver = (e: MouseEvent) => {
@@ -41,41 +57,45 @@ export function CursorFX() {
         card ? card.getAttribute("data-cursor") || "" : accent ? accent.getAttribute("data-cursor-accent") || "" : ""
       );
       off = !!offEl;
-      if (off && raf) {
-        cancelAnimationFrame(raf);
-        raf = 0;
-      } else if (!off && !raf) {
-        raf = requestAnimationFrame(tick);
-      }
+      if (off) stop();
+      else start();
     };
-
-    const tick = () => {
-      rx += (x - rx) * 0.16;
-      ry += (y - ry) * 0.16;
-      dot.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
-      ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
-      raf = requestAnimationFrame(tick);
-    };
-window.addEventListener("mousemove", onMove, { passive: true });
-    document.addEventListener("mouseover", onOver, { passive: true });
 
     let pulseTimer = 0;
     const onClick = () => {
+      if (reduced) return;
       fx.classList.remove("cur-pulse");
       void fx.offsetWidth;
       fx.classList.add("cur-pulse");
       window.clearTimeout(pulseTimer);
       pulseTimer = window.setTimeout(() => fx.classList.remove("cur-pulse"), 450);
     };
-    document.addEventListener("mousedown", onClick, { passive: true });
 
-    raf = requestAnimationFrame(tick);
+    // The motion toggle / OS setting write <html data-motion>; start or stop the loop live.
+    const onMotion = () => {
+      reduced = motionReduced();
+      if (reduced) stop();
+      else start();
+    };
+    const mo = new MutationObserver(onMotion);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-motion"] });
+
+    const onVisibility = () => (document.hidden ? stop() : start());
+
+    window.addEventListener("mousemove", onMove, { passive: true });
+    document.addEventListener("mouseover", onOver, { passive: true });
+    document.addEventListener("mousedown", onClick, { passive: true });
+    document.addEventListener("visibilitychange", onVisibility);
+
+    start();
     return () => {
+      mo.disconnect();
       window.removeEventListener("mousemove", onMove);
       document.removeEventListener("mouseover", onOver);
       document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("visibilitychange", onVisibility);
       window.clearTimeout(pulseTimer);
-      cancelAnimationFrame(raf);
+      stop();
     };
   }, []);
 

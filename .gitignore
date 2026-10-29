@@ -27,3 +27,6 @@ dist-ssr
 
 # keep the template, ignore real env files
 !.env.example
+
+# agent worktrees
+.claude/worktrees

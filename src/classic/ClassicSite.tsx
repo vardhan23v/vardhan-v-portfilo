@@ -2,6 +2,7 @@ import "@fontsource/kanit/latin-400.css";
 import "@fontsource/kanit/latin-ext-400.css";
 import "@fontsource/kanit/latin-500.css";
 import "@fontsource/kanit/latin-ext-500.css";
+import { useEffect, useState } from "react";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
 import { Work } from "./components/Work";
@@ -18,8 +19,11 @@ import "./styles/classic.css";
  * and the real screens of the twelve live products as the only pictures.
  */
 export function ClassicSite() {
+  // Motion pre-states only apply once script has run (".js"), so nothing is ever hidden without it.
+  const [js, setJs] = useState(false);
+  useEffect(() => setJs(true), []);
   return (
-    <div className="classic-root" data-cursor-accent="classic">
+    <div className={`classic-root${js ? " js" : ""}`} data-cursor-accent="classic">
       <a href="#main" className="skip-link">Skip to content</a>
       <Navbar />
       <main id="main">

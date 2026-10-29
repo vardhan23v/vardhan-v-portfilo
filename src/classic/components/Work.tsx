@@ -1,5 +1,7 @@
 import { CATEGORY_LABEL, featuredProjects, type Project } from "../data/projects";
+import { useRef } from "react";
 import { Reveal } from "../hooks/useReveal";
+import { useLines } from "../motion/useLines";
 
 /** Every frame the project has, in the order the sheet shows them. */
 export function framesOf(p: Project): string[] {
@@ -36,14 +38,16 @@ function Strip({ p }: { p: Project }) {
 }
 
 export function Work() {
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  useLines(titleRef);
   return (
     <section className="work" id="work" aria-labelledby="work-h2">
-      <Reveal as="h2" className="work-title" id="work-h2">The work, all {featuredProjects.length}</Reveal>
+      <h2 className="work-title" id="work-h2" ref={titleRef}>{`The work, all ${featuredProjects.length}`}</h2>
       {featuredProjects.map((p, i) => (
         <Reveal as="article" className="work-item" key={p.slug} id={`work-${p.slug}`}>
           <Strip p={p} />
           <div className="work-facts">
-            <div className="work-fact work-fact--name">
+            <div className="work-fact work-fact--name" style={{ "--i": 0 } as React.CSSProperties}>
               <h3 className="work-name">{p.name} <span className="work-cat">{CATEGORY_LABEL[p.category]}</span></h3>
               <p className="work-line">{p.tagline}</p>
               <p className="work-links">
@@ -51,15 +55,15 @@ export function Work() {
                 <a className="work-link" href={p.github} target="_blank" rel="noopener noreferrer">Source on GitHub</a>
               </p>
             </div>
-            <div className="work-fact work-fact--stack">
+            <div className="work-fact work-fact--stack" style={{ "--i": 1 } as React.CSSProperties}>
               <span className="work-fact-k">Built with</span>
               <span>{p.tech.slice(0, 4).join(", ")}</span>
             </div>
-            <div className="work-fact work-fact--year">
+            <div className="work-fact work-fact--year" style={{ "--i": 2 } as React.CSSProperties}>
               <span className="work-fact-k">Shipped</span>
               <span>{p.year ?? "2026"}</span>
             </div>
-            <div className="work-fact work-fact--team">
+            <div className="work-fact work-fact--team" style={{ "--i": 3 } as React.CSSProperties}>
               <span className="work-fact-k">Credit</span>
               <span>{p.role ?? "Sole builder"}</span>
             </div>

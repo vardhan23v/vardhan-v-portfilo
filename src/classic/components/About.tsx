@@ -9,12 +9,12 @@ export function About() {
   const latestRole = experience[0];
   return (
     <section className="about" id="about" aria-labelledby="about-h2">
-      <div className="about-facts">
-        <h2 className="about-h2" id="about-h2">About</h2>
+      <h2 className="about-h2" id="about-h2">About</h2>
+      <Reveal as="div" className="about-facts">
         <p>{site.location}</p>
         <p>B.Tech, computer science, 2024 to 2028</p>
         <p><a href={`mailto:${site.email}`}>{site.email}</a></p>
-      </div>
+      </Reveal>
       <div className="about-body">
         <Reveal as="p" className="about-p about-p--lead">
           {portrait && <img className="about-portrait" src={portrait} alt={`${flagship.name}, his most recent product, on a phone`} width={440} height={440} loading="lazy" decoding="async" />}

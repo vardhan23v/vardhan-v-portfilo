@@ -1,6 +1,7 @@
 import { stats } from "../data/stats";
 import { useGithub } from "../../hooks/useGithub";
 import { Reveal } from "../hooks/useReveal";
+import { RollingFigure } from "../motion/RollingFigure";
 
 export function Figures() {
   const gh = useGithub();
@@ -18,10 +19,10 @@ export function Figures() {
         <span>not claimed.</span>
       </Reveal>
       <Reveal as="div" className="figures-rows" delay="reveal-d1">
-        {rows.map((r) => (
-          <p className="figures-row" key={r.caption}>
+        {rows.map((r, i) => (
+          <p className="figures-row" key={r.caption} style={{ "--i": i } as React.CSSProperties}>
             <span className="figures-caption">{r.caption}</span>
-            <span className="figures-n">{r.n}</span>
+            <RollingFigure className="figures-n" value={r.n} />
           </p>
         ))}
       </Reveal>

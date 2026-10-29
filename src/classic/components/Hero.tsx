@@ -46,13 +46,16 @@ export function Hero() {
   return (
     <section className="hero" id="top" aria-labelledby="hero-h1">
       <div className="hero-top">
-        <h1 className="hero-title" id="hero-h1">Sree Vardhan V<br />ships AI&nbsp;products</h1>
-        <p className="hero-lead">
+        <h1 className="hero-title lines" id="hero-h1">
+          <span className="line"><span data-line style={{ "--i": 0 } as React.CSSProperties}>Sree Vardhan V</span></span>
+          <span className="line"><span data-line style={{ "--i": 1 } as React.CSSProperties}>ships AI&nbsp;products</span></span>
+        </h1>
+        <p className="hero-lead" data-load style={{ "--d": "420ms" } as React.CSSProperties}>
           Computer-science undergraduate in {site.location.split(",")[0]}, India. {stats.featured} products built end to end, {stats.live} of them running on the web.
         </p>
       </div>
 
-      <div className={`hero-strip${reduced ? " is-still" : ""}`} ref={stripRef} role="group" aria-label="Screens of the live products, scroll sideways">
+      <div className={`hero-strip${reduced ? " is-still" : " is-drifting"}`} data-open ref={stripRef} role="group" aria-label="Screens of the live products, scroll sideways">
         {frames.map((f, i) => (
           <a className="hero-frame" href={`#work-${f.slug}`} key={f.slug}>
             <img src={f.src} alt={`${f.name} live app`} width={1440} height={900} loading={i < 4 ? "eager" : "lazy"} decoding="async" fetchPriority={i === 2 ? "high" : undefined} />
@@ -62,8 +65,8 @@ export function Hero() {
       </div>
 
       <div className="hero-foot">
-        <p className="hero-sentence">Twelve apps, source included. Open to internships and freelance work.</p>
-        <div className="hero-actions">
+        <p className="hero-sentence" data-load style={{ "--d": "520ms" } as React.CSSProperties}>Twelve apps, source included. Open to internships and freelance work.</p>
+        <div className="hero-actions" data-load style={{ "--d": "580ms" } as React.CSSProperties}>
           <a className="btn" href={`mailto:${site.email}?subject=${encodeURIComponent("Hello from your portfolio")}`}>Email me</a>
           <a className="hero-alt" href="#work">See the work</a>
         </div>

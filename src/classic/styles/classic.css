@@ -29,7 +29,18 @@
   --step-head: clamp(2rem, 1.3rem + 3.2vw, 4rem);
   --step-display: clamp(2.75rem, 1rem + 7vw, 8rem);
 
+  /* motion tokens (taste-skill motion.md §4) */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
+  --t-press: 140ms;
+  --t-hover: 180ms;
+  --t-ui: 240ms;
+  --t-reveal: 800ms;
+  --stagger-line: 90ms;
+  --stagger-item: 70ms;
   color-scheme: dark;
 }
 
@@ -62,20 +73,45 @@
   min-height: 48px; padding: 0 22px;
   background: var(--accent); color: var(--accent-ink);
   font-weight: 500; text-decoration: none; font-size: var(--step-body);
-  transition: transform 0.25s var(--ease), background 0.2s;
+  transition: transform var(--t-press) var(--ease-out), background-color var(--t-hover) ease;
 }
-.classic-root .btn:hover { background: var(--accent-2); transform: translateY(-2px); }
-.classic-root .btn:active { transform: translateY(0); }
+.classic-root .btn:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) {
+  .classic-root .btn:hover { background: var(--accent-2); }
+}
+/* Text links answer the pointer with their underline, never with weight. */
+.classic-root .work-link, .classic-root .about-facts a, .classic-root .contact-small a, .classic-root .foot-tile--mail a, .classic-root .hero-alt {
+  text-decoration: underline; text-decoration-color: transparent; transition: text-decoration-color var(--t-hover) ease, color var(--t-hover) ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .classic-root .work-link:hover, .classic-root .about-facts a:hover, .classic-root .contact-small a:hover, .classic-root .foot-tile--mail a:hover, .classic-root .hero-alt:hover { text-decoration-color: currentColor; }
+}
 .classic-root .btn--sm { min-height: 44px; padding: 0 18px; }
 
-/* Reveal: content is in place without script; the class only moves what is already there. */
-/* Content is always on the page: the entrance lifts it from a dimmed state, never from nothing. */
-.classic-root .reveal { opacity: 0.25; transform: translateY(20px); transition: opacity 0.45s var(--ease), transform 0.6s var(--ease); }
-.classic-root .reveal.is-visible { opacity: 1; transform: none; }
-.classic-root .reveal.reveal-d1 { transition-delay: 0.08s; }
-.classic-root .reveal.reveal-d2 { transition-delay: 0.16s; }
-.classic-root .reveal.reveal-d3 { transition-delay: 0.24s; }
-html[data-motion="reduce"] .classic-root .reveal { opacity: 1; transform: none; transition: none; }
+/* ---------- entrances ----------
+   Every pre-state sits behind .js (set on mount) and prefers-reduced-motion: no-preference, so the
+   finished page is what no-script, reduced-motion and the site's own "motion off" setting all see. */
+@media (prefers-reduced-motion: no-preference) {
+  /* Nothing is hidden before it is seen: the observer fires as the block's top edge enters the
+     viewport and the entrance plays from there (animation-fill both, from a low but present state). */
+  .classic-root.js .reveal.is-visible { animation: rise-in 800ms var(--ease-expo) both; }
+  .classic-root.js .reveal.reveal-d1.is-visible { animation-delay: 90ms; }
+  .classic-root.js .reveal.reveal-d2.is-visible { animation-delay: 180ms; }
+  /* Items inside a revealed block arrive in reading order, --i apart. */
+  .classic-root.js .reveal.is-visible .work-fact, .classic-root.js .reveal.is-visible .figures-row, .classic-root.js .reveal.is-visible .contact-cell {
+    animation: rise-item 700ms var(--ease-expo) both; animation-delay: calc(140ms + var(--i, 0) * var(--stagger-item));
+  }
+  .classic-root.js .reveal.is-visible .ledger-row { animation: rise-item 600ms var(--ease-expo) both; animation-delay: calc(60ms + var(--i, 0) * 50ms); }
+  .classic-root.js .reveal.is-visible .foot-tile { animation: rise-item 700ms var(--ease-expo) both; animation-delay: calc(var(--i, 0) * 50ms); }
+  /* Lines that rise (useLines): the element is split into .line > span only while it animates. */
+  .classic-root.js .is-split .line { display: block; overflow: clip; padding-bottom: 0.12em; margin-bottom: -0.12em; }
+  .classic-root.js .is-split .line > span { display: block; transform: translateY(110%); }
+  .classic-root.js .is-split.is-in .line > span { transform: none; transition: transform 900ms var(--ease-expo); }
+}
+@keyframes rise-in { from { opacity: 0.2; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes rise-item { from { opacity: 0.2; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+html[data-motion="reduce"] .classic-root .reveal, html[data-motion="reduce"] .classic-root .reveal * { animation: none !important; opacity: 1 !important; transform: none !important; transition: none !important; clip-path: none !important; }
+html[data-motion="reduce"] .classic-root .is-split .line > span { transform: none !important; }
 
 /* ---------- navigation: a plain row ---------- */
 .classic-root .nav {
@@ -86,10 +122,36 @@ html[data-motion="reduce"] .classic-root .reveal { opacity: 1; transform: none; 
 .classic-root .nav-links { display: flex; gap: 28px; justify-content: center; }
 .classic-root .nav-links a { text-decoration: none; color: var(--muted); transition: color 0.2s; }
 .classic-root .nav-links a:hover, .classic-root .nav-links a:focus-visible { color: var(--ink); }
-.classic-root .nav .btn { justify-self: end; }
+.classic-root .nav-end { justify-self: end; display: flex; align-items: center; gap: 12px; }
+.classic-root .nav-menu { display: none; min-height: 44px; padding: 0 14px; background: transparent; border: 0; color: var(--ink); font: inherit; cursor: pointer; }
+.classic-root .nav-sheet { position: fixed; inset: 0; z-index: 60; background: var(--bg); color: var(--ink); padding: 96px var(--margin) 32px; display: flex; flex-direction: column; justify-content: space-between; }
+.classic-root .nav-sheet[hidden] { display: none; }
+.classic-root .nav-sheet nav { display: flex; flex-direction: column; gap: 8px; }
+.classic-root .nav-sheet nav a { font-family: var(--font-display); font-size: clamp(40px, 11vw, 56px); line-height: 1.05; text-decoration: none; letter-spacing: -0.02em; }
+.classic-root .nav-sheet-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; }
+.classic-root .nav-sheet-foot button { background: transparent; border: 0; color: var(--muted); font: inherit; cursor: pointer; min-height: 44px; }
+@media (prefers-reduced-motion: no-preference) {
+  .classic-root.js .nav-sheet.is-open nav a { animation: load-rise 500ms var(--ease-out) both; animation-delay: calc(60ms + var(--i, 0) * 60ms); }
+  .classic-root.js .nav-sheet.is-open nav a:nth-child(2) { --i: 1; } .classic-root.js .nav-sheet.is-open nav a:nth-child(3) { --i: 2; } .classic-root.js .nav-sheet.is-open nav a:nth-child(4) { --i: 3; }
+}
 
 /* ---------- hero: lit strip, four corners ---------- */
 .classic-root .hero { padding: clamp(24px, 4vh, 56px) 0 0; min-height: calc(100svh - 72px); display: flex; flex-direction: column; }
+.classic-root .hero-title .line { display: block; overflow: clip; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+.classic-root .hero-title [data-line] { display: block; }
+.classic-root .hero-strip-wrap { overflow: clip; }
+@media (prefers-reduced-motion: no-preference) {
+  /* Load sequence, settled by 1.2 s: lines rise 100–990 ms, the strip opens 150–1150 ms, the sentence and the action arrive 420–1080 ms. */
+  .classic-root.js .hero [data-line] { transform: translateY(105%); animation: load-line 800ms var(--ease-expo) forwards; animation-delay: calc(100ms + var(--i, 0) * var(--stagger-line)); }
+  .classic-root.js .hero [data-load] { opacity: 0; transform: translateY(12px); animation: load-rise 500ms var(--ease-out) forwards; animation-delay: var(--d, 420ms); }
+  .classic-root.js .hero [data-open] { clip-path: inset(0 0 100% 0); animation: load-open 1000ms var(--ease-in-out) 150ms forwards; }
+  .classic-root.js .hero [data-open] .hero-frame img { transform: scale(1.06); animation: load-settle 1100ms var(--ease-expo) 100ms forwards; }
+}
+html[data-motion="reduce"] .classic-root .hero [data-line], html[data-motion="reduce"] .classic-root .hero [data-load], html[data-motion="reduce"] .classic-root .hero [data-open], html[data-motion="reduce"] .classic-root .hero [data-open] .hero-frame img { animation: none !important; opacity: 1 !important; transform: none !important; clip-path: none !important; }
+@keyframes load-line { to { transform: none; } }
+@keyframes load-rise { to { opacity: 1; transform: none; } }
+@keyframes load-open { to { clip-path: inset(0); } }
+@keyframes load-settle { to { transform: none; } }
 .classic-root .hero-top { padding: 0 var(--margin); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); row-gap: 24px; align-items: end; }
 .classic-root .hero-title { grid-column: 1 / 10; font-size: var(--step-display); line-height: 0.95; letter-spacing: -0.03em; margin-left: -0.04em; }
 .classic-root .hero-lead { grid-column: 10 / 13; font-size: var(--step-lead); line-height: 1.3; max-width: 34ch; }
@@ -102,18 +164,28 @@ html[data-motion="reduce"] .classic-root .reveal { opacity: 1; transform: none; 
 .classic-root .hero-strip::-webkit-scrollbar { display: none; }
 .classic-root .hero-frame {
   position: relative; flex: 0 0 auto; height: 100%; aspect-ratio: 16 / 10; scroll-snap-align: center;
-  filter: brightness(0.55); transition: filter 0.5s var(--ease), transform 0.5s var(--ease); text-decoration: none;
+  filter: brightness(0.55); transition: filter 500ms var(--ease-out); text-decoration: none; overflow: clip;
 }
 .classic-root .hero-frame img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
-.classic-root .hero-frame.is-lit, .classic-root .hero-frame:hover, .classic-root .hero-frame:focus-visible { filter: brightness(1); }
-.classic-root .hero-frame:hover { transform: translateY(-4px); }
+.classic-root .hero-frame.is-lit, .classic-root .hero-frame:focus-visible { filter: brightness(1); }
+@media (hover: hover) and (pointer: fine) { .classic-root .hero-frame:hover { filter: brightness(1); } }
+/* Scroll-linked drift of the whole strip, locked to the scrollbar (under 8% travel). */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .classic-root.js .hero-strip.is-drifting {
+      animation: load-open 1000ms var(--ease-in-out) 150ms forwards, strip-drift linear both;
+      animation-timeline: auto, view(); animation-range: normal, exit 0% exit 100%;
+    }
+  }
+}
+@keyframes strip-drift { from { transform: translateX(0); } to { transform: translateX(-4%); } }
 .classic-root .hero-frame-name { position: absolute; left: 0; top: calc(100% + 10px); font-size: var(--step-small); color: var(--muted); transition: color 0.3s; white-space: nowrap; }
 .classic-root .hero-frame.is-lit .hero-frame-name, .classic-root .hero-frame:hover .hero-frame-name { color: var(--ink); }
 .classic-root .hero-foot { margin-top: auto; padding: 56px var(--margin) clamp(32px, 5vh, 56px); display: flex; justify-content: space-between; align-items: end; gap: 24px; }
 .classic-root .hero-sentence { max-width: 36ch; }
 .classic-root .hero-actions { display: flex; align-items: center; gap: 20px; }
 .classic-root .hero-alt { color: var(--muted); }
-.classic-root .hero-alt:hover { color: var(--ink); }
+@media (hover: hover) and (pointer: fine) { .classic-root .hero-alt:hover { color: var(--ink); } }
 
 /* ---------- work: one slide, two neighbours ---------- */
 .classic-root .work { background: var(--field-1); color: var(--field-1-ink); padding: var(--section-gap) 0; color-scheme: light; }
@@ -122,12 +194,21 @@ html[data-motion="reduce"] .classic-root .reveal { opacity: 1; transform: none; 
 .classic-root .work-item:last-child { margin-bottom: 0; }
 .classic-root .work-strip {
   display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain;
-  padding: 0 13.5%;
+  padding: 0 13.5%; scroll-padding-inline: 13.5%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .classic-root.js .reveal.is-visible .work-strip { animation: open-left 900ms var(--ease-expo) both; }
+  .classic-root.js .reveal.is-visible .work-frame img { animation: settle 1200ms var(--ease-soft) both; }
 }
 .classic-root .work-strip::-webkit-scrollbar { display: none; }
 .classic-root .work-frame { flex: 0 0 73%; margin: 0; scroll-snap-align: center; aspect-ratio: 1046 / 600; background: var(--field-1-surface); overflow: hidden; }
-.classic-root .work-frame img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform 0.6s var(--ease); }
-.classic-root .work-frame:hover img { transform: scale(1.02); }
+.classic-root .work-frame img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+@keyframes open-left { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0); } }
+@keyframes settle { from { transform: scale(1.06); } to { transform: none; } }
+.classic-root .work-frame img { transition: transform 600ms var(--ease-out); }
+@media (hover: hover) and (pointer: fine) {
+  .classic-root .work-frame:hover img { transform: scale(1.02); }
+}
 .classic-root .work-frame--text { display: flex; flex-direction: column; justify-content: space-between; padding: clamp(20px, 3vw, 40px); background: var(--bg); color: var(--ink); }
 .classic-root .work-frame--text .wf-name { font-family: var(--font-display); font-size: var(--step-head); line-height: 1; letter-spacing: -0.02em; }
 .classic-root .work-frame--text .wf-tag { font-size: var(--step-lead); max-width: 28ch; margin-top: 16px; line-height: 1.25; }
@@ -151,18 +232,23 @@ html[data-motion="reduce"] .classic-root .reveal { opacity: 1; transform: none; 
 
 /* ---------- about: portrait as drop cap ---------- */
 .classic-root .about { background: var(--field-1-surface); color: var(--field-1-ink); color-scheme: light; padding: 140px var(--margin); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); row-gap: 32px; }
-.classic-root .about-facts { grid-column: 1 / 3; display: flex; flex-direction: column; gap: 8px; font-size: var(--step-small); color: var(--field-1-muted); }
-.classic-root .about-h2 { font-size: var(--step-lead); color: var(--field-1-ink); margin-bottom: 8px; }
+.classic-root .about { grid-template-rows: auto 1fr; }
+.classic-root .about-h2 { grid-column: 1 / 3; grid-row: 1; font-size: var(--step-lead); color: var(--field-1-ink); align-self: start; }
+.classic-root .about-facts { grid-column: 1 / 3; grid-row: 2; display: flex; flex-direction: column; gap: 8px; font-size: var(--step-small); color: var(--field-1-muted); }
 .classic-root .about-facts a { color: var(--field-1-ink); overflow-wrap: anywhere; }
-.classic-root .about-body { grid-column: 3 / 13; }
+.classic-root .about-body { grid-column: 3 / 13; grid-row: 1 / 3; }
 .classic-root .about-p { font-size: clamp(24px, 2.1vw, 30px); line-height: 1.2; font-weight: 400; letter-spacing: -0.01em; }
 .classic-root .about-p--lead strong { font-weight: 500; }
 .classic-root .about-p--second { margin-top: 1.2em; }
+@keyframes open-down { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0); } }
 .classic-root .about-portrait { float: left; width: 3.6em; height: 3.6em; object-fit: cover; object-position: top; margin: 0.12em 0.5em 0.2em 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .classic-root.js .reveal.is-visible .about-portrait { animation: open-down 900ms var(--ease-in-out) both, settle 1100ms var(--ease-soft) both; }
+}
 
 /* ---------- ledger: two-ended rows, narrow column ---------- */
-.classic-root .ledger { background: var(--field-1); color: var(--field-1-ink); color-scheme: light; padding: var(--section-gap) var(--margin); }
-.classic-root .ledger-col { width: min(520px, 100%); margin-left: max(0px, calc(22% - var(--margin))); }
+.classic-root .ledger { background: var(--field-1); color: var(--field-1-ink); color-scheme: light; padding: var(--section-gap) var(--margin); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); }
+.classic-root .ledger-col { grid-column: 3 / 9; width: min(520px, 100%); }
 .classic-root .ledger-h2 { font-size: var(--step-lead); font-weight: 500; margin-bottom: 32px; line-height: 1.15; }
 .classic-root .ledger-group + .ledger-group { margin-top: 40px; }
 .classic-root .ledger-word { color: var(--field-1-muted); margin-bottom: 6px; }
@@ -181,14 +267,25 @@ html[data-motion="reduce"] .classic-root .reveal { opacity: 1; transform: none; 
 .classic-root .figures-h2-soft { color: var(--field-1-muted); }
 .classic-root .figures-rows { grid-column: 7 / 13; margin: 0; display: flex; flex-direction: column; gap: 20px; }
 .classic-root .figures-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(2.2em, auto); column-gap: 28px; align-items: baseline; margin: 0; font-size: var(--step-body); }
-.classic-root .figures-n { display: block; min-width: 2.2em; font-family: var(--font-display); font-size: clamp(64px, 7vw, 112px); line-height: 1; font-variant-numeric: tabular-nums lining-nums; text-align: left; letter-spacing: -0.02em; margin: 0; }
+.classic-root .figures-n { display: block; min-width: 1.2em; font-family: var(--font-display); font-size: clamp(64px, 7vw, 112px); line-height: 1; font-variant-numeric: tabular-nums lining-nums; text-align: left; letter-spacing: -0.02em; margin: 0; }
 .classic-root .figures-caption { display: block; line-height: 1.3; text-align: right; max-width: 26ch; justify-self: end; }
+.classic-root .roll-digits { display: inline-flex; line-height: 1; }
+.classic-root .roll-col { display: inline-block; width: 0.56em; height: 1em; overflow: clip; text-align: center; }
+.classic-root .roll-strip { display: flex; flex-direction: column; transform: translateY(calc(var(--d) * -1em)); }
+.classic-root .roll-strip > span { display: block; height: 1em; line-height: 1; }
+.classic-root .roll-strip > span::before, .classic-root .roll-sep::before { content: attr(data-n); }
+@media (prefers-reduced-motion: no-preference) {
+  .classic-root.js .reveal.is-visible .roll-strip { animation: roll-up 1100ms var(--ease-expo) both; animation-delay: calc(200ms + var(--i, 0) * var(--stagger-item)); }
+}
+@keyframes roll-up { from { transform: none; } to { transform: translateY(calc(var(--d) * -1em)); } }
 
 /* ---------- contact: photo strip, three-cell bar ---------- */
-.classic-root .contact { background: var(--field-2); color: var(--field-2-ink); color-scheme: light; min-height: 80svh; padding: 48px 0 56px; display: flex; flex-direction: column; }
+.classic-root .contact { background: var(--field-2); color: var(--field-2-ink); color-scheme: light; min-height: 72svh; padding: 48px 0 56px; display: flex; flex-direction: column; }
 .classic-root .contact-strip { overflow: hidden; width: 100%; }
 .classic-root .contact-strip-track { display: flex; gap: 8px; width: max-content; animation: contact-drift 90s linear infinite; }
+.classic-root .contact-strip.is-paused .contact-strip-track, .classic-root .contact-strip:hover .contact-strip-track { animation-play-state: paused; }
 html[data-motion="reduce"] .classic-root .contact-strip-track { animation: none; }
+@media (prefers-reduced-motion: reduce) { .classic-root .contact-strip-track { animation: none; } }
 @keyframes contact-drift { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 .classic-root .contact-shot { height: 150px; width: auto; object-fit: cover; object-position: top; flex: 0 0 auto; }
 .classic-root .contact-shot--0 { width: 112px; }
@@ -201,8 +298,9 @@ html[data-motion="reduce"] .classic-root .contact-strip-track { animation: none;
 .classic-root .contact-cell input::placeholder { color: var(--field-2-ink); opacity: 0.7; }
 .classic-root .contact-cell:focus-within { background: var(--accent-3); }
 .classic-root .contact-cell input:focus-visible { outline: none; }
-.classic-root .contact-send { border: 0; background: var(--field-2-ink); color: var(--field-2); font: inherit; font-size: var(--step-body); font-weight: 500; cursor: pointer; transition: transform 0.25s var(--ease); }
-.classic-root .contact-send:hover { transform: translateY(-2px); }
+.classic-root .contact-send { border: 0; background: var(--field-2-ink); color: var(--field-2); font: inherit; font-size: var(--step-body); font-weight: 500; cursor: pointer; transition: transform var(--t-press) var(--ease-out), background-color var(--t-hover) ease; }
+.classic-root .contact-send:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) { .classic-root .contact-send:hover { background: var(--surface-2); } }
 .classic-root .contact-send:disabled { opacity: 0.6; cursor: wait; transform: none; }
 .classic-root .contact-small { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px var(--margin) 0; font-size: var(--step-small); }
 .classic-root .contact-small p:last-child { grid-column: 3; }
@@ -223,9 +321,11 @@ html[data-motion="reduce"] .classic-root .contact-strip-track { animation: none;
 .classic-root .foot-tile--mail { grid-column: 10 / 13; justify-content: flex-end; }
 .classic-root .foot-tile--mail a { font-size: var(--step-lead); overflow-wrap: anywhere; }
 .classic-root .foot-tile--mark { grid-column: 1 / 9; background: var(--ink); color: var(--bg); align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 500; font-size: clamp(40px, 7.4vw, 120px); line-height: 1; letter-spacing: -0.03em; white-space: nowrap; overflow: hidden; }
-.classic-root .foot-tile--go { grid-column: 9 / 13; background: var(--accent); color: var(--accent-ink); font-family: var(--font-display); font-size: var(--step-lead); line-height: 1.1; transition: background 0.2s; }
-.classic-root .foot-tile--go:hover { background: var(--accent-2); }
-.classic-root .foot-tile--go svg { align-self: flex-end; }
+.classic-root .foot-tile--go { grid-column: 9 / 13; background: var(--accent); color: var(--accent-ink); font-family: var(--font-display); font-size: var(--step-lead); line-height: 1.1; transition: background-color var(--t-hover) ease, transform var(--t-press) var(--ease-out); }
+.classic-root .foot-tile--go:active { transform: scale(0.99); }
+@media (hover: hover) and (pointer: fine) { .classic-root .foot-tile--go:hover { background: var(--accent-2); } }
+.classic-root .foot-tile--go svg { align-self: flex-end; margin-right: 64px; transition: transform var(--t-ui) var(--ease-out); }
+@media (hover: hover) and (pointer: fine) { .classic-root .foot-tile--go:hover svg { transform: translate(4px, -4px); } }
 
 /* ---------- tablet ---------- */
 @media (max-width: 1024px) {
@@ -235,10 +335,13 @@ html[data-motion="reduce"] .classic-root .contact-strip-track { animation: none;
   .classic-root .work-fact--stack { grid-column: 7 / 13; }
   .classic-root .work-fact--year { grid-column: 1 / 7; }
   .classic-root .work-fact--team { grid-column: 7 / 13; }
-  .classic-root .about-facts { grid-column: 1 / 13; flex-direction: row; flex-wrap: wrap; gap: 8px 24px; }
-  .classic-root .about-body { grid-column: 1 / 13; }
+  .classic-root .about { grid-template-rows: auto; }
+  .classic-root .about-h2 { grid-column: 1 / 13; grid-row: auto; }
+  .classic-root .about-facts { grid-column: 1 / 13; grid-row: auto; flex-direction: row; flex-wrap: wrap; gap: 8px 24px; }
+  .classic-root .about-body { grid-column: 1 / 13; grid-row: auto; }
   .classic-root .figures-h2 { grid-column: 1 / 13; }
   .classic-root .figures-rows { grid-column: 1 / 13; }
+  .classic-root .ledger-col { grid-column: 2 / 12; }
   .classic-root .figures-row { width: 100%; }
   .classic-root .foot { grid-template-rows: auto; }
   .classic-root .foot-tile--say { grid-column: 1 / 7; min-height: 200px; }
@@ -253,6 +356,8 @@ html[data-motion="reduce"] .classic-root .contact-strip-track { animation: none;
 @media (max-width: 720px) {
   .classic-root .nav { grid-template-columns: 1fr auto; padding: 16px 20px; }
   .classic-root .nav-links { display: none; }
+  .classic-root .nav-menu { display: inline-flex; align-items: center; }
+  .classic-root .nav-end .btn { display: none; }
   .classic-root .hero { min-height: auto; }
   .classic-root .hero-top { row-gap: 16px; }
   .classic-root .hero-lead { font-size: 20px; }
@@ -274,10 +379,11 @@ html[data-motion="reduce"] .classic-root .contact-strip-track { animation: none;
   .classic-root .about { padding: 72px 20px; }
   .classic-root .about-p { font-size: 22px; line-height: 1.25; }
   .classic-root .about-portrait { width: 110px; height: 110px; }
-  .classic-root .about-facts { order: 2; }
+  .classic-root .about-h2 { order: 0; }
   .classic-root .about-body { order: 1; }
-  .classic-root .ledger { padding-inline: 20px; }
-  .classic-root .ledger-col { margin-left: 0; }
+  .classic-root .about-facts { order: 2; }
+  .classic-root .ledger { padding-inline: 20px; display: block; }
+  .classic-root .ledger-col { width: 100%; }
   .classic-root .ledger-row { grid-template-columns: 16px 1fr; min-height: 44px; }
   .classic-root .ledger-value { grid-column: 2; line-height: 1.4; white-space: normal; }
   .classic-root .ledger-group + .ledger-group { margin-top: 32px; }
@@ -297,6 +403,7 @@ html[data-motion="reduce"] .classic-root .contact-strip-track { animation: none;
   .classic-root .foot { grid-template-columns: 1fr 1fr; gap: 6px; }
   .classic-root .foot-tile--mark { grid-column: 1 / 3; order: 1; min-height: 160px; font-size: 13vw; }
   .classic-root .foot-tile--go { grid-column: 1 / 3; order: 2; min-height: 150px; }
+  .classic-root .foot-tile--go svg { margin-right: 56px; }
   .classic-root .foot-tile--nav { grid-column: 1; order: 3; }
   .classic-root .foot-tile--mail { grid-column: 2; order: 4; justify-content: flex-start; }
   .classic-root .foot-tile--mail a { font-size: var(--step-body); }

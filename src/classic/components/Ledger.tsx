@@ -8,8 +8,8 @@ function Group({ word, rows }: { word: string; rows: Row[] }) {
     <div className="ledger-group">
       <p className="ledger-word">{word}</p>
       <ul className="ledger-rows">
-        {rows.map((r) => (
-          <li className="ledger-row" key={r.name + r.value}>
+        {rows.map((r, i) => (
+          <li className="ledger-row" key={r.name + r.value} style={{ "--i": i } as React.CSSProperties}>
             <span className="ledger-dot" aria-hidden="true" />
             <span className="ledger-name">{r.name}{r.note && <span className="ledger-note"> {r.note}</span>}</span>
             <span className="ledger-value">{r.value}</span>
@@ -33,9 +33,9 @@ export function Ledger() {
     <section className="ledger" id="ledger" aria-labelledby="ledger-h2">
       <Reveal as="div" className="ledger-col">
         <h2 className="ledger-h2" id="ledger-h2">Where I have worked and studied</h2>
-        <Group word="Roles" rows={roles} />
-        <Group word="Education" rows={schools} />
-        <Group word="Certificates" rows={certs} />
+        <Reveal><Group word="Roles" rows={roles} /></Reveal>
+        <Reveal><Group word="Education" rows={schools} /></Reveal>
+        <Reveal><Group word="Certificates" rows={certs} /></Reveal>
       </Reveal>
     </section>
   );

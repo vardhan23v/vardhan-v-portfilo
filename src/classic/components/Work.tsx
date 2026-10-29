@@ -50,6 +50,7 @@ export function Work() {
             <div className="work-fact work-fact--name" style={{ "--i": 0 } as React.CSSProperties}>
               <h3 className="work-name">{p.name} <span className="work-cat">{CATEGORY_LABEL[p.category]}</span></h3>
               <p className="work-line">{p.tagline}</p>
+              <p className="work-features">{p.features.slice(0, 3).join(", ")}.</p>
               <p className="work-links">
                 {p.live && <a className="work-link" href={p.live} target="_blank" rel="noopener noreferrer">Open the live app</a>}
                 <a className="work-link" href={p.github} target="_blank" rel="noopener noreferrer">Source on GitHub</a>

@@ -65,10 +65,12 @@ export function Hero() {
       </div>
 
       <div className="hero-foot">
-        <p className="hero-sentence" data-load style={{ "--d": "520ms" } as React.CSSProperties}>Twelve apps, source included. Open to internships and freelance work.</p>
+        <p className="hero-sentence" data-load style={{ "--d": "520ms" } as React.CSSProperties}>React, TypeScript, Node and Python, with Gemini, Groq and Claude behind the interface. {site.availability.replace("&", "and")}.</p>
         <div className="hero-actions" data-load style={{ "--d": "580ms" } as React.CSSProperties}>
-          <a className="btn" href={`mailto:${site.email}?subject=${encodeURIComponent("Hello from your portfolio")}`}>Email me</a>
-          <a className="hero-alt" href="#work">See the work</a>
+          <a className="btn" href="#contact">Contact me</a>
+          <a className="hero-alt" href="#work">View projects</a>
+          <a className="hero-alt" href={site.resume} download="sree-vardhan-v-resume.pdf">Résumé</a>
+          <a className="hero-alt" href={site.github} target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
       </div>
     </section>

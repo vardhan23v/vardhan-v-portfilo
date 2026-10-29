@@ -183,7 +183,7 @@ html[data-motion="reduce"] .classic-root .hero [data-line], html[data-motion="re
 .classic-root .hero-frame.is-lit .hero-frame-name, .classic-root .hero-frame:hover .hero-frame-name { color: var(--ink); }
 .classic-root .hero-foot { margin-top: auto; padding: 56px var(--margin) clamp(32px, 5vh, 56px); display: flex; justify-content: space-between; align-items: end; gap: 24px; }
 .classic-root .hero-sentence { max-width: 36ch; }
-.classic-root .hero-actions { display: flex; align-items: center; gap: 20px; }
+.classic-root .hero-actions { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
 .classic-root .hero-alt { color: var(--muted); }
 @media (hover: hover) and (pointer: fine) { .classic-root .hero-alt:hover { color: var(--ink); } }
 
@@ -226,6 +226,7 @@ html[data-motion="reduce"] .classic-root .hero [data-line], html[data-motion="re
 .classic-root .work-name { font-size: var(--step-body); font-family: var(--font-text); font-weight: 600; }
 .classic-root .work-cat { font-weight: 400; color: var(--field-1-muted); }
 .classic-root .work-line { max-width: 40ch; }
+.classic-root .work-features { max-width: 44ch; color: var(--field-1-muted); font-size: var(--step-small); margin-top: 6px; }
 .classic-root .work-links { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 20px; }
 .classic-root .work-link { color: var(--field-1-ink); }
 .classic-root .work-index { position: absolute; right: var(--margin); top: 26px; font-size: var(--step-small); color: var(--field-1-muted); }
@@ -256,7 +257,8 @@ html[data-motion="reduce"] .classic-root .hero [data-line], html[data-motion="re
 .classic-root .ledger-row { display: grid; grid-template-columns: 16px 1fr auto; column-gap: 8px; align-items: start; min-height: 36px; padding: 6px 0; }
 .classic-root .ledger-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--field-1-ink); margin-top: 4px; }
 .classic-root .ledger-group:nth-child(3) .ledger-dot { background: var(--accent); }
-.classic-root .ledger-group:nth-child(4) .ledger-dot { background: var(--field-1-muted); }
+.classic-root .ledger-group:nth-child(4) .ledger-dot { background: var(--surface-2); }
+.classic-root .ledger-group:nth-child(5) .ledger-dot { background: var(--field-1-muted); }
 .classic-root .ledger-name { font-size: var(--step-body); line-height: 1.45; }
 .classic-root .ledger-note { color: var(--field-1-muted); }
 .classic-root .ledger-value { font-size: var(--step-small); color: var(--field-1-muted); font-variant-numeric: tabular-nums; line-height: 24px; white-space: nowrap; }
@@ -365,7 +367,7 @@ html[data-motion="reduce"] .classic-root .contact-strip-track { animation: none;
   .classic-root .hero-strip { height: 46vh; min-height: 280px; max-height: 420px; scroll-snap-type: x mandatory; gap: 8px; }
   .classic-root .hero-frame { aspect-ratio: 4 / 5; }
   .classic-root .hero-foot { flex-direction: column; align-items: flex-start; padding-top: 48px; }
-  .classic-root .hero-actions { width: 100%; justify-content: space-between; }
+  .classic-root .hero-actions { width: 100%; gap: 16px 20px; }
   .classic-root .work-title { margin-bottom: 48px; }
   .classic-root .work-item { margin-bottom: 64px; }
   .classic-root .work-strip { gap: 10px; padding: 0 11%; }
@@ -410,4 +412,11 @@ html[data-motion="reduce"] .classic-root .contact-strip-track { animation: none;
   .classic-root .foot-tile--time { grid-column: 1; order: 5; }
   .classic-root .foot-tile--say { grid-column: 2; order: 6; min-height: 0; }
   .classic-root .foot-statement { font-size: var(--step-body); }
+}
+
+/* ---------- small phones ---------- */
+@media (max-width: 340px) {
+  .classic-root .hero-title { font-size: 34px; }
+  .classic-root .nav { padding-inline: 16px; }
+  .classic-root .about, .classic-root .ledger, .classic-root .figures { padding-inline: 16px; }
 }

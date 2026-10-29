@@ -4,7 +4,7 @@ import { site } from "../data/site";
 import { stats } from "../data/stats";
 import { motionReduced } from "../../lib/motion";
 
-const frames = featuredProjects.filter((p) => p.cover).map((p) => ({ slug: p.slug, name: p.name, src: p.cover as string, live: p.live, github: p.github }));
+const frames = featuredProjects.filter((p) => p.cover).map((p) => ({ slug: p.slug, name: p.name, src: p.cover as string, phone: p.screenshots?.find((s) => s.includes("phone")), live: p.live, github: p.github }));
 
 /** Lights the frame nearest the centre of the strip; the rest sit dim. */
 function useLitFrame(ref: React.RefObject<HTMLDivElement | null>) {
@@ -58,7 +58,10 @@ export function Hero() {
       <div className={`hero-strip${reduced ? " is-still" : " is-drifting"}`} data-open ref={stripRef} role="group" aria-label="Screens of the live products, scroll sideways">
         {frames.map((f, i) => (
           <a className="hero-frame" href={`#work-${f.slug}`} key={f.slug}>
-            <img src={f.src} alt={`${f.name} live app`} width={1440} height={900} loading={i < 4 ? "eager" : "lazy"} decoding="async" fetchPriority={i === 2 ? "high" : undefined} />
+            <picture>
+              {f.phone && <source media="(max-width: 720px)" srcSet={f.phone} width={390} height={844} />}
+              <img src={f.src} alt={`${f.name} live app`} width={1440} height={900} loading={i < 4 ? "eager" : "lazy"} decoding="async" fetchPriority={i === 2 ? "high" : undefined} />
+            </picture>
             <span className="hero-frame-name">{f.name}</span>
           </a>
         ))}

@@ -166,6 +166,7 @@ html[data-motion="reduce"] .classic-root .hero [data-line], html[data-motion="re
   position: relative; flex: 0 0 auto; height: 100%; aspect-ratio: 16 / 10; scroll-snap-align: center;
   filter: brightness(0.55); transition: filter 500ms var(--ease-out); text-decoration: none; overflow: clip;
 }
+.classic-root .hero-frame picture { display: block; width: 100%; height: 100%; }
 .classic-root .hero-frame img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
 .classic-root .hero-frame.is-lit, .classic-root .hero-frame:focus-visible { filter: brightness(1); }
 @media (hover: hover) and (pointer: fine) { .classic-root .hero-frame:hover { filter: brightness(1); } }

@@ -1,71 +1,33 @@
-import "./styles/motion.css"; // must be the first classic stylesheet (see file header)
 import "@fontsource/kanit/latin-400.css";
 import "@fontsource/kanit/latin-ext-400.css";
 import "@fontsource/kanit/latin-500.css";
 import "@fontsource/kanit/latin-ext-500.css";
-import "@fontsource/kanit/latin-600.css";
-import "@fontsource/kanit/latin-ext-600.css";
-import "@fontsource/kanit/latin-700.css";
-import "@fontsource/kanit/latin-ext-700.css";
-import { useEffect, useRef } from "react";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
+import { Work } from "./components/Work";
 import { About } from "./components/About";
-import { Projects } from "./components/Projects";
-import { Experience } from "./components/Experience";
-import { Skills } from "./components/Skills";
-import { Education } from "./components/Education";
-import { GithubSection } from "./components/GithubSection";
+import { Ledger } from "./components/Ledger";
+import { Figures } from "./components/Figures";
 import { Contact } from "./components/Contact";
 import { Footer } from "./components/Footer";
-import "./styles/global.css";
-import "./styles/animations.css";
-import "./styles/refine.css";
-import { motionReduced } from "../lib/motion";
+import "./styles/classic.css";
 
-function ClassicScrollProgress() {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (motionReduced()) {
-      el.style.display = "none";
-      return;
-    }
-    const onScroll = () => {
-      const h = document.documentElement;
-      const max = h.scrollHeight - h.clientHeight;
-      const p = max > 0 ? window.scrollY / max : 0;
-      el.style.transform = `scaleX(${p})`;
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, []);
-  return <div ref={ref} className="classic-scroll-progress" aria-hidden="true" />;
-}
-
+/**
+ * Classic — the recruiter edition. Art direction: "the contact sheet" (taste-skill v2, seed 216873363):
+ * soot ground, one lime action colour, Kanit for the few large things, Inter for everything else,
+ * and the real screens of the twelve live products as the only pictures.
+ */
 export function ClassicSite() {
   return (
     <div className="classic-root" data-cursor-accent="classic">
-      <ClassicScrollProgress />
-      <a href="#main" className="skip-link">
-        Skip to content
-      </a>
-      <div className="bg-glow" aria-hidden="true" />
+      <a href="#main" className="skip-link">Skip to content</a>
       <Navbar />
       <main id="main">
         <Hero />
+        <Work />
         <About />
-        <Projects />
-        <Experience />
-        <Skills />
-        <Education />
-        <GithubSection />
+        <Ledger />
+        <Figures />
         <Contact />
       </main>
       <Footer />

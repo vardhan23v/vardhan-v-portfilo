@@ -22,7 +22,7 @@ export const EDITIONS: readonly Edition[] = [
     blurb: "Type `ls work`, read man pages, and tab-complete your way through the projects.",
     seo: { title: "Terminal — Sree Vardhan V | Generative AI Developer", description: "Interactive terminal edition of Sree Vardhan V's portfolio — a Generative AI and full-stack developer." } },
   { to: "/classic", label: "Classic", tone: "classic", num: "02", role: "for recruiters · start here", cta: "Open the original",
-    blurb: "The straightforward one — project grid, live GitHub stats, timeline and contact, top to bottom.",
+    blurb: "The straightforward one: real screens of every live product, the facts under each, experience and contact.",
     seo: { title: "Classic — Sree Vardhan V | Generative AI Developer & Full-Stack Developer", description: "Portfolio of Sree Vardhan V — a Computer Science undergraduate shipping AI-powered web applications." } },
   { to: "/paper", label: "Paper", tone: "paper", num: "03", role: "for reading", cta: "Open the paper",
     blurb: "Light editorial — serif headlines and a magazine layout. The same work, quietly printed.",

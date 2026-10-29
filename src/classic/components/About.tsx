@@ -1,64 +1,28 @@
-import { SectionHead } from "./SectionHead";
+import { featuredProjects } from "../data/projects";
+import { experience } from "../data/experience";
+import { site } from "../data/site";
 import { Reveal } from "../hooks/useReveal";
-import { Icon } from "../lib/icons";
-import "./About.css";
-
-const strengths = [
-  { icon: "sparkles", title: "Generative AI", text: "LLM integration, prompt design, agents and MCP tooling." },
-  { icon: "server", title: "Full-stack", text: "React frontends, Node.js APIs, and databases wired end-to-end." },
-  { icon: "rocket", title: "Product thinker", text: "I ship working applications, not just demos and tutorials." },
-] as const;
-
-function StrengthGlyph({ icon }: { icon: string }) {
-  const Glyph = Icon[icon as keyof typeof Icon];
-  return <Glyph width={20} height={20} />;
-}
 
 export function About() {
+  const flagship = featuredProjects.find((p) => p.highlight) ?? featuredProjects[0];
+  const portrait = flagship.screenshots?.find((s) => s.includes("phone")) ?? flagship.cover;
+  const latestRole = experience[0];
   return (
-    <section id="about">
-      <div className="container">
-        <SectionHead eyebrow="About"
-          index="01" title="Builder first, student second" />
-
-        <div className="about-grid">
-          <Reveal>
-            <div className="about-card">
-              <p className="about-lead">
-                I'm a Computer Science undergraduate at <strong>NMAM Institute of Technology</strong>{" "}
-                focused on full-stack development and AI-integrated applications.
-              </p>
-              <p>
-                I enjoy building products across the stack — from React interfaces and Node.js APIs to
-                databases and LLM integrations. I've built AI-powered developer tools, a Chrome
-                extension generator, career platforms, and full-stack web applications using
-                technologies such as React, Node.js, MongoDB, MySQL, Gemini, Claude, and Groq.
-              </p>
-              <p>
-                I'm particularly interested in <span className="about-accent">Generative AI</span>,{" "}
-                <span className="about-accent">AI agents</span>,{" "}
-                <span className="about-accent">developer tooling</span>, and products that solve real
-                problems.
-              </p>
-            </div>
-          </Reveal>
-
-          <div className="about-strengths">
-            {strengths.map((s, i) => (
-              <Reveal key={s.title} delay={`reveal-d${i + 1}`}>
-                <div className="about-strength">
-                  <span className="about-strength-icon" aria-hidden="true">
-                    <StrengthGlyph icon={s.icon} />
-                  </span>
-                  <div>
-                    <h3>{s.title}</h3>
-                    <p>{s.text}</p>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
+    <section className="about" id="about" aria-labelledby="about-h2">
+      <div className="about-facts">
+        <h2 className="about-h2" id="about-h2">About</h2>
+        <p>{site.location}</p>
+        <p>B.Tech, computer science, 2024 to 2028</p>
+        <p><a href={`mailto:${site.email}`}>{site.email}</a></p>
+      </div>
+      <div className="about-body">
+        <Reveal as="p" className="about-p about-p--lead">
+          {portrait && <img className="about-portrait" src={portrait} alt={`${flagship.name}, his most recent product, on a phone`} width={440} height={440} loading="lazy" decoding="async" />}
+          <strong>{site.name}</strong> is a computer-science undergraduate at NMAM Institute of Technology who builds products from the interface to the model behind them, and keeps them running.
+        </Reveal>
+        <Reveal as="p" className="about-p about-p--second" delay="reveal-d1">
+          The latest one turns a plain-English prompt into a working Chrome extension. He has held {experience.length} roles since 2026, most recently at {latestRole.company}, writes TypeScript end to end, and is {site.availability.toLowerCase().replace("&", "and")}.
+        </Reveal>
       </div>
     </section>
   );

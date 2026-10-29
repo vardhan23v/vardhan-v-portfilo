@@ -30,3 +30,6 @@ dist-ssr
 
 # agent worktrees
 .claude/worktrees
+
+# taste-skill working files
+.taste-skill

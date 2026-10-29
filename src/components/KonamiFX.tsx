@@ -131,8 +131,12 @@ export function KonamiFX() {
     <>
       <canvas ref={canvasRef} className="konami-canvas" aria-hidden="true" />
       <div className={`konami-toast${toast ? " is-visible" : ""}`} role="status" aria-live="polite">
-        <span className="konami-toast-badge" aria-hidden="true">★</span>
-        achievement unlocked — you found the code
+        {toast && (
+          <>
+            <span className="konami-toast-badge" aria-hidden="true">★</span>
+            achievement unlocked — you found the code
+          </>
+        )}
       </div>
     </>
   );

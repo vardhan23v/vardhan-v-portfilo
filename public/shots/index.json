@@ -1,0 +1,107 @@
+{
+  "extension-ai": {
+    "live": "https://extension-ai-five.vercel.app/",
+    "finalUrl": "https://extension-ai-five.vercel.app/",
+    "title": "Extensio.ai - Build Chrome Extensions with AI",
+    "files": [
+      "desktop.jpg",
+      "desktop-2.jpg",
+      "phone.jpg"
+    ]
+  },
+  "trustlens-ai": {
+    "live": "https://trustlens-ai-production-5b04.up.railway.app",
+    "finalUrl": "https://trustlens-ai-production-5b04.up.railway.app/",
+    "title": "TrustLens AI",
+    "files": [
+      "desktop.jpg",
+      "desktop-2.jpg",
+      "phone.jpg"
+    ]
+  },
+  "launchradar": {
+    "live": "https://launchradar-psi.vercel.app",
+    "finalUrl": "https://launchradar-psi.vercel.app/",
+    "title": "LaunchRadar",
+    "files": [
+      "desktop.jpg",
+      "desktop-2.jpg",
+      "phone.jpg"
+    ]
+  },
+  "chitchain": {
+    "live": "https://frontend-production-d322.up.railway.app",
+    "finalUrl": "https://frontend-production-d322.up.railway.app/",
+    "title": "404 Not Found",
+    "files": [],
+    "errors": [
+      "desktop: HTTP 404",
+      "phone: HTTP 404"
+    ],
+    "rejected": "Railway \"Not Found\" error page (domain not provisioned)"
+  },
+  "ai-code-reviewer": {
+    "live": "https://codereviewer-eta.vercel.app",
+    "finalUrl": "https://codereviewer-eta.vercel.app/",
+    "title": "🤖 AI Code Reviewer | Professional Workspace",
+    "files": [
+      "desktop.jpg",
+      "desktop-2.jpg",
+      "phone.jpg"
+    ]
+  },
+  "careerforge-pro": {
+    "live": "https://career-forge-pro-phi.vercel.app",
+    "finalUrl": "https://career-forge-pro-phi.vercel.app/",
+    "title": "CareerForge Pro | AI Resume Builder",
+    "files": [
+      "desktop.jpg",
+      "phone.jpg"
+    ]
+  },
+  "vard-ai": {
+    "live": "https://vard-ai.lovable.app",
+    "finalUrl": "https://vard-ai.lovable.app/",
+    "title": "Vard — Your Personal AI Assistant",
+    "files": [
+      "desktop.jpg",
+      "desktop-2.jpg",
+      "phone.jpg"
+    ]
+  },
+  "disastermind-ai": {
+    "live": "https://disastermind-ai.vercel.app",
+    "finalUrl": "https://disastermind-ai.vercel.app/",
+    "title": "DisasterMind AI — Emergency Response Platform",
+    "files": [
+      "desktop.jpg",
+      "phone.jpg"
+    ]
+  },
+  "hpl-auction": {
+    "live": "https://hpl-web-production.up.railway.app",
+    "finalUrl": "https://hpl-web-production.up.railway.app/",
+    "title": "Hostel Premier League — Live Auction",
+    "files": [
+      "desktop.jpg",
+      "desktop-2.jpg",
+      "phone.jpg"
+    ]
+  },
+  "apex-retail-erp": {
+    "live": "https://inventory-management-mu-sandy.vercel.app",
+    "finalUrl": "https://inventory-management-mu-sandy.vercel.app/login",
+    "title": "Plate & Pantry | Discover flavours worth sharing",
+    "files": [
+      "desktop.jpg",
+      "phone.jpg"
+    ]
+  },
+  "dayflow-hrms": {
+    "live": "https://frontend-iota-two-70.vercel.app",
+    "finalUrl": "https://frontend-iota-two-70.vercel.app/",
+    "title": "NexLevr",
+    "files": [],
+    "rejected": "deployment serves the default Next.js starter page, not the app"
+  }
+}

@@ -107,11 +107,13 @@ export interface RevealProps {
   className?: string;
   id?: string;
   style?: CSSProperties;
+  /** Observer options, e.g. a generous bottom rootMargin so the entrance plays before the element is on screen. */
+  options?: RevealOptions;
 }
 
 /** `<div class="reveal [delay] [className]">` that gains `.is-visible` when scrolled into view. */
-export function Reveal({ children, as: Tag = "div", delay, className = "", id, style }: RevealProps) {
-  const ref = useReveal<HTMLElement>();
+export function Reveal({ children, as: Tag = "div", delay, className = "", id, style, options }: RevealProps) {
+  const ref = useReveal<HTMLElement>(options);
   return (
     <Tag ref={ref} className={`reveal${delay ? ` ${delay}` : ""} ${className}`.trim()} id={id} style={style}>
       {children}

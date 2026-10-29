@@ -20,6 +20,8 @@ export interface Project {
   kicker?: string;
   /** Who built it — shown on case-study pages. Defaults to "sole builder". */
   role?: string;
+  /** Year shipped; defaults to the current year in the UI. */
+  year?: string;
   tagline: string;
   problem: string;
   features: string[];
@@ -54,6 +56,8 @@ export const featuredProjects: Project[] = [
     tech: ["React", "Node.js", "Express", "MongoDB", "Gemini 2.0 Flash", "Groq Llama 3.3", "JWT", "Manifest V3"],
     github: "https://github.com/vardhan23v/extension-AI",
     live: "https://extension-ai-five.vercel.app/",
+    cover: "/shots/extension-ai/desktop.jpg",
+    screenshots: ["/shots/extension-ai/desktop.jpg", "/shots/extension-ai/desktop-2.jpg", "/shots/extension-ai/phone.jpg"],
     accent: ["#7c6cff", "#38bdf8", "#a78bfa"],
     emoji: "🧩",
     highlight: true,
@@ -78,6 +82,8 @@ export const featuredProjects: Project[] = [
     tech: ["Python", "FastAPI", "CrewAI", "Gemini", "ONNX Runtime", "Whisper", "React", "Vite", "TypeScript", "Tailwind CSS", "Docker", "Railway"],
     github: "https://github.com/vardhan23v/trustlens-ai",
     live: "https://trustlens-ai-production-5b04.up.railway.app",
+    cover: "/shots/trustlens-ai/desktop.jpg",
+    screenshots: ["/shots/trustlens-ai/desktop.jpg", "/shots/trustlens-ai/desktop-2.jpg", "/shots/trustlens-ai/phone.jpg"],
     accent: ["#22d3ee", "#8e75b2", "#67e8f9"],
     emoji: "🔍",
   },
@@ -100,6 +106,8 @@ export const featuredProjects: Project[] = [
     tech: ["Next.js 16", "React 19", "TypeScript", "Tailwind CSS", "Cloudflare Workers", "Durable Objects", "Cloudflare D1", "Groq", "SerpApi", "Vercel"],
     github: "https://github.com/vardhan23v/launchradar",
     live: "https://launchradar-psi.vercel.app",
+    cover: "/shots/launchradar/desktop.jpg",
+    screenshots: ["/shots/launchradar/desktop.jpg", "/shots/launchradar/desktop-2.jpg", "/shots/launchradar/phone.jpg"],
     accent: ["#0e9f6e", "#f38020", "#6366f1"],
     emoji: "📡",
   },
@@ -122,7 +130,6 @@ export const featuredProjects: Project[] = [
     ],
     tech: ["Next.js", "TypeScript", "Solidity", "Hardhat", "ethers", "Express", "Prisma", "PostgreSQL", "Python", "FastAPI", "CrewAI", "Groq", "Railway"],
     github: "https://github.com/vardhan23v/chitchain",
-    live: "https://frontend-production-d322.up.railway.app",
     accent: ["#d7263d", "#7c3aed", "#f472b6"],
     emoji: "⛓️",
   },
@@ -146,6 +153,8 @@ export const featuredProjects: Project[] = [
     tech: ["React", "Vite", "Monaco Editor", "Groq Llama 3.3", "Gemini 2.0 Flash", "GPT-4o Mini", "Recharts"],
     github: "https://github.com/vardhan23v/codereviewer",
     live: "https://codereviewer-eta.vercel.app",
+    cover: "/shots/ai-code-reviewer/desktop.jpg",
+    screenshots: ["/shots/ai-code-reviewer/desktop.jpg", "/shots/ai-code-reviewer/desktop-2.jpg", "/shots/ai-code-reviewer/phone.jpg"],
     accent: ["#38bdf8", "#22d3ee", "#818cf8"],
     emoji: "🛡️",
   },
@@ -190,6 +199,8 @@ export const featuredProjects: Project[] = [
     tech: ["TypeScript", "React", "TanStack Start", "Groq Llama 3.3", "MCP", "Supabase", "Tailwind CSS"],
     github: "https://github.com/vardhan23v/Vard-AI",
     live: "https://vard-ai.lovable.app",
+    cover: "/shots/vard-ai/desktop.jpg",
+    screenshots: ["/shots/vard-ai/desktop.jpg", "/shots/vard-ai/desktop-2.jpg", "/shots/vard-ai/phone.jpg"],
     accent: ["#f472b6", "#a78bfa", "#38bdf8"],
     emoji: "🎙️",
   },
@@ -212,6 +223,8 @@ export const featuredProjects: Project[] = [
     tech: ["React", "TypeScript", "Vite", "Leaflet", "Zustand", "Multi-agent simulation", "Vitest"],
     github: "https://github.com/vardhan23v/Disastermind-ai",
     live: "https://disastermind-ai.vercel.app",
+    cover: "/shots/disastermind-ai/desktop.jpg",
+    screenshots: ["/shots/disastermind-ai/desktop.jpg", "/shots/disastermind-ai/phone.jpg"],
     accent: ["#f97316", "#fb923c", "#facc15"],
     emoji: "🛰️",
   },
@@ -255,6 +268,8 @@ export const featuredProjects: Project[] = [
     tech: ["React", "Next.js 16", "Socket.IO", "Prisma", "Cloud MySQL", "Railway", "Cloudinary API", "Tailwind CSS"],
     github: "https://github.com/vardhan23v/hpl-auction",
     live: "https://hpl-web-production.up.railway.app",
+    cover: "/shots/hpl-auction/desktop.jpg",
+    screenshots: ["/shots/hpl-auction/desktop.jpg", "/shots/hpl-auction/desktop-2.jpg", "/shots/hpl-auction/phone.jpg"],
     accent: ["#22c55e", "#16a34a", "#4ade80"],
     emoji: "🏏",
   },
@@ -277,6 +292,8 @@ export const featuredProjects: Project[] = [
     tech: ["React", "Vite", "Express", "Sequelize", "Cloud MySQL", "Railway", "Cloudinary API", "Tailwind CSS"],
     github: "https://github.com/vardhan23v/inventory-management",
     live: "https://inventory-management-mu-sandy.vercel.app",
+    cover: "/shots/apex-retail-erp/desktop.jpg",
+    screenshots: ["/shots/apex-retail-erp/desktop.jpg", "/shots/apex-retail-erp/phone.jpg"],
     accent: ["#0ea5e9", "#0284c7", "#38bdf8"],
     emoji: "🧾",
   },
@@ -298,7 +315,6 @@ export const featuredProjects: Project[] = [
     ],
     tech: ["React", "TypeScript", "Vite", "Express", "Cloud MySQL", "Railway", "Cloudinary API", "Tailwind CSS"],
     github: "https://github.com/vardhan23v/Human-Resource-Management-System",
-    live: "https://frontend-iota-two-70.vercel.app",
     accent: ["#8b5cf6", "#7c3aed", "#a78bfa"],
     emoji: "👥",
   },

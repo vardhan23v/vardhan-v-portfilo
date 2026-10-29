@@ -22,6 +22,8 @@ export interface Project {
   role?: string;
   /** Year shipped; defaults to the current year in the UI. */
   year?: string;
+  /** false when the live site refuses to be framed (X-Frame-Options / frame-ancestors). */
+  embed?: boolean;
   tagline: string;
   problem: string;
   features: string[];
@@ -130,6 +132,7 @@ export const featuredProjects: Project[] = [
     tech: ["Next.js 16", "React 19", "TypeScript", "Tailwind CSS", "Cloudflare Workers", "Durable Objects", "Cloudflare D1", "Groq", "SerpApi", "Vercel"],
     github: "https://github.com/vardhan23v/launchradar",
     live: "https://launchradar-psi.vercel.app",
+    embed: false,
     cover: "/shots/launchradar/desktop.jpg",
     screenshots: ["/shots/launchradar/desktop.jpg", "/shots/launchradar/desktop-2.jpg", "/shots/launchradar/phone.jpg"],
     accent: ["#0e9f6e", "#f38020", "#6366f1"],
@@ -251,6 +254,7 @@ export const featuredProjects: Project[] = [
     tech: ["React", "Express", "Gemini", "Cloudinary API"],
     github: "https://github.com/vardhan23v/career-forge-pro",
     live: "https://career-forge-pro-phi.vercel.app",
+    embed: false,
     accent: ["#34d399", "#2dd4bf", "#6ee7b7"],
     emoji: "📄",
   },

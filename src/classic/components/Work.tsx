@@ -2,6 +2,7 @@ import { CATEGORY_LABEL, featuredProjects, type Project } from "../data/projects
 import { useRef } from "react";
 import { Reveal } from "../hooks/useReveal";
 import { useLines } from "../motion/useLines";
+import { LiveFrame } from "./LiveFrame";
 
 /** Every frame the project has, in the order the sheet shows them. */
 export function framesOf(p: Project): string[] {
@@ -9,30 +10,46 @@ export function framesOf(p: Project): string[] {
   return [...new Set(list)];
 }
 
+function TypesetCard({ p }: { p: Project }) {
+  return (
+    <div className="work-frame--text" role="img" aria-label={`${p.name}: ${p.tagline}`}>
+      <div>
+        <p className="wf-name">{p.name}</p>
+        <p className="wf-tag">{p.tagline}</p>
+      </div>
+      <ul className="wf-list">
+        {p.features.slice(0, 6).map((f) => <li key={f}>{f}</li>)}
+      </ul>
+    </div>
+  );
+}
+
 function Strip({ p }: { p: Project }) {
   const frames = framesOf(p);
-  if (frames.length === 0) {
+  const live = p.live && p.embed !== false ? p.live : undefined;
+  // The first frame is the live product when it can be framed; the captures follow it.
+  const first = live ? (
+    <figure className="work-frame work-frame--live" key="live">
+      <LiveFrame url={live} name={p.name} poster={frames[0] ? <img src={frames[0]} alt={`${p.name}, screen 1 of ${frames.length}`} width={1046} height={600} loading="lazy" decoding="async" /> : <TypesetCard p={p} />} />
+    </figure>
+  ) : null;
+  const rest = (live ? frames.slice(1) : frames).map((src, i) => (
+    <figure className="work-frame" key={src}>
+      <img src={src} alt={`${p.name}, screen ${i + (live ? 2 : 1)} of ${frames.length}`} width={1046} height={600} loading="lazy" decoding="async" />
+    </figure>
+  ));
+  if (!first && rest.length === 0) {
     return (
       <div className="work-strip work-strip--empty">
-        <div className="work-frame work-frame--text" role="img" aria-label={`${p.name}: ${p.tagline}`}>
-          <div>
-            <p className="wf-name">{p.name}</p>
-            <p className="wf-tag">{p.tagline}</p>
-          </div>
-          <ul className="wf-list">
-            {p.features.slice(0, 6).map((f) => <li key={f}>{f}</li>)}
-          </ul>
-        </div>
+        <div className="work-frame"><TypesetCard p={p} /></div>
       </div>
     );
   }
+  const single = (first ? 1 : 0) + rest.length === 1;
   return (
-    <div className="work-strip" role="group" aria-label={`${p.name} screens, scroll sideways`}>
-      {frames.map((src, i) => (
-        <figure className="work-frame" key={src}>
-          <img src={src} alt={`${p.name}, screen ${i + 1} of ${frames.length}`} width={1046} height={600} loading="lazy" decoding="async" />
-        </figure>
-      ))}
+    <div className={`work-strip${single ? " work-strip--empty" : ""}`} role="group" aria-label={single ? undefined : `${p.name} screens, scroll sideways`}>
+      {first}
+      {rest}
     </div>
   );
 }

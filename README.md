@@ -8,7 +8,7 @@
 [![GitHub](https://img.shields.io/badge/GitHub-vardhan23v-7c6cff?style=for-the-badge&logo=github&logoColor=white)](https://github.com/vardhan23v)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-vardhan--v23-0a66c2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/vardhan-v23)
 
-[![Build](https://img.shields.io/badge/build-passing-34d399?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/vardhan23v/vardhan-v-portfilo/actions)
+[![CI](https://github.com/vardhan23v/vardhan-v-portfilo/actions/workflows/ci.yml/badge.svg)](https://github.com/vardhan23v/vardhan-v-portfilo/actions/workflows/ci.yml)
 [![Vercel](https://img.shields.io/badge/Vercel-Ready-black?style=for-the-badge&logo=vercel&logoColor=white)](https://vardhan-v-portfilo.vercel.app)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
 [![Vite](https://img.shields.io/badge/Vite-8.2-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
@@ -88,7 +88,7 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
 
 ## 🌟 Highlights
 
-- **9 featured projects** — Extension AI (flagship), AI Code Reviewer, CareerForge Pro, Vard AI, DisasterMind AI, DriveNest, HPL Auction, Apex Retail ERP, Dayflow HRMS — each with *problem → features → AI engine (Gemini/Claude/Groq/MCP) → stack → GitHub/Live*
+- **12 featured projects** — Extension AI (flagship), TrustLens AI, LaunchRadar, ChitChain, AI Code Reviewer, CareerForge Pro, Vard AI, DisasterMind AI, DriveNest, HPL Auction, Apex Retail ERP, Dayflow HRMS — each with *problem → features → AI engine (Gemini/Claude/Groq/MCP) → stack → GitHub/Live*
 - **macOS OS shell** — window manager + Control Center + Settings (accent 6 swatches / theme / motion) + Terminal (`about`/`date`/`repo`) + Spotlight ranking fix + Vardhan AI links + Developer Mode inspector + Help `?` + mobile bounds fix + persisted prefs + a11y (0 buttons without name, `aria-label` on dialogs, `data-mac-motion`) `src/mac/MacPortfolio.tsx:1` — `MacPortfolio-*.js 113kB / 29.9kB gzip` (budget 150kB) + `MacPortfolio-*.css 69kB / 12kB gzip`
 - **Aurora 2.0 discovery** — search across name/tagline/tech/slug, sort, view toggle, highlight pills, empty state, modal body with `problem | features•bullet | tech chips` `src/aurora/AuroraSite.tsx:62`
 - **Classic cinematic** — `ClassicScrollProgress` `src/classic/ClassicSite.tsx:14`, `classicNavIn`/`classicHeroName`/`classicTerminalIn` `src/classic/styles/animations.css:9`, hero parallax `useClassicHeroFX` `src/classic/components/Hero.tsx:56`, filter `::after` shine, timeline `classicDotEnter`
@@ -96,8 +96,8 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
 - **Experience** — OxCode, FlyRank AI, Zetheta, Zaalima — now expandable in Aurora, slide-in in Classic
 - **Tech stack** — honest grouped categories (Languages / Frontend / Backend / Databases / AI-LLM / Cloud & Tools) with glyphs `src/classic/components/Skills.tsx:7`, no % bars; **Stack Lab** makes them interactive in Aurora
 - **Live GitHub stats** — followers/repos (session-cached, static fallback) `src/classic/components/GithubSection.tsx:33`, count-up via `requestAnimationFrame`
-- **SEO & a11y** — per-route `ROUTE_SEO` `src/App.tsx:20`, OG/Twitter/canonical `index.html:14`, `sitemap.xml`/`robots.txt`, skip-link `src/classic/styles/global.css:341`, focus rings, `prefers-reduced-motion` everywhere
-- **QA** — Puppeteer scripts: `layout-audit` (375–1440px overflow), `mob-check`, `shortcut-check`, `switcher-click-check`, `shell-test` (see Scripts)
+- **SEO & a11y** — per-route `ROUTE_SEO` `src/App.tsx:20`, OG/Twitter/canonical `index.html:14`, `sitemap.xml`/`robots.txt`, skip-link `src/classic/styles/global.css:341`, focus rings, `prefers-reduced-motion` honoured by default (the motion toggle can force animations on/off; unset = follow the OS)
+- **QA** — GitHub Actions CI (`.github/workflows/ci.yml`: lint → typecheck → build → `npm test` → `npm run smoke`), Vitest data/shell tests, a Puppeteer smoke run over every route, plus the audit scripts: `layout-audit` (375–1440px overflow), `mob-check`, `shortcut-check`, `switcher-click-check`, `shell-test` (see Scripts)
 
 ---
 
@@ -106,11 +106,11 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
 | Layer | Tools | Notes |
 |---|---|---|
 | Framework | **Vite 8.2** + **React 19.2** + **TypeScript 6** + `react-router-dom 7` `viewTransition` | `src/App.tsx:90` number-key + `ScrollToTop` + `RouteSeo` |
-| Styling | **Hand-written CSS per edition** — tokens (`--bg`, `--accent`, `--surface`) `src/classic/styles/global.css:1`, `src/aurora/styles/aurora.css:5`, `src/classic/styles/animations.css:1` | Zero UI lib; Tailwind via `@tailwindcss/vite` for utilities only |
-| Animation | View Transitions, `animation-timeline: view()` + `IntersectionObserver` `useReveal` `src/classic/hooks/useReveal.tsx:1`, `useTilt`/`useMagnetic`, `Aurora 2.0` modal/toolbar/lab + `Classic` parallax/scroll-progress/cinematic `src/styles/motion.css:1` | All `prefers-reduced-motion: reduce` safe |
+| Styling | **Hand-written CSS per edition** — tokens (`--bg`, `--accent`, `--surface`) `src/classic/styles/global.css:1`, `src/aurora/styles/aurora.css:5`, `src/classic/styles/animations.css:1` | Zero UI lib; hand-written CSS, no utility framework |
+| Animation | View Transitions, `animation-timeline: view()` + `IntersectionObserver` `useReveal` `src/hooks/useReveal.tsx:1` (one hook shared by Classic/Terminal/macOS), `useTilt`/`useMagnetic`, `Aurora 2.0` modal/toolbar/lab + `Classic` parallax/scroll-progress/cinematic `src/styles/motion.css:1` | All `prefers-reduced-motion: reduce` safe — the OS setting is the default; no animation library |
 | Icons | `lucide-react` + custom `Icon` `src/classic/lib/icons.tsx:1` (20+ glyphs) | No huge icon packs |
-| Data | GitHub REST (live stats, session cache) | Fallback `30 followers`/`39 repos` |
-| QA | `puppeteer-core` + `oxlint` | `npm run lint` — 5 warnings / 0 errors baseline |
+| Data | GitHub REST (live stats, session cache) | Fallback `33 followers`/`60 repos` (`src/classic/data/stats.ts`) |
+| QA | `vitest` + `puppeteer` + `oxlint` + GitHub Actions | `npm run lint` — 0 errors baseline; `npm test`; `npm run smoke` |
 | Deploy | **Vercel** `vercel.json:1` `{rewrites:[{source:"/(.*)",destination:"/index.html"}]}` auto-deploy on `main` | `project.json: team_InTZCfnybRSk3JlAYIXFN3UA` |
 
 **Bundle (Sep 14 build):** `dist/assets/index-*.js 246kB / 79kB gzip` + `MacPortfolio-*.js 113kB / 29.9kB gzip` + `index-*.css 41kB / 9kB gzip` + `MacPortfolio-*.css 69kB / 12kB gzip` → total ~121kB gzip for macOS chunk (budget 150kB), `tsc -b` clean, 0 a11y buttons without name, `prefers-reduced-motion` + `data-mac-motion` respected.
@@ -163,18 +163,20 @@ Built at `src/mac/MacPortfolio.tsx:12` — providers `ThemeProvider → WindowMa
 ```
 .
 ├── public/            # favicon.svg, robots.txt, sitemap.xml, resume/resume.pdf
-├── scripts/           # layout-audit, mob-check, shortcut-check, switcher-click-check,
-│                      # shell-test (terminal), live-check, forge-probe
+├── .github/           # workflows/ci.yml (lint → tsc → build → test → smoke), dependabot.yml
+├── scripts/           # smoke (every route, headless), layout-audit, mob-check, shortcut-check,
+│                      # switcher-click-check, shell-test (terminal), live-check, forge-probe, lib/browser.mjs
+├── tests/             # Vitest: data.test.ts (projects/editions/stats), shell.test.ts (terminal engine)
 └── src/
-    ├── App.tsx        # BrowserRouter + InterfaceShortcuts(1-6) + RouteSeo + ScrollChrome + CommandPalette + KonamiFX
+    ├── App.tsx        # createBrowserRouter + InterfaceShortcuts(1-6) + RouteSeo + ErrorBoundary + ScrollChrome + CommandPalette + KonamiFX
     ├── landing/       # Landing + EditionStage (stage-frame, mini-skins including macOS)
     ├── terminal/      # CRT shell + work man pages
     ├── classic/       # Classic — data + hooks + lib + styles/animations.css (cinematic)
     │   ├── data/      # site.ts / projects.ts / experience.ts / skills.ts — source of truth
-    │   ├── hooks/     # useReveal.tsx
+    │   ├── hooks/     # useReveal.tsx (re-exports src/hooks/useReveal)
     │   └── styles/    # global.css + animations.css (Sep 13 hero/scroll/timeline/skill)
     ├── paper/         # Paper
-    ├── aurora/        # Aurora 2.0 — AuroraSite.tsx + styles/aurora.css (2.4k lines: toolbar/modal/lab/edu/form)
+    ├── aurora/        # Aurora 2.0 — AuroraSite.tsx + styles/aurora.css (~2.9k lines: toolbar/modal/lab/edu/form)
     ├── forge/         # Forge + EmberField
     ├── mac/           # macOS — premium OS shell (scoped under .mac-root, 8 phases)
     │   ├── components/# Desktop, Dock, MenuBar, ControlCenter, DevPanel, HelpOverlay, WindowFrame, CommandPalette, Toast, Finder/Terminal/AI/Settings apps
@@ -182,14 +184,14 @@ Built at `src/mac/MacPortfolio.tsx:12` — providers `ThemeProvider → WindowMa
     │   ├── pages/     # overview, projects, experience, skills, achievements, contact, about (via AppContent)
     │   ├── data/      # re-exports classic/data (single source of truth)
     │   └── styles/    # design-system (accent matrix + motion gate) + desktop (help/dev/control) + dock + shell + pages
-    ├── components/    # CommandPalette, KonamiFX, ScrollChrome, LiquidButton, expandable-tabs, ScrollChrome
+    ├── components/    # CommandPalette, KonamiFX, ScrollChrome, ErrorBoundary, MotionToggle, LiquidButton, expandable-tabs, ui/CountUp
     ├── interface-switcher/ # magnetic switcher (every page)
-    ├── hooks/         # useTilt, useMagnetic, useReveal
+    ├── hooks/         # useTilt, useMagnetic, useReveal, useIstTime, useGithub, usePrefersReducedMotion (shared by every edition)
     └── styles/        # motion.css (6 editions + Aurora 2.0 + Classic cinematic + view-transitions + scroll-rise)
 ```
 
 Content in two places:
-- `src/classic/data/` — shared truth (identity, `featuredProjects` 9 + `otherProjects` 13, `experience`/`education`/`certifications`, `skillCategories`/`exploring`) used by Landing/Classic/Paper/Aurora/Forge/macOS.
+- `src/classic/data/` — shared truth (identity, `featuredProjects` 12 + `otherProjects` 13, `experience`/`education`/`certifications`, `skillCategories`/`exploring`) used by Landing/Classic/Paper/Aurora/Forge/macOS.
 - `src/terminal/data/` — Terminal’s man-page-rich case studies + `how_i_work.sh` + `site` subset reusing `classic/data/site.ts`.
 
 ---
@@ -201,8 +203,12 @@ npm install
 npm run dev        # http://localhost:5173  (Vite)
 npm run build      # tsc -b + vite build + sitemap → dist/
 npm run preview    # preview dist/ (use --port 4173 for scripts)
-npm run lint       # oxlint — 5 warnings, 0 errors baseline
+npm run lint       # oxlint — 0 errors baseline
+npm test           # vitest — data integrity + terminal shell engine (add --run for one pass)
+npm run smoke      # headless Puppeteer over every route (starts its own preview on :4173; needs a build)
 ```
+
+CI (`.github/workflows/ci.yml`) runs the same five steps — lint, `tsc --noEmit`, build, `npm test -- --run`, `npm run smoke` — on every push and pull request. Puppeteer uses its bundled Chrome; set `PUPPETEER_EXECUTABLE_PATH` to point the scripts at Brave/Chrome instead.
 
 QA (with `npm run preview -- --port 4173` running):
 

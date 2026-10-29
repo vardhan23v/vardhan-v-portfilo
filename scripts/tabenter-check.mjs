@@ -1,10 +1,6 @@
-import puppeteer from "puppeteer-core";
+import { launch } from "./lib/browser.mjs";
 
-const b = await puppeteer.launch({
-  executablePath: "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
-  headless: true,
-  args: ["--no-sandbox"],
-});
+const b = await launch();
 const p = await b.newPage();
 const base = process.env.BASE || "http://localhost:4173";
 

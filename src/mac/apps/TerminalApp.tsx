@@ -179,8 +179,9 @@ export function TerminalApp() {
     }
   }, [openWindow, ist]);
 
+  // Mouse convenience only: clicking anywhere focuses the prompt; keyboard users Tab straight to the input.
   return (
-    <div className="termapp" onClick={() => inputRef.current?.focus()}>
+    <div className="termapp" role="presentation" onClick={() => inputRef.current?.focus()}>
       {matrix && <canvas ref={canvasRef} className="termapp__matrix" aria-hidden="true" />}
       <div className="termapp__body" ref={bodyRef} aria-live="polite">
         <div className="termapp__line termapp__line--dim termapp__intro">{intro}</div>

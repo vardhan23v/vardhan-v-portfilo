@@ -252,7 +252,9 @@ export function Desktop() {
       <div
         className={`mac-desktop__area${overlay === "expose" ? " is-expose" : ""}${overlay === "launchpad" ? " is-behind" : ""}${settling ? " is-settling" : ""}`}
         ref={areaRef}
+        role="presentation"
         onClick={(e) => {
+          // Backdrop click leaves Mission Control; Escape does the same for keyboard users (see onKey above).
           if (overlay === "expose" && e.target === e.currentTarget) setOverlay("none");
         }}
       >

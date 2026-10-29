@@ -4,6 +4,7 @@ import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { LiquidButton, MetalButton } from "../components/ui/LiquidButton";
 import { useTilt } from "../hooks/useTilt";
 import { useMagnetic } from "../hooks/useMagnetic";
+import { useGithub } from "../hooks/useGithub";
 import { EmberField } from "./EmberField";
 import { featuredProjects, type Project, CATEGORY_LABEL } from "../classic/data/projects";
 import { experience } from "../classic/data/experience";
@@ -136,38 +137,9 @@ function useLede() {
 }
 
 /** Followers and repo count from GitHub, cached per session; static numbers until it answers. */
-function useGithubStats() {
-  const [s, setS] = useState<{ followers: number; repos: number }>({ followers: github.followers, repos: github.repos });
-  useEffect(() => {
-    const key = "fg.gh";
-    try {
-      const cached = sessionStorage.getItem(key);
-      if (cached) {
-        setS(JSON.parse(cached));
-        return;
-      }
-    } catch {
-      /* ignore */
-    }
-    let alive = true;
-    fetch(`https://api.github.com/users/${site.githubUser}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j) => {
-        if (!alive || !j) return;
-        const next = { followers: j.followers ?? github.followers, repos: j.public_repos ?? github.repos };
-        setS(next);
-        try {
-          sessionStorage.setItem(key, JSON.stringify(next));
-        } catch {
-          /* ignore */
-        }
-      })
-      .catch(() => {});
-    return () => {
-      alive = false;
-    };
-  }, []);
-  return s;
+function useGithubStats(): { followers: number; repos: number } {
+  const { followers, repos } = useGithub();
+  return { followers, repos };
 }
 
 function useForgeReveals() {

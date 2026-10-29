@@ -223,7 +223,8 @@ export function VardhanAIApp() {
           <span className="msgs__avatar msgs__avatar--lg" style={{ "--h": c.hue } as React.CSSProperties}>{c.initials}</span>
           <span><b>{c.name}</b><em>{typing ? "typing…" : "iMessage · local, no API key"}</em></span>
         </div>
-        <div className="msgs__body" ref={bodyRef} aria-live="polite" onClick={() => setPicker(null)}>
+        {/* Click-outside dismisses the reaction picker; the picker's own buttons are the keyboard path. */}
+        <div className="msgs__body" ref={bodyRef} aria-live="polite" role="presentation" onClick={() => setPicker(null)}>
           {msgs.length === 0 && (
             <div className="msgs__hint">
               <span className="mac-caps">Today</span>

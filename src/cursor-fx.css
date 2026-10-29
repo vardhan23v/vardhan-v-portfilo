@@ -76,3 +76,8 @@
     display: none;
   }
 }
+
+/* Reduced motion: no custom cursor at all (otherwise the dot/ring sit idle at 0,0). */
+html[data-motion="reduce"] .cur-fx {
+  display: none;
+}

@@ -1,8 +1,8 @@
 /**
  * Site-wide motion preference.
  *
- * Animations are ON by default. Visitors can turn them off, or opt into
- * following the OS "Reduce motion" setting ("auto"); the resolved state lives on `<html data-motion>` and
+ * By default the site follows the OS "Reduce motion" setting ("auto", the
+ * unset state). Visitors can force animations on or off; the resolved state lives on `<html data-motion>` and
  * every CSS gate (`html[data-motion="reduce"] …`) and JS check reads that,
  * never the media query directly. The inline script in index.html applies the
  * stored preference before first paint so nothing flashes.
@@ -16,12 +16,12 @@ const QUERY = "(prefers-reduced-motion: reduce)";
 const hasDom = () => typeof window !== "undefined" && typeof document !== "undefined";
 
 export function getMotionPreference(): MotionPreference {
-  if (!hasDom()) return "on";
+  if (!hasDom()) return "auto";
   try {
     const v = localStorage.getItem(MOTION_STORAGE_KEY);
-    return v === "auto" || v === "off" ? v : "on";
+    return v === "on" || v === "off" ? v : "auto";
   } catch {
-    return "on";
+    return "auto";
   }
 }
 
@@ -42,7 +42,7 @@ export function applyMotion(pref: MotionPreference = getMotionPreference()) {
 
 export function setMotionPreference(pref: MotionPreference) {
   try {
-    if (pref === "on") localStorage.removeItem(MOTION_STORAGE_KEY);
+    if (pref === "auto") localStorage.removeItem(MOTION_STORAGE_KEY);
     else localStorage.setItem(MOTION_STORAGE_KEY, pref);
   } catch {
     /* private mode */

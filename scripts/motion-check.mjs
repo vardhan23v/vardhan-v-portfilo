@@ -1,8 +1,7 @@
-import puppeteer from "puppeteer-core";
-const exe = "/Users/vardhu/.cache/puppeteer/chrome/mac_arm-153.0.8010.47/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing";
+import { launch } from "./lib/browser.mjs";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 async function check(base, label, motion) {
-  const b = await puppeteer.launch({ executablePath: exe, headless: true, args: ["--no-sandbox", "--window-size=1440,900"] });
+  const b = await launch({ args: ["--window-size=1440,900"] });
   const p = await b.newPage();
   await p.setViewport({ width: 1440, height: 900 });
   if (motion) await p.evaluateOnNewDocument((m) => { try { localStorage.setItem("motion", m); } catch {} }, motion);

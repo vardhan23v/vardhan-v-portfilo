@@ -1,15 +1,11 @@
-import puppeteer from "puppeteer-core";
+import { launch } from "./lib/browser.mjs";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const profile = mkdtempSync(join(tmpdir(), "tilt-"));
-const b = await puppeteer.launch({
-  executablePath: "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
-  headless: true,
-  args: ["--no-sandbox", `--user-data-dir=${profile}`],
-});
+const b = await launch({ args: [`--user-data-dir=${profile}`] });
 const p = await b.newPage();
 await p.setViewport({ width: 1440, height: 900 });
 let f = 0;

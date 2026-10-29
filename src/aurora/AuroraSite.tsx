@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { useTilt } from "../hooks/useTilt";
+import { useIstTime } from "../hooks/useIstTime";
 import { Link } from "react-router-dom";
 import { featuredProjects, type Project } from "../classic/data/projects";
 import { experience, education, certifications } from "../classic/data/experience";
@@ -49,23 +50,6 @@ const NAV_TABS: ExpandableTabItem[] = [
 
 function catOf(p: Project): Exclude<Filter, "all"> {
   return p.category === "tool" ? "tools" : p.category;
-}
-
-function useIstTime() {
-  const [t, setT] = useState("");
-  useEffect(() => {
-    const fmt = new Intl.DateTimeFormat("en-GB", {
-      timeZone: "Asia/Kolkata",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
-    const tick = () => setT(fmt.format(new Date()));
-    tick();
-    const id = setInterval(tick, 30000);
-    return () => clearInterval(id);
-  }, []);
-  return t;
 }
 
 const SECTIONS = [
@@ -666,7 +650,7 @@ export function AuroraSite() {
   const [modalDir, setModalDir] = useState<1 | -1>(1);
   const [rolling, setRolling] = useState(false);
   const navRef = useRef<HTMLElement>(null);
-  const ist = useIstTime();
+  const ist = useIstTime(false);
   const followers = github.followers;
 
   const showToast = useCallback((msg: string) => {

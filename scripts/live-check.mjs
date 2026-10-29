@@ -1,10 +1,6 @@
-import puppeteer from "puppeteer-core";
+import { launch } from "./lib/browser.mjs";
 
-const b = await puppeteer.launch({
-  executablePath: "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
-  headless: true,
-  args: ["--no-sandbox"],
-});
+const b = await launch();
 const p = await b.newPage();
 const base = "https://vardhan-v-portfilo.vercel.app";
 let f = 0;
@@ -20,7 +16,8 @@ const bodyTxt = () => p.evaluate(() => document.body.innerText.replace(/\s+/g, "
 
 await p.goto(base + "/", { waitUntil: "networkidle0" });
 await p.waitForSelector(".edition-grid", { timeout: 10000 });
-chk("h1", await p.evaluate(() => /One\s*portfolio\.\s*Five\s*interfaces\./.test(document.querySelector("h1")?.textContent ?? "")));
+chk("h1 (name-first)", await p.evaluate(() => /Sree\s*Vardhan\s*V/.test(document.querySelector("h1")?.textContent ?? "")));
+chk("tagline", await p.evaluate(() => /One\s*body\s*of\s*work\.\s*Six\s*ways\s*in\./.test(document.querySelector(".landing-tagline")?.textContent ?? "")));
 chk("what", (await bodyTxt()).includes("I build AI-powered products and full-stack systems."));
 chk("bar", (await bodyTxt()).includes("command palette"));
 chk("cta primary", await p.evaluate(() => document.body.innerText.includes("View selected work")));

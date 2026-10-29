@@ -4,6 +4,7 @@ import { GithubIcon, LinkedinIcon } from "../../lib/icons";
 import { useToast } from "../../components/ui/Toast";
 import { Reveal } from "../../components/ui/Reveal";
 import { site } from "../../data/site";
+import { mailtoHref, sendMessage } from "../../../lib/contact";
 
 export function ContactPage() {
   const { toast } = useToast();
@@ -11,6 +12,7 @@ export function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState(false);
 
   const copyEmail = async () => {
     try {
@@ -32,18 +34,25 @@ export function ContactPage() {
     return Object.keys(e).length === 0;
   };
 
-  const submit = (ev: React.FormEvent) => {
+  const fallbackHref = mailtoHref({ name: form.name, email: form.email, message: form.message });
+
+  const submit = async (ev: React.FormEvent) => {
     ev.preventDefault();
-    if (!validate()) return;
+    if (sending || !validate()) return;
     setSending(true);
-    setTimeout(() => {
-      setSending(false);
-      toast(`Thanks ${form.name.split(" ")[0]} — opening your mail app…`);
-      window.location.href = `mailto:${site.email}?subject=${encodeURIComponent(
-        `Portfolio: message from ${form.name}`
-      )}&body=${encodeURIComponent(`${form.message}\n\n— ${form.name} (${form.email})`)}`;
+    setSendError(false);
+    const result = await sendMessage({ ...form, source: "mac" });
+    setSending(false);
+    if (result.ok) {
+      toast(`Message sent — I reply ${site.replyTime}.`);
       setForm({ name: "", email: "", message: "" });
-    }, 700);
+    } else if (result.reason === "no-key") {
+      toast(`Thanks ${form.name.split(" ")[0]} — opening your mail app…`);
+      window.location.href = fallbackHref;
+    } else {
+      setSendError(true);
+      toast("Could not send — use the email link below instead.");
+    }
   };
 
   const channels = [
@@ -139,9 +148,15 @@ export function ContactPage() {
             </label>
             <div className="mac-form__foot">
               <button type="submit" className="mac-btn mac-btn--primary" disabled={sending}>
-                {sending ? "Preparing…" : "Send message →"}
+                {sending ? "Sending…" : "Send message →"}
               </button>
-              <span className="mac-form__hint">Opens your mail app — nothing is stored.</span>
+              <span className="mac-form__hint" role={sendError ? "alert" : undefined}>
+                {sendError ? (
+                  <>Could not send right now — <a href={fallbackHref}>email me directly</a> instead.</>
+                ) : (
+                  "Delivered to my inbox — nothing is stored."
+                )}
+              </span>
             </div>
           </form>
         </Reveal>

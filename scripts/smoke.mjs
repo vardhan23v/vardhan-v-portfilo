@@ -22,7 +22,7 @@ const ROUTES = [
   ["/forge", "Forge —"],
   ["/mac?noboot=1", "macOS —"],
   // Title is either the Terminal edition's or (after the SEO pass) "<name> — case study | …".
-  ["/terminal/work/extension-ai", /Extension AI|Terminal —/],
+  ["/terminal/work/extension-ai", /Extension AI/],
   ["/nope", "Not found —"],
 ];
 

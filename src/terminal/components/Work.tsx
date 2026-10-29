@@ -87,7 +87,7 @@ export function Work() {
               <div className="shell-head">
                 <TypeCmd cmd="ls -1 ./also_built/" />
                 <h3 className="shell-title">
-                  ALSO_BUILT <span className="dim">// {otherWork.length} experiments &amp; tools</span>
+                  ALSO_BUILT <span className="dim">// {otherWork.length} more projects &amp; tools</span>
                 </h3>
               </div>
               <div className="other-grid" role="list">

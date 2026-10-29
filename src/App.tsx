@@ -5,9 +5,11 @@ import { ScrollChrome } from "./components/ScrollChrome";
 import { CommandPalette } from "./components/CommandPalette";
 import { KonamiFX } from "./components/KonamiFX";
 import "./styles/motion.css";
-import { EDITIONS, editionRoutes } from "./editions";
-import { site } from "./classic/data/site";
+import { editionRoutes } from "./editions";
+import { NOT_FOUND_SEO, SEO_BY_PATH, canonicalUrl, themeColorFor } from "./seo";
 import { NotFound } from "./components/NotFound";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 const Landing = lazy(() => import("./landing/Landing").then((m) => ({ default: m.Landing })));
 const ClassicSite = lazy(() => import("./classic/ClassicSite").then((m) => ({ default: m.ClassicSite })));
@@ -21,30 +23,24 @@ const WorkDetail = lazy(() => import("./terminal/components/WorkDetail").then((m
 
 const interfaceRoutes = editionRoutes;
 
-const LANDING_SEO = {
-  title: `${site.name} | ${site.title}`,
-  description: `Portfolio of ${site.name} — a Generative AI and full-stack developer building AI-powered products, developer tools and full-stack systems. Six interfaces, one body of work.`,
-};
-const ROUTE_SEO: Record<string, { title: string; description: string }> = {
-  "/": LANDING_SEO,
-  "/editions": LANDING_SEO,
-  ...Object.fromEntries(EDITIONS.map((e) => [e.to, e.seo])),
-};
-const NOT_FOUND_SEO = { title: `Not found — ${site.name}`, description: "There is nothing at this address." };
-
 const setMeta = (selector: string, content: string) => document.querySelector(selector)?.setAttribute("content", content);
 
-/** Per-route title/description/og/canonical. Nested routes inherit their edition's entry by prefix. */
+/**
+ * Per-route title/description/og/canonical, driven by the shared table in src/seo.ts (the same
+ * one the build-time prerender uses). Nested routes without their own entry inherit their
+ * edition's entry by prefix.
+ */
 function RouteSeo() {
   const { pathname } = useLocation();
 
   useEffect(() => {
     const base = "/" + pathname.split("/")[1];
     const known = pathname === "/" || pathname === "/editions" || interfaceRoutes.includes(base);
-    const seo = known ? (ROUTE_SEO[pathname] ?? ROUTE_SEO[base]) : NOT_FOUND_SEO;
-    const url = `${site.url}${pathname === "/editions" ? "/" : pathname}`;
+    const seo = known ? (SEO_BY_PATH[pathname] ?? SEO_BY_PATH[base]) : NOT_FOUND_SEO;
+    const url = canonicalUrl({ canonicalPath: SEO_BY_PATH[pathname]?.canonicalPath ?? pathname });
     document.title = seo.title;
     setMeta('meta[name="description"]', seo.description);
+    setMeta('meta[name="theme-color"]', themeColorFor(pathname));
     setMeta('meta[property="og:title"]', seo.title);
     setMeta('meta[property="og:description"]', seo.description);
     setMeta('meta[property="og:url"]', url);
@@ -116,6 +112,8 @@ function Root() {
       <ScrollChrome />
       <CommandPalette />
       <KonamiFX />
+      <Analytics />
+      <SpeedInsights />
       <RouteSeo />
       <ScrollToTop />
       <Suspense fallback={<LoadingFallback />}>

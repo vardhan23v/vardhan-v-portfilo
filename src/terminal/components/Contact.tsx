@@ -2,6 +2,7 @@ import { useState } from "react";
 import { site } from "../data/site";
 import { Reveal } from "../hooks/useReveal";
 import { TypeCmd } from "./TypeCmd";
+import { mailtoHref, sendMessage } from "../../lib/contact";
 
 const strip = (u: string) => u.replace(/^https?:\/\/(www\.)?/, "");
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -10,22 +11,40 @@ export function Contact() {
   const [from, setFrom] = useState("");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
-  const [status, setStatus] = useState<{ text: string; err?: boolean } | null>(null);
+  const [status, setStatus] = useState<{ text: string; err?: boolean; fallback?: boolean } | null>(null);
   const [copied, setCopied] = useState(false);
   const fromInvalid = from.length > 0 && !EMAIL_RE.test(from);
 
-  const onSubmit = (e: React.FormEvent) => {
+  const [sending, setSending] = useState(false);
+  const fallbackHref = mailtoHref({ name: from, email: from, message: body, subject: subject || "hello from your site" });
+
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (sending) return;
     if (!EMAIL_RE.test(from)) {
       setStatus({ text: "E: from: is not a valid address — fix it and :wq again.", err: true });
       return;
     }
-    const target = `mailto:${site.email}?subject=${encodeURIComponent(subject || "hello from your site")}&body=${encodeURIComponent(
-      `${body}\n\n— ${from} (via ${site.host})`
-    )}`;
-    window.location.href = target;
-    setStatus({ text: "message staged — your mail app should have opened ✓" });
-    window.setTimeout(() => setStatus(null), 4000);
+    setSending(true);
+    setStatus({ text: "sending…" });
+    const result = await sendMessage({
+      name: from.split("@")[0],
+      email: from,
+      message: `${subject ? `Subject: ${subject}\n\n` : ""}${body}`,
+      source: "terminal",
+    });
+    setSending(false);
+    if (result.ok) {
+      setStatus({ text: `message sent ✓ — I reply ${site.replyTime}.` });
+      setSubject("");
+      setBody("");
+    } else if (result.reason === "no-key") {
+      window.location.href = fallbackHref;
+      setStatus({ text: "message staged — your mail app should have opened ✓" });
+      window.setTimeout(() => setStatus(null), 4000);
+    } else {
+      setStatus({ text: "E: send failed — ", err: true, fallback: true });
+    }
   };
 
   const copyEmail = () => {
@@ -104,11 +123,12 @@ export function Contact() {
                     />
                   </div>
                   <div className="mail-actions">
-                    <button type="submit" className="btn btn-solid">
-                      :wq <span className="bracket"># send</span>
+                    <button type="submit" className="btn btn-solid" disabled={sending}>
+                      {sending ? "sending…" : ":wq"} <span className="bracket"># send</span>
                     </button>
                     <span id="cf-status" className={`mail-status ${status?.err ? "is-err" : ""}`} role="status" aria-live="polite">
-                      {status ? status.text : "opens your mail app · nothing is stored here"}
+                      {status ? status.text : "delivered to my inbox · nothing is stored here"}
+                      {status?.fallback && <a href={fallbackHref}>open your mail app instead</a>}
                     </span>
                   </div>
                 </form>

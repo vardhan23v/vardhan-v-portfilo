@@ -2,13 +2,14 @@ import { useState, type FormEvent } from "react";
 import { site } from "../data/site";
 import { Reveal } from "../hooks/useReveal";
 import { Icon } from "../lib/icons";
+import { mailtoHref, sendMessage } from "../../lib/contact";
 import "./Contact.css";
 
 export function Contact() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "mailto" | "error">("idle");
   const [copied, setCopied] = useState(false);
 
   const copyEmail = () => {
@@ -39,12 +40,21 @@ export function Contact() {
     ta.remove();
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const fallbackHref = mailtoHref({ name, email, message });
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const subject = encodeURIComponent(`Portfolio contact — ${name}`);
-    const body = encodeURIComponent(`${message}\n\n— ${name} (${email})`);
-    window.location.href = `mailto:${site.email}?subject=${subject}&body=${body}`;
-    setSent(true);
+    if (status === "sending") return;
+    setStatus("sending");
+    const result = await sendMessage({ name, email, message, source: "classic" });
+    if (result.ok) {
+      setStatus("sent");
+    } else if (result.reason === "no-key") {
+      window.location.href = fallbackHref;
+      setStatus("mailto");
+    } else {
+      setStatus("error");
+    }
   };
 
   return (
@@ -138,16 +148,26 @@ export function Contact() {
                   onChange={(e) => setMessage(e.target.value)}
                 />
               </div>
-              <button type="submit" className="btn btn-primary form-submit">
-                <Icon.send width={16} height={16} /> Send message
+              <button type="submit" className="btn btn-primary form-submit" disabled={status === "sending"}>
+                <Icon.send width={16} height={16} /> {status === "sending" ? "Sending…" : "Send message"}
               </button>
-              {sent && (
+              {status === "sent" && (
                 <p className="form-note" role="status">
-                  Your email app opened with the message. Send it there and I will reply within a day.
+                  Message sent — I reply {site.replyTime}.
+                </p>
+              )}
+              {status === "mailto" && (
+                <p className="form-note" role="status">
+                  Your email app opened with the message. Send it there and I will reply {site.replyTime}.
+                </p>
+              )}
+              {status === "error" && (
+                <p className="form-note" role="alert">
+                  Could not send right now. <a href={fallbackHref}>Email me directly</a> instead — your message is kept above.
                 </p>
               )}
               <p className="form-legal">
-                Opens your email app. Nothing is stored on this site.
+                Delivered straight to my inbox. Nothing is stored on this site.
               </p>
             </form>
           </Reveal>

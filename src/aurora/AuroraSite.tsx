@@ -11,6 +11,7 @@ import { Icon } from "../classic/lib/icons";
 import { ExpandableTabs, type ExpandableTabItem } from "../components/ui/expandable-tabs";
 import "./styles/aurora.css";
 import { motionReduced } from "../lib/motion";
+import { mailtoHref, sendMessage } from "../lib/contact";
 
 export const auroraProjects = featuredProjects;
 
@@ -559,6 +560,7 @@ function ContactForm({ onToast }: { onToast: (msg: string) => void }) {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState(false);
 
   const validate = useCallback(() => {
     const e: Record<string, string> = {};
@@ -569,17 +571,29 @@ function ContactForm({ onToast }: { onToast: (msg: string) => void }) {
     return Object.keys(e).length === 0;
   }, [form]);
 
-  const submit = (ev: React.FormEvent) => {
+  const fallbackHref = mailtoHref({ name: form.name.trim(), email: form.email.trim(), message: form.message.trim() });
+
+  const submit = async (ev: React.FormEvent) => {
     ev.preventDefault();
-    if (!validate()) return;
+    if (sending || !validate()) return;
     setSending(true);
-    const subject = `Hello from ${form.name.trim()}`;
-    const body = `${form.message.trim()}\n\n— ${form.name.trim()} (${form.email.trim()})`;
-    window.location.href = `mailto:${site.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    setTimeout(() => {
-      setSending(false);
+    setSendError(false);
+    const result = await sendMessage({
+      name: form.name.trim(),
+      email: form.email.trim(),
+      message: form.message.trim(),
+      source: "aurora",
+    });
+    setSending(false);
+    if (result.ok) {
+      onToast(`Message sent — I reply ${site.replyTime}.`);
+      setForm({ name: "", email: "", message: "" });
+    } else if (result.reason === "no-key") {
+      window.location.href = fallbackHref;
       onToast(`Opening your email app with the message to ${site.email}.`);
-    }, 600);
+    } else {
+      setSendError(true);
+    }
   };
 
   return (
@@ -623,9 +637,15 @@ function ContactForm({ onToast }: { onToast: (msg: string) => void }) {
       </label>
       <div className="au-form-actions">
         <button type="submit" className="aurora-btn aurora-btn-solid" disabled={sending}>
-          {sending ? "opening…" : "Send message"} <span aria-hidden="true">{sending ? "⟳" : "→"}</span>
+          {sending ? "sending…" : "Send message"} <span aria-hidden="true">{sending ? "⟳" : "→"}</span>
         </button>
-        <span className="au-form-hint">opens in your email app — replies within 24h</span>
+        <span className="au-form-hint" role={sendError ? "alert" : undefined}>
+          {sendError ? (
+            <>could not send — <a href={fallbackHref}>email me directly</a> instead</>
+          ) : (
+            `delivered to my inbox — replies ${site.replyTime}`
+          )}
+        </span>
       </div>
     </form>
   );

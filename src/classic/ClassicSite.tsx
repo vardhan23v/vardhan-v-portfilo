@@ -1,3 +1,12 @@
+import "./styles/motion.css"; // must be the first classic stylesheet (see file header)
+import "@fontsource/kanit/latin-400.css";
+import "@fontsource/kanit/latin-ext-400.css";
+import "@fontsource/kanit/latin-500.css";
+import "@fontsource/kanit/latin-ext-500.css";
+import "@fontsource/kanit/latin-600.css";
+import "@fontsource/kanit/latin-ext-600.css";
+import "@fontsource/kanit/latin-700.css";
+import "@fontsource/kanit/latin-ext-700.css";
 import { useEffect, useRef } from "react";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";

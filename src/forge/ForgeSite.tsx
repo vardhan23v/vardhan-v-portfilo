@@ -1,3 +1,11 @@
+import "@fontsource/kanit/latin-300.css";
+import "@fontsource/kanit/latin-ext-300.css";
+import "@fontsource/kanit/latin-400.css";
+import "@fontsource/kanit/latin-ext-400.css";
+import "@fontsource/kanit/latin-500.css";
+import "@fontsource/kanit/latin-ext-500.css";
+import "@fontsource/kanit/latin-600.css";
+import "@fontsource/kanit/latin-ext-600.css";
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { Link } from "react-router-dom";
 import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";

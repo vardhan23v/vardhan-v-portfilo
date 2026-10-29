@@ -1,0 +1,113 @@
+/* moved from src/styles/motion.css */
+/* Imported FIRST in ClassicSite.tsx on purpose: these rules used to live in the global
+   motion.css, which loads before every classic stylesheet. Several identical selectors in
+   global.css / animations.css / refine.css / component CSS rely on winning by source order,
+   so this block has to stay ahead of them. Do not move it into a later-loaded file. */
+/* ============================================================
+   2) CLASSIC — refined motion
+   ============================================================ */
+.classic-root .bg-glow::before {
+  animation: float-gentle 9s ease-in-out infinite alternate;
+}
+.classic-root .bg-glow::after {
+  animation: float-gentle-reverse 11s ease-in-out infinite alternate;
+}
+.classic-root .bg-grid {
+  animation: grid-drift 40s linear infinite;
+}
+@keyframes grid-drift {
+  from { background-position: 0 0, 0 0; }
+  to { background-position: 56px 56px, 56px 56px; }
+}
+.classic-root .hero-title,
+.classic-root .section-title {
+  animation: text-reveal 0.8s cubic-bezier(0.22,1,0.36,1) both;
+}
+.classic-root .skill-chip {
+  transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.classic-root .skill-chip:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 8px 24px rgba(124,108,255,0.18), 0 0 0 1px rgba(124,108,255,0.25) inset;
+  border-color: rgba(124,108,255,0.4) !important;
+}
+.classic-root .gh-repo,
+.classic-root .skill-cat {
+  transition: transform 0.35s ease, box-shadow 0.3s ease, border-color 0.25s ease;
+}
+.classic-root .gh-repo:hover {
+  transform: translateY(-4px) scale(1.01);
+}
+.classic-root .btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+.classic-root .btn-primary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.22) 50%, transparent 70%);
+  background-size: 200% 100%;
+  opacity: 0;
+  transition: opacity 0.2s;
+  animation: shimmer-sweep 1.2s ease infinite;
+  animation-play-state: paused;
+}
+.classic-root .btn-primary:hover::before {
+  opacity: 1;
+  animation-play-state: running;
+}
+
+/* Projects stagger reveal */
+.classic-root .reveal {
+  transition-duration: 0.75s;
+}
+.classic-root .reveal.is-visible:nth-child(2) { transition-delay: 0.08s; }
+.classic-root .reveal.is-visible:nth-child(3) { transition-delay: 0.16s; }
+
+/* Classic cinematic — scroll parallax + content depth */
+.classic-root .hero {
+  will-change: transform, opacity;
+}
+.classic-root .hero-visual {
+  will-change: transform;
+}
+.classic-root .hero-float {
+  will-change: transform;
+}
+.classic-root .project-card {
+  will-change: transform;
+}
+.classic-root .timeline-card {
+  will-change: transform, box-shadow;
+}
+@keyframes classicScrollHint {
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.85; }
+  50% { transform: translateX(-50%) translateY(7px); opacity: 0.45; }
+}
+.classic-root .hero::after {
+  content: "";
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  width: 18px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.04);
+  opacity: 0.7;
+  transform: translateX(-50%);
+  pointer-events: none;
+  animation: classicScrollHint 2.2s ease-in-out infinite;
+}
+@media (max-width: 1020px) {
+  .classic-root .hero::after { display: none; }
+}
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
+html[data-motion="reduce"] .classic-root .hero::after { animation: none; opacity: 0; }
+.classic-root .project-card::after {
+  will-change: transform;
+}
+.classic-root .project-search {
+  will-change: transform, box-shadow;
+}

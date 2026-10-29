@@ -291,7 +291,7 @@ html[data-motion="reduce"] .ed-portal { display: none; }
 .stage-paper {
   background: #f3f0ea;
   padding: 30px 32px;
-  font-family: "Fraunces", Georgia, serif;
+  font-family: "Fraunces Variable", "Fraunces", Georgia, serif;
   color: #1a1815;
 }
 
@@ -441,11 +441,11 @@ html[data-motion="reduce"] .ed-portal { display: none; }
     radial-gradient(60% 55% at 22% 18%, hsl(262 70% 48% / 0.55), transparent 70%),
     radial-gradient(50% 45% at 82% 28%, hsl(196 75% 52% / 0.45), transparent 70%),
     linear-gradient(165deg, hsl(225 45% 9%), hsl(262 40% 14%) 55%, hsl(196 40% 10%));
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: "Inter Variable", "Inter", system-ui, sans-serif;
 }
 .sm-menubar { height: 18px; display: flex; align-items: center; gap: 8px; padding: 0 10px; background: rgba(14,18,32,0.55); border-bottom: 0.5px solid rgba(255,255,255,0.08); font-size: 9px; color: #f2f3f8; }
 .sm-menubar span { color: #6ea8ff; }
-.sm-menubar em { font-family: "Fraunces", Georgia, serif; font-style: italic; }
+.sm-menubar em { font-family: "Fraunces Variable", "Fraunces", Georgia, serif; font-style: italic; }
 .sm-window { margin: 16px 34px 0; flex: 1; border-radius: 12px 12px 0 0; background: rgba(20,26,43,0.84); border: 0.5px solid rgba(255,255,255,0.12); box-shadow: 0 30px 80px -10px rgba(0,0,0,0.65); backdrop-filter: blur(12px); overflow: hidden; display: flex; flex-direction: column; }
 .sm-bar { display: flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-bottom: 0.5px solid rgba(255,255,255,0.08); }
 .sm-dot { width: 8px; height: 8px; border-radius: 50%; }
@@ -454,7 +454,7 @@ html[data-motion="reduce"] .ed-portal { display: none; }
 .sm-dot.g { background: #28c840; }
 .sm-title { flex: 1; text-align: center; font-family: "JetBrains Mono", monospace; font-size: 7px; letter-spacing: 0.1em; color: rgba(255,255,255,0.55); }
 .sm-body { padding: 18px 22px; display: flex; flex-direction: column; gap: 8px; }
-.sm-name { font-family: "Fraunces", Georgia, serif; font-size: 26px; line-height: 1; letter-spacing: -0.02em; color: #f2f3f8; margin-bottom: 6px; }
+.sm-name { font-family: "Fraunces Variable", "Fraunces", Georgia, serif; font-size: 26px; line-height: 1; letter-spacing: -0.02em; color: #f2f3f8; margin-bottom: 6px; }
 .sm-name i { color: #6ea8ff; }
 .sm-line { height: 6px; border-radius: 4px; background: rgba(255,255,255,0.12); }
 .sm-line.short { width: 58%; }
@@ -480,7 +480,7 @@ html[data-motion="reduce"] .ed-portal { display: none; }
 .mm-dot.y { background: #febc2e; }
 .mm-dot.g { background: #28c840; }
 .mm-body { flex: 1; margin: 0 22px; padding: 10px 12px; background: rgba(20,26,43,0.84); border: 0.5px solid rgba(255,255,255,0.12); border-top: 0; border-bottom: 0; display: flex; flex-direction: column; gap: 6px; }
-.mm-name { font-family: "Fraunces", Georgia, serif; font-size: 18px; line-height: 1; letter-spacing: -0.02em; color: #f2f3f8; }
+.mm-name { font-family: "Fraunces Variable", "Fraunces", Georgia, serif; font-size: 18px; line-height: 1; letter-spacing: -0.02em; color: #f2f3f8; }
 .mm-name i { color: #6ea8ff; }
 .mm-line { height: 5px; border-radius: 3px; background: rgba(255,255,255,0.12); }
 .mm-line.short { width: 62%; }
@@ -540,7 +540,7 @@ html[data-motion="reduce"] .ed-portal { display: none; }
 .mini-paper {
   background: #f3f0ea;
   padding: 16px 18px;
-  font-family: "Fraunces", Georgia, serif;
+  font-family: "Fraunces Variable", "Fraunces", Georgia, serif;
   color: #1a1815;
 }
 
@@ -741,3 +741,60 @@ html[data-motion="reduce"] .ed-portal { display: none; }
 
 /* meta */
 
+
+/* moved from src/styles/motion.css */
+/* ============================================================
+   1) LANDING — extra depth
+   ============================================================ */
+.landing-root .stage-frame {
+  animation: float-gentle 6s ease-in-out infinite;
+}
+.landing-root .stage-frame:hover {
+  animation-play-state: paused;
+}
+.landing-title .landing-grad {
+  background-size: 300% 100%;
+  animation: shimmer-sweep 8s linear infinite, grad-shift 7s ease-in-out infinite;
+}
+.landing-pipeline i {
+  animation: pulse-glow 1.8s ease-in-out infinite;
+}
+.landing-pipeline i:nth-child(2) { animation-delay: 0.15s; }
+.landing-pipeline i:nth-child(4) { animation-delay: 0.3s; }
+.landing-pipeline i:nth-child(6) { animation-delay: 0.45s; }
+.landing-pipeline i:nth-child(8) { animation-delay: 0.6s; }
+
+/* edition cards: shine sweep on hover */
+.edition-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -30%;
+  width: 30%;
+  height: 100%;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,0.18), transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.edition-card:hover::after {
+  animation: card-shine 0.9s ease forwards;
+  opacity: 1;
+}
+.edition-card:hover {
+  transform: perspective(1000px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-4px) scale(1.01) !important;
+}
+.land-project-item {
+  position: relative;
+  overflow: hidden;
+}
+.land-project-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(220px circle at var(--mx,50%) var(--my,50%), rgba(124,108,255,0.12), transparent 65%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.land-project-item:hover::after { opacity: 1; }

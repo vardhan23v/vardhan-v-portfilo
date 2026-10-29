@@ -4,8 +4,8 @@
    ═══════════════════════════════════════════════════════════════ */
 .mac-root {
   /* type */
-  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
-  --font-ui: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-display: "Fraunces Variable", "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-ui: "Inter Variable", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --font-system: var(--font-ui);
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 

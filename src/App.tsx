@@ -96,8 +96,8 @@ function LoadingFallback() {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      color: "var(--text-tertiary)",
-      fontSize: "var(--text-sm)",
+      color: "var(--text-3)", // global token from src/styles/base.css (the mac-only tokens aren't loaded here)
+      fontSize: "0.85rem",
     }}>
       Loading...
     </div>

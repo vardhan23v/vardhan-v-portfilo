@@ -1,3 +1,5 @@
+import "@fontsource/vt323/latin-400.css";
+import "@fontsource/vt323/latin-ext-400.css";
 import { useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Boot } from "./components/Boot";

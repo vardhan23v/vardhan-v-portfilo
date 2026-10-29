@@ -1,3 +1,11 @@
+import "@fontsource/kanit/latin-400.css"; // mini Forge skin + Forge portal name
+import "@fontsource/kanit/latin-ext-400.css";
+import "@fontsource/kanit/latin-500.css";
+import "@fontsource/kanit/latin-ext-500.css";
+import "@fontsource/kanit/latin-600.css";
+import "@fontsource/kanit/latin-ext-600.css";
+import "@fontsource/kanit/latin-700.css";
+import "@fontsource/kanit/latin-ext-700.css";
 import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, type Dispatch, type MouseEvent, type SetStateAction } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { EDITIONS, type Edition } from "../editions";

@@ -15,8 +15,8 @@
   --violet: #a78bfa;
   --cyan: #22d3ee;
   --mint: #34d399;
-  --display: "Space Grotesk", "Inter", system-ui, sans-serif;
-  --sans: "Inter", system-ui, -apple-system, sans-serif;
+  --display: "Space Grotesk", "Inter Variable", "Inter", system-ui, sans-serif;
+  --sans: "Inter Variable", "Inter", system-ui, -apple-system, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, monospace;
 
   position: relative;
@@ -2908,4 +2908,122 @@ html:not([data-motion="reduce"]) .au-random.is-rolling span {
   0% { transform: rotate(0) translateY(0); }
   50% { transform: rotate(200deg) translateY(-6px); }
   100% { transform: rotate(360deg) translateY(0); }
+}
+
+/* moved from src/styles/motion.css */
+/* ============================================================
+   4) AURORA — luminous drift + glass
+   ============================================================ */
+.aurora-root .au-glow {
+  animation: float-gentle 8s ease-in-out infinite alternate;
+}
+.aurora-root .au-glow-blue {
+  animation: float-gentle-reverse 10s ease-in-out infinite alternate;
+}
+.aurora-root .au-glow-cyan {
+  animation: float-gentle 12s ease-in-out infinite alternate-reverse;
+}
+.aurora-root .au-glow-purple { animation-delay: -1s; }
+.aurora-root .au-card,
+.aurora-root .au-ft {
+  transition: transform 0.45s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s ease, backdrop-filter 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.aurora-root .au-card:hover,
+.aurora-root .au-ft:hover {
+  transform: translateY(-6px) scale(1.015);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.25), 0 0 28px rgba(167,139,250,0.18);
+}
+.aurora-root .au-card::after,
+.aurora-root .au-ft::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(115deg, transparent 45%, rgba(255,255,255,0.22) 50%, transparent 55%);
+  transform: translateX(-120%) skewX(-10deg);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.aurora-root .au-card:hover::after,
+.aurora-root .au-ft:hover::after {
+  animation: card-shine 0.85s ease forwards;
+  opacity: 1;
+}
+.aurora-root .au-stat-value {
+  transition: transform 0.3s ease;
+}
+.aurora-root .au-stat:hover .au-stat-value {
+  transform: scale(1.08);
+}
+.aurora-root .au-sys-row {
+  position: relative;
+  overflow: hidden;
+}
+.aurora-root .au-sys-row::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(124,108,255,0.35), transparent);
+  transform: translateX(-100%);
+  animation: aurora-sweep 3.8s ease infinite;
+}
+@keyframes aurora-sweep {
+  0% { transform: translateX(-100%); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+/* ============================================================
+   AURORA 2.0 — upgraded polish for new features
+   ============================================================ */
+.aurora-root .au-marquee:hover .au-marquee-track {
+  animation-play-state: paused;
+}
+.aurora-root .au-toolbar,
+.aurora-root .au-lab,
+.aurora-root .au-edu-card,
+.aurora-root .au-cert-chip,
+.aurora-root .au-form {
+  will-change: transform;
+}
+.aurora-root .au-lab-pill {
+  position: relative;
+  overflow: hidden;
+}
+.aurora-root .au-lab-pill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.16) 50%, transparent 60%);
+  transform: translateX(-130%) skewX(-10deg);
+  transition: transform 0.6s ease;
+  pointer-events: none;
+}
+.aurora-root .au-lab-pill:hover::after {
+  transform: translateX(130%) skewX(-10deg);
+}
+.aurora-root .au-modal {
+  scrollbar-width: thin;
+}
+.aurora-root .au-search:focus-within {
+  box-shadow: 0 0 0 3px rgba(167,139,250,0.14), 0 12px 28px rgba(0,0,0,0.22);
+}
+.aurora-root .au-card:focus-visible,
+.aurora-root .au-ft:focus-visible {
+  outline: 2px solid rgba(167,139,250,0.9);
+  outline-offset: 3px;
+}
+.aurora-root .au-exp-toggle:focus-visible,
+.aurora-root .au-filter:focus-visible,
+.aurora-root .au-view-btn:focus-visible {
+  outline: 2px solid var(--violet);
+  outline-offset: 2px;
 }

@@ -1,3 +1,58 @@
+/* moved from src/styles/motion.css */
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+/* ============================================================
+   6) TERMINAL — crt + typewriter
+   ============================================================ */
+.terminal-root .boot-line {
+  animation: term-type 0.45s steps(28) both;
+}
+@keyframes term-type {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+.terminal-root .shell-prompt {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+.terminal-root .term-window,
+.terminal-root .work-detail {
+  position: relative;
+  overflow: hidden;
+}
+.terminal-root .term-window::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.08) 50%);
+  background-size: 100% 3px;
+  opacity: 0.18;
+  pointer-events: none;
+  z-index: 2;
+}
+.terminal-root .term-window::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(180deg, transparent, rgba(54,229,124,0.06), transparent);
+  top: -120px;
+  animation: scanline 6s linear infinite;
+  pointer-events: none;
+  z-index: 3;
+}
+.terminal-root .shell-input {
+  caret-color: #36e57c;
+  animation: caret-glow 1.6s ease-in-out infinite alternate;
+}
+@keyframes caret-glow {
+  from { text-shadow: 0 0 0 rgba(54,229,124,0); }
+  to { text-shadow: 0 0 8px rgba(54,229,124,0.7); }
+}
+
 /* ============================================================
    PORTFOLIO OS — retro terminal / hacker design system
    ============================================================ */

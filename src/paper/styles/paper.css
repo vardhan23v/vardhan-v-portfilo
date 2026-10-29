@@ -11,8 +11,8 @@
   --rule: rgba(26, 24, 21, 0.14);
   --accent: #be4b2a;
   --accent-2: #9a3b1f;
-  --serif: "Fraunces", "Georgia", serif;
-  --sans: "Inter", system-ui, -apple-system, sans-serif;
+  --serif: "Fraunces Variable", "Fraunces", "Georgia", serif;
+  --sans: "Inter Variable", "Inter", system-ui, -apple-system, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, monospace;
 
   min-height: 100vh;
@@ -668,4 +668,34 @@ html[data-motion="reduce"] {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
+}
+
+/* moved from src/styles/motion.css */
+/* ============================================================
+   5) PAPER — editorial ink + rules
+   ============================================================ */
+.paper-root .paper-title,
+.paper-root .pp-title {
+  animation: text-reveal 0.85s cubic-bezier(0.22,1,0.36,1) both;
+}
+.paper-root .pp-rule,
+.paper-root .paper-rule {
+  transform-origin: left;
+  animation: border-draw 1s cubic-bezier(0.22,1,0.36,1) both 0.4s;
+}
+.paper-root .pp-card,
+.paper-root .paper-card {
+  transition: transform 0.35s ease, box-shadow 0.3s ease;
+}
+.paper-root .pp-card:hover,
+.paper-root .paper-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(26,24,21,0.12), 0 1px 3px rgba(26,24,21,0.08);
+}
+.paper-root .pp-chip,
+.paper-root .paper-chip {
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+.paper-root .pp-chip:hover {
+  transform: translateY(-2px);
 }

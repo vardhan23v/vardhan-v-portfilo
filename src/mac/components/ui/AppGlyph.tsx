@@ -111,7 +111,7 @@ function Icon({ id, uid }: { id: GlyphId; uid: string }) {
         <>
           <defs><linearGradient id={`${uid}-o`} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#8f8bff" /><stop offset="1" stopColor="#4a3fd6" /></linearGradient></defs>
           <path d={SQ} fill={g("o")} />
-          <text x="64" y="86" textAnchor="middle" fontFamily="Fraunces, Georgia, serif" fontStyle="italic" fontSize="70" fill="#fff">V</text>
+          <text x="64" y="86" textAnchor="middle" fontFamily="'Fraunces Variable', Fraunces, Georgia, serif" fontStyle="italic" fontSize="70" fill="#fff">V</text>
         </>
       );
     case "about":

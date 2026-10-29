@@ -2217,3 +2217,80 @@ html:not([data-motion="reduce"]) .fg-stoke.is-on i {
 .forge-root {
   transition: color 0.6s ease;
 }
+
+/* moved from src/styles/motion.css */
+/* ============================================================
+   3) FORGE — editorial pulse + grid
+   ============================================================ */
+.forge-root .fg-grid {
+  animation: forge-grid-drift 60s linear infinite;
+  opacity: 0.4;
+}
+@keyframes forge-grid-drift {
+  from { transform: translateY(0); }
+  to { transform: translateY(48px); }
+}
+.forge-root .fg-pipe-pulse {
+  animation: forge-pulse 2.2s ease-in-out infinite;
+}
+@keyframes forge-pulse {
+  0% { transform: translateX(-18%) scaleX(0.6); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateX(118%) scaleX(1); opacity: 0; }
+}
+.forge-root .fg-hero-heading {
+  animation: text-reveal 0.9s cubic-bezier(0.22,1,0.36,1) both 0.2s;
+}
+.forge-root .fg-glint {
+  position: relative;
+}
+.forge-root .fg-glint::after {
+  content: "";
+  position: absolute;
+  left: -10%;
+  top: 0;
+  width: 30%;
+  height: 100%;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,0.55), transparent);
+  transform: skewX(-14deg) translateX(-120%);
+  opacity: 0;
+  pointer-events: none;
+}
+.forge-root .fg-glint:hover::after {
+  animation: card-shine 0.9s ease forwards;
+  opacity: 1;
+}
+.forge-root .fg-proj-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s ease, border-color 0.3s ease;
+}
+.forge-root .fg-proj-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(420px circle at var(--mx,50%) var(--my,50%), rgba(125,211,252,0.14), transparent 65%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.forge-root .fg-proj-card:hover::before { opacity: 1; }
+.forge-root .fg-proj-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 24px 48px rgba(0,0,0,0.45), 0 0 0 1px rgba(125,211,252,0.18);
+}
+.forge-root .fg-marquee-track {
+  animation-duration: 32s !important;
+}
+.forge-root .fg-tl-item {
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+.forge-root .fg-tl-item:not(.fg-tl-in) {
+  opacity: 0;
+  transform: translateX(12px);
+}
+.forge-root .fg-tl-item.fg-tl-in {
+  opacity: 1;
+  transform: none;
+}

@@ -8,6 +8,8 @@ import { Experience } from "./components/Experience";
 import { Skills } from "./components/Skills";
 import { Contact } from "./components/Contact";
 import { Footer } from "./components/Footer";
+import { StackMarquee } from "./components/StackMarquee";
+import { useMagnetic } from "../hooks/useMagnetic";
 import "./styles/classic.css";
 
 /**
@@ -18,6 +20,8 @@ export function ClassicSite() {
   // Motion pre-states only apply once script has run (".js"), so nothing is ever hidden without it.
   const [js, setJs] = useState(false);
   useEffect(() => setJs(true), []);
+  // Primary actions ease toward a fine pointer (no-op on touch and under reduced motion).
+  useMagnetic(".classic-root .btn--magnetic", 0.25, 8);
   return (
     <div className={`classic-root${js ? " js" : ""}`} data-cursor-accent="classic">
       <a href="#main" className="skip-link">Skip to content</a>
@@ -25,6 +29,7 @@ export function ClassicSite() {
       <main id="main">
         <Hero />
         <Figures />
+        <StackMarquee />
         <Work />
         <About />
         <Experience />

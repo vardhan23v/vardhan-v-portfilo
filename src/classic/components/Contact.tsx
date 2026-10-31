@@ -1,7 +1,8 @@
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { site } from "../data/site";
 import { mailtoHref, sendMessage } from "../../lib/contact";
 import { Reveal } from "../hooks/useReveal";
+import { useLines } from "../motion/useLines";
 
 type Status = "idle" | "sending" | "sent" | "mailto" | "error";
 
@@ -11,6 +12,8 @@ export function Contact() {
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [tried, setTried] = useState(false);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  useLines(titleRef);
   const fallback = mailtoHref({ name: name || "visitor", email, message });
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const valid = name.trim().length > 0 && emailOk && message.trim().length > 0;
@@ -31,7 +34,7 @@ export function Contact() {
       <div className="wrap">
         <Reveal as="div" className="contact-card">
           <div className="contact-copy">
-            <h2 className="h2" id="contact-h2">Let’s talk</h2>
+            <h2 className="h2" id="contact-h2" ref={titleRef}>Let’s talk</h2>
             <p className="contact-p">Hiring for an internship, or need something built? Write a line about it and I reply {site.replyTime}.</p>
             <p className="contact-direct">
               <a href={`mailto:${site.email}`}>{site.email}</a>
@@ -61,9 +64,15 @@ export function Contact() {
             <div className="contact-actions">
               <button type="submit" className="btn" disabled={status === "sending"}>
                 {status === "sending" ? "Sending…" : "Send message"}
+                <span className="btn-arrow" aria-hidden="true">→</span>
               </button>
               <p className="contact-status" role="status" aria-live="polite">
-                {status === "sent" && "Sent. Thank you, I will reply soon."}
+                {status === "sent" && (
+                  <span className="sent">
+                    <svg className="sent-check" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M4 10.5 8.2 14.5 16 6" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                    Sent. Thank you, I will reply soon.
+                  </span>
+                )}
                 {status === "mailto" && "Your mail app opened with the message."}
                 {status === "error" && <>Could not send. <a href={fallback}>Email me directly</a> instead.</>}
               </p>

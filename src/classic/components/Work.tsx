@@ -1,7 +1,10 @@
+import { useRef } from "react";
 import { CATEGORY_LABEL, featuredProjects, type Project } from "../data/projects";
-import { Reveal } from "../hooks/useReveal";
+import { Reveal, useReveal } from "../hooks/useReveal";
 import { embeddable, framesOf } from "../lib/frames";
 import { LiveFrame } from "./LiveFrame";
+import { useLines } from "../motion/useLines";
+import { useSpotlight } from "../motion/useSpotlight";
 
 function TypesetCard({ p }: { p: Project }) {
   return (
@@ -28,8 +31,10 @@ function Frame({ p, eager }: { p: Project; eager?: boolean }) {
 
 function Card({ p, i, featured }: { p: Project; i: number; featured?: boolean }) {
   const extra = p.tech.length - 5;
+  // Each card knows when it has been seen, so its chips pop as it arrives rather than with the grid.
+  const ref = useReveal<HTMLElement>({ visibleClass: "is-seen", rootMargin: "0px 0px -6% 0px", threshold: 0.12, failSafe: true });
   return (
-    <article className={`card${featured ? " card--featured" : ""}`} id={`work-${p.slug}`} style={{ "--i": i } as React.CSSProperties}>
+    <article ref={ref} className={`card${featured ? " card--featured" : ""}`} id={`work-${p.slug}`} style={{ "--i": i } as React.CSSProperties}>
       <Frame p={p} eager={featured} />
       <div className="card-body">
         <div className="card-top">
@@ -39,11 +44,11 @@ function Card({ p, i, featured }: { p: Project; i: number; featured?: boolean })
         <p className="card-tag">{p.tagline}</p>
         {featured && <p className="card-problem">{p.problem}</p>}
         <ul className="card-feats" aria-label="What it does">
-          {p.features.slice(0, featured ? 5 : 3).map((f) => <li key={f}>{f}</li>)}
+          {p.features.slice(0, featured ? 5 : 3).map((f, n) => <li key={f} style={{ "--n": n } as React.CSSProperties}>{f}</li>)}
         </ul>
         <ul className="card-tech" aria-label="Built with">
-          {p.tech.slice(0, 5).map((t) => <li className="chip" key={t}>{t}</li>)}
-          {extra > 0 && <li className="chip chip--more">+{extra} more</li>}
+          {p.tech.slice(0, 5).map((t, c) => <li className="chip" key={t} style={{ "--c": c } as React.CSSProperties}>{t}</li>)}
+          {extra > 0 && <li className="chip chip--more" style={{ "--c": 5 } as React.CSSProperties}>+{extra} more</li>}
         </ul>
         <p className="card-meta">
           <span>{p.year ?? "2026"}</span>
@@ -60,11 +65,15 @@ function Card({ p, i, featured }: { p: Project; i: number; featured?: boolean })
 
 export function Work() {
   const [first, ...rest] = featuredProjects;
+  const sectionRef = useRef<HTMLElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  useLines(titleRef);
+  useSpotlight(sectionRef, ".card");
   return (
-    <section className="work" id="work" aria-labelledby="work-h2">
+    <section className="work" id="work" aria-labelledby="work-h2" ref={sectionRef}>
       <div className="wrap">
         <Reveal as="div" className="section-head">
-          <h2 className="h2" id="work-h2">Selected work</h2>
+          <h2 className="h2" id="work-h2" ref={titleRef}>Selected work</h2>
           <p className="section-sub">
             {featuredProjects.length} products, each shipped with source. Where the app allows it, the card runs the live site itself; press “Try it here” to use it in place.
           </p>

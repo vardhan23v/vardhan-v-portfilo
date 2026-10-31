@@ -1,19 +1,24 @@
 import { certifications, education, experience } from "../data/experience";
+import { useRef } from "react";
 import { Reveal } from "../hooks/useReveal";
+import { useLines } from "../motion/useLines";
 
 const period = (p: string) => p.replace(" — ", " to ").replace("Present", "now");
 
 export function Experience() {
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  useLines(titleRef);
   return (
     <section className="xp" id="experience" aria-labelledby="xp-h2">
       <div className="wrap">
         <Reveal as="div" className="section-head">
-          <h2 className="h2" id="xp-h2">Experience</h2>
+          <h2 className="h2" id="xp-h2" ref={titleRef}>Experience</h2>
           <p className="section-sub">{experience.length} roles since 2026, two of them ongoing. The site is the current record; the résumé is a summary.</p>
         </Reveal>
         <Reveal as="ol" className="xp-list">
           {experience.map((e, i) => (
-            <li className="xp-row" key={e.company + e.role} style={{ "--i": i } as React.CSSProperties}>
+            <li className={`xp-row${/present/i.test(e.period) ? " xp-row--now" : ""}`} key={e.company + e.role} style={{ "--i": i } as React.CSSProperties}>
+              <span className="xp-dot" aria-hidden="true" />
               <p className="xp-period">{period(e.period)}</p>
               <div className="xp-main">
                 <h3 className="xp-role">{e.role}</h3>

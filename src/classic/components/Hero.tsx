@@ -1,8 +1,11 @@
+import { useEffect, useRef } from "react";
 import { featuredProjects } from "../data/projects";
 import { site } from "../data/site";
 import { stats } from "../data/stats";
 import { embeddable, framesOf, hostOf } from "../lib/frames";
 import { LiveFrame } from "./LiveFrame";
+import { WordRotator } from "../motion/WordRotator";
+import { useTilt } from "../../hooks/useTilt";
 
 const flagship = featuredProjects.find((p) => p.highlight) ?? featuredProjects[0];
 
@@ -16,6 +19,16 @@ export function Hero() {
   const frames = framesOf(flagship);
   const phone = flagship.screenshots?.find((s) => s.includes("phone"));
   const live = embeddable(flagship);
+  const sectionRef = useRef<HTMLElement>(null);
+  const sideRef = useTilt<HTMLDivElement>(5, ".device");
+  useEffect(() => {
+    // The backdrop only drifts while the hero is on screen.
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([e]) => el.classList.toggle("is-offscreen", !e.isIntersecting));
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
   const poster = frames[0] ? (
     <picture>
       {phone && <source media="(max-width: 720px)" srcSet={phone} width={390} height={844} />}
@@ -24,7 +37,12 @@ export function Hero() {
   ) : null;
 
   return (
-    <section className="hero" id="top" aria-labelledby="hero-h1">
+    <section className="hero" id="top" aria-labelledby="hero-h1" ref={sectionRef}>
+      <div className="hero-bg" aria-hidden="true">
+        <span className="hero-grid-dots" />
+        <span className="hero-glow hero-glow--a" />
+        <span className="hero-glow hero-glow--b" />
+      </div>
       <div className="wrap hero-grid">
         <div className="hero-copy">
           <p className="hero-status" data-load style={{ "--d": "60ms" } as React.CSSProperties}>
@@ -34,13 +52,16 @@ export function Hero() {
           <h1 className="hero-title" id="hero-h1">
             <span className="line"><span data-line style={{ "--i": 0 } as React.CSSProperties}>Sree Vardhan V</span></span>
           </h1>
-          <p className="hero-role" data-load style={{ "--d": "260ms" } as React.CSSProperties}>Generative AI and full-stack developer</p>
+          <p className="hero-role" data-load style={{ "--d": "260ms" } as React.CSSProperties}>
+            Generative AI and full-stack developer, building{" "}
+            <WordRotator words={["AI products", "full-stack systems", "real-time apps", "developer tools"]} label="AI products, full-stack systems, real-time apps and developer tools." />
+          </p>
           <p className="hero-intro" data-load style={{ "--d": "340ms" } as React.CSSProperties}>
             Computer-science undergraduate at NMAM Institute of Technology. I build AI-powered products from the interface to the model behind it, and keep them running: {stats.featured} shipped, {stats.live} of them live on the web right now.
           </p>
           <div className="hero-actions" data-load style={{ "--d": "420ms" } as React.CSSProperties}>
-            <a className="btn" href="#work">View projects</a>
-            <a className="btn btn--secondary" href="#contact">Contact me</a>
+            <a className="btn btn--magnetic" href="#work">View projects</a>
+            <a className="btn btn--secondary btn--magnetic" href="#contact">Contact me</a>
             <a className="btn btn--ghost" href={site.resume} download="sree-vardhan-v-resume.pdf">Résumé</a>
             <a className="btn btn--ghost" href={site.github} target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>
@@ -54,7 +75,8 @@ export function Hero() {
           </p>
         </div>
 
-        <div className="hero-side" data-open>
+        <div className="hero-side" data-open ref={sideRef}>
+          <div className="device-float">
           <div className="device">
             <div className="device-bar" aria-hidden="true">
               <span className="device-dots"><i /><i /><i /></span>
@@ -63,6 +85,8 @@ export function Hero() {
             <div className="device-body">
               {live && poster ? <LiveFrame url={live} name={flagship.name} poster={poster} /> : poster}
             </div>
+            <span className="device-glare" aria-hidden="true" />
+          </div>
           </div>
           <p className="device-note">
             <strong>{flagship.name}</strong>, the latest product: {flagship.tagline.replace(/\.$/, "").toLowerCase()}.

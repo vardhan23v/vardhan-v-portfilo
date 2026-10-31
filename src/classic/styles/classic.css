@@ -1,20 +1,26 @@
-/* Classic — the recruiter edition. Paper ground, one blue, Inter throughout.
+/* Classic — the recruiter edition. Cream ground, warm ink, one burnt-orange accent, Inter throughout.
    Tokens first; everything below references them only. */
 .classic-root {
-  --bg: #f6f6f4;
+  --bg: #faf7f2;
   --surface: #ffffff;
-  --surface-2: #ededea;
-  --line: #e2e2dd;
-  --line-strong: #c4c4bd;
-  --ink: #121417;
-  --ink-2: #363a40;
-  --muted: #62676e;
-  --accent: #2457e6;
-  --accent-strong: #1b45b8;
-  --accent-soft: #e8eeff;
+  --surface-2: #f2ede5;
+  --line: #e7e0d5;
+  --line-strong: #cdc3b5;
+  --ink: #1c1917;
+  --ink-2: #3d3731;
+  --muted: #6b625a;
+  --accent: #c2410c;
+  --accent-strong: #9a3412;
+  --accent-soft: #fdeee4;
   --accent-ink: #ffffff;
   --ok: #15803d;
   --danger: #b42318;
+  --cat-ai-bg: #fdeee4;
+  --cat-ai-ink: #9a3412;
+  --cat-fs-bg: #e3f1ea;
+  --cat-fs-ink: #1d6b4f;
+  --cat-tool-bg: #e8edf6;
+  --cat-tool-ink: #2f4a7a;
 
   --max: 1200px;
   --pad: clamp(16px, 4vw, 40px);
@@ -23,7 +29,7 @@
   --r-sm: 6px;
   --r: 12px;
   --r-lg: 18px;
-  --shadow-frame: 0 1px 2px rgba(18, 20, 23, 0.06), 0 28px 56px -28px rgba(18, 20, 23, 0.28);
+  --shadow-frame: 0 1px 2px rgba(28, 25, 23, 0.06), 0 28px 56px -28px rgba(28, 25, 23, 0.28);
 
   --font-text: "Inter Variable", "Inter", system-ui, -apple-system, sans-serif;
   --t-small: 13px;
@@ -211,7 +217,9 @@ html[data-motion="reduce"] .classic-root .hero [data-line], html[data-motion="re
 .classic-root .card-body { display: flex; flex-direction: column; gap: 12px; padding: 20px 22px 22px; }
 .classic-root .card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .classic-root .card-name { font-size: var(--t-h3); font-weight: 600; line-height: 1.25; }
-.classic-root .pill { flex: 0 0 auto; padding: 3px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-strong); font-size: 12px; font-weight: 600; letter-spacing: 0.01em; }
+.classic-root .pill { flex: 0 0 auto; padding: 3px 10px; border-radius: 999px; background: var(--cat-ai-bg); color: var(--cat-ai-ink); font-size: 12px; font-weight: 600; letter-spacing: 0.01em; }
+.classic-root .pill[data-cat="full-stack"] { background: var(--cat-fs-bg); color: var(--cat-fs-ink); }
+.classic-root .pill[data-cat="tool"] { background: var(--cat-tool-bg); color: var(--cat-tool-ink); }
 .classic-root .card-tag { color: var(--ink-2); font-size: 15px; text-wrap: pretty; }
 .classic-root .card-problem { color: var(--muted); font-size: 15px; text-wrap: pretty; }
 .classic-root .card-feats { display: grid; gap: 4px; font-size: 14px; color: var(--ink-2); }

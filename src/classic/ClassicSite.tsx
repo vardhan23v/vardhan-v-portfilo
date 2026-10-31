@@ -11,7 +11,7 @@ import { Footer } from "./components/Footer";
 import "./styles/classic.css";
 
 /**
- * Classic — the recruiter edition. Paper-white ground, one blue, Inter throughout; the flagship
+ * Classic — the recruiter edition. Cream ground, warm ink, one burnt-orange accent, Inter throughout; the flagship
  * product runs live beside the introduction and every project is a card with the real app in it.
  */
 export function ClassicSite() {

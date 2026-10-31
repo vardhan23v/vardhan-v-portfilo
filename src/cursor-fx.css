@@ -65,7 +65,7 @@
 }
 
 .cur-fx[data-cur="term"] { --cur-accent: #36e57c; }
-.cur-fx[data-cur="classic"] { --cur-accent: #2457e6; }
+.cur-fx[data-cur="classic"] { --cur-accent: #c2410c; }
 .cur-fx[data-cur="paper"] { --cur-accent: #be4b2a; }
 .cur-fx[data-cur="aurora"] { --cur-accent: #f0abfc; }
 .cur-fx[data-cur="forge"] { --cur-accent: #7dd3fc; }

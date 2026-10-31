@@ -34,7 +34,7 @@ function Card({ p, i, featured }: { p: Project; i: number; featured?: boolean })
       <div className="card-body">
         <div className="card-top">
           <h3 className="card-name">{p.name}</h3>
-          <span className="pill">{CATEGORY_LABEL[p.category]}</span>
+          <span className="pill" data-cat={p.category}>{CATEGORY_LABEL[p.category]}</span>
         </div>
         <p className="card-tag">{p.tagline}</p>
         {featured && <p className="card-problem">{p.problem}</p>}

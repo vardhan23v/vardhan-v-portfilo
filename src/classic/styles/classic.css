@@ -210,24 +210,6 @@ html:has(.classic-root), body:has(.classic-root) { background: #0a1120; color-sc
 }
 @keyframes row-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
-/* ---------- the sync diagram: one real system, drawn in the page's hairlines ---------- */
-.classic-root .sync { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: clamp(28px, 4vw, 64px); align-items: center; margin: clamp(48px, 6vw, 72px) 0 0; padding: clamp(24px, 3vw, 36px); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
-.classic-root .sync-lead { margin-top: 10px; color: var(--ink-2); max-width: 52ch; text-wrap: pretty; }
-.classic-root .sync-steps { counter-reset: step; display: grid; gap: 10px; margin-top: 18px; }
-.classic-root .sync-steps li { counter-increment: step; position: relative; padding-left: 34px; color: var(--ink-2); font-size: 15px; text-wrap: pretty; }
-.classic-root .sync-steps li::before { content: counter(step); position: absolute; left: 0; top: 1px; width: 22px; height: 22px; border: 1.5px solid var(--accent); border-radius: 50%; color: var(--accent-strong); font-size: 12px; font-weight: 700; display: grid; place-items: center; font-variant-numeric: tabular-nums; }
-.classic-root .sync-steps strong { color: var(--ink); font-weight: 650; }
-.classic-root .sync-links { margin-top: 14px; }
-.classic-root .sync-links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent-strong); font-weight: 600; text-underline-offset: 0.22em; }
-.classic-root .sync-svg { width: 100%; max-width: 420px; justify-self: center; height: auto; font-family: var(--font-text); }
-.classic-root .sync-box { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1; }
-.classic-root .sync-box--core { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
-.classic-root .sync-label { fill: var(--ink); font-size: 14px; font-weight: 600; }
-.classic-root .sync-sub { fill: var(--muted); font-size: 12.5px; }
-.classic-root .sync-line { stroke: var(--ink-2); stroke-width: 1.5; fill: none; }
-.classic-root .sync-line--accent { stroke: var(--accent); stroke-dasharray: 4 3; }
-.classic-root .sync-svg .sync-line--accent + .sync-line--accent { stroke: var(--accent); }
-.classic-root .sync-head { fill: var(--ink-2); }
 
 /* ---------- experience ---------- */
 .classic-root .xp { padding-top: var(--section); }
@@ -380,7 +362,6 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
   .classic-root .hero-grid { grid-template-columns: 1fr; }
   .classic-root .contact-card { grid-template-columns: 1fr; }
   .classic-root .about-grid { grid-template-columns: 1fr; }
-  .classic-root .sync { grid-template-columns: 1fr; padding: 20px 16px; }
   .classic-root .foot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
@@ -435,19 +416,6 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
 .classic-root .keys kbd { display: inline-block; min-width: 1.6em; padding: 0 5px; border: 1px solid var(--line-strong); border-radius: 4px; font-family: var(--font-text); font-size: 12px; text-align: center; color: var(--ink-2); }
 @media (hover: none) { .classic-root .keys { display: none; } }
 
-/* Diagram: the current step and its part of the drawing light together. */
-.classic-root .sync-steps li { transition: color 300ms var(--ease-out); }
-.classic-root .sync-steps li::before { transition: background-color 300ms var(--ease-out), color 300ms var(--ease-out); }
-.classic-root .sync-steps li.is-on { color: var(--ink); }
-.classic-root .sync-steps li.is-on::before { background: var(--accent); color: var(--accent-ink); }
-.classic-root .sync-svg .sync-box, .classic-root .sync-svg .sync-line { transition: stroke 300ms var(--ease-out), fill 300ms var(--ease-out); }
-.classic-root .sync-svg.is-step-0 .part-clients .sync-box, .classic-root .sync-svg.is-step-0 .part-bids .sync-line,
-.classic-root .sync-svg.is-step-1 .part-server .sync-box,
-.classic-root .sync-svg.is-step-2 .part-store .sync-box, .classic-root .sync-svg.is-step-2 .part-store .sync-line,
-.classic-root .sync-svg.is-step-3 .part-broadcast .sync-line, .classic-root .sync-svg.is-step-3 .part-clients .sync-box { stroke: var(--accent-strong); stroke-width: 1.8; }
-.classic-root .sync-svg.is-step-1 .part-server .sync-box--core { fill: #22356a; }
-.classic-root .timer-track { fill: none; stroke: var(--line); stroke-width: 2; }
-.classic-root .timer-ring { fill: none; stroke: var(--accent); stroke-width: 2; stroke-dasharray: 1; stroke-dashoffset: 0; }
 
 @media (prefers-reduced-motion: no-preference) {
   /* Load: the name rises out of its line, then the rest follows in reading order. */
@@ -468,10 +436,6 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
   /* Skill names fade in one after another. */
   html:not([data-motion="reduce"]) .classic-root.js .skill-row[data-reveal]:not([data-in]) .sk-word { opacity: 0; }
   html:not([data-motion="reduce"]) .classic-root.js .skill-row[data-reveal][data-in] .sk-word { transition: opacity 300ms var(--ease-out); transition-delay: calc(100ms + min(var(--w, 0), 8) * 30ms); }
-  /* The diagram's arrows flow the way data travels, and the timer counts down, while on screen. */
-  html:not([data-motion="reduce"]) .classic-root .sync.is-live .flow-down { stroke-dasharray: 6 5; animation: flow 900ms linear infinite; }
-  html:not([data-motion="reduce"]) .classic-root .sync.is-live .flow-up { stroke-dasharray: 6 5; animation: flow 900ms linear infinite reverse; }
-  html:not([data-motion="reduce"]) .classic-root .sync.is-live .timer-ring { animation: countdown 2400ms linear infinite; }
 }
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
@@ -482,8 +446,6 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
 @keyframes load-rise { to { opacity: 1; transform: none; } }
 @keyframes draw { to { stroke-dashoffset: 0; } }
 @keyframes fade-in { to { opacity: 1; } }
-@keyframes flow { to { stroke-dashoffset: -11; } }
-@keyframes countdown { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 1; } }
 @keyframes rail-draw { from { transform: scaleY(0); } to { transform: none; } }
 
 /* ---------- review pass: flagship and warm starlight ---------- */

@@ -3,7 +3,6 @@ import { CATEGORY_LABEL, featuredProjects, type Project, type ProjectCategory } 
 import { CREDIT, FEATURED_SLUGS, KEY_WORK } from "../content";
 import { embeddable, framesOf } from "../lib/frames";
 import { LiveFrame } from "./LiveFrame";
-import { SyncDiagram } from "./SyncDiagram";
 
 const featured = FEATURED_SLUGS.map((s) => featuredProjects.find((p) => p.slug === s)).filter((p): p is Project => Boolean(p));
 const rest = featuredProjects.filter((p) => !featured.includes(p));
@@ -78,7 +77,6 @@ export function Work() {
         <div className="features">
           {featured.map((p, i) => <Featured p={p} key={p.slug} flagship={i === 0} />)}
         </div>
-        <SyncDiagram />
 
         <div className="more">
           <div className="more-head">

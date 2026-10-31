@@ -1,75 +1,75 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { featuredProjects } from "../data/projects";
+import { useState, type FormEvent } from "react";
 import { site } from "../data/site";
 import { mailtoHref, sendMessage } from "../../lib/contact";
-import { framesOf } from "./Work";
-import { useReveal } from "../hooks/useReveal";
-import { useLines } from "../motion/useLines";
+import { Reveal } from "../hooks/useReveal";
 
 type Status = "idle" | "sending" | "sent" | "mailto" | "error";
 
 export function Contact() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<Status>("idle");
-  const strip = featuredProjects.flatMap((p) => framesOf(p).map((src, i) => ({ src, name: p.name, i })));
-  const fallback = mailtoHref({ name: email || "visitor", email, message });
-  const h2Ref = useRef<HTMLHeadingElement>(null);
-  useLines(h2Ref);
-  const stripRef = useRef<HTMLDivElement>(null);
-  const formRef = useReveal<HTMLFormElement>({ rootMargin: "0px 0px -12% 0px", threshold: 0.1 });
-  useEffect(() => {
-    // The marquee only runs while it is on screen.
-    const el = stripRef.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver(([e]) => el.classList.toggle("is-paused", !e.isIntersecting), { threshold: 0 });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
+  const [tried, setTried] = useState(false);
+  const fallback = mailtoHref({ name: name || "visitor", email, message });
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const valid = name.trim().length > 0 && emailOk && message.trim().length > 0;
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
-    if (status === "sending") return;
+    setTried(true);
+    if (!valid || status === "sending") return;
     setStatus("sending");
-    const r = await sendMessage({ name: email, email, message, source: "classic" });
-    if (r.ok) { setStatus("sent"); setEmail(""); setMessage(""); return; }
+    const r = await sendMessage({ name, email, message, source: "classic" });
+    if (r.ok) { setStatus("sent"); setName(""); setEmail(""); setMessage(""); setTried(false); return; }
     if (r.reason === "no-key") { window.location.href = fallback; setStatus("mailto"); return; }
     setStatus("error");
   };
 
   return (
     <section className="contact" id="contact" aria-labelledby="contact-h2">
-      {strip.length > 0 && (
-        <div className="contact-strip" aria-hidden="true" ref={stripRef}>
-          <div className="contact-strip-track">
-            {[...strip, ...strip].map((f, i) => (
-              <img key={`${f.src}-${i}`} className={`contact-shot contact-shot--${(i % 3)}`} src={f.src} alt="" width={200} height={150} loading="lazy" decoding="async" />
-            ))}
+      <div className="wrap">
+        <Reveal as="div" className="contact-card">
+          <div className="contact-copy">
+            <h2 className="h2" id="contact-h2">Let’s talk</h2>
+            <p className="contact-p">Hiring for an internship, or need something built? Write a line about it and I reply {site.replyTime}.</p>
+            <p className="contact-direct">
+              <a href={`mailto:${site.email}`}>{site.email}</a>
+            </p>
+            <p className="contact-alt">
+              <a href={site.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+              <a href={site.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+              <a href={site.resume} download="sree-vardhan-v-resume.pdf">Résumé (PDF)</a>
+            </p>
           </div>
-        </div>
-      )}
-      <h2 className="contact-h2" id="contact-h2" ref={h2Ref}>Write to me</h2>
-      <form className="reveal contact-bar" ref={formRef} onSubmit={submit} noValidate>
-        <label className="contact-cell" style={{ "--i": 0 } as React.CSSProperties}>
-          <span className="sr-only">Your email</span>
-          <input type="email" name="email" placeholder="Your email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
-        </label>
-        <label className="contact-cell" style={{ "--i": 1 } as React.CSSProperties}>
-          <span className="sr-only">Your message</span>
-          <input type="text" name="message" placeholder="What are you building?" required value={message} onChange={(e) => setMessage(e.target.value)} />
-        </label>
-        <button type="submit" className="contact-cell contact-send" style={{ "--i": 2 } as React.CSSProperties} disabled={status === "sending"}>
-          {status === "sending" ? "Sending" : "Send"}
-        </button>
-      </form>
-      <div className="contact-small">
-        <p>Replies {site.replyTime}.</p>
-        <p role="status">
-          {status === "sent" && "Sent. Thank you."}
-          {status === "mailto" && "Your mail app opened with the message."}
-          {status === "error" && <>Could not send. <a href={fallback}>Email me directly</a> instead.</>}
-          {(status === "idle" || status === "sending") && <>Or write to <a href={`mailto:${site.email}`}>{site.email}</a>.</>}
-        </p>
+          <form className="contact-form" onSubmit={submit} noValidate>
+            <div className="field">
+              <label htmlFor="c-name">Your name</label>
+              <input id="c-name" name="name" type="text" autoComplete="name" required value={name} onChange={(e) => setName(e.target.value)} aria-invalid={tried && !name.trim() ? true : undefined} aria-describedby={tried && !name.trim() ? "c-name-err" : undefined} />
+              {tried && !name.trim() && <p className="field-err" id="c-name-err">Please add your name.</p>}
+            </div>
+            <div className="field">
+              <label htmlFor="c-email">Your email</label>
+              <input id="c-email" name="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} aria-invalid={tried && !emailOk ? true : undefined} aria-describedby={tried && !emailOk ? "c-email-err" : undefined} />
+              {tried && !emailOk && <p className="field-err" id="c-email-err">Please enter a valid email address.</p>}
+            </div>
+            <div className="field">
+              <label htmlFor="c-message">What are you building?</label>
+              <textarea id="c-message" name="message" rows={5} required value={message} onChange={(e) => setMessage(e.target.value)} aria-invalid={tried && !message.trim() ? true : undefined} aria-describedby={tried && !message.trim() ? "c-message-err" : undefined} />
+              {tried && !message.trim() && <p className="field-err" id="c-message-err">Please add a few words about it.</p>}
+            </div>
+            <div className="contact-actions">
+              <button type="submit" className="btn" disabled={status === "sending"}>
+                {status === "sending" ? "Sending…" : "Send message"}
+              </button>
+              <p className="contact-status" role="status" aria-live="polite">
+                {status === "sent" && "Sent. Thank you, I will reply soon."}
+                {status === "mailto" && "Your mail app opened with the message."}
+                {status === "error" && <>Could not send. <a href={fallback}>Email me directly</a> instead.</>}
+              </p>
+            </div>
+          </form>
+        </Reveal>
       </div>
     </section>
   );

@@ -34,6 +34,7 @@ export function LiveFrame({ url, name, poster }: { url: string; name: string; po
           title={`${name}, the live app`}
           loading="lazy"
           referrerPolicy="no-referrer"
+          tabIndex={interactive ? undefined : -1}
           onLoad={() => setTimeout(() => setReady(true), 900)}
         />
       )}

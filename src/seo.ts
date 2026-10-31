@@ -44,4 +44,5 @@ export const SEO_BY_PATH: Readonly<Record<string, RouteSeoEntry>> = Object.fromE
 export const canonicalUrl = (entry: Pick<RouteSeoEntry, "canonicalPath">) => `${site.url}${entry.canonicalPath}`;
 
 /** Browser theme-color per route: Paper is the only light edition. */
-export const themeColorFor = (pathname: string) => (pathname === "/paper" || pathname.startsWith("/paper/") ? "#f5f1ea" : "#05060f");
+export const themeColorFor = (pathname: string) =>
+  pathname === "/paper" || pathname.startsWith("/paper/") ? "#f5f1ea" : pathname === "/classic" ? "#f6f6f4" : "#05060f";

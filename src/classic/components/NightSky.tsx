@@ -82,9 +82,9 @@ export function Constellation() {
   return (
     <svg className="constellation" viewBox="0 0 284 160" aria-hidden="true" focusable="false">
       {LINKS.map(([a, b]) => (
-        <line key={`${a}-${b}`} x1={POINTS[a][0]} y1={POINTS[a][1]} x2={POINTS[b][0]} y2={POINTS[b][1]} className="constellation-line" />
+        <line key={`${a}-${b}`} x1={POINTS[a][0]} y1={POINTS[a][1]} x2={POINTS[b][0]} y2={POINTS[b][1]} className="constellation-line" pathLength={1} style={{ "--c": LINKS.findIndex((l) => l[0] === a && l[1] === b) } as React.CSSProperties} />
       ))}
-      {POINTS.map(([x, y, r], i) => <circle key={i} cx={x} cy={y} r={r} className="constellation-star" />)}
+      {POINTS.map(([x, y, r], i) => <circle key={i} cx={x} cy={y} r={r} className="constellation-star" style={{ "--c": i } as React.CSSProperties} />)}
     </svg>
   );
 }

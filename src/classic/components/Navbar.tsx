@@ -17,13 +17,28 @@ export function Navbar() {
   const linksRef = useRef<HTMLElement>(null);
   const indRef = useRef<HTMLSpanElement>(null);
   const [active, setActive] = useState<string | null>(null);
+  const activeRef = useRef<string | null>(null);
+  const progRef = useRef<HTMLSpanElement>(null);
+  useEffect(() => { activeRef.current = active; }, [active]);
 
   // A hairline shadow once the page has moved, so the bar reads as sitting above the content.
   useEffect(() => {
     const nav = headerRef.current;
     if (!nav) return;
     let raf = 0;
-    const update = () => { raf = 0; nav.classList.toggle("is-scrolled", window.scrollY > 8); };
+    const update = () => {
+      raf = 0;
+      nav.classList.toggle("is-scrolled", window.scrollY > 8);
+      // How far through the current section the reader is: fills the hairline under the bar.
+      const bar = progRef.current;
+      const sec = activeRef.current ? document.getElementById(activeRef.current) : null;
+      if (bar) {
+        if (!sec) { bar.style.transform = "scaleX(0)"; return; }
+        const r = sec.getBoundingClientRect();
+        const p = Math.min(1, Math.max(0, (window.innerHeight * 0.5 - r.top) / r.height));
+        bar.style.transform = `scaleX(${p.toFixed(3)})`;
+      }
+    };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -82,6 +97,7 @@ export function Navbar() {
     <header className="nav" ref={headerRef}>
       <div className="nav-inner">
         <a className="nav-mark" href="#top" aria-label={`${site.name}, home`}>{site.name}</a>
+        <span className="nav-progress" ref={progRef} aria-hidden="true" />
         <nav className="nav-links" aria-label="Sections" ref={linksRef}>
           {LINKS.map((l) => (
             <a key={l.href} href={l.href} aria-current={active === l.href.slice(1) ? "location" : undefined}>{l.label}</a>

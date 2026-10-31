@@ -72,7 +72,8 @@ html:has(.classic-root), body:has(.classic-root) { background: #0a1120; color-sc
 .classic-root .wrap { max-width: var(--max); margin-inline: auto; padding-inline: var(--pad); }
 .classic-root .h2 { font-size: var(--t-h2); }
 .classic-root .h3 { font-size: var(--t-h3); }
-.classic-root .section-head { padding-top: 16px; border-top: 2px solid var(--rule); display: grid; gap: 8px; margin-bottom: 32px; }
+.classic-root .section-head { position: relative; padding-top: 16px; display: grid; gap: 8px; margin-bottom: 32px; }
+.classic-root .section-head::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--rule); transform-origin: 0 50%; }
 .classic-root .section-sub { max-width: 56ch; color: var(--muted); text-wrap: pretty; }
 .classic-root .section-sub a, .classic-root .glance a, .classic-root .contact-copy a, .classic-root .foot a, .classic-root .contact-status a {
   text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
@@ -204,9 +205,9 @@ html:has(.classic-root), body:has(.classic-root) { background: #0a1120; color-sc
 .classic-root .more-toggle { margin-top: 16px; }
 /* New cards fade in so it is clear which ones the filter or "Show more" just added. */
 @media (prefers-reduced-motion: no-preference) {
-  html:not([data-motion="reduce"]) .classic-root .compact { animation: appear 220ms var(--ease-out) both; }
+  html:not([data-motion="reduce"]) .classic-root .compact { animation: row-in 440ms var(--ease-out) both; animation-delay: calc(var(--k, 0) * 60ms); }
 }
-@keyframes appear { from { opacity: 0; } to { opacity: 1; } }
+@keyframes row-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
 /* ---------- the sync diagram: one real system, drawn in the page's hairlines ---------- */
 .classic-root .sync { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: clamp(28px, 4vw, 64px); align-items: center; margin: clamp(48px, 6vw, 72px) 0 0; padding: clamp(24px, 3vw, 36px); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
@@ -295,8 +296,8 @@ html:has(.classic-root), body:has(.classic-root) { background: #0a1120; color-sc
 @media (prefers-reduced-motion: no-preference) {
   html:not([data-motion="reduce"]) .classic-root .shoot { animation: shoot 16s linear 4s infinite; }
   /* Scroll reveals: only once script has run, only for blocks that start below the fold. */
-  html:not([data-motion="reduce"]) .classic-root.js [data-reveal]:not(.is-in) { opacity: 0; transform: translateY(18px); }
-  html:not([data-motion="reduce"]) .classic-root.js [data-reveal].is-in { transition: opacity 600ms var(--ease-out), transform 700ms var(--ease-out); transition-delay: calc(var(--rv, 0) * 70ms); }
+  html:not([data-motion="reduce"]) .classic-root.js [data-reveal]:not([data-in]) { opacity: 0; transform: translateY(18px); }
+  html:not([data-motion="reduce"]) .classic-root.js [data-reveal][data-in] { transition: opacity 600ms var(--ease-out), transform 700ms var(--ease-out); transition-delay: calc(var(--rv, 0) * 70ms); }
 }
 @keyframes shoot {
   0% { opacity: 0; transform: translateX(0); }
@@ -413,3 +414,73 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
   .classic-root .compact { grid-template-columns: 80px minmax(0, 1fr); }
   .classic-root .compact-thumb { width: 80px; }
 }
+
+/* =====================================================================
+   Second effects pass: load order, drawing, flow. All gated on motion being allowed
+   (OS and the site toggle) and on script having run (.js, set before first paint).
+   ===================================================================== */
+.classic-root .mask { display: block; overflow: clip; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+.classic-root .mask-in { display: block; }
+.classic-root .xp-row::before { transition: background-color 500ms var(--ease-out), box-shadow 500ms var(--ease-out); background: var(--accent); box-shadow: 0 0 0 4px rgba(156, 192, 255, 0.14); }
+.classic-root .nav-progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--accent); opacity: 0.75; transform: scaleX(0); transform-origin: 0 50%; pointer-events: none; }
+.classic-root .sky-layer--near { opacity: 0.82; transition: opacity 700ms ease; }
+.classic-root[data-scrolling] .sky-layer--near { opacity: 1; }
+.classic-root .email-copy { display: inline-flex; align-items: center; gap: 8px; }
+.classic-root .contact-direct { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.classic-root .copy { display: inline-flex; align-items: center; min-height: 36px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 6px; background: transparent; color: var(--ink-2); font: inherit; font-family: var(--font-text); font-size: 13px; font-weight: 600; cursor: pointer; transition: color var(--t-ui) ease, border-color var(--t-ui) ease, background-color var(--t-ui) ease; }
+@media (hover: hover) { .classic-root .copy:hover { color: var(--ink); border-color: var(--accent); } }
+.classic-root .copy.is-copied { color: var(--accent-strong); border-color: var(--accent); background: rgba(156, 192, 255, 0.1); }
+.classic-root .keys { margin-left: 10px; }
+.classic-root .keys kbd { display: inline-block; min-width: 1.6em; padding: 0 5px; border: 1px solid var(--line-strong); border-radius: 4px; font-family: var(--font-text); font-size: 12px; text-align: center; color: var(--ink-2); }
+@media (hover: none) { .classic-root .keys { display: none; } }
+
+/* Diagram: the current step and its part of the drawing light together. */
+.classic-root .sync-steps li { transition: color 300ms var(--ease-out); }
+.classic-root .sync-steps li::before { transition: background-color 300ms var(--ease-out), color 300ms var(--ease-out); }
+.classic-root .sync-steps li.is-on { color: var(--ink); }
+.classic-root .sync-steps li.is-on::before { background: var(--accent); color: var(--accent-ink); }
+.classic-root .sync-svg .sync-box, .classic-root .sync-svg .sync-line { transition: stroke 300ms var(--ease-out), fill 300ms var(--ease-out); }
+.classic-root .sync-svg.is-step-0 .part-clients .sync-box, .classic-root .sync-svg.is-step-0 .part-bids .sync-line,
+.classic-root .sync-svg.is-step-1 .part-server .sync-box,
+.classic-root .sync-svg.is-step-2 .part-store .sync-box, .classic-root .sync-svg.is-step-2 .part-store .sync-line,
+.classic-root .sync-svg.is-step-3 .part-broadcast .sync-line, .classic-root .sync-svg.is-step-3 .part-clients .sync-box { stroke: var(--accent-strong); stroke-width: 1.8; }
+.classic-root .sync-svg.is-step-1 .part-server .sync-box--core { fill: #22356a; }
+.classic-root .timer-track { fill: none; stroke: var(--line); stroke-width: 2; }
+.classic-root .timer-ring { fill: none; stroke: var(--accent); stroke-width: 2; stroke-dasharray: 1; stroke-dashoffset: 0; }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Load: the name rises out of its line, then the rest follows in reading order. */
+  html:not([data-motion="reduce"]) .classic-root.js .hero .mask-in { transform: translateY(105%); animation: load-line 820ms cubic-bezier(0.16, 1, 0.3, 1) 80ms forwards; }
+  html:not([data-motion="reduce"]) .classic-root.js .hero [data-load] { opacity: 0; transform: translateY(10px); animation: load-rise 560ms var(--ease-out) forwards; animation-delay: var(--d, 300ms); }
+  /* The constellation draws itself. */
+  html:not([data-motion="reduce"]) .classic-root.js .constellation-line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 650ms var(--ease-out) forwards; animation-delay: calc(260ms + var(--c, 0) * 60ms); }
+  html:not([data-motion="reduce"]) .classic-root.js .constellation-star { opacity: 0; animation: fade-in 400ms var(--ease-out) forwards; animation-delay: calc(200ms + var(--c, 0) * 50ms); }
+  /* Section rules draw left to right as their heading arrives. */
+  html:not([data-motion="reduce"]) .classic-root.js .section-head[data-reveal]:not([data-in])::before { transform: scaleX(0); }
+  html:not([data-motion="reduce"]) .classic-root.js .section-head[data-reveal][data-in]::before { transition: transform 1000ms var(--ease-out) 80ms; }
+  /* Featured screenshots open top-down and settle. */
+  html:not([data-motion="reduce"]) .classic-root.js .feature[data-reveal]:not([data-in]) .feature-shot img { clip-path: inset(0 0 100% 0); transform: scale(1.06); }
+  html:not([data-motion="reduce"]) .classic-root.js .feature[data-reveal][data-in] .feature-shot img { transition: clip-path 900ms var(--ease-out) 120ms, transform 1300ms var(--ease-out) 120ms; }
+  /* Timeline markers light as their role arrives. */
+  html:not([data-motion="reduce"]) .classic-root.js .xp-row[data-reveal]:not([data-in])::before { background: var(--sky); box-shadow: none; }
+  html:not([data-motion="reduce"]) .classic-root.js .xp-row[data-reveal][data-in]::before { transition-delay: 250ms; }
+  /* Skill names fade in one after another. */
+  html:not([data-motion="reduce"]) .classic-root.js .skill-row[data-reveal]:not([data-in]) .sk-word { opacity: 0; }
+  html:not([data-motion="reduce"]) .classic-root.js .skill-row[data-reveal][data-in] .sk-word { transition: opacity 420ms var(--ease-out); transition-delay: calc(180ms + var(--w, 0) * 40ms); }
+  /* The diagram's arrows flow the way data travels, and the timer counts down, while on screen. */
+  html:not([data-motion="reduce"]) .classic-root .sync.is-live .flow-down { stroke-dasharray: 6 5; animation: flow 900ms linear infinite; }
+  html:not([data-motion="reduce"]) .classic-root .sync.is-live .flow-up { stroke-dasharray: 6 5; animation: flow 900ms linear infinite reverse; }
+  html:not([data-motion="reduce"]) .classic-root .sync.is-live .timer-ring { animation: countdown 2400ms linear infinite; }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    html:not([data-motion="reduce"]) .classic-root.js .xp-list::before { transform-origin: 50% 0; animation: rail-draw linear both; animation-timeline: view(); animation-range: entry 10% entry 100%; }
+  }
+}
+@keyframes load-line { to { transform: none; } }
+@keyframes load-rise { to { opacity: 1; transform: none; } }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes fade-in { to { opacity: 1; } }
+@keyframes flow { to { stroke-dashoffset: -11; } }
+@keyframes countdown { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 1; } }
+@keyframes rail-draw { from { transform: scaleY(0); } to { transform: none; } }

@@ -1,11 +1,13 @@
-import { useEffect, useState, type RefObject } from "react";
+import { useEffect, useLayoutEffect, useState, type RefObject } from "react";
 import { motionReduced } from "../lib/motion";
 
 /** What rises into view as you scroll. Everything else (the hero, the nav) is on screen at load. */
 const REVEAL = [".section-head", ".about-grid", ".feature", ".sync", ".more", ".xp-row", ".xp-aside", ".skill-row", ".contact-card", ".foot-grid"].join(", ");
 
 /**
- * Classic's effects, all opt-out-safe:
+ * Classic's effects, all opt-out-safe. State lives in data attributes (data-reveal, data-in,
+ * data-scrolling) because React rewrites className on re-render and would wipe added classes.
+ *
  * - scroll reveals: blocks fade and rise once as they enter; pre-states only exist with `.js`,
  *   and anything already in view (or never observed) is shown immediately;
  * - card glow: the hovered screenshot gets `--mx/--my` so a soft moonlight edge follows the pointer.
@@ -13,10 +15,11 @@ const REVEAL = [".section-head", ".about-grid", ".feature", ".sync", ".more", ".
  */
 export function useClassicEffects(rootRef: RefObject<HTMLElement | null>) {
   const [js, setJs] = useState(false);
+  // Before first paint, so the hero's load pre-states never flash.
+  useLayoutEffect(() => { setJs(true); }, []);
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
-    setJs(true);
     if (motionReduced() || typeof IntersectionObserver === "undefined") return;
 
     const items = Array.from(root.querySelectorAll<HTMLElement>(REVEAL));
@@ -29,11 +32,11 @@ export function useClassicEffects(rootRef: RefObject<HTMLElement | null>) {
       el.setAttribute("data-reveal", "");
     }
     const io = new IntersectionObserver((entries) => {
-      for (const e of entries) if (e.isIntersecting) { e.target.classList.add("is-in"); io.unobserve(e.target); }
+      for (const e of entries) if (e.isIntersecting) { e.target.setAttribute("data-in", ""); io.unobserve(e.target); }
     }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
     const vh = window.innerHeight;
     for (const el of items) {
-      if (el.getBoundingClientRect().top < vh) el.classList.add("is-in");
+      if (el.getBoundingClientRect().top < vh) el.setAttribute("data-in", "");
       else io.observe(el);
     }
 
@@ -48,15 +51,23 @@ export function useClassicEffects(rootRef: RefObject<HTMLElement | null>) {
       t.style.setProperty("--my", `${(((last.clientY - r.top) / r.height) * 100).toFixed(1)}%`);
     };
     const onMove = (e: PointerEvent) => { last = e; if (!raf) raf = requestAnimationFrame(paint); };
+    // While the page is moving, the near stars brighten a touch; they settle 500 ms after it stops.
+    let idle = 0;
+    const onScroll = () => { root.setAttribute("data-scrolling", ""); window.clearTimeout(idle); idle = window.setTimeout(() => root.removeAttribute("data-scrolling"), 500); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+
     const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
     if (fine) root.addEventListener("pointermove", onMove, { passive: true });
 
     return () => {
       io.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      window.clearTimeout(idle);
+      root.removeAttribute("data-scrolling");
       root.removeEventListener("pointermove", onMove);
       if (raf) cancelAnimationFrame(raf);
       // Reset, so a remount (React's dev double-mount, or route changes) starts clean.
-      for (const el of items) { el.removeAttribute("data-reveal"); el.classList.remove("is-in"); el.style.removeProperty("--rv"); }
+      for (const el of items) { el.removeAttribute("data-reveal"); el.removeAttribute("data-in"); el.style.removeProperty("--rv"); }
     };
   }, [rootRef]);
   return js;

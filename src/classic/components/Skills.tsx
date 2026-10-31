@@ -12,7 +12,14 @@ export function Skills() {
           {skillCategories.map((c) => (
             <div className="skill-row" key={c.label}>
               <dt>{c.label}</dt>
-              <dd>{c.items.map((s) => s.name).join(", ")}</dd>
+              <dd>
+                <span className="sr-only">{c.items.map((s) => s.name).join(", ")}</span>
+                <span aria-hidden="true">
+                  {c.items.map((s, w) => (
+                    <span className="sk-word" key={s.name} style={{ "--w": w } as React.CSSProperties}>{s.name}{w < c.items.length - 1 ? ", " : ""}</span>
+                  ))}
+                </span>
+              </dd>
             </div>
           ))}
         </dl>

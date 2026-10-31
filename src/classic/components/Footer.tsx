@@ -35,7 +35,7 @@ export function Footer() {
         </div>
       </div>
       <div className="wrap foot-legal">
-        <p>© {year} {site.name}. Set in Bricolage Grotesque and Inter, under a still sky.</p>
+        <p>© {year} {site.name}. Set in Bricolage Grotesque and Inter, under a still sky. <span className="keys">Keys: <kbd>g</kbd> then <kbd>p</kbd> projects, <kbd>e</kbd> experience, <kbd>c</kbd> contact.</span></p>
         <a href="#top">Back to top</a>
       </div>
     </footer>

@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { site } from "../data/site";
 import { mailtoHref, sendMessage } from "../../lib/contact";
+import { CopyEmail } from "./CopyEmail";
 
 type Status = "idle" | "sending" | "sent" | "mailto" | "error";
 
@@ -34,6 +35,7 @@ export function Contact() {
             <p className="contact-p">Hiring for an internship, or need something built? Write a line about it and I reply {site.replyTime}.</p>
             <p className="contact-direct">
               <a href={`mailto:${site.email}`}>{site.email}</a>
+              <CopyEmail email={site.email} />
             </p>
             <p className="contact-alt">
               <a href={site.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>

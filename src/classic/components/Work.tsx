@@ -43,10 +43,10 @@ function Featured({ p }: { p: Project }) {
   );
 }
 
-function Compact({ p }: { p: Project }) {
+function Compact({ p, k }: { p: Project; k: number }) {
   const shot = framesOf(p)[0];
   return (
-    <article className={`compact${shot ? "" : " compact--text"}`} id={`work-${p.slug}`}>
+    <article className={`compact${shot ? "" : " compact--text"}`} id={`work-${p.slug}`} style={{ "--k": k } as React.CSSProperties}>
       {shot && <img className="compact-thumb" src={shot} alt="" width={1440} height={900} loading="lazy" decoding="async" />}
       <div className="compact-body">
         <h4 className="compact-name">{p.name} <span className="compact-cat">{CATEGORY_LABEL[p.category]}</span></h4>
@@ -95,8 +95,8 @@ export function Work() {
             </div>
           </div>
           <p className="sr-only" role="status">{`Showing ${shown.length} of ${filtered.length} ${cat === "all" ? "" : CATEGORY_LABEL[cat] + " "}projects`}</p>
-          <div className="compacts" id={listId} aria-labelledby="more-h3">
-            {shown.map((p) => <Compact p={p} key={p.slug} />)}
+          <div className="compacts" id={listId} aria-labelledby="more-h3" key={cat}>
+            {shown.map((p, i) => <Compact p={p} key={p.slug} k={expanded && cat === "all" ? Math.max(0, i - INITIAL) : i} />)}
           </div>
           {cat === "all" && (hidden > 0 || expanded) && (
             <button type="button" className="btn btn--secondary more-toggle" aria-expanded={expanded} aria-controls={listId} onClick={() => setExpanded((v) => !v)}>

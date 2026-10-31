@@ -33,7 +33,7 @@ export function useClassicEffects(rootRef: RefObject<HTMLElement | null>) {
     }
     const io = new IntersectionObserver((entries) => {
       for (const e of entries) if (e.isIntersecting) { e.target.setAttribute("data-in", ""); io.unobserve(e.target); }
-    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+    }, { rootMargin: "0px 0px 10% 0px", threshold: 0 });
     const vh = window.innerHeight;
     for (const el of items) {
       if (el.getBoundingClientRect().top < vh) el.setAttribute("data-in", "");
@@ -53,7 +53,15 @@ export function useClassicEffects(rootRef: RefObject<HTMLElement | null>) {
     const onMove = (e: PointerEvent) => { last = e; if (!raf) raf = requestAnimationFrame(paint); };
     // While the page is moving, the near stars brighten a touch; they settle 500 ms after it stops.
     let idle = 0;
-    const onScroll = () => { root.setAttribute("data-scrolling", ""); window.clearTimeout(idle); idle = window.setTimeout(() => root.removeAttribute("data-scrolling"), 500); };
+    // Failsafe for fast scrolls and jumps: anything at or above the fold is shown, even if the
+    // observer has not reported it yet, so no block is ever left blank on screen.
+    let sweep = 0;
+    const reveal = () => {
+      sweep = 0;
+      const fold = window.innerHeight;
+      for (const el of items) if (!el.hasAttribute("data-in") && el.getBoundingClientRect().top < fold) { el.setAttribute("data-in", ""); io.unobserve(el); }
+    };
+    const onScroll = () => { if (!sweep) sweep = requestAnimationFrame(reveal); root.setAttribute("data-scrolling", ""); window.clearTimeout(idle); idle = window.setTimeout(() => root.removeAttribute("data-scrolling"), 500); };
     window.addEventListener("scroll", onScroll, { passive: true });
 
     const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
@@ -63,6 +71,7 @@ export function useClassicEffects(rootRef: RefObject<HTMLElement | null>) {
       io.disconnect();
       window.removeEventListener("scroll", onScroll);
       window.clearTimeout(idle);
+      if (sweep) cancelAnimationFrame(sweep);
       root.removeAttribute("data-scrolling");
       root.removeEventListener("pointermove", onMove);
       if (raf) cancelAnimationFrame(raf);

@@ -29,6 +29,7 @@ function Featured({ p }: { p: Project }) {
     <article className="feature" id={`work-${p.slug}`}>
       {img && <div className="feature-shot">{live ? <LiveFrame url={live} name={p.name} poster={img} /> : img}</div>}
       <div className="feature-body">
+        <p className="feature-cat">{CATEGORY_LABEL[p.category]}</p>
         <h3 className="feature-name">{p.name}</h3>
         <p className="feature-tag">{p.tagline}</p>
         <dl className="spec">
@@ -71,7 +72,7 @@ export function Work() {
     <section className="work" id="work" aria-labelledby="work-h2">
       <div className="wrap">
         <div className="section-head">
-          <h2 className="h2" id="work-h2">Selected work</h2>
+          <h2 className="h2" id="work-h2">Projects</h2>
           <p className="section-sub">Four products that show the range: AI pipelines, real-time systems and research tooling. Each one is open source; most are live.</p>
         </div>
         <div className="features">

@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { site } from "../data/site";
 
 const LINKS = [
-  { href: "#work", label: "Work" },
+  { href: "#about", label: "About" },
+  { href: "#work", label: "Projects" },
   { href: "#experience", label: "Experience" },
   { href: "#skills", label: "Skills" },
   { href: "#contact", label: "Contact" },
@@ -80,7 +81,7 @@ export function Navbar() {
   return (
     <header className="nav" ref={headerRef}>
       <div className="nav-inner">
-        <a className="nav-mark" href="#top">{site.name}</a>
+        <a className="nav-mark" href="#top" aria-label={`${site.name}, home`}>{site.name}</a>
         <nav className="nav-links" aria-label="Sections" ref={linksRef}>
           {LINKS.map((l) => (
             <a key={l.href} href={l.href} aria-current={active === l.href.slice(1) ? "location" : undefined}>{l.label}</a>
@@ -106,6 +107,7 @@ export function Navbar() {
           <a className="btn btn--secondary" href={site.resume} download="sree-vardhan-v-resume.pdf">Résumé</a>
           <a className="btn btn--secondary" href={site.github} target="_blank" rel="noopener noreferrer">GitHub</a>
           <a className="btn btn--secondary" href={site.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a className="btn btn--secondary" href={`mailto:${site.email}`}>Email</a>
           <button type="button" className="btn btn--ghost" onClick={() => { setOpen(false); buttonRef.current?.focus(); }}>Close</button>
         </div>
       </div>

@@ -14,7 +14,8 @@ export function Footer() {
         </div>
         <nav className="foot-col" aria-label="Footer sections">
           <p className="foot-word">Sections</p>
-          <a href="#work">Work</a>
+          <a href="#about">About</a>
+          <a href="#work">Projects</a>
           <a href="#experience">Experience</a>
           <a href="#skills">Skills</a>
           <a href="#contact">Contact</a>
@@ -34,7 +35,7 @@ export function Footer() {
         </div>
       </div>
       <div className="wrap foot-legal">
-        <p>© {year} {site.name}. Set in Bricolage Grotesque and Inter.</p>
+        <p>© {year} {site.name}. Set in Bricolage Grotesque and Inter, under a still sky.</p>
         <a href="#top">Back to top</a>
       </div>
     </footer>

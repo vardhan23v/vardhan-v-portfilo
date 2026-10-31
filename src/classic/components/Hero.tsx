@@ -13,8 +13,11 @@ export function Hero() {
       <Constellation />
       <div className="wrap hero-grid">
         <div className="hero-copy">
+          <p className="hero-status" data-load style={{ "--d": "40ms" } as React.CSSProperties}>
+            <span className="hero-dot" aria-hidden="true" />{site.availability.replace("&", "and")}
+          </p>
+          <p className="hero-role" data-load style={{ "--d": "120ms" } as React.CSSProperties}>Generative AI and full-stack developer</p>
           <h1 className="hero-title" id="hero-h1"><span className="mask"><span className="mask-in">Sree Vardhan V</span></span></h1>
-          <p className="hero-role" data-load style={{ "--d": "260ms" } as React.CSSProperties}>Generative AI and full-stack developer</p>
           <p className="hero-intro" data-load style={{ "--d": "330ms" } as React.CSSProperties}>
             I’m a computer-science student who builds AI products end to end, from the interface to the model behind it, and keeps them running. {stats.featured} are on GitHub; {stats.live} are live right now.
           </p>

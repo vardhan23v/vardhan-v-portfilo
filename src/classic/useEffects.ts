@@ -54,11 +54,14 @@ export function useClassicEffects(rootRef: RefObject<HTMLElement | null>) {
     let last: PointerEvent | null = null;
     const paint = () => {
       raf = 0;
-      const t = (last?.target as HTMLElement | null)?.closest?.<HTMLElement>(".feature-shot, .compact");
+      const t = (last?.target as HTMLElement | null)?.closest?.<HTMLElement>(".shot-frame, .feature-shot, .compact");
       if (!t || !last) return;
       const r = t.getBoundingClientRect();
       t.style.setProperty("--mx", `${(((last.clientX - r.left) / r.width) * 100).toFixed(1)}%`);
       t.style.setProperty("--my", `${(((last.clientY - r.top) / r.height) * 100).toFixed(1)}%`);
+      // -1..1 from the centre, for the featured screenshots' gentle tilt (CSS applies it on hover only).
+      t.style.setProperty("--tx", (((last.clientX - r.left) / r.width) * 2 - 1).toFixed(3));
+      t.style.setProperty("--ty", (((last.clientY - r.top) / r.height) * 2 - 1).toFixed(3));
     };
     const onMove = (e: PointerEvent) => { last = e; if (!raf) raf = requestAnimationFrame(paint); };
     // While the page is moving, the near stars brighten a touch; they settle 500 ms after it stops.

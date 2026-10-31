@@ -462,3 +462,93 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
   .classic-root .feature--flagship { grid-template-columns: 1fr; }
   .classic-root .feature--flagship .feature-body { padding-top: 18px; }
 }
+
+/* ==========================================================================
+   Upgrade pass: hero status, nebula, framed screenshots, chips, role cards,
+   skill cards, section numbers, surface depth. Motion stays gated as above.
+   ========================================================================== */
+.classic-root main { counter-reset: sec; }
+.classic-root .section-head { counter-increment: sec; }
+.classic-root .section-head::after { content: counter(sec, decimal-leading-zero); position: absolute; top: 12px; right: 0; font: 600 12px/1 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: 0.12em; color: var(--muted); }
+.classic-root .h2 { letter-spacing: -0.022em; }
+.classic-root .section-sub { max-width: 68ch; }
+
+/* hero */
+.classic-root .hero-status { width: fit-content; font-size: 13px; font-weight: 550; color: var(--ink-2); background: rgba(18, 29, 54, 0.7); border-radius: 999px; }
+.classic-root .hero-dot { position: relative; background: var(--starlight); box-shadow: 0 0 10px rgba(246, 215, 160, 0.7); }
+.classic-root .hero-role { margin: 0 0 10px; font-size: 13px; font-weight: 650; letter-spacing: 0.14em; text-transform: uppercase; }
+.classic-root .hero-title { font-size: clamp(42px, 3.2vw + 22px, 68px); letter-spacing: -0.035em; text-shadow: 0 0 40px rgba(156, 192, 255, 0.18); }
+.classic-root .hero-actions .btn:not(.btn--secondary) { position: relative; overflow: hidden; box-shadow: 0 8px 24px -12px rgba(156, 192, 255, 0.6); }
+.classic-root .hero-actions .btn:not(.btn--secondary)::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.55) 50%, transparent 70%); transform: translateX(-110%); pointer-events: none; }
+.classic-root .constellation-star--warm { filter: drop-shadow(0 0 4px rgba(246, 215, 160, 0.8)); }
+.classic-root .glance { padding: 6px 18px; background: linear-gradient(180deg, rgba(24, 38, 69, 0.75), rgba(18, 29, 54, 0.55)); border: 1px solid var(--line); border-radius: var(--r); box-shadow: inset 0 1px 0 rgba(233, 238, 248, 0.06); }
+.classic-root .glance-row:last-child { border-bottom: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-motion="reduce"]) .classic-root .hero-dot::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 1px solid var(--starlight); animation: pulse 2.6s var(--ease-out) infinite; }
+  html:not([data-motion="reduce"]) .classic-root .hero-actions .btn:not(.btn--secondary)::after { transition: transform 700ms var(--ease-out); }
+}
+@media (hover: hover) { .classic-root .hero-actions .btn:not(.btn--secondary):hover::after { transform: translateX(110%); } }
+@keyframes pulse { from { transform: scale(0.6); opacity: 0.9; } to { transform: scale(1.9); opacity: 0; } }
+
+/* framed screenshots */
+.classic-root .shot-frame { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); overflow: clip; box-shadow: inset 0 1px 0 rgba(233, 238, 248, 0.06), 0 24px 48px -32px rgba(0, 0, 0, 0.9); transition: border-color var(--t-ui) ease, box-shadow 320ms var(--ease-out); }
+.classic-root .shot-bar { display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+.classic-root .shot-bar i { width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); opacity: 0.7; }
+.classic-root .shot-bar span { margin-left: 8px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 500 11.5px/1 ui-monospace, "SF Mono", Menlo, monospace; color: var(--muted); }
+.classic-root .shot-frame .feature-shot { border: 0; border-radius: 0; }
+@media (hover: hover) {
+  .classic-root .feature:hover .shot-frame { border-color: rgba(156, 192, 255, 0.55); box-shadow: 0 0 0 1px rgba(156, 192, 255, 0.25), 0 28px 60px -30px rgba(111, 127, 224, 0.55); }
+  .classic-root .feature:hover .feature-shot { translate: none; box-shadow: none; }
+}
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  html:not([data-motion="reduce"]) .classic-root .shot-frame { transition: transform 400ms var(--ease-out), border-color var(--t-ui) ease, box-shadow 320ms var(--ease-out); }
+  html:not([data-motion="reduce"]) .classic-root .feature:hover .shot-frame { transform: perspective(1100px) rotateY(calc(var(--tx, 0) * 3deg)) rotateX(calc(var(--ty, 0) * -3deg)) translateY(-3px); }
+}
+.classic-root .feature:focus-within .shot-frame { border-color: rgba(156, 192, 255, 0.55); }
+
+/* chips */
+.classic-root .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.classic-root .chip { display: inline-flex; align-items: center; padding: 3px 10px; border: 1px solid var(--line); border-radius: 999px; background: rgba(24, 38, 69, 0.6); color: var(--ink-2); font-size: 13px; font-weight: 500; line-height: 1.5; white-space: nowrap; }
+
+/* compact rows */
+.classic-root .compact { border-left: 2px solid transparent; }
+.classic-root .compact[data-cat="ai"] { border-left-color: rgba(156, 192, 255, 0.55); }
+.classic-root .compact[data-cat="full-stack"] { border-left-color: rgba(111, 127, 224, 0.7); }
+.classic-root .compact[data-cat="tool"] { border-left-color: rgba(246, 215, 160, 0.5); }
+.classic-root .compact-arrow { display: inline-block; margin-left: 6px; color: var(--accent); opacity: 0.6; transition: transform 240ms var(--ease-out), opacity var(--t-ui) ease; }
+@media (hover: hover) {
+  .classic-root .compact:hover .compact-arrow { opacity: 1; transform: translateX(4px); }
+  .classic-root .compact:hover { translate: 0 -1px; }
+}
+.classic-root .compact { transition: background-color var(--t-ui) ease, translate 240ms var(--ease-out); }
+
+/* experience: role cards on the rail */
+.classic-root .xp-main { padding: 18px 20px; margin-left: 18px; background: linear-gradient(180deg, rgba(24, 38, 69, 0.6), rgba(18, 29, 54, 0.35)); border: 1px solid var(--line); border-radius: var(--r); box-shadow: inset 0 1px 0 rgba(233, 238, 248, 0.05); }
+.classic-root .xp-row { border-bottom: 0; padding: 12px 0; }
+.classic-root .xp-list { border-top: 0; }
+.classic-root .xp-co { color: var(--accent); }
+.classic-root .xp-now { display: inline-flex; align-items: center; padding: 2px 9px; border: 1px solid rgba(156, 192, 255, 0.45); border-radius: 999px; background: var(--accent-soft); font-size: 12px; }
+.classic-root .xp-row--now::before { box-shadow: 0 0 0 4px rgba(156, 192, 255, 0.18), 0 0 14px rgba(156, 192, 255, 0.7); }
+.classic-root .card-list { gap: 10px; }
+.classic-root .card-list li { padding: 12px 16px; border: 1px solid var(--line); border-radius: var(--r); background: rgba(18, 29, 54, 0.6); }
+.classic-root .xp-block .also { border-top: 0; }
+
+/* skills: one card per group */
+.classic-root .skills-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; border-top: 0; }
+.classic-root .skill-row { display: flex; flex-direction: column; gap: 12px; padding: 18px; border: 1px solid var(--line); border-radius: var(--r); background: linear-gradient(180deg, rgba(24, 38, 69, 0.6), rgba(18, 29, 54, 0.35)); box-shadow: inset 0 1px 0 rgba(233, 238, 248, 0.05); transition: border-color var(--t-ui) ease; }
+.classic-root .skill-row dt { display: flex; align-items: center; gap: 10px; }
+.classic-root .skill-glyph { width: 30px; height: 30px; padding: 6px; border-radius: 8px; background: var(--accent-soft); fill: none; stroke: var(--accent); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+@media (hover: hover) { .classic-root .skill-row:hover { border-color: rgba(156, 192, 255, 0.45); } }
+
+/* nav depth once scrolled */
+@supports (backdrop-filter: blur(1px)) {
+  .classic-root .nav.is-scrolled { background: rgba(10, 17, 32, 0.78); backdrop-filter: blur(12px) saturate(1.2); }
+}
+
+@media (max-width: 1024px) { .classic-root .skills-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) {
+  .classic-root .skills-list { grid-template-columns: 1fr; }
+  .classic-root .xp-main { margin-left: 0; padding: 14px 16px; }
+  .classic-root .glance { padding: 4px 14px; }
+  .classic-root .shot-bar span { font-size: 11px; }
+}

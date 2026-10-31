@@ -47,7 +47,14 @@ export function NightSky() {
           <stop offset="0" stopColor="#e9eef8" stopOpacity="0" />
           <stop offset="1" stopColor="#e9eef8" stopOpacity="0.9" />
         </linearGradient>
+        <radialGradient id="nebula-a"><stop offset="0" stopColor="#6f7fe0" stopOpacity="0.22" /><stop offset="1" stopColor="#6f7fe0" stopOpacity="0" /></radialGradient>
+        <radialGradient id="nebula-b"><stop offset="0" stopColor="#f6d7a0" stopOpacity="0.09" /><stop offset="1" stopColor="#f6d7a0" stopOpacity="0" /></radialGradient>
       </defs>
+      {/* A soft, still nebula behind the hero: two faint glows, indigo and starlight. */}
+      <g className="nebula">
+        <ellipse cx="1150" cy="170" rx="420" ry="230" fill="url(#nebula-a)" />
+        <ellipse cx="260" cy="90" rx="320" ry="170" fill="url(#nebula-b)" />
+      </g>
       {/* Two depth layers: small, dim stars are far and drift less as the page scrolls. */}
       {(["far", "near"] as const).map((layer) => (
         <g key={layer} className={`sky-layer sky-layer--${layer}`}>

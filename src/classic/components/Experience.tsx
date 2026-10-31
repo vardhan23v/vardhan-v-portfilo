@@ -18,7 +18,7 @@ export function Experience() {
           {experience.map((e) => {
             const now = /present/i.test(e.period);
             return (
-              <li className="xp-row" key={e.company + e.role}>
+              <li className={`xp-row${now ? " xp-row--now" : ""}`} key={e.company + e.role}>
                 <p className="xp-period">{period(e.period)}{now && <span className="xp-now">Current role</span>}</p>
                 <div className="xp-main">
                   <h3 className="xp-role">{e.role}</h3>
@@ -34,7 +34,7 @@ export function Experience() {
         <div className="xp-aside">
           <div className="xp-block">
             <h3 className="h3">Education</h3>
-            <ul className="plain-list">
+            <ul className="plain-list card-list">
               {education.map((e) => (
                 <li key={e.school}>
                   <strong>{e.degree.replace(" — ", ", ")}</strong>
@@ -45,7 +45,7 @@ export function Experience() {
           </div>
           <div className="xp-block">
             <h3 className="h3">Certificates</h3>
-            <ul className="plain-list">
+            <ul className="plain-list card-list">
               {certifications.filter((c) => c.includes(" — ")).map((c) => {
                 const [name, issuer] = c.split(" — ");
                 return (

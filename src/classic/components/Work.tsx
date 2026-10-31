@@ -1,7 +1,7 @@
 import { useId, useMemo, useState } from "react";
 import { CATEGORY_LABEL, featuredProjects, type Project, type ProjectCategory } from "../data/projects";
 import { CREDIT, FEATURED_SLUGS, KEY_WORK } from "../content";
-import { embeddable, framesOf } from "../lib/frames";
+import { embeddable, framesOf, hostOf } from "../lib/frames";
 import { LiveFrame } from "./LiveFrame";
 
 const featured = FEATURED_SLUGS.map((s) => featuredProjects.find((p) => p.slug === s)).filter((p): p is Project => Boolean(p));
@@ -10,6 +10,9 @@ const CATEGORIES = (["ai", "full-stack", "tool"] as ProjectCategory[]).filter((c
 const INITIAL = 4;
 
 const stack = (p: Project, n: number) => p.tech.slice(0, n).join(" · ");
+const Chips = ({ p, n }: { p: Project; n: number }) => (
+  <ul className="chips">{p.tech.slice(0, n).map((t) => <li className="chip" key={t}>{t}</li>)}</ul>
+);
 
 function Links({ p }: { p: Project }) {
   return (
@@ -26,14 +29,19 @@ function Featured({ p, flagship }: { p: Project; flagship?: boolean }) {
   const img = shot ? <img src={shot} alt={`${p.name}, screenshot of the app`} width={1440} height={900} loading="lazy" decoding="async" /> : null;
   return (
     <article className={`feature${flagship ? " feature--flagship" : ""}`} id={`work-${p.slug}`}>
-      {img && <div className="feature-shot">{live ? <LiveFrame url={live} name={p.name} poster={img} /> : img}</div>}
+      {img && (
+        <div className="shot-frame">
+          <div className="shot-bar" aria-hidden="true"><i /><i /><i /><span>{hostOf(p.live ?? p.github)}</span></div>
+          <div className="feature-shot">{live ? <LiveFrame url={live} name={p.name} poster={img} /> : img}</div>
+        </div>
+      )}
       <div className="feature-body">
         <p className="feature-cat">{flagship ? `Flagship · ${CATEGORY_LABEL[p.category]}` : CATEGORY_LABEL[p.category]}</p>
         <h3 className="feature-name">{p.name}</h3>
         <p className="feature-tag">{p.tagline}</p>
         <dl className="spec">
           <div><dt>What I built</dt><dd>{KEY_WORK[p.slug] ?? p.features.slice(0, 3).join(", ")}</dd></div>
-          <div><dt>Stack</dt><dd>{stack(p, 5)}</dd></div>
+          <div><dt>Stack</dt><dd><Chips p={p} n={5} /></dd></div>
           {CREDIT[p.slug] && <div><dt>Context</dt><dd>{CREDIT[p.slug]}</dd></div>}
         </dl>
         <Links p={p} />
@@ -45,10 +53,10 @@ function Featured({ p, flagship }: { p: Project; flagship?: boolean }) {
 function Compact({ p, k }: { p: Project; k: number }) {
   const shot = framesOf(p)[0];
   return (
-    <article className={`compact${shot ? "" : " compact--text"}`} id={`work-${p.slug}`} style={{ "--k": k } as React.CSSProperties}>
+    <article className={`compact${shot ? "" : " compact--text"}`} data-cat={p.category} id={`work-${p.slug}`} style={{ "--k": k } as React.CSSProperties}>
       {shot && <img className="compact-thumb" src={shot} alt="" width={1440} height={900} loading="lazy" decoding="async" />}
       <div className="compact-body">
-        <h4 className="compact-name">{p.name} <span className="compact-cat">{CATEGORY_LABEL[p.category]}</span></h4>
+        <h4 className="compact-name">{p.name}<span className="compact-arrow" aria-hidden="true">→</span> <span className="compact-cat">{CATEGORY_LABEL[p.category]}</span></h4>
         <p className="compact-tag">{p.tagline}</p>
         <p className="compact-work">{KEY_WORK[p.slug]}</p>
         <p className="meta">{stack(p, 3)}{CREDIT[p.slug] && <> · {CREDIT[p.slug]}</>}</p>

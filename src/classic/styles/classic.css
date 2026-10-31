@@ -18,6 +18,7 @@
   --accent-soft: #1b2b52;
   --accent-ink: #0a1120;
   --indigo: #6f7fe0;
+  --starlight: #f6d7a0; /* restrained warm starlight: a few stars only, never text */
   --danger: #ff9b8f;
 
   --max: 1160px;
@@ -484,3 +485,18 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
 @keyframes flow { to { stroke-dashoffset: -11; } }
 @keyframes countdown { from { stroke-dashoffset: 0; } to { stroke-dashoffset: 1; } }
 @keyframes rail-draw { from { transform: scaleY(0); } to { transform: none; } }
+
+/* ---------- review pass: flagship and warm starlight ---------- */
+.classic-root .star--warm, .classic-root .constellation-star--warm { fill: var(--starlight); }
+/* Extension AI leads across the full width; the other three sit in a row beneath it. */
+.classic-root .features { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.classic-root .feature--flagship { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(24px, 3vw, 44px); align-items: start; }
+.classic-root .feature--flagship .feature-body { padding-top: 0; }
+.classic-root .feature--flagship .feature-name { font-size: clamp(26px, 1.4vw + 16px, 34px); }
+.classic-root .feature--flagship .feature-cat { color: var(--starlight); }
+.classic-root .features .feature:not(.feature--flagship) .spec > div { grid-template-columns: 1fr; gap: 2px; }
+@media (max-width: 900px) {
+  .classic-root .features { grid-template-columns: 1fr; }
+  .classic-root .feature--flagship { grid-template-columns: 1fr; }
+  .classic-root .feature--flagship .feature-body { padding-top: 18px; }
+}

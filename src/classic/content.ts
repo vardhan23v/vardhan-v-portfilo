@@ -5,7 +5,7 @@
  */
 
 /** The four projects shown first, strongest evidence first. */
-export const FEATURED_SLUGS = ["extension-ai", "trustlens-ai", "hpl-auction", "launchradar"] as const;
+export const FEATURED_SLUGS = ["extension-ai", "trustlens-ai", "hpl-auction", "ai-code-reviewer"] as const;
 
 /** One line per project: the strongest technical contribution, in plain words. */
 export const KEY_WORK: Record<string, string> = {

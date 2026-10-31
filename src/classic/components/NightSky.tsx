@@ -5,7 +5,7 @@
  * A handful of stars twinkle through CSS opacity only, and only when motion is allowed.
  */
 
-interface Star { x: number; y: number; r: number; o: number; twinkle?: number }
+interface Star { x: number; y: number; r: number; o: number; twinkle?: number; warm?: boolean }
 
 function mulberry32(seed: number) {
   return () => {
@@ -32,6 +32,8 @@ const STARS: Star[] = (() => {
     const o = tier > 0.94 ? 0.95 : tier > 0.7 ? 0.7 : 0.45;
     const star: Star = { x: +x.toFixed(1), y: +y.toFixed(1), r, o };
     if (r >= 1.05 && twinkles < 8 && rnd() < 0.35) star.twinkle = twinkles++;
+    // Roughly one star in nine burns warm, like the painting's starlight against the blue.
+    if (r >= 1.05 && i % 9 === 4) star.warm = true;
     out.push(star);
   }
   return out;
@@ -55,7 +57,7 @@ export function NightSky() {
               cx={s.x}
               cy={s.y}
               r={s.r}
-              className={s.twinkle !== undefined ? "star star--twinkle" : "star"}
+              className={`star${s.twinkle !== undefined ? " star--twinkle" : ""}${s.warm ? " star--warm" : ""}`}
               style={{ opacity: s.o, ...(s.twinkle !== undefined ? { animationDelay: `${s.twinkle * -1.3}s`, animationDuration: `${7 + (s.twinkle % 4)}s` } : null) } as React.CSSProperties}
             />
           ) : null))}
@@ -84,7 +86,7 @@ export function Constellation() {
       {LINKS.map(([a, b]) => (
         <line key={`${a}-${b}`} x1={POINTS[a][0]} y1={POINTS[a][1]} x2={POINTS[b][0]} y2={POINTS[b][1]} className="constellation-line" pathLength={1} style={{ "--c": LINKS.findIndex((l) => l[0] === a && l[1] === b) } as React.CSSProperties} />
       ))}
-      {POINTS.map(([x, y, r], i) => <circle key={i} cx={x} cy={y} r={r} className="constellation-star" style={{ "--c": i } as React.CSSProperties} />)}
+      {POINTS.map(([x, y, r], i) => <circle key={i} cx={x} cy={y} r={r} className={`constellation-star${r >= 1.7 ? " constellation-star--warm" : ""}`} style={{ "--c": i } as React.CSSProperties} />)}
     </svg>
   );
 }

@@ -21,15 +21,15 @@ function Links({ p }: { p: Project }) {
   );
 }
 
-function Featured({ p }: { p: Project }) {
+function Featured({ p, flagship }: { p: Project; flagship?: boolean }) {
   const shot = framesOf(p)[0];
   const live = embeddable(p);
   const img = shot ? <img src={shot} alt={`${p.name}, screenshot of the app`} width={1440} height={900} loading="lazy" decoding="async" /> : null;
   return (
-    <article className="feature" id={`work-${p.slug}`}>
+    <article className={`feature${flagship ? " feature--flagship" : ""}`} id={`work-${p.slug}`}>
       {img && <div className="feature-shot">{live ? <LiveFrame url={live} name={p.name} poster={img} /> : img}</div>}
       <div className="feature-body">
-        <p className="feature-cat">{CATEGORY_LABEL[p.category]}</p>
+        <p className="feature-cat">{flagship ? `Flagship · ${CATEGORY_LABEL[p.category]}` : CATEGORY_LABEL[p.category]}</p>
         <h3 className="feature-name">{p.name}</h3>
         <p className="feature-tag">{p.tagline}</p>
         <dl className="spec">
@@ -73,10 +73,10 @@ export function Work() {
       <div className="wrap">
         <div className="section-head">
           <h2 className="h2" id="work-h2">Projects</h2>
-          <p className="section-sub">Four products that show the range: AI pipelines, real-time systems and research tooling. Each one is open source; most are live.</p>
+          <p className="section-sub">The flagship first, then three that show the range: an AI agent pipeline, a real-time system and an AI developer tool. Each one is open source and live.</p>
         </div>
         <div className="features">
-          {featured.map((p) => <Featured p={p} key={p.slug} />)}
+          {featured.map((p, i) => <Featured p={p} key={p.slug} flagship={i === 0} />)}
         </div>
         <SyncDiagram />
 

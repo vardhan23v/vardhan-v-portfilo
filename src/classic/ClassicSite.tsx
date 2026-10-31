@@ -1,4 +1,6 @@
 import "@fontsource-variable/bricolage-grotesque";
+import { useRef } from "react";
+import { useClassicEffects } from "./useEffects";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
 import { About } from "./components/About";
@@ -16,8 +18,10 @@ import "./styles/classic.css";
  * and motion is kept to feedback that explains an interaction.
  */
 export function ClassicSite() {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const js = useClassicEffects(rootRef);
   return (
-    <div className="classic-root" data-cursor-accent="classic">
+    <div className={`classic-root${js ? " js" : ""}`} ref={rootRef} data-cursor-accent="classic">
       <NightSky />
       <a href="#main" className="skip-link">Skip to content</a>
       <Navbar />

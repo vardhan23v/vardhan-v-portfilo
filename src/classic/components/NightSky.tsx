@@ -40,16 +40,34 @@ const STARS: Star[] = (() => {
 export function NightSky() {
   return (
     <svg className="sky" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
-      {STARS.map((s, i) => (
-        <circle
-          key={i}
-          cx={s.x}
-          cy={s.y}
-          r={s.r}
-          className={s.twinkle !== undefined ? "star star--twinkle" : "star"}
-          style={{ opacity: s.o, ...(s.twinkle !== undefined ? { animationDelay: `${s.twinkle * -1.3}s`, animationDuration: `${7 + (s.twinkle % 4)}s` } : null) } as React.CSSProperties}
-        />
+      <defs>
+        <linearGradient id="shoot-tail" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#e9eef8" stopOpacity="0" />
+          <stop offset="1" stopColor="#e9eef8" stopOpacity="0.9" />
+        </linearGradient>
+      </defs>
+      {/* Two depth layers: small, dim stars are far and drift less as the page scrolls. */}
+      {(["far", "near"] as const).map((layer) => (
+        <g key={layer} className={`sky-layer sky-layer--${layer}`}>
+          {STARS.map((s, i) => ((s.r >= 1.05) === (layer === "near") ? (
+            <circle
+              key={i}
+              cx={s.x}
+              cy={s.y}
+              r={s.r}
+              className={s.twinkle !== undefined ? "star star--twinkle" : "star"}
+              style={{ opacity: s.o, ...(s.twinkle !== undefined ? { animationDelay: `${s.twinkle * -1.3}s`, animationDuration: `${7 + (s.twinkle % 4)}s` } : null) } as React.CSSProperties}
+            />
+          ) : null))}
+        </g>
       ))}
+      {/* One shooting star in the upper-left margin, now and then. */}
+      <g transform="translate(110 70) rotate(24)">
+        <g className="shoot">
+          <line x1="-90" y1="0" x2="0" y2="0" stroke="url(#shoot-tail)" strokeWidth="1.4" strokeLinecap="round" />
+          <circle cx="0" cy="0" r="1.6" className="star" />
+        </g>
+      </g>
     </svg>
   );
 }

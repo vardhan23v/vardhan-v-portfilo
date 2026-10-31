@@ -84,8 +84,8 @@ export function SyncDiagram() {
           <text className="sync-label" x="112" y="218" textAnchor="middle">Countdown timer</text>
           <text className="sync-sub" x="112" y="238" textAnchor="middle">one clock for</text>
           <text className="sync-sub" x="112" y="254" textAnchor="middle">every screen</text>
-          <circle className="timer-track" cx="176" cy="202" r="8" />
-          <circle className="timer-ring" cx="176" cy="202" r="8" pathLength={1} transform="rotate(-90 176 202)" />
+          <circle className="timer-track" cx="48" cy="258" r="7" />
+          <circle className="timer-ring" cx="48" cy="258" r="7" pathLength={1} transform="rotate(-90 48 258)" />
           <rect className="sync-box" x="208" y="186" width="160" height="88" rx="3" />
           <text className="sync-label" x="288" y="218" textAnchor="middle">Purse engine</text>
           <text className="sync-sub" x="288" y="238" textAnchor="middle">rejects bids a team</text>

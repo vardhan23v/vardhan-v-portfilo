@@ -1,37 +1,38 @@
 import { certifications, education, experience } from "../data/experience";
-import { useRef } from "react";
-import { Reveal } from "../hooks/useReveal";
-import { useLines } from "../motion/useLines";
+import { ROLE_DETAIL } from "../content";
+import { site } from "../data/site";
 
 const period = (p: string) => p.replace(" — ", " to ").replace("Present", "now");
 
 export function Experience() {
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  useLines(titleRef);
   return (
     <section className="xp" id="experience" aria-labelledby="xp-h2">
       <div className="wrap">
-        <Reveal as="div" className="section-head">
-          <h2 className="h2" id="xp-h2" ref={titleRef}>Experience</h2>
-          <p className="section-sub">{experience.length} roles since 2026, two of them ongoing. The site is the current record; the résumé is a summary.</p>
-        </Reveal>
-        <Reveal as="ol" className="xp-list">
-          {experience.map((e, i) => (
-            <li className={`xp-row${/present/i.test(e.period) ? " xp-row--now" : ""}`} key={e.company + e.role} style={{ "--i": i } as React.CSSProperties}>
-              <span className="xp-dot" aria-hidden="true" />
-              <p className="xp-period">{period(e.period)}</p>
-              <div className="xp-main">
-                <h3 className="xp-role">{e.role}</h3>
-                <p className="xp-co">{e.company}</p>
-                <ul className="xp-points">
-                  {e.points.slice(0, 2).map((pt) => <li key={pt}>{pt}</li>)}
-                </ul>
-              </div>
-            </li>
-          ))}
-        </Reveal>
+        <div className="section-head">
+          <h2 className="h2" id="xp-h2">Experience</h2>
+          <p className="section-sub">
+            {experience.length} roles since March 2026. <a href={site.resume} download="sree-vardhan-v-resume.pdf">Download the résumé (PDF)</a>
+          </p>
+        </div>
+        <ol className="xp-list">
+          {experience.map((e) => {
+            const now = /present/i.test(e.period);
+            return (
+              <li className="xp-row" key={e.company + e.role}>
+                <p className="xp-period">{period(e.period)}{now && <span className="xp-now">Current role</span>}</p>
+                <div className="xp-main">
+                  <h3 className="xp-role">{e.role}</h3>
+                  <p className="xp-co">{e.company}</p>
+                  <ul className="xp-points">
+                    {(ROLE_DETAIL[e.company] ?? e.points.slice(0, 2)).map((pt) => <li key={pt}>{pt}</li>)}
+                  </ul>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
         <div className="xp-aside">
-          <Reveal as="div" className="xp-block">
+          <div className="xp-block">
             <h3 className="h3">Education</h3>
             <ul className="plain-list">
               {education.map((e) => (
@@ -41,8 +42,8 @@ export function Experience() {
                 </li>
               ))}
             </ul>
-          </Reveal>
-          <Reveal as="div" className="xp-block" delay="reveal-d1">
+          </div>
+          <div className="xp-block">
             <h3 className="h3">Certificates</h3>
             <ul className="plain-list">
               {certifications.map((c) => {
@@ -55,7 +56,7 @@ export function Experience() {
                 );
               })}
             </ul>
-          </Reveal>
+          </div>
         </div>
       </div>
     </section>

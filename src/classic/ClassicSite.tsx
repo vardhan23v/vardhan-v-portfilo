@@ -1,37 +1,26 @@
-import { useEffect, useState } from "react";
+import "@fontsource-variable/bricolage-grotesque";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
-import { Figures } from "./components/Figures";
 import { Work } from "./components/Work";
-import { About } from "./components/About";
 import { Experience } from "./components/Experience";
 import { Skills } from "./components/Skills";
 import { Contact } from "./components/Contact";
 import { Footer } from "./components/Footer";
-import { StackMarquee } from "./components/StackMarquee";
-import { useMagnetic } from "../hooks/useMagnetic";
 import "./styles/classic.css";
 
 /**
- * Classic — the recruiter edition. Icy-blue ground, ink-blue text, one royal-blue accent, Inter throughout; the flagship
- * product runs live beside the introduction and every project is a card with the real app in it.
+ * Classic — the recruiter edition. Warm paper ground, charcoal text, one deep-green accent;
+ * Bricolage Grotesque for headings, Inter for reading. Four projects lead, the rest are browsable,
+ * and motion is kept to feedback that explains an interaction.
  */
 export function ClassicSite() {
-  // Motion pre-states only apply once script has run (".js"), so nothing is ever hidden without it.
-  const [js, setJs] = useState(false);
-  useEffect(() => setJs(true), []);
-  // Primary actions ease toward a fine pointer (no-op on touch and under reduced motion).
-  useMagnetic(".classic-root .btn--magnetic", 0.25, 8);
   return (
-    <div className={`classic-root${js ? " js" : ""}`} data-cursor-accent="classic">
+    <div className="classic-root" data-cursor-accent="classic">
       <a href="#main" className="skip-link">Skip to content</a>
       <Navbar />
       <main id="main">
         <Hero />
-        <Figures />
-        <StackMarquee />
         <Work />
-        <About />
         <Experience />
         <Skills />
         <Contact />

@@ -1,89 +1,108 @@
-import { useRef } from "react";
-import { CATEGORY_LABEL, featuredProjects, type Project } from "../data/projects";
-import { Reveal, useReveal } from "../hooks/useReveal";
+import { useId, useMemo, useState } from "react";
+import { CATEGORY_LABEL, featuredProjects, type Project, type ProjectCategory } from "../data/projects";
+import { CREDIT, FEATURED_SLUGS, KEY_WORK } from "../content";
 import { embeddable, framesOf } from "../lib/frames";
 import { LiveFrame } from "./LiveFrame";
-import { useLines } from "../motion/useLines";
-import { useSpotlight } from "../motion/useSpotlight";
+import { SyncDiagram } from "./SyncDiagram";
 
-function TypesetCard({ p }: { p: Project }) {
+const featured = FEATURED_SLUGS.map((s) => featuredProjects.find((p) => p.slug === s)).filter((p): p is Project => Boolean(p));
+const rest = featuredProjects.filter((p) => !featured.includes(p));
+const CATEGORIES = (["ai", "full-stack", "tool"] as ProjectCategory[]).filter((c) => rest.some((p) => p.category === c));
+const INITIAL = 4;
+
+const stack = (p: Project, n: number) => p.tech.slice(0, n).join(" · ");
+
+function Links({ p }: { p: Project }) {
   return (
-    <div className="frame-text" role="img" aria-label={`${p.name}: ${p.tagline}`}>
-      <p className="frame-text-name">{p.name}</p>
-      <p className="frame-text-tag">{p.tagline}</p>
-    </div>
+    <p className="links">
+      {p.live && <a className="link" href={p.live} target="_blank" rel="noopener noreferrer">Live app<span className="sr-only"> for {p.name} (opens in a new tab)</span></a>}
+      <a className="link" href={p.github} target="_blank" rel="noopener noreferrer">Source<span className="sr-only"> for {p.name} on GitHub (opens in a new tab)</span></a>
+    </p>
   );
 }
 
-/** The project's first frame: the live app when it can be framed, else its capture, else type. */
-function Frame({ p, eager }: { p: Project; eager?: boolean }) {
-  const frames = framesOf(p);
+function Featured({ p }: { p: Project }) {
+  const shot = framesOf(p)[0];
   const live = embeddable(p);
-  const poster = frames[0]
-    ? <img src={frames[0]} alt={`${p.name}, the app on a desktop screen`} width={1440} height={900} loading={eager ? "eager" : "lazy"} decoding="async" />
-    : <TypesetCard p={p} />;
+  const img = shot ? <img src={shot} alt={`${p.name}, screenshot of the app`} width={1440} height={900} loading="lazy" decoding="async" /> : null;
   return (
-    <div className={`card-frame${live ? " card-frame--live" : ""}${frames[0] ? "" : " card-frame--text"}`}>
-      {live ? <LiveFrame url={live} name={p.name} poster={poster} /> : poster}
-    </div>
+    <article className="feature" id={`work-${p.slug}`}>
+      {img && <div className="feature-shot">{live ? <LiveFrame url={live} name={p.name} poster={img} /> : img}</div>}
+      <div className="feature-body">
+        <h3 className="feature-name">{p.name}</h3>
+        <p className="feature-tag">{p.tagline}</p>
+        <dl className="spec">
+          <div><dt>What I built</dt><dd>{KEY_WORK[p.slug] ?? p.features.slice(0, 3).join(", ")}</dd></div>
+          <div><dt>Stack</dt><dd>{stack(p, 5)}</dd></div>
+          {CREDIT[p.slug] && <div><dt>Context</dt><dd>{CREDIT[p.slug]}</dd></div>}
+        </dl>
+        <Links p={p} />
+      </div>
+    </article>
   );
 }
 
-function Card({ p, i, featured }: { p: Project; i: number; featured?: boolean }) {
-  const extra = p.tech.length - 5;
-  // Each card knows when it has been seen, so its chips pop as it arrives rather than with the grid.
-  const ref = useReveal<HTMLElement>({ visibleClass: "is-seen", rootMargin: "0px 0px -6% 0px", threshold: 0.12, failSafe: true });
+function Compact({ p }: { p: Project }) {
+  const shot = framesOf(p)[0];
   return (
-    <article ref={ref} className={`card${featured ? " card--featured" : ""}`} id={`work-${p.slug}`} style={{ "--i": i } as React.CSSProperties}>
-      <Frame p={p} eager={featured} />
-      <div className="card-body">
-        <div className="card-top">
-          <h3 className="card-name">{p.name}</h3>
-          <span className="pill" data-cat={p.category}>{CATEGORY_LABEL[p.category]}</span>
-        </div>
-        <p className="card-tag">{p.tagline}</p>
-        {featured && <p className="card-problem">{p.problem}</p>}
-        <ul className="card-feats" aria-label="What it does">
-          {p.features.slice(0, featured ? 5 : 3).map((f, n) => <li key={f} style={{ "--n": n } as React.CSSProperties}>{f}</li>)}
-        </ul>
-        <ul className="card-tech" aria-label="Built with">
-          {p.tech.slice(0, 5).map((t, c) => <li className="chip" key={t} style={{ "--c": c } as React.CSSProperties}>{t}</li>)}
-          {extra > 0 && <li className="chip chip--more" style={{ "--c": 5 } as React.CSSProperties}>+{extra} more</li>}
-        </ul>
-        <p className="card-meta">
-          <span>{p.year ?? "2026"}</span>
-          <span>{p.role ?? "Sole builder"}</span>
-        </p>
-        <p className="card-links">
-          {p.live && <a className="card-link" href={p.live} target="_blank" rel="noopener noreferrer">Live app</a>}
-          <a className="card-link" href={p.github} target="_blank" rel="noopener noreferrer">Source</a>
-        </p>
+    <article className={`compact${shot ? "" : " compact--text"}`} id={`work-${p.slug}`}>
+      {shot && <img className="compact-thumb" src={shot} alt="" width={1440} height={900} loading="lazy" decoding="async" />}
+      <div className="compact-body">
+        <h4 className="compact-name">{p.name} <span className="compact-cat">{CATEGORY_LABEL[p.category]}</span></h4>
+        <p className="compact-tag">{p.tagline}</p>
+        <p className="compact-work">{KEY_WORK[p.slug]}</p>
+        <p className="meta">{stack(p, 3)}{CREDIT[p.slug] && <> · {CREDIT[p.slug]}</>}</p>
+        <Links p={p} />
       </div>
     </article>
   );
 }
 
 export function Work() {
-  const [first, ...rest] = featuredProjects;
-  const sectionRef = useRef<HTMLElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  useLines(titleRef);
-  useSpotlight(sectionRef, ".card");
+  const [cat, setCat] = useState<ProjectCategory | "all">("all");
+  const [expanded, setExpanded] = useState(false);
+  const listId = useId();
+  const filtered = useMemo(() => (cat === "all" ? rest : rest.filter((p) => p.category === cat)), [cat]);
+  // "All" starts short; a chosen category shows everything in it.
+  const shown = cat === "all" && !expanded ? filtered.slice(0, INITIAL) : filtered;
+  const hidden = filtered.length - shown.length;
+
   return (
-    <section className="work" id="work" aria-labelledby="work-h2" ref={sectionRef}>
+    <section className="work" id="work" aria-labelledby="work-h2">
       <div className="wrap">
-        <Reveal as="div" className="section-head">
-          <h2 className="h2" id="work-h2" ref={titleRef}>Selected work</h2>
-          <p className="section-sub">
-            {featuredProjects.length} products, each shipped with source. Where the app allows it, the card runs the live site itself; press “Try it here” to use it in place.
-          </p>
-        </Reveal>
-        <Reveal as="div" className="work-featured" options={{ rootMargin: "0px 0px 20% 0px" }}>
-          <Card p={first} i={0} featured />
-        </Reveal>
-        <Reveal as="div" className="work-grid">
-          {rest.map((p, i) => <Card p={p} i={i} key={p.slug} />)}
-        </Reveal>
+        <div className="section-head">
+          <h2 className="h2" id="work-h2">Selected work</h2>
+          <p className="section-sub">Four products that show the range: AI pipelines, real-time systems and research tooling. Each one is open source; most are live.</p>
+        </div>
+        <div className="features">
+          {featured.map((p) => <Featured p={p} key={p.slug} />)}
+        </div>
+        <SyncDiagram />
+
+        <div className="more">
+          <div className="more-head">
+            <h3 className="h3" id="more-h3">More projects</h3>
+            <div className="filters" role="group" aria-label="Filter projects by category">
+              {(["all", ...CATEGORIES] as const).map((c) => {
+                const n = c === "all" ? rest.length : rest.filter((p) => p.category === c).length;
+                return (
+                  <button key={c} type="button" className="filter" aria-pressed={cat === c} aria-controls={listId} onClick={() => { setCat(c); setExpanded(false); }}>
+                    {c === "all" ? "All" : CATEGORY_LABEL[c]} <span className="filter-n">{n}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <p className="sr-only" role="status">{`Showing ${shown.length} of ${filtered.length} ${cat === "all" ? "" : CATEGORY_LABEL[cat] + " "}projects`}</p>
+          <div className="compacts" id={listId} aria-labelledby="more-h3">
+            {shown.map((p) => <Compact p={p} key={p.slug} />)}
+          </div>
+          {cat === "all" && (hidden > 0 || expanded) && (
+            <button type="button" className="btn btn--secondary more-toggle" aria-expanded={expanded} aria-controls={listId} onClick={() => setExpanded((v) => !v)}>
+              {expanded ? "Show fewer projects" : `Show ${hidden} more project${hidden === 1 ? "" : "s"}`}
+            </button>
+          )}
+        </div>
       </div>
     </section>
   );

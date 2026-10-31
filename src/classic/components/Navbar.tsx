@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { site } from "../data/site";
-import { motionReduced } from "../../lib/motion";
 
 const LINKS = [
   { href: "#work", label: "Work" },
-  { href: "#about", label: "About" },
   { href: "#experience", label: "Experience" },
   { href: "#skills", label: "Skills" },
   { href: "#contact", label: "Contact" },
@@ -19,27 +17,16 @@ export function Navbar() {
   const indRef = useRef<HTMLSpanElement>(null);
   const [active, setActive] = useState<string | null>(null);
 
-  // Shadow once the page moves; slide away on the way down, back on the way up.
+  // A hairline shadow once the page has moved, so the bar reads as sitting above the content.
   useEffect(() => {
     const nav = headerRef.current;
     if (!nav) return;
-    let lastY = window.scrollY;
     let raf = 0;
-    const update = () => {
-      raf = 0;
-      const y = window.scrollY;
-      nav.classList.toggle("is-scrolled", y > 8);
-      const busy = nav.contains(document.activeElement) || document.documentElement.style.overflow === "hidden";
-      const hide = !motionReduced() && !busy && y > Math.max(600, window.innerHeight * 0.8) && y > lastY + 2;
-      if (hide) nav.classList.add("is-hidden");
-      else if (y < lastY - 2 || y <= 600 || busy) nav.classList.remove("is-hidden");
-      lastY = y;
-    };
+    const update = () => { raf = 0; nav.classList.toggle("is-scrolled", window.scrollY > 8); };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    nav.addEventListener("focusin", onScroll);
-    return () => { window.removeEventListener("scroll", onScroll); nav.removeEventListener("focusin", onScroll); if (raf) cancelAnimationFrame(raf); };
+    return () => { window.removeEventListener("scroll", onScroll); if (raf) cancelAnimationFrame(raf); };
   }, []);
 
   // The section in the middle band of the viewport is the current one.
@@ -117,6 +104,8 @@ export function Navbar() {
         <div className="nav-sheet-foot">
           <a className="btn" href="#contact" onClick={() => setOpen(false)}>Contact me</a>
           <a className="btn btn--secondary" href={site.resume} download="sree-vardhan-v-resume.pdf">Résumé</a>
+          <a className="btn btn--secondary" href={site.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a className="btn btn--secondary" href={site.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
           <button type="button" className="btn btn--ghost" onClick={() => { setOpen(false); buttonRef.current?.focus(); }}>Close</button>
         </div>
       </div>

@@ -1,51 +1,38 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 /**
- * The live product itself, scaled into the frame. The poster (a capture or a typeset card) shows
- * until the page has loaded; the embed is a quiet preview until the visitor asks to interact,
- * so wheel and touch keep scrolling the portfolio. Phones get the poster only.
+ * A real screenshot first. "Try it live" swaps in the running app, scaled to the frame; "Back to
+ * screenshot" returns. Nothing loads until asked, so the page stays light. Wide screens only:
+ * on phones the card's "Live app" link opens the site instead.
  */
 export function LiveFrame({ url, name, poster }: { url: string; name: string; poster: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [mount, setMount] = useState(false);
+  const [open, setOpen] = useState(false);
   const [ready, setReady] = useState(false);
-  const [interactive, setInteractive] = useState(false);
   const [scale, setScale] = useState(0.5);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
-    const wide = window.matchMedia("(min-width: 721px)");
-    if (!wide.matches || typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setMount(true); io.disconnect(); } }, { rootMargin: "600px 0px" });
-    io.observe(el);
+    if (!el || typeof ResizeObserver === "undefined") return;
     const ro = new ResizeObserver(([e]) => setScale(e.contentRect.width / 1440));
     ro.observe(el);
-    return () => { io.disconnect(); ro.disconnect(); };
+    return () => ro.disconnect();
   }, []);
 
+  const close = () => { setOpen(false); setReady(false); };
+
   return (
-    <div className={`live-frame${ready ? " is-ready" : ""}${interactive ? " is-interactive" : ""}`} ref={ref} style={{ "--scale": scale } as React.CSSProperties}>
+    <div className={`live-frame${open ? " is-open" : ""}${ready ? " is-ready" : ""}`} ref={ref} style={{ "--scale": scale } as React.CSSProperties}>
       <div className="live-frame-poster" aria-hidden={ready ? "true" : undefined}>{poster}</div>
-      {mount && (
-        <iframe
-          className="live-frame-embed"
-          src={url}
-          title={`${name}, the live app`}
-          loading="lazy"
-          referrerPolicy="no-referrer"
-          tabIndex={interactive ? undefined : -1}
-          onLoad={() => setTimeout(() => setReady(true), 900)}
-        />
+      {open && (
+        <iframe className="live-frame-embed" src={url} title={`${name}, the live app`} referrerPolicy="no-referrer" onLoad={() => setReady(true)} />
       )}
-      {ready && (
-        <div className="live-frame-bar">
-          <span className="live-frame-live">Live</span>
-          <button type="button" className="live-frame-toggle" onClick={() => setInteractive((v) => !v)} aria-pressed={interactive}>
-            {interactive ? "Done" : "Try it here"}
-          </button>
-        </div>
-      )}
+      <div className="live-frame-bar">
+        {open && !ready && <span className="live-frame-note" role="status">Loading the live app…</span>}
+        <button type="button" className="live-frame-toggle" onClick={() => (open ? close() : setOpen(true))} aria-pressed={open}>
+          {open ? "Back to screenshot" : "Try it live"}
+        </button>
+      </div>
     </div>
   );
 }

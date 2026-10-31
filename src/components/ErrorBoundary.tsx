@@ -90,6 +90,28 @@ export function ErrorFallback({ message }: { message?: string }) {
   );
 }
 
+/**
+ * A lazy edition's code failed to download: the dev server was stopped, or a new deploy renamed the
+ * hashed chunks while this tab still holds the old page. One fresh load fetches the current files.
+ * Guarded per URL and per minute, so a real outage shows the fallback instead of reloading forever.
+ */
+const CHUNK_ERROR = /Failed to fetch dynamically imported module|error loading dynamically imported module|Importing a module script failed|Unable to preload CSS/i;
+export function reloadOnceForChunkError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error ?? "");
+  if (!CHUNK_ERROR.test(message) || typeof window === "undefined") return false;
+  const key = `chunk-reload:${window.location.pathname}`;
+  try {
+    // At most one automatic reload per page per minute; anything more is a real outage.
+    const last = Number(sessionStorage.getItem(key) ?? 0);
+    if (Date.now() - last < 60_000) return false;
+    sessionStorage.setItem(key, String(Date.now()));
+  } catch {
+    return false;
+  }
+  window.location.reload();
+  return true;
+}
+
 interface State {
   error: Error | null;
 }
@@ -103,6 +125,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
+    if (reloadOnceForChunkError(error)) return;
     console.error("[ErrorBoundary]", error, info.componentStack);
   }
 
@@ -122,6 +145,7 @@ export function RouteError() {
       : typeof err === "string"
         ? err
         : undefined;
+  if (reloadOnceForChunkError(err)) return null;
   console.error("[RouteError]", err);
   return <ErrorFallback message={message} />;
 }

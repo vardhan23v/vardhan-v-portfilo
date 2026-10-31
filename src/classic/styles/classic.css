@@ -1,26 +1,26 @@
-/* Classic — the recruiter edition. Cream ground, warm ink, one burnt-orange accent, Inter throughout.
+/* Classic — the recruiter edition. Icy-blue ground, ink-blue text, one royal-blue accent, Inter throughout.
    Tokens first; everything below references them only. */
 .classic-root {
-  --bg: #faf7f2;
+  --bg: #f2f6fd;
   --surface: #ffffff;
-  --surface-2: #f2ede5;
-  --line: #e7e0d5;
-  --line-strong: #cdc3b5;
-  --ink: #1c1917;
-  --ink-2: #3d3731;
-  --muted: #6b625a;
-  --accent: #c2410c;
-  --accent-strong: #9a3412;
-  --accent-soft: #fdeee4;
+  --surface-2: #e8eef9;
+  --line: #dbe3f0;
+  --line-strong: #b9c6db;
+  --ink: #0b1a33;
+  --ink-2: #2c3b55;
+  --muted: #4f5f78;
+  --accent: #1d4ed8;
+  --accent-strong: #1e3a8a;
+  --accent-soft: #e0e9fc;
   --accent-ink: #ffffff;
   --ok: #15803d;
   --danger: #b42318;
-  --cat-ai-bg: #fdeee4;
-  --cat-ai-ink: #9a3412;
-  --cat-fs-bg: #e3f1ea;
-  --cat-fs-ink: #1d6b4f;
-  --cat-tool-bg: #e8edf6;
-  --cat-tool-ink: #2f4a7a;
+  --cat-ai-bg: #e0e9fc;
+  --cat-ai-ink: #1e3a8a;
+  --cat-fs-bg: #dcf3ef;
+  --cat-fs-ink: #0f5e56;
+  --cat-tool-bg: #fce7ee;
+  --cat-tool-ink: #9f1239;
 
   --max: 1200px;
   --pad: clamp(16px, 4vw, 40px);
@@ -29,7 +29,7 @@
   --r-sm: 6px;
   --r: 12px;
   --r-lg: 18px;
-  --shadow-frame: 0 1px 2px rgba(28, 25, 23, 0.06), 0 28px 56px -28px rgba(28, 25, 23, 0.28);
+  --shadow-frame: 0 1px 2px rgba(11, 26, 51, 0.06), 0 28px 56px -28px rgba(11, 26, 51, 0.3);
 
   --font-text: "Inter Variable", "Inter", system-ui, -apple-system, sans-serif;
   --t-small: 13px;

@@ -20,7 +20,9 @@ export function useClassicEffects(rootRef: RefObject<HTMLElement | null>) {
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
-    if (motionReduced() || typeof IntersectionObserver === "undefined") return;
+    // A hidden page (a background tab, or an embedded preview that reports itself hidden) never
+    // ticks transitions, so faded-out blocks would stay invisible: show everything as-is instead.
+    if (motionReduced() || typeof IntersectionObserver === "undefined" || document.visibilityState !== "visible") return;
 
     const items = Array.from(root.querySelectorAll<HTMLElement>(REVEAL));
     // Stagger siblings that share a parent (feature cards, timeline rows, skill rows).
@@ -31,12 +33,20 @@ export function useClassicEffects(rootRef: RefObject<HTMLElement | null>) {
       el.style.setProperty("--rv", String(Math.min(n, 5)));
       el.setAttribute("data-reveal", "");
     }
+    // Once shown, the block drops its reveal attributes after the fade, so it can never be stranded
+    // at opacity 0 where transitions do not tick (hidden or throttled pages, embedded previews).
+    const timers: number[] = [];
+    const show = (el: Element) => {
+      if (el.hasAttribute("data-in")) return;
+      el.setAttribute("data-in", "");
+      timers.push(window.setTimeout(() => { el.removeAttribute("data-reveal"); el.removeAttribute("data-in"); }, 1400));
+    };
     const io = new IntersectionObserver((entries) => {
-      for (const e of entries) if (e.isIntersecting) { e.target.setAttribute("data-in", ""); io.unobserve(e.target); }
+      for (const e of entries) if (e.isIntersecting) { show(e.target); io.unobserve(e.target); }
     }, { rootMargin: "0px 0px 10% 0px", threshold: 0 });
     const vh = window.innerHeight;
     for (const el of items) {
-      if (el.getBoundingClientRect().top < vh) el.setAttribute("data-in", "");
+      if (el.getBoundingClientRect().top < vh) show(el);
       else io.observe(el);
     }
 
@@ -59,17 +69,22 @@ export function useClassicEffects(rootRef: RefObject<HTMLElement | null>) {
     const reveal = () => {
       sweep = 0;
       const fold = window.innerHeight;
-      for (const el of items) if (!el.hasAttribute("data-in") && el.getBoundingClientRect().top < fold) { el.setAttribute("data-in", ""); io.unobserve(el); }
+      for (const el of items) if (!el.hasAttribute("data-in") && el.getBoundingClientRect().top < fold) { show(el); io.unobserve(el); }
     };
     const onScroll = () => { if (!sweep) sweep = requestAnimationFrame(reveal); root.setAttribute("data-scrolling", ""); window.clearTimeout(idle); idle = window.setTimeout(() => root.removeAttribute("data-scrolling"), 500); };
     window.addEventListener("scroll", onScroll, { passive: true });
+    // If the page goes hidden mid-way, drop the pre-states so nothing is stranded at opacity 0.
+    const onHide = () => { if (document.visibilityState !== "visible") { io.disconnect(); for (const el of items) el.removeAttribute("data-reveal"); } };
+    document.addEventListener("visibilitychange", onHide);
 
     const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
     if (fine) root.addEventListener("pointermove", onMove, { passive: true });
 
     return () => {
       io.disconnect();
+      timers.forEach((t) => window.clearTimeout(t));
       window.removeEventListener("scroll", onScroll);
+      document.removeEventListener("visibilitychange", onHide);
       window.clearTimeout(idle);
       if (sweep) cancelAnimationFrame(sweep);
       root.removeAttribute("data-scrolling");

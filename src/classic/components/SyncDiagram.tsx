@@ -17,7 +17,7 @@ export function SyncDiagram() {
           <li><strong>Broadcast.</strong> The new price, leader and remaining time go back to every screen at once.</li>
         </ol>
         <p className="sync-links">
-          <a href="#work-hpl-auction">HPL Auction above</a>
+          <a href="#work-hpl-auction">Back to the HPL Auction project</a>
         </p>
       </div>
       <svg className="sync-svg" viewBox="0 0 400 452" role="presentation" aria-hidden="true" focusable="false">

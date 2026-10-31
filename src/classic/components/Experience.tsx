@@ -46,16 +46,19 @@ export function Experience() {
           <div className="xp-block">
             <h3 className="h3">Certificates</h3>
             <ul className="plain-list">
-              {certifications.map((c) => {
+              {certifications.filter((c) => c.includes(" — ")).map((c) => {
                 const [name, issuer] = c.split(" — ");
                 return (
                   <li key={c}>
                     <strong>{name}</strong>
-                    {issuer && <span>{issuer}</span>}
+                    <span>{issuer}</span>
                   </li>
                 );
               })}
             </ul>
+            {certifications.some((c) => !c.includes(" — ")) && (
+              <p className="also">Also completed: {certifications.filter((c) => !c.includes(" — ")).join(", ")}.</p>
+            )}
           </div>
         </div>
       </div>

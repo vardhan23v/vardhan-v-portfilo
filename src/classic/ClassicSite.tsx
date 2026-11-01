@@ -55,9 +55,9 @@ export function ClassicSite() {
         <Stats />
         <About />
         <Work />
-        <Process />
         <Experience />
         <Skills />
+        <Process />
         <Contact />
       </main>
       <Footer />

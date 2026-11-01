@@ -1,4 +1,5 @@
 import { stats } from "../data/stats";
+import { featuredProjects } from "../data/projects";
 import { Count } from "./Count";
 
 /** Four numbers taken straight from the data files (projects, live sites, roles, tools). */
@@ -7,7 +8,7 @@ export function Stats() {
     { n: stats.featured, label: "products built", sub: "all open source" },
     { n: stats.live, label: "live on the web", sub: "deployed and running" },
     { n: stats.roles, label: "roles since 2026", sub: "internships and testing" },
-    { n: stats.tools, label: "tools in my stack", sub: "AI to production" },
+    { n: featuredProjects.filter((p) => p.category === "ai").length, label: "AI products", sub: "agents, LLM apps, dev tools" },
   ];
   return (
     <section className="stats" aria-label="In numbers">

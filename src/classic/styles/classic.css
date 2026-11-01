@@ -646,3 +646,38 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
 .classic-root .compact[data-cat="tool"] { border-left-color: rgba(246, 215, 160, 0.6); }
 @media (hover: hover) { .classic-root .compact:hover { background: rgba(24, 38, 69, 0.75); border-top-color: rgba(156, 192, 255, 0.35); border-right-color: rgba(156, 192, 255, 0.35); border-bottom-color: rgba(156, 192, 255, 0.35); } }
 @media (max-width: 640px) { .classic-root .compact { padding: 14px 12px; } }
+
+/* ==========================================================================
+   Review pass: fewer boxes, one focal action, shorter page.
+   ========================================================================== */
+/* Section numbers removed: they stopped short of Contact and added a fourth type voice. */
+.classic-root .section-head::after { content: none; }
+
+/* Flat lists for supporting facts; cards are kept for projects and roles only. */
+.classic-root .card-list { gap: 0; }
+.classic-root .card-list li { padding: 12px 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: none; }
+.classic-root .build { padding: 14px 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: none; }
+.classic-root .builds-list { column-gap: clamp(20px, 3vw, 36px); row-gap: 0; margin-top: 14px; }
+.classic-root .builds .meta { margin-top: -6px; }
+.classic-root .builds .more-toggle { margin-top: 16px; }
+.classic-root .skill-row { background: none; box-shadow: none; }
+
+/* "More projects": the tagline carries each row; the build detail lives in the Details dialog. */
+.classic-root .compact-work { display: none; }
+
+/* Hero: the résumé is a quiet text action next to the one primary button. */
+.classic-root .hero-actions .btn--ghost { padding-inline: 8px; }
+
+.classic-root .chip-more { cursor: pointer; border-style: dashed; color: var(--accent); background: none; font: inherit; font-size: 13px; }
+
+@media (max-width: 640px) {
+  .classic-root .glance { display: none; }
+  .classic-root .hero { padding-bottom: 8px; }
+  .classic-root .compact { grid-template-columns: 1fr; }
+  .classic-root .compact-thumb { display: none; }
+  .classic-root .features .feature .spec > div { grid-template-columns: 1fr; gap: 2px; }
+}
+/* One column (tablet and phone): the three supporting projects show name, line, stack and links; the datasheet is one tap away in Details. */
+@media (max-width: 900px) {
+  .classic-root .features .feature:not(.feature--flagship) .spec > div:not(:nth-child(2)) { display: none; }
+}

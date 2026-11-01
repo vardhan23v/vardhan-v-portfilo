@@ -1,4 +1,7 @@
+import { useState } from "react";
 import { skillCategories } from "../data/skills";
+
+const FIRST = 6;
 import { usedIn } from "../data/stats";
 
 /** Small line glyphs drawn for this page, one per category; decorative. */
@@ -12,12 +15,13 @@ const GLYPH: Record<string, string> = {
 };
 
 export function Skills() {
+  const [open, setOpen] = useState<Record<string, boolean>>({});
   return (
     <section className="skills" id="skills" aria-labelledby="skills-h2">
       <div className="wrap">
         <div className="section-head">
           <h2 className="h2" id="skills-h2">Skills</h2>
-          <p className="section-sub">Grouped the way the projects above use them. The small number is how many projects use that tool.</p>
+          <p className="section-sub">Grouped the way the projects above use them. The small number shows how many projects use it.</p>
         </div>
         <dl className="skills-list">
           {skillCategories.map((c) => (
@@ -29,10 +33,15 @@ export function Skills() {
               <dd>
                 <span className="sr-only">{c.items.map((s) => (usedIn(s.name) ? `${s.name} (used in ${usedIn(s.name)} projects)` : s.name)).join(", ")}</span>
                 <span className="chips" aria-hidden="true">
-                  {c.items.map((s, w) => (
-                    <span className="chip sk-word" key={s.name} style={{ "--w": w } as React.CSSProperties}>{s.name}{usedIn(s.name) > 0 && <b className="chip-n">{usedIn(s.name)}</b>}</span>
+                  {(open[c.label] ? c.items : c.items.slice(0, FIRST)).map((s, w) => (
+                    <span className="chip sk-word" key={s.name} style={{ "--w": w } as React.CSSProperties}>{s.name}{usedIn(s.name) > 1 && <b className="chip-n">{usedIn(s.name)}</b>}</span>
                   ))}
                 </span>
+                {c.items.length > FIRST && (
+                  <button type="button" className="chip chip-more" aria-expanded={!!open[c.label]} onClick={() => setOpen((o) => ({ ...o, [c.label]: !o[c.label] }))}>
+                    {open[c.label] ? "Show less" : `+${c.items.length - FIRST} more`}
+                  </button>
+                )}
               </dd>
             </div>
           ))}

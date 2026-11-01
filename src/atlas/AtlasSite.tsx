@@ -12,6 +12,8 @@ import { mailtoHref, sendMessage } from "../lib/contact";
 import { caseStudyPath, hasCaseStudy } from "../work/links";
 import { GRID_COLS, GRID_ROWS, H, W, backdrop, terrain } from "./terrain";
 import { useContributions, useRepos, type Activity } from "./useLive";
+import { ContourField } from "./ContourField";
+import { useScrollProgress } from "./useScrollProgress";
 import "./styles/atlas.css";
 
 /* ---------- data, all derived from the portfolio's own records ---------- */
@@ -71,8 +73,9 @@ function Ruler() {
 function Head({ i, lead }: { i: number; lead: string }) {
   const s = SECTIONS[i];
   return (
-    <header className="atl-head">
+    <header className="atl-head" data-p="">
       <Ruler />
+      <span className="atl-band" aria-hidden="true" />
       <p className="atl-roman" aria-hidden="true">{s.roman}</p>
       <h2 id={`${s.id}-h`} className="atl-h2">{s.label}</h2>
       <p className="atl-lead">{lead}</p>
@@ -113,7 +116,7 @@ function TitleSheet({ activity, more }: { activity: number | null | "failed"; mo
     { icon: "datum", n: 5, count: "" },
   ];
   return (
-    <section className="atl-title" id="atl-top" aria-labelledby="atl-name">
+    <section className="atl-title" id="atl-top" aria-labelledby="atl-name" data-p="" data-range="exit">
       <ol className="atl-coords atl-coords--top" aria-hidden="true">{[...GRID_COLS].map((c) => <li key={c}>{c}</li>)}</ol>
       <ol className="atl-coords atl-coords--bottom" aria-hidden="true">{[...GRID_COLS].map((c) => <li key={c}>{c}</li>)}</ol>
       <ol className="atl-coords atl-coords--left" aria-hidden="true">{Array.from({ length: GRID_ROWS }, (_, i) => <li key={i}>{i + 1}</li>)}</ol>
@@ -286,9 +289,12 @@ function Plates() {
         {PLATES.map(({ p, s, n }, i) => {
           const shot = shotOf(p);
           return (
-            <li key={p.slug} id={`plate-${p.slug}`} className={`atl-plate atl-plate--${i % 3}`}>
+            <li key={p.slug} id={`plate-${p.slug}`} className={`atl-plate atl-plate--${i % 3}`} data-p="" {...(i === 0 ? { "data-range": "sticky" } : { "data-span": "0.7" })}>
+              <div className="atl-plate-stage">
               <p className="atl-plate-ref" aria-hidden="true"><span className="atl-tri" /> {n} {s.ref}</p>
               <div className="atl-plate-card">
+                <span className="atl-sv atl-sv-h" aria-hidden="true" />
+                <span className="atl-sv atl-sv-v" aria-hidden="true" />
                 <div className="atl-plate-inner">
                   {shot ? (
                     <img src={shot} alt={`${p.name}, screenshot of the app`} width={1440} height={900} loading="lazy" decoding="async" />
@@ -315,6 +321,7 @@ function Plates() {
                   <p><span>Source</span><a href={p.github} {...ext}>{repoPath(p.github)}<NewTab /></a></p>
                   {hasCaseStudy(p.slug) && <p><span>Case study</span><Link to={caseStudyPath(p.slug)} state={{ from: "/atlas" }}>Read the case study</Link></p>}
                 </div>
+              </div>
               </div>
             </li>
           );
@@ -349,7 +356,7 @@ function More({ rows, live }: { rows: Row[]; live: "loading" | "ok" | "failed" }
         </div>
         <ol className="atl-gaz-list" ref={list}>
           {rows.map((row, i) => (
-            <li key={row.url + row.n} id={`row-${row.n}`} data-i={i} onMouseEnter={() => setCur(i)} className={i === cur ? "is-cur" : undefined}>
+            <li key={row.url + row.n} id={`row-${row.n}`} data-i={i} data-p="" data-span="0.45" onMouseEnter={() => setCur(i)} className={i === cur ? "is-cur" : undefined}>
               <span className="atl-gaz-n">{row.n}</span>
               <span className="atl-tri atl-tri--hollow" aria-hidden="true" />
               <a className="atl-gaz-name" href={row.url} {...ext} onFocus={() => setCur(i)}>{row.name}<NewTab /></a>
@@ -371,8 +378,8 @@ function Skills() {
     <section className="atl-sec" id="atl-skills" aria-labelledby="atl-skills-h">
       <Head i={2} lead={`${SKILL_COUNT} entries in ${skillCategories.length} groups. The numbers after a name are the projects that use it.`} />
       <div className="atl-index">
-        {skillCategories.map((c) => (
-          <div key={c.label} className="atl-index-group">
+        {skillCategories.map((c, gi) => (
+          <div key={c.label} className="atl-index-group" data-p="" data-range="cover" style={{ "--rate": gi % 2 ? 1.7 : 1 } as CSSProperties}>
             <h3><span>{c.label}</span><span className="atl-index-count">{pad(c.items.length)}</span></h3>
             <ul>
               {c.items.map((s) => {
@@ -405,24 +412,7 @@ function smooth(pts: [number, number][]) {
   return d;
 }
 
-/** Adds `is-in` once the element is on screen, so the profile draws where it can be seen. */
-function useSeen<T extends HTMLElement>() {
-  const ref = useRef<T>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (typeof IntersectionObserver === "undefined") { el.classList.add("is-in"); return; }
-    const io = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) { el.classList.add("is-in"); io.disconnect(); }
-    }, { threshold: 0.35 });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-  return ref;
-}
-
 function ActivityBody({ a }: { a: Activity }) {
-  const seen = useSeen<HTMLDivElement>();
   const VW = 1000, VH = 300, TOP = 34, BASE = 280;
   const max = Math.max(1, ...a.weeks.map((w) => w.count));
   const n = a.weeks.length;
@@ -445,13 +435,14 @@ function ActivityBody({ a }: { a: Activity }) {
           <div><dt>Longest run</dt><dd>{a.longest} days</dd></div>
         </dl>
       </div>
-      <figure className="atl-profile">
-        <div className="atl-profile-plot" ref={seen}>
-          <svg viewBox={`0 0 ${VW} ${VH}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <figure className="atl-profile" data-p="" data-start="0.05" data-span="0.75">
+        <div className="atl-profile-plot">
+          <svg className="atl-ridge" viewBox={`0 0 ${VW} ${VH}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
             <path d={`${ridge}L${VW} ${VH}L0 ${VH}Z`} className="atl-profile-fill" />
-            <path d={ridge} className="atl-profile-line" pathLength={1} />
+            <path d={ridge} className="atl-profile-line" />
           </svg>
-          {peak && <p className={`atl-peak-tag${peak[0] / VW > 0.85 ? " is-flip" : ""}`} style={{ left: `${(peak[0] / VW) * 100}%`, top: `${(peak[1] / VH) * 100}%` }}><span className="atl-tri" aria-hidden="true" /> Peak, {a.busiest.count}</p>}
+          <span className="atl-ridge-front" aria-hidden="true" />
+          {peak && <p className={`atl-peak-tag${peak[0] / VW > 0.85 ? " is-flip" : ""}`} style={{ left: `${(peak[0] / VW) * 100}%`, top: `${(peak[1] / VH) * 100}%`, "--at": (peak[0] / VW).toFixed(3) } as CSSProperties}><span className="atl-tri" aria-hidden="true" /> Peak, {a.busiest.count}</p>}
         </div>
         <div className="atl-axis" aria-hidden="true">{months.map(({ i, d }) => <span key={i} style={{ left: `${(i / Math.max(1, n - 1)) * 100}%` }}>{d.toLocaleDateString("en-GB", { month: "short" })}</span>)}</div>
         <div className="atl-plan" aria-hidden="true" style={{ "--lead": lead } as CSSProperties}>
@@ -486,7 +477,7 @@ function Route() {
       <Head i={4} lead="Roles so far, newest first, as waypoints on one trail." />
       <ol className="atl-route">
         {experience.map((x, i) => (
-          <li key={x.company + x.role}>
+          <li key={x.company + x.role} data-p="" data-span="0.45">
             <span className="atl-gaz-n">{pad(i + 1)}</span>
             <span className="atl-route-mark" aria-hidden="true" />
             <div>
@@ -531,7 +522,7 @@ function Contact() {
     { label: "Résumé", sub: "PDF", href: site.resume, download: true },
   ];
   return (
-    <section className="atl-sec atl-contact" id="contact" aria-labelledby="contact-h">
+    <section className="atl-sec atl-contact" id="contact" aria-labelledby="contact-h" data-p="" data-span="0.8">
       <Ruler />
       <div className="atl-contact-left">
         <p className="atl-roman" aria-hidden="true">VI</p>
@@ -540,7 +531,7 @@ function Contact() {
         <svg className="atl-compass" viewBox="-60 -60 120 120" aria-hidden="true" focusable="false">
           <circle r="54" className="c1" /><circle r="44" className="c2" />
           {Array.from({ length: 48 }, (_, i) => { const a = (i / 48) * Math.PI * 2; const r0 = i % 4 === 0 ? 46 : 50; return <line key={i} x1={Math.cos(a) * r0} y1={Math.sin(a) * r0} x2={Math.cos(a) * 54} y2={Math.sin(a) * 54} />; })}
-          <path d="M0 -40 7 0 0 6 -7 0Z" className="n" /><path d="M0 40 4 0 0 6 -4 0Z" className="s" />
+          <g className="atl-needle"><path d="M0 -40 7 0 0 6 -7 0Z" className="n" /><path d="M0 40 4 0 0 6 -4 0Z" className="s" /></g>
           <text y="-30" className="t">N</text>
         </svg>
       </div>
@@ -598,10 +589,12 @@ export function AtlasSite() {
       : [];
     return [...liveRows, ...STATIC_ROWS].map((r, i) => ({ ...r, n: pad(featuredProjects.length + i + 1) }));
   }, [repos]);
+  const root = useRef<HTMLDivElement>(null);
+  useScrollProgress(root);
   return (
-    <div className="atlas" data-cursor-accent="atlas">
+    <div className="atlas" data-cursor-accent="atlas" ref={root}>
       <a className="atl-skip" href="#atl-projects">Skip to the projects</a>
-      <div className="atl-backdrop" aria-hidden="true"><Contours lines={BG} className="atl-bg-lines" /></div>
+      <ContourField fallback={<Contours lines={BG} className="atl-bg-lines" />} />
       <Bar rows={rows} />
       <main id="main">
         <TitleSheet activity={act.status === "ok" ? act.data.total : act.status === "failed" ? "failed" : null} more={rows.length} />

@@ -693,7 +693,7 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
 /* Hero canvas */
 .classic-root .hero { overflow: clip; padding-bottom: clamp(96px, 10vw, 150px); background: radial-gradient(60% 70% at 72% 30%, rgba(42, 79, 158, 0.45), transparent 70%), radial-gradient(40% 50% at 90% 12%, rgba(244, 197, 66, 0.10), transparent 70%); }
 .classic-root .painting { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: clip; }
-.classic-root .painting-sky { position: absolute; inset: 0; opacity: 0.9;
+.classic-root .depth--sky { position: absolute; inset: 0; opacity: 0.9;
   -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.3) 0, rgba(0, 0, 0, 0.3) 30%, #000 56%);
   mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.3) 0, rgba(0, 0, 0, 0.3) 30%, #000 56%); }
 .classic-root .paint { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -715,7 +715,7 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
 .classic-root .star.star--warm { fill: var(--accent); }
 @media (max-width: 1240px) { .classic-root .paint-cypress { display: none; } }
 @media (max-width: 900px) {
-  .classic-root .painting-sky { opacity: 0.55; -webkit-mask-image: linear-gradient(180deg, #000 0, rgba(0, 0, 0, 0.5) 60%); mask-image: linear-gradient(180deg, #000 0, rgba(0, 0, 0, 0.5) 60%); }
+  .classic-root .depth--sky { opacity: 0.55; -webkit-mask-image: linear-gradient(180deg, #000 0, rgba(0, 0, 0, 0.5) 60%); mask-image: linear-gradient(180deg, #000 0, rgba(0, 0, 0, 0.5) 60%); }
 }
 
 /* Surfaces: Prussian cards with a faint brushed top light; sections alternate bands. */
@@ -746,21 +746,82 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
   html:not([data-motion="reduce"]) .classic-root .hstar .halo { animation: halo 5s ease-in-out infinite alternate; animation-delay: calc(var(--i, 0) * -0.8s); }
   html:not([data-motion="reduce"]) .classic-root.js .painting { animation: canvas-in 1100ms var(--ease-cinema) both; }
   @supports (animation-timeline: scroll()) {
-    html:not([data-motion="reduce"]) .classic-root .painting-sky { animation: paint-par linear both; animation-timeline: scroll(root); animation-range: 0 900px; }
+    html:not([data-motion="reduce"]) .classic-root .painting-stage { animation: paint-par linear both; animation-timeline: scroll(root); animation-range: 0 900px; }
   }
 }
 @keyframes wave { from { transform: translateX(-16px) scaleY(0.98); } to { transform: translateX(16px) scaleY(1.03); } }
 @keyframes sway { from { transform: rotate(-5deg) scale(0.98); } to { transform: rotate(5deg) scale(1.02); } }
 @keyframes breathe { from { transform: scale(0.97); opacity: 0.85; } to { transform: scale(1.04); opacity: 1; } }
 @keyframes halo { from { opacity: 0.08; } to { opacity: 0.22; } }
-@keyframes canvas-in { from { opacity: 0; transform: scale(1.03); } }
-@keyframes paint-par { to { transform: translateY(120px); } }
+@keyframes canvas-in { from { opacity: 0; } }
+@keyframes paint-par { to { translate: 0 120px; } }
 /* Van Gogh pass, refinements: ringed halos (not discs), hills that melt into the page, swirls kept off the text. */
 .classic-root .halo { fill: none; stroke: var(--accent); stroke-width: 3; opacity: 0.32; }
 .classic-root .halo--outer { stroke: var(--starlight); stroke-width: 2; opacity: 0.18; }
 .classic-root .sky .halo { stroke-width: 0.8; }
 .classic-root .hill { fill: var(--sky); }
 .classic-root .hill--far { fill: #10265a; }
-.classic-root .painting-sky { -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.15) 0, rgba(0, 0, 0, 0.15) 40%, #000 62%); mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.15) 0, rgba(0, 0, 0, 0.15) 40%, #000 62%); }
+.classic-root .depth--sky { -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.15) 0, rgba(0, 0, 0, 0.15) 40%, #000 62%); mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.15) 0, rgba(0, 0, 0, 0.15) 40%, #000 62%); }
 .classic-root .glance { background: linear-gradient(180deg, rgba(19, 44, 99, 0.94), rgba(16, 38, 90, 0.9)); }
 @keyframes halo { from { opacity: 0.18; } to { opacity: 0.42; } }
+
+/* ==========================================================================
+   3D pass: the hero is a diorama (layers at real depths, tilting toward the
+   pointer), a WebGL star sky behind it, cards with depth, sections that fold
+   into place. Tilts need a fine pointer; all motion is off under reduced motion.
+   ========================================================================== */
+.classic-root .painting { perspective: 1200px; perspective-origin: 60% 40%; }
+.classic-root .painting-stage { position: absolute; inset: 0; transform-style: preserve-3d;
+  transform: rotateX(calc(var(--py, 0) * -3deg)) rotateY(calc(var(--px, 0) * 4deg));
+  transition: transform 900ms var(--ease-cinema); }
+.classic-root .depth { position: absolute; inset: 0;
+  transform: translateZ(calc(var(--z, 0) * 1px)) scale(calc(1 - var(--z, 0) / 1200)); }
+.classic-root .depth--sky { opacity: 0.9; }
+.classic-root .depth--gl { opacity: 0; transition: opacity 1200ms var(--ease-cinema); }
+.classic-root .depth--gl.is-ready { opacity: 1; }
+.classic-root .sky3d, .classic-root .sky3d canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
+/* With the WebGL sky running, the painted strokes step back so the two read as one sky. */
+.classic-root .painting:has(.depth--gl.is-ready) .depth--sky { opacity: 0.62; }
+.classic-root .paint-hills, .classic-root .paint-cypress { z-index: 1; }
+.classic-root .hero-copy { transform: translate(calc(var(--px, 0) * -6px), calc(var(--py, 0) * -4px)); transition: transform 900ms var(--ease-cinema); }
+.classic-root .glance { transform: perspective(900px) rotateY(calc(var(--px, 0) * -4deg)) rotateX(calc(var(--py, 0) * 3deg)); transition: transform 900ms var(--ease-cinema), opacity 400ms; }
+
+/* Cards with depth: a pointer tilt and a lifted title. */
+.classic-root .xp-main, .classic-root .skill-row { transform-style: preserve-3d; }
+.classic-root .xp-role, .classic-root .skill-row dt { transition: transform var(--t-med) var(--ease-cinema); }
+.classic-root .shot-frame { position: relative; }
+.classic-root .shot-frame::after { content: ""; position: absolute; inset: 0; z-index: 5; pointer-events: none; opacity: 0; border-radius: inherit;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 30%), rgba(243, 236, 216, 0.14), transparent 60%); transition: opacity var(--t-med) var(--ease-cinema); }
+@media (hover: hover) and (pointer: fine) {
+  .classic-root .feature:hover .shot-frame::after { opacity: 1; }
+}
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  html:not([data-motion="reduce"]) .classic-root .xp-main:hover, html:not([data-motion="reduce"]) .classic-root .skill-row:hover {
+    transform: perspective(900px) rotateX(calc(var(--ty, 0) * -3deg)) rotateY(calc(var(--tx, 0) * 3deg)) translateY(-3px); }
+  html:not([data-motion="reduce"]) .classic-root .xp-main:hover .xp-role, html:not([data-motion="reduce"]) .classic-root .skill-row:hover dt { transform: translateZ(22px); }
+  html:not([data-motion="reduce"]) .classic-root .feature:hover .shot-frame { transform: perspective(1100px) rotateY(calc(var(--tx, 0) * 6deg)) rotateX(calc(var(--ty, 0) * -5deg)) translateY(-4px); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Sections and featured projects fold up into place. */
+  html:not([data-motion="reduce"]) .classic-root.js .section-head[data-reveal]:not([data-in]),
+  html:not([data-motion="reduce"]) .classic-root.js .feature[data-reveal]:not([data-in]),
+  html:not([data-motion="reduce"]) .classic-root.js .xp-row[data-reveal]:not([data-in]) {
+    transform: perspective(900px) rotateX(14deg) translateY(26px); transform-origin: 50% 100%; }
+  /* Stats flip in, one after another. */
+  .classic-root .stat-n { display: inline-block; transform-origin: 50% 100%; }
+  html:not([data-motion="reduce"]) .classic-root.js .stat[data-reveal]:not([data-in]) .stat-n { transform: perspective(400px) rotateX(-90deg); opacity: 0; }
+  html:not([data-motion="reduce"]) .classic-root.js .stat[data-reveal][data-in] .stat-n { transition: transform 700ms var(--ease-cinema), opacity 400ms var(--ease-cinema); transition-delay: calc(120ms + var(--rv, 0) * 90ms); }
+}
+html[data-motion="reduce"] .classic-root .painting-stage, html[data-motion="reduce"] .classic-root .hero-copy, html[data-motion="reduce"] .classic-root .glance { transform: none; transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  .classic-root .painting-stage, .classic-root .hero-copy, .classic-root .glance { transform: none; transition: none; }
+}
+@media (max-width: 900px) {
+  .classic-root .painting-stage, .classic-root .hero-copy, .classic-root .glance { transform: none; }
+  .classic-root .depth--sky { opacity: 0.55; }
+}
+@keyframes pd-in { from { opacity: 0; transform: perspective(1000px) rotateX(9deg) translateY(18px) scale(0.97); } }
+/* 3D pass refinements: hills run past both edges so a tilt never shows their ends; the WebGL sky fades behind the text like the painting. */
+.classic-root .paint-hills { left: -8%; right: -8%; width: auto; }
+.classic-root .depth--gl { -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.12) 0, rgba(0, 0, 0, 0.12) 40%, #000 64%); mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.12) 0, rgba(0, 0, 0, 0.12) 40%, #000 64%); }

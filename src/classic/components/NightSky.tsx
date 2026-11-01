@@ -1,3 +1,4 @@
+import { Component, lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from "react";
 /**
  * The Starry Night backdrop: one fixed SVG behind everything. Stars come from a fixed seed, so the
  * sky is identical on every visit (no runtime randomness, nothing to hydrate differently). Density
@@ -112,33 +113,67 @@ function Brush({ id, seed }: { id: string; seed: number }) {
   );
 }
 
-const layer = (cls: string, children: React.ReactNode) => (
-  <svg className={`paint ${cls}`} viewBox={`0 0 ${PW} ${PH}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">{children}</svg>
+/** One painted layer, set at its own depth (`--z`, px toward the viewer) inside the hero diorama. */
+const layer = (cls: string, z: number, children: React.ReactNode, sky = true) => (
+  <div className={`depth${sky ? " depth--sky" : ""}`} style={{ "--z": z } as React.CSSProperties}>
+    <svg className={`paint ${cls}`} viewBox={`0 0 ${PW} ${PH}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">{children}</svg>
+  </div>
 );
+
+/** Errors in the 3D sky (no WebGL, lost context) leave the painted poster as it is. */
+class Quiet extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() { return this.state.failed ? null : this.props.children; }
+}
+
+const StarSky3D = lazy(() => import("./StarSky3D"));
+const hasWebGL = () => { try { const c = document.createElement("canvas"); return Boolean(c.getContext("webgl2") ?? c.getContext("webgl")); } catch { return false; } };
+
+/** Mounts the WebGL sky after first paint, on wide fine-pointer screens with WebGL only. */
+function Sky3D() {
+  const [on, setOn] = useState(false);
+  const [ready, setReady] = useState(false);
+  const markReady = useCallback(() => setReady(true), []);
+  useEffect(() => {
+    if (!window.matchMedia("(min-width: 900px) and (hover: hover) and (pointer: fine)").matches || !hasWebGL()) return;
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
+    if (w.requestIdleCallback) { const id = w.requestIdleCallback(() => setOn(true), { timeout: 2000 }); return () => w.cancelIdleCallback?.(id); }
+    const t = window.setTimeout(() => setOn(true), 800);
+    return () => window.clearTimeout(t);
+  }, []);
+  if (!on) return null;
+  return (
+    <div className={`depth depth--gl${ready ? " is-ready" : ""}`} style={{ "--z": -140 } as React.CSSProperties}>
+      <Quiet><Suspense fallback={null}><StarSky3D onReady={markReady} /></Suspense></Quiet>
+    </div>
+  );
+}
 
 export function HeroPainting() {
   return (
     <div className="painting" aria-hidden="true">
-      <div className="painting-sky">
-        {layer("paint-wave", <>
+      <div className="painting-stage">
+        <Sky3D />
+        {layer("paint-wave", -30, <>
           <defs><Brush id="brush-w" seed={3} /></defs>
           <g filter="url(#brush-w)" fill="none" strokeLinecap="round">
             {WAVE.map((w) => <path key={w.k} d={w.d} className={`stroke stroke--${w.k % 3}`} strokeWidth={w.k % 3 === 0 ? 7 : 4} />)}
           </g>
         </>)}
-        {layer("paint-spiral-a", <>
+        {layer("paint-spiral-a", -60, <>
           <defs><Brush id="brush-a" seed={8} /></defs>
           <g filter="url(#brush-a)" fill="none" strokeLinecap="round">
             {SPIRAL_A.map((d, k) => <path key={k} d={d} className={`stroke stroke--${k % 3}`} strokeWidth={k === 0 ? 6 : 3.5} />)}
           </g>
         </>)}
-        {layer("paint-spiral-b", <>
+        {layer("paint-spiral-b", -45, <>
           <defs><Brush id="brush-b" seed={14} /></defs>
           <g filter="url(#brush-b)" fill="none" strokeLinecap="round">
             {SPIRAL_B.map((d, k) => <path key={k} d={d} className={`stroke stroke--${(k + 1) % 3}`} strokeWidth={k === 0 ? 5 : 3} />)}
           </g>
         </>)}
-        {layer("paint-stars", <>
+        {layer("paint-stars", -90, <>
           {HERO_STARS.map(([x, y, s], i) => (
             <g key={i} className="hstar" style={{ "--i": i } as React.CSSProperties}>
               <circle cx={x} cy={y} r={30 * s} className="halo halo--outer" />
@@ -147,8 +182,7 @@ export function HeroPainting() {
             </g>
           ))}
         </>)}
-      </div>
-      {layer("paint-moon", <>
+      {layer("paint-moon", -120, <>
         <defs>
           <radialGradient id="moon-glow"><stop offset="0" stopColor="#f4c542" stopOpacity="0.55" /><stop offset="0.45" stopColor="#e8a93b" stopOpacity="0.18" /><stop offset="1" stopColor="#e8a93b" stopOpacity="0" /></radialGradient>
           <mask id="moon-cut"><rect width={PW} height={PH} fill="#fff" /><circle cx="1318" cy="96" r="30" fill="#000" /></mask>
@@ -157,16 +191,17 @@ export function HeroPainting() {
         <circle cx="1300" cy="110" r="62" className="moon-ring" />
         <circle cx="1300" cy="110" r="44" className="moon-ring" />
         <circle cx="1300" cy="110" r="32" className="moon" mask="url(#moon-cut)" />
-      </>)}
-      <svg className="paint-hills" viewBox="0 0 1440 160" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      </>, false)}
+      <div className="depth" style={{ "--z": 20 } as React.CSSProperties}><svg className="paint-hills" viewBox="0 0 1440 160" preserveAspectRatio="none" aria-hidden="true" focusable="false">
         <path d="M0 96 C 180 60, 330 112, 520 84 S 860 46, 1040 82 S 1320 64, 1440 78 L1440 160 L0 160 Z" className="hill hill--far" />
         <path d="M0 128 C 220 100, 420 140, 640 118 S 1060 98, 1240 120 S 1400 112, 1440 116 L1440 160 L0 160 Z" className="hill" />
-      </svg>
-      <svg className="paint-cypress" viewBox="0 0 120 420" aria-hidden="true" focusable="false">
+      </svg></div>
+      <div className="depth depth--cypress" style={{ "--z": 40 } as React.CSSProperties}><svg className="paint-cypress" viewBox="0 0 120 420" aria-hidden="true" focusable="false">
         <defs><Brush id="brush-c" seed={21} /></defs>
         <path filter="url(#brush-c)" className="cypress" d="M60 6 C 70 60, 92 96, 84 150 C 104 196, 96 240, 108 290 C 118 340, 104 380, 112 420 L 8 420 C 16 380, 2 340, 14 292 C 22 244, 12 200, 34 154 C 26 100, 50 64, 60 6 Z" />
         <path filter="url(#brush-c)" className="cypress-light" d="M60 40 C 66 90, 78 120, 72 170 C 84 220, 80 260, 88 320" />
-      </svg>
+      </svg></div>
+      </div>
     </div>
   );
 }

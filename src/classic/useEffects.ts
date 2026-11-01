@@ -52,9 +52,15 @@ export function useClassicEffects(rootRef: RefObject<HTMLElement | null>) {
 
     let raf = 0;
     let last: PointerEvent | null = null;
+    const hero = root.querySelector<HTMLElement>(".hero");
     const paint = () => {
       raf = 0;
-      const t = (last?.target as HTMLElement | null)?.closest?.<HTMLElement>(".shot-frame, .feature-shot, .compact");
+      // The hero diorama leans toward the pointer (-1..1 from the viewport centre).
+      if (hero && last) {
+        hero.style.setProperty("--px", ((last.clientX / window.innerWidth) * 2 - 1).toFixed(3));
+        hero.style.setProperty("--py", ((last.clientY / window.innerHeight) * 2 - 1).toFixed(3));
+      }
+      const t = (last?.target as HTMLElement | null)?.closest?.<HTMLElement>(".shot-frame, .feature-shot, .compact, .xp-main, .skill-row");
       if (!t || !last) return;
       const r = t.getBoundingClientRect();
       t.style.setProperty("--mx", `${(((last.clientX - r.left) / r.width) * 100).toFixed(1)}%`);

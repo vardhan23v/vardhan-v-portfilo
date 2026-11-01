@@ -18,6 +18,7 @@ const EDITIONS = [
   { label: "Paper", to: "/paper", num: "03" },
   { label: "Aurora", to: "/aurora", num: "04" },
   { label: "Forge", to: "/forge", num: "05" },
+  { label: "Atlas", to: "/atlas", num: "07" },
 ];
 
 const topStack = skillCategories

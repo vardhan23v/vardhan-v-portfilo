@@ -182,7 +182,7 @@ function EditionStage({ index, setIndex, reduced, onEnter }: {
       onFocus={() => setHovering(true)}
       onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHovering(false); }}
       aria-roledescription="carousel"
-      aria-label="Live preview of the six portfolio editions"
+      aria-label="Live preview of the seven portfolio editions"
     >
       <div className="stage-bar">
         <span className="stage-dot r" /><span className="stage-dot y" /><span className="stage-dot g" />
@@ -351,7 +351,7 @@ export function Landing() {
               <h1 className="landing-title" id="landing-h1">
                 {FIRST} <em>{LAST}</em>
               </h1>
-              <p className="landing-tagline" aria-hidden="true">One body of work. <em>Six ways in.</em></p>
+              <p className="landing-tagline" aria-hidden="true">One body of work. <em>Seven ways in.</em></p>
               <p className="landing-what">
                 <b>{site.title}.</b> I build AI-powered products, developer tools and full-stack systems — and ship them open-source.
               </p>
@@ -391,7 +391,7 @@ export function Landing() {
         <section className="editions" id="editions" aria-labelledby="editions-h2">
           <div className="section-head" data-reveal>
             <span className="section-kicker">start here</span>
-            <h2 className="section-title" id="editions-h2">Same work, <em>six interfaces.</em></h2>
+            <h2 className="section-title" id="editions-h2">Same work, <em>seven interfaces.</em></h2>
             <p className="section-sub">Every edition has the same projects, experience and contact — pick the one that suits how you read. Press <kbd>1</kbd>–<kbd>6</kbd> from any page to switch.</p>
           </div>
           <div className="edition-grid" role="list" aria-label="Portfolio editions" ref={cardsRef}>

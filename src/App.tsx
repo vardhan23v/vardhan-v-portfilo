@@ -17,6 +17,7 @@ const ClassicSite = lazy(() => import("./classic/ClassicSite").then((m) => ({ de
 const PaperSite = lazy(() => import("./paper/PaperSite").then((m) => ({ default: m.PaperSite })));
 const AuroraSite = lazy(() => import("./aurora/AuroraSite").then((m) => ({ default: m.AuroraSite })));
 const ForgeSite = lazy(() => import("./forge/ForgeSite").then((m) => ({ default: m.ForgeSite })));
+const AtlasSite = lazy(() => import("./atlas/AtlasSite").then((m) => ({ default: m.AtlasSite })));
 const MacPortfolio = lazy(() => import("./mac/MacPortfolio").then((m) => ({ default: m.MacPortfolio })));
 const TerminalLayout = lazy(() => import("./terminal/TerminalLayout").then((m) => ({ default: m.TerminalLayout })));
 const TerminalHome = lazy(() => import("./terminal/TerminalHome").then((m) => ({ default: m.TerminalHome })));
@@ -79,7 +80,7 @@ function InterfaceShortcuts() {
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
       const n = Number(e.key);
-      if (n >= 1 && n <= 6 && interfaceRoutes[n - 1]) {
+      if (n >= 1 && n <= interfaceRoutes.length && interfaceRoutes[n - 1]) {
         navigate(interfaceRoutes[n - 1], { viewTransition: true });
       }
     };
@@ -142,6 +143,7 @@ const router = createBrowserRouter(
       <Route path="/aurora" element={<AuroraSite />} />
       <Route path="/forge" element={<ForgeSite />} />
       <Route path="/mac" element={<MacPortfolio />} />
+      <Route path="/atlas" element={<AtlasSite />} />
       <Route path="/terminal" element={<TerminalLayout />}>
         <Route index element={<TerminalHome />} />
         <Route path="work/:slug" element={<WorkDetail />} />

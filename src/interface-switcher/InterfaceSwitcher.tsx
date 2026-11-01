@@ -3,7 +3,7 @@ import { EDITIONS } from "../editions";
 import { useMagnetic } from "../hooks/useMagnetic";
 import "./interface-switcher.css";
 
-const ROLE_SHORT: Record<string, string> = { term: "Developer", classic: "Professional", paper: "Editorial", aurora: "Visual", forge: "Builder", mac: "Application" };
+const ROLE_SHORT: Record<string, string> = { term: "Developer", classic: "Professional", paper: "Editorial", aurora: "Visual", forge: "Builder", mac: "Application", atlas: "Explorer" };
 const editionRoutes = EDITIONS.map((e) => ({ num: e.num, label: e.label, role: ROLE_SHORT[e.tone], to: e.to, key: e.tone === "term" ? "terminal" : e.tone }));
 
 export function InterfaceSwitcher({ current }: { current: string }) {

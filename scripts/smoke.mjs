@@ -21,6 +21,7 @@ const ROUTES = [
   ["/aurora", "Aurora —"],
   ["/forge", "Forge —"],
   ["/mac?noboot=1", "macOS —"],
+  ["/atlas", "Atlas —"],
   // Title is either the Terminal edition's or (after the SEO pass) "<name> — case study | …".
   ["/terminal/work/extension-ai", /Extension AI/],
   ["/work/extension-ai", "Extension AI — case study"],

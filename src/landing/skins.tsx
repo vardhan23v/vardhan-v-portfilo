@@ -60,7 +60,25 @@ function Mac({ size }: { size: SkinSize }) {
   );
 }
 
-const SKINS: Record<Tone, (p: { size: SkinSize }) => ReactElement> = { term: Term, classic: Classic, paper: Paper, aurora: Aurora, forge: Forge, mac: Mac };
+function Atlas({ size }: { size: SkinSize }) {
+  // Hand-drawn contour rings around two peaks; the full map is generated in src/atlas/terrain.ts.
+  const rings = (cx: number, cy: number, n: number) =>
+    Array.from({ length: n }, (_, i) => <ellipse key={`${cx}-${i}`} cx={cx} cy={cy} rx={8 + i * 9} ry={6 + i * 6.5} />);
+  const map = (
+    <svg className="atlas-map" viewBox="0 0 160 96" preserveAspectRatio="xMidYMid slice">
+      <g className="atlas-rings">{rings(52, 40, 6)}{rings(118, 62, 5)}</g>
+      <path className="atlas-peak" d="M52 34l5 9h-10z" />
+      <path className="atlas-peak" d="M118 56l5 9h-10z" />
+    </svg>
+  );
+  return size === "stage" ? (
+    <div className="stage-atlas">{map}<p className="sat-k">A survey of the work of</p><p className="sat-name">Sree Vardhan V</p><p className="sat-ref">▲ C3 · F2 · I3</p></div>
+  ) : (
+    <div className="mini-atlas">{map}<div className="mat-name">Sree Vardhan V</div><div className="mat-ref">▲ C3 · sheet I</div></div>
+  );
+}
+
+const SKINS: Record<Tone, (p: { size: SkinSize }) => ReactElement> = { term: Term, classic: Classic, paper: Paper, aurora: Aurora, forge: Forge, mac: Mac, atlas: Atlas };
 
 export function Skin({ tone, size }: { tone: Tone; size: SkinSize }) {
   const C = SKINS[tone];

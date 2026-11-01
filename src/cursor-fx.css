@@ -1,5 +1,5 @@
 /* ---------- Global Cursor FX ----------
-   One overlay, eight looks. JS (src/CursorFX.tsx) only writes transform/opacity on
+   One overlay, nine looks. JS (src/CursorFX.tsx) only writes transform/opacity on
    .cur-dot, .cur-ring, .cur-tail and the pooled .cur-p particles; every child below is
    switched on per edition with .cur-fx[data-cur="…"]. The native cursor is never hidden
    here (macOS swaps it for CSS cursor images in src/cursors/mac-cursors.css). */
@@ -29,6 +29,7 @@
 .cur-core,
 .cur-star,
 .cur-caret,
+.cur-ref,
 .cur-ring-inner,
 .cur-glow,
 .cur-swirl,
@@ -511,3 +512,34 @@
 html[data-motion="reduce"] .cur-fx {
   display: none;
 }
+
+/* ---------- Atlas: a survey crosshair that reads the map's grid reference ---------- */
+.cur-fx[data-cur="atlas"] { --cur-accent: #6fb3b8; }
+.cur-fx[data-cur="atlas"] .cur-core,
+.cur-fx[data-cur="atlas"] .cur-ring-inner,
+.cur-fx[data-cur="atlas"] .cur-ref { display: block; }
+.cur-fx[data-cur="atlas"] .cur-core {
+  width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; border-radius: 50%;
+  background: #e2553b; box-shadow: 0 0 0 1.5px rgba(20, 28, 24, 0.8);
+}
+.cur-fx[data-cur="atlas"] .cur-ring-inner {
+  position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%;
+  border: 1px solid var(--cur-accent);
+  background:
+    linear-gradient(var(--cur-accent), var(--cur-accent)) 50% 0 / 1px 7px no-repeat,
+    linear-gradient(var(--cur-accent), var(--cur-accent)) 50% 100% / 1px 7px no-repeat,
+    linear-gradient(var(--cur-accent), var(--cur-accent)) 0 50% / 7px 1px no-repeat,
+    linear-gradient(var(--cur-accent), var(--cur-accent)) 100% 50% / 7px 1px no-repeat;
+  transition: transform 0.3s var(--cur-ease), border-color 0.2s, opacity 0.2s;
+}
+.cur-fx[data-cur="atlas"].cur-interactive .cur-ring-inner { transform: scale(0.62) rotate(45deg); border-color: #e2553b; }
+.cur-fx[data-cur="atlas"].cur-on-map .cur-ring-inner { transform: scale(1.25); }
+.cur-fx[data-cur="atlas"].cur-pulse .cur-ring-inner { animation: cur-atlas-ping 0.7s var(--cur-ease); }
+@keyframes cur-atlas-ping { 50% { transform: scale(1.9); opacity: 0.35; } }
+.cur-fx[data-cur="atlas"] .cur-ref {
+  position: absolute; left: 14px; top: 12px; padding: 1px 5px; border-radius: 3px;
+  font: 500 10.5px/1.4 var(--font-mono); letter-spacing: 0.04em; color: #e6e8dc;
+  background: rgba(20, 28, 24, 0.9); border: 0.5px solid rgba(217, 220, 205, 0.3);
+  opacity: 0; transition: opacity 0.15s;
+}
+.cur-fx[data-cur="atlas"].cur-on-map .cur-ref { opacity: 1; }

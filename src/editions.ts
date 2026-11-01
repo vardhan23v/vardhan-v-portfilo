@@ -1,8 +1,8 @@
 /**
- * Single source of truth for the six portfolio editions.
+ * Single source of truth for the seven portfolio editions.
  * Landing, routing, SEO titles and the interface switcher all derive from this.
  */
-export type Tone = "term" | "classic" | "paper" | "aurora" | "forge" | "mac";
+export type Tone = "term" | "classic" | "paper" | "aurora" | "forge" | "mac" | "atlas";
 
 export interface Edition {
   to: `/${string}`;
@@ -36,6 +36,9 @@ export const EDITIONS: readonly Edition[] = [
   { to: "/mac", label: "macOS", tone: "mac", num: "06", role: "for fun", cta: "Boot the desktop",
     blurb: "A working desktop — Finder, Notes, Messages, Terminal, Launchpad and Mission Control, all real.",
     seo: { title: "macOS — Sree Vardhan V | Generative AI Developer", description: "macOS edition of Sree Vardhan V's portfolio — a premium desktop-inspired experience. Overview, projects, experience, skills, and contact." } },
+  { to: "/atlas", label: "Atlas", tone: "atlas", num: "07", role: "for wandering", cta: "Unfold the map",
+    blurb: "The work as a survey map: every project a summit, a live field survey of GitHub, and a year of commits in elevation.",
+    seo: { title: "Atlas — Sree Vardhan V | Generative AI Developer", description: "Atlas edition — Sree Vardhan V's projects surveyed as a contour map, with live GitHub repositories and a year of contributions." } },
 ];
 
 export const editionRoutes: string[] = EDITIONS.map((e) => e.to);

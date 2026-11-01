@@ -955,7 +955,7 @@ function Interfaces() {
         <SectionEyebrow id="interfaces" />
         <StaggerHeading text="Other interfaces" />
         <p className="fg-subhead">
-          Six interfaces, one portfolio — every edition runs the same work through a
+          Seven interfaces, one portfolio — every edition runs the same work through a
           different design system. This is Forge; here are the rest.
         </p>
         <div className="fg-interfaces-grid">

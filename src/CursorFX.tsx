@@ -16,8 +16,8 @@ import { motionReduced } from "./lib/motion";
  * (src/cursors/mac-cursors.css), as an OS would.
  */
 
-type Cur = "default" | "landing" | "term" | "classic" | "paper" | "aurora" | "forge" | "mac";
-const CURS: readonly Cur[] = ["default", "landing", "term", "classic", "paper", "aurora", "forge", "mac"];
+type Cur = "default" | "landing" | "term" | "classic" | "paper" | "aurora" | "forge" | "mac" | "atlas";
+const CURS: readonly Cur[] = ["default", "landing", "term", "classic", "paper", "aurora", "forge", "mac", "atlas"];
 const asCur = (v: string | null | undefined): Cur => (CURS as readonly string[]).includes(v ?? "") ? (v as Cur) : "default";
 
 /** [dot follow, ring follow] per frame at 60fps (1 = locked to the pointer). */
@@ -30,13 +30,19 @@ const LERP: Record<Cur, [number, number]> = {
   aurora: [0.55, 0.075],
   forge: [0.45, 0.2],
   mac: [1, 1],
+  atlas: [1, 0.22],
 };
 
 /** Ring target offset from the pointer tip (terminal brackets frame the arrow). */
 const RING_OFFSET: Partial<Record<Cur, [number, number]>> = { term: [6, 10] };
 
 /** How long the click class stays on, per edition. */
-const PULSE_MS: Partial<Record<Cur, number>> = { classic: 900, aurora: 600 };
+const PULSE_MS: Partial<Record<Cur, number>> = { classic: 900, aurora: 600, atlas: 700 };
+
+/** Atlas: the map the crosshair reads grid references from, and its grid size. */
+const ATLAS_MAP = ".at-map-inner";
+const ATLAS_COLS = "ABCDEFGHIJKL";
+const ATLAS_ROWS = 8;
 
 /** Where an edition's live accent comes from (themes can change it at runtime). */
 const LIVE_VARS: Partial<Record<Cur, [string, string]>> = {
@@ -84,6 +90,7 @@ export function CursorFX() {
   const ringRef = useRef<HTMLDivElement>(null);
   const tailRef = useRef<HTMLDivElement>(null);
   const partsRef = useRef<HTMLDivElement>(null);
+  const refRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const fx = fxRef.current;
@@ -267,9 +274,28 @@ export function CursorFX() {
       return true;
     };
 
+    // Atlas: read the grid reference under the crosshair while it is over the map.
+    let gridRef = "";
+    const readGrid = () => {
+      const label = refRef.current;
+      const map = cur === "atlas" ? root?.querySelector(ATLAS_MAP) : null;
+      let next = "";
+      if (map) {
+        const r = map.getBoundingClientRect();
+        const u = (x - r.left) / r.width, v = (y - r.top) / r.height;
+        if (u >= 0 && u < 1 && v >= 0 && v < 1) next = `${ATLAS_COLS[Math.floor(u * ATLAS_COLS.length)]}${Math.floor(v * ATLAS_ROWS) + 1}`;
+      }
+      if (label && next !== gridRef) {
+        gridRef = next;
+        label.textContent = next;
+        fx.classList.toggle("cur-on-map", !!next);
+      }
+    };
+
     const onMove = (e: MouseEvent) => {
       x = e.clientX;
       y = e.clientY;
+      if (cur === "atlas" || gridRef) readGrid();
       start();
     };
 
@@ -397,6 +423,7 @@ export function CursorFX() {
           <circle r="1.7" fill="#f4efc4" />
         </svg>
         <span className="cur-caret" />
+        <span ref={refRef} className="cur-ref" />
       </div>
     </div>
   );

@@ -23,6 +23,7 @@ const ITEMS: Item[] = [
   { id: "aurora", label: "Aurora interface", hint: "4", keywords: "glass gradient", path: "/aurora" },
   { id: "forge", label: "Forge interface", hint: "5", keywords: "industrial", path: "/forge" },
   { id: "mac", label: "macOS interface", hint: "6", keywords: "mac application desktop", path: "/mac" },
+  { id: "atlas", label: "Atlas interface", hint: "7", keywords: "map contour topographic survey", path: "/atlas" },
   ...caseStudies.map((c): Item => ({ id: `cs-${c.slug}`, label: `Case study — ${c.name}`, hint: "case", keywords: `project work ${c.tagline}`, path: `/work/${c.slug}` })),
   { id: "random", label: "Surprise me — random interface", hint: "⚄", keywords: "shuffle lucky", action: "random" },
   { id: "top", label: "Back to top", hint: "top", keywords: "scroll up", action: "top" },
@@ -40,7 +41,7 @@ const withMotionLabel = (items: Item[]): Item[] =>
   items.map((i) => (i.id === "motion" ? { ...i, label: `${motionSummary().label} — click to change` } : i));
 
 const RECENTS_KEY = "cp-recents";
-const editionPaths = ["/terminal", "/classic", "/paper", "/aurora", "/forge", "/mac"];
+const editionPaths = ["/terminal", "/classic", "/paper", "/aurora", "/forge", "/mac", "/atlas"];
 
 function readRecents(): string[] {
   try {

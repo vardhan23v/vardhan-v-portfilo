@@ -20,7 +20,7 @@ export interface RouteSeoEntry {
 
 export const LANDING_SEO = {
   title: `${site.name} | ${site.title}`,
-  description: `Portfolio of ${site.name} — a Generative AI and full-stack developer building AI-powered products, developer tools and full-stack systems. Six interfaces, one body of work.`,
+  description: `Portfolio of ${site.name} — a Generative AI and full-stack developer building AI-powered products, developer tools and full-stack systems. Seven interfaces, one body of work.`,
 };
 
 export const NOT_FOUND_SEO = { title: `Not found — ${site.name}`, description: "There is nothing at this address." };
@@ -52,4 +52,4 @@ export const canonicalUrl = (entry: Pick<RouteSeoEntry, "canonicalPath">) => `${
 
 /** Browser theme-color per route: Paper is the only light edition. */
 export const themeColorFor = (pathname: string) =>
-  pathname === "/paper" || pathname.startsWith("/paper/") ? "#f5f1ea" : pathname === "/classic" ? "#1d274e" : pathname.startsWith("/work/") ? "#0b0f1a" : "#05060f";
+  pathname === "/paper" || pathname.startsWith("/paper/") ? "#f5f1ea" : pathname === "/classic" ? "#1d274e" : pathname.startsWith("/work/") ? "#0b0f1a" : pathname === "/atlas" ? "#141c18" : "#05060f";

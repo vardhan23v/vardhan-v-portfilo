@@ -637,3 +637,12 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
 }
 .classic-root .link-btn::after { content: none !important; }
 .classic-root .builds .more-toggle { margin-top: 14px; }
+
+/* Polish: "More projects" rows become proper cards inside the column (no edge past the gutter). */
+.classic-root .compacts { gap: 12px; column-gap: 12px; border-top: 0; }
+.classic-root .compact { margin-inline: 0; padding: 16px; border: 1px solid var(--line); border-left-width: 3px; border-radius: var(--r); background: rgba(18, 29, 54, 0.55); }
+.classic-root .compact[data-cat="ai"] { border-left-color: rgba(156, 192, 255, 0.7); }
+.classic-root .compact[data-cat="full-stack"] { border-left-color: rgba(111, 127, 224, 0.85); }
+.classic-root .compact[data-cat="tool"] { border-left-color: rgba(246, 215, 160, 0.6); }
+@media (hover: hover) { .classic-root .compact:hover { background: rgba(24, 38, 69, 0.75); border-top-color: rgba(156, 192, 255, 0.35); border-right-color: rgba(156, 192, 255, 0.35); border-bottom-color: rgba(156, 192, 255, 0.35); } }
+@media (max-width: 640px) { .classic-root .compact { padding: 14px 12px; } }

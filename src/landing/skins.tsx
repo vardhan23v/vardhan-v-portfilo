@@ -72,9 +72,9 @@ function Atlas({ size }: { size: SkinSize }) {
     </svg>
   );
   return size === "stage" ? (
-    <div className="stage-atlas">{map}<p className="sat-k">A survey of the work of</p><p className="sat-name">Sree Vardhan V</p><p className="sat-ref">▲ C3 · F2 · I3</p></div>
+    <div className="stage-atlas">{map}<p className="sat-k">An atlas of the work of</p><p className="sat-name">Sree Vardhan V</p><p className="sat-ref">▲ 01 Extension AI</p></div>
   ) : (
-    <div className="mini-atlas">{map}<div className="mat-name">Sree Vardhan V</div><div className="mat-ref">▲ C3 · sheet I</div></div>
+    <div className="mini-atlas">{map}<div className="mat-name">Sree Vardhan V</div><div className="mat-ref">▲ 01 · F2</div></div>
   );
 }
 

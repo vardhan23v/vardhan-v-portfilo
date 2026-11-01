@@ -76,17 +76,19 @@ All respect `prefers-reduced-motion`, use `viewTransition` crossfades, and ship 
 
 ## ✨ Editions
 
-The site opens on a **landing page with a live edition picker** — a browser-frame preview that cycles through every interface, with keyboard arrows, segment navigation and one-click entry. Switch anytime via the magnetic interface switcher, `1`–`6` keys, or `⌘K` — all with **View Transitions API** crossfade (progressive, reduced-motion safe).
+The site opens on a **landing page with a live edition picker** — a browser-frame preview that cycles through every interface, with keyboard arrows, segment navigation and one-click entry. Switch anytime via the magnetic interface switcher, `1`–`7` keys, or `⌘K` — all with **View Transitions API** crossfade (progressive, reduced-motion safe).
 
 | Route | Edition | Tone | Signature |
 |---|---|---|---|
-| `/` | **Landing** | Picker | Crossfading mini-skins stage (Terminal/Classic/Paper/Aurora/Forge/macOS), GitHub stats, two-column hero (`/editions` is an alias) |
+| `/` | **Landing** | Picker | Crossfading mini-skins stage (Terminal/Classic/Paper/Aurora/Forge/macOS/Atlas), GitHub stats, two-column hero (`/editions` is an alias) |
+| `/work/:slug` | **Case studies** | Shareable | One page per long write-up, linked from every edition and the palette; `[` `]` step between them |
 | `/terminal` | **Terminal** | Retro CRT | Boot seq, shell `help` / `whoami` / `cat skills.tree` / `neofetch` / `cowsay` / `ping`, `↑↓` history + Tab + `` ` `` focus, work at `/terminal/work/:slug` |
 | `/classic` | **Classic** | Recruiter edition | "Starry Night" after Van Gogh: a painted hero (swirling sky, gold moon, ringed stars, cypress, hills) over a starry page in cobalt and Prussian blue, canvas-cream text and starlight-gold actions; Fraunces headings with Inter body. Hero with availability pill, a stats strip, About, a flagship plus three featured projects in browser frames (live app on request), searchable "More projects", a details dialog for every project, smaller builds, an experience timeline of role cards, skill cards with usage counts, How I work and the contact form. |
 | `/paper` | **Paper** | Light editorial | Fraunces serifs, overlines, hairline rules, quiet readable |
 | `/aurora` | **Aurora 2.0** — *luminous* | Glassmorphism | Frosted glass + drifting blobs + gradient text **plus** searchable/sortable work, quick-view modal, Stack Lab, expandable log, education/certs, mouse aura |
 | `/forge` | **Forge** | Editorial dark | Kanit headlines, build pipeline pulse + hover trace, marquee, cached GitHub stats, sticky problem→solution cards |
 | `/mac` | **macOS** — *premium OS* | App shell | Spotlight `⌘K` (label-first ranking) + traffic lights + Control Center + Settings (accent/motion/dock/network) + Terminal + Vardhan AI + Developer Mode inspector + Help `?` — see macOS deep dive below |
+| `/atlas` | **Atlas** | Survey atlas | The work drawn as a topographic atlas, laid out after the Forkfolio atlas page: a framed title sheet (A–H × 1–5 grid, seeded contour map, every featured project a summit, a contents legend), a sticky bar with the current section, `/` search and a progress ruler; plates for the 12 projects, a gazetteer of smaller builds plus public GitHub repos read live, a skills index citing project numbers, a year of contributions as an elevation profile and day plan (via github-contributions-api), the route of roles and the contact form. Host Grotesk + Fragment Mono; a crosshair cursor that reads the grid square. |
 
 ---
 

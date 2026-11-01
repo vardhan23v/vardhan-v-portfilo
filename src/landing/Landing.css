@@ -220,8 +220,8 @@ html[data-motion="reduce"] .edition-tilt { opacity: 1 !important; transform: non
 .ed-portal--forge   { --portal-bg: #0a0705; --portal-fg: #ffab5e; --portal-glow: radial-gradient(60% 60% at 30% 70%, rgba(255,106,31,0.35), transparent 70%); }
 .ed-portal--forge .ed-portal__name { font-family: "Kanit", var(--font-display); font-style: normal; font-weight: 700; letter-spacing: -0.02em; }
 .ed-portal--mac     { --portal-bg: #0b0f1a; --portal-fg: #f2f3f8; --portal-glow: radial-gradient(60% 55% at 22% 18%, hsl(262 70% 48% / 0.55), transparent 70%), radial-gradient(50% 45% at 82% 28%, hsl(196 75% 52% / 0.45), transparent 70%); }
-.ed-portal--atlas   { --portal-bg: #141c18; --portal-fg: #e6e8dc; --portal-glow: radial-gradient(60% 55% at 30% 40%, rgba(201,164,92,0.28), transparent 70%), radial-gradient(50% 45% at 78% 70%, rgba(111,179,184,0.22), transparent 70%); }
-.ed-portal--atlas .ed-portal__name { font-style: italic; }
+.ed-portal--atlas   { --portal-bg: #0a0a0a; --portal-fg: #ece8df; --portal-glow: radial-gradient(60% 55% at 30% 40%, rgba(255,91,36,0.18), transparent 70%), radial-gradient(50% 45% at 78% 70%, rgba(236,232,223,0.08), transparent 70%); }
+.ed-portal--atlas .ed-portal__name { font-style: normal; font-weight: 500; letter-spacing: -0.04em; }
 .landing-motion { appearance: none; background: none; border: 0; padding: 0; font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--text-3); cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; }
 .landing-motion:hover { color: var(--text); }
 .landing-motion[aria-pressed="false"] { color: var(--accent); }
@@ -803,25 +803,25 @@ html[data-motion="reduce"] .ed-portal { display: none; }
 .land-project-item:hover::after { opacity: 1; }
 
 /* ---------- Atlas skin ---------- */
-.stage-atlas, .mini-atlas { position: relative; overflow: hidden; background: #141c18; color: #e6e8dc; }
+.stage-atlas, .mini-atlas { position: relative; overflow: hidden; background: #0a0a0a; color: #ece8df; }
 .atlas-map { position: absolute; top: 0; bottom: 0; height: 100%; }
-.atlas-rings ellipse { fill: none; stroke: #d9dccd; stroke-opacity: 0.32; stroke-width: 0.8; }
+.atlas-rings ellipse { fill: none; stroke: #ece8df; stroke-opacity: 0.28; stroke-width: 0.8; }
 .atlas-rings ellipse:nth-child(3n) { stroke-opacity: 0.6; stroke-width: 1.2; }
-.atlas-peak { fill: #e2553b; }
+.atlas-peak { fill: #ff5b24; }
 .stage-atlas { padding: 28px 30px; display: flex; flex-direction: column; justify-content: flex-end; }
 .stage-atlas p { position: relative; }
-.sat-k { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #6fb3b8; }
-.sat-name { margin-top: 4px; font-family: var(--font-display); font-style: italic; font-size: 28px; line-height: 1; }
-.sat-ref { margin-top: 8px; font-family: var(--font-mono); font-size: 11px; color: #f08a6f; }
+.sat-k { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #aaa69d; }
+.sat-name { margin-top: 4px; font-family: var(--font-sans); font-weight: 500; letter-spacing: -0.04em; font-size: 30px; line-height: 1; }
+.sat-ref { margin-top: 8px; font-family: var(--font-mono); font-size: 11px; color: #ff5b24; }
 .mini-atlas { padding: 14px 16px; display: flex; flex-direction: column; justify-content: flex-end; }
-.mat-name { position: relative; font-family: var(--font-display); font-style: italic; font-size: 16px; }
-.mat-ref { position: relative; margin-top: 3px; font-family: var(--font-mono); font-size: 9.5px; color: #f08a6f; }
-.ed-atlas:hover { border-color: rgba(201, 164, 92, 0.5); }
-.ed-atlas:hover .ed-cta { color: #c9a45c; }
+.mat-name { position: relative; font-family: var(--font-sans); font-weight: 500; letter-spacing: -0.03em; font-size: 17px; }
+.mat-ref { position: relative; margin-top: 3px; font-family: var(--font-mono); font-size: 9.5px; color: #ff5b24; }
+.ed-atlas:hover { border-color: rgba(255, 91, 36, 0.5); }
+.ed-atlas:hover .ed-cta { color: #ff5b24; }
 /* Seven editions: the newest card spans the leftover row instead of sitting alone. */
 .edition-grid > :last-child:nth-child(3n + 1) { grid-column: 1 / -1; }
 @media (max-width: 1080px) { .edition-grid > :last-child:nth-child(3n + 1) { grid-column: auto; } .edition-grid > :last-child:nth-child(odd) { grid-column: 1 / -1; } }
 @media (max-width: 720px) { .edition-grid > :last-child:nth-child(odd) { grid-column: auto; } }
 .mini-atlas .atlas-map, .stage-atlas .atlas-map { left: auto; right: -4%; width: auto; aspect-ratio: 160 / 96; }
-.mini-atlas::before, .stage-atlas::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, #141c18 22%, rgba(20,28,24,0.4) 55%, transparent 75%); z-index: 0; }
+.mini-atlas::before, .stage-atlas::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, #0a0a0a 22%, rgba(10,10,10,0.4) 55%, transparent 75%); z-index: 0; }
 .mini-atlas > :not(svg), .stage-atlas > :not(svg) { z-index: 1; }

@@ -3,16 +3,17 @@
  * traced into contour lines with marching squares. Pure and deterministic, computed once.
  */
 
-export const GRID_COLS = "ABCDEFGHIJKL";
-export const GRID_ROWS = 8;
+export const GRID_COLS = "ABCDEFGH";
+export const GRID_ROWS = 5;
 /** Height-field resolution; the SVG viewBox uses the same units. */
-export const W = 120;
-export const H = 72;
+export const W = 128;
+export const H = 80;
 
 /** Where each summit stands, as fractions of the map (x, y). One per featured project, in order. */
+// The title card covers the left half on wide screens, so the first summits stand to the right.
 const SPOTS: [number, number][] = [
-  [0.22, 0.34], [0.47, 0.22], [0.74, 0.3], [0.88, 0.62], [0.6, 0.55], [0.34, 0.66],
-  [0.1, 0.72], [0.15, 0.14], [0.8, 0.12], [0.53, 0.84], [0.7, 0.82], [0.92, 0.38],
+  [0.62, 0.24], [0.83, 0.3], [0.55, 0.46], [0.72, 0.08], [0.52, 0.64], [0.5, 0.9],
+  [0.24, 0.07], [0.44, 0.1], [0.86, 0.16], [0.68, 0.4], [0.3, 0.92], [0.1, 0.9],
 ];
 
 export interface Summit { x: number; y: number; ref: string }
@@ -162,4 +163,29 @@ export function tint(h: number): [number, number, number] {
     }
   }
   return stops[stops.length - 1][1];
+}
+
+/** A peakless terrain for the faint page backdrop, so sections sit on the same map paper. */
+let backdropCache: Terrain["lines"] | null = null;
+export function backdrop(): Terrain["lines"] {
+  if (backdropCache) return backdropCache;
+  const n1 = valueNoise(101, 3), n2 = valueNoise(131, 7), n3 = valueNoise(173, 15);
+  const f = new Float32Array((W + 1) * (H + 1));
+  let min = Infinity, max = -Infinity;
+  for (let y = 0; y <= H; y++) {
+    for (let x = 0; x <= W; x++) {
+      const v = 0.55 * n1(x / W, y / H) + 0.3 * n2(x / W, y / H) + 0.15 * n3(x / W, y / H);
+      f[y * (W + 1) + x] = v;
+      min = Math.min(min, v);
+      max = Math.max(max, v);
+    }
+  }
+  for (let i = 0; i < f.length; i++) f[i] = (f[i] - min) / (max - min);
+  const lines = [];
+  for (let i = 1; i <= 14; i++) {
+    const d = contour(f, i / 15);
+    if (d) lines.push({ d, level: i / 15, index: i % 5 === 0 });
+  }
+  backdropCache = lines;
+  return lines;
 }

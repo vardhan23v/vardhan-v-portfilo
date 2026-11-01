@@ -52,4 +52,4 @@ export const canonicalUrl = (entry: Pick<RouteSeoEntry, "canonicalPath">) => `${
 
 /** Browser theme-color per route: Paper is the only light edition. */
 export const themeColorFor = (pathname: string) =>
-  pathname === "/paper" || pathname.startsWith("/paper/") ? "#f5f1ea" : pathname === "/classic" ? "#1d274e" : pathname.startsWith("/work/") ? "#0b0f1a" : pathname === "/atlas" ? "#141c18" : "#05060f";
+  pathname === "/paper" || pathname.startsWith("/paper/") ? "#f5f1ea" : pathname === "/classic" ? "#1d274e" : pathname.startsWith("/work/") ? "#0b0f1a" : pathname === "/atlas" ? "#0a0a0a" : "#05060f";

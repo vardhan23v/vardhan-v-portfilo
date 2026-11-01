@@ -40,9 +40,9 @@ const RING_OFFSET: Partial<Record<Cur, [number, number]>> = { term: [6, 10] };
 const PULSE_MS: Partial<Record<Cur, number>> = { classic: 900, aurora: 600, atlas: 700 };
 
 /** Atlas: the map the crosshair reads grid references from, and its grid size. */
-const ATLAS_MAP = ".at-map-inner";
-const ATLAS_COLS = "ABCDEFGHIJKL";
-const ATLAS_ROWS = 8;
+const ATLAS_MAP = ".atl-map";
+const ATLAS_COLS = "ABCDEFGH";
+const ATLAS_ROWS = 5;
 
 /** Where an edition's live accent comes from (themes can change it at runtime). */
 const LIVE_VARS: Partial<Record<Cur, [string, string]>> = {

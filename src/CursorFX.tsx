@@ -41,6 +41,8 @@ const PULSE_MS: Partial<Record<Cur, number>> = { classic: 900, aurora: 600, atla
 
 /** Atlas: the map the crosshair reads grid references from, and its grid size. */
 const ATLAS_MAP = ".atl-map";
+/** Things that sit on the map but are not terrain: no grid reference over them. */
+const ATLAS_COVER = ".atl-card, .atl-legend, .atl-peaks a";
 const ATLAS_COLS = "ABCDEFGH";
 const ATLAS_ROWS = 5;
 
@@ -276,9 +278,10 @@ export function CursorFX() {
 
     // Atlas: read the grid reference under the crosshair while it is over the map.
     let gridRef = "";
+    let overCover = false;
     const readGrid = () => {
       const label = refRef.current;
-      const map = cur === "atlas" ? root?.querySelector(ATLAS_MAP) : null;
+      const map = cur === "atlas" && !overCover ? root?.querySelector(ATLAS_MAP) : null;
       let next = "";
       if (map) {
         const r = map.getBoundingClientRect();
@@ -307,6 +310,8 @@ export function CursorFX() {
       // fixed chrome that lives outside an edition root (switcher, palette) follows the page's edition
       const accent = t.closest("[data-cursor-accent]") ?? document.querySelector("[data-cursor-accent]");
       const inter = t.closest(INTERACTIVE);
+      const cover = !!t.closest(ATLAS_COVER);
+      if (cover !== overCover) { overCover = cover; readGrid(); }
       const next = asCur(card ? card.getAttribute("data-cursor") : accent?.getAttribute("data-cursor-accent"));
 
       const rootChanged = setRoot(accent);

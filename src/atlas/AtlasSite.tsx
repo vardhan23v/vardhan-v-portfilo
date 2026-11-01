@@ -83,6 +83,27 @@ function Head({ i, lead }: { i: number; lead: string }) {
 /* ---------- title sheet ---------- */
 /** `activity` is the year's total, null while loading, or "failed" when the sheet is left out. */
 function TitleSheet({ activity, more }: { activity: number | null | "failed"; more: number }) {
+  const map = useRef<HTMLDivElement>(null);
+  // A summit keeps its triangle but drops its name wherever the name would run under the card,
+  // the legend or off the map; re-measured whenever the map changes size.
+  useEffect(() => {
+    const el = map.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const fit = () => {
+      const box = el.getBoundingClientRect();
+      const covers = [...el.querySelectorAll(".atl-card, .atl-legend")].map((c) => c.getBoundingClientRect());
+      el.querySelectorAll<HTMLLIElement>(".atl-peaks li").forEach((li) => {
+        li.classList.remove("is-quiet");
+        const r = li.querySelector(".atl-peak-name")?.getBoundingClientRect();
+        if (!r || !r.width) return;
+        const hit = r.right > box.right - 8 || covers.some((c) => r.right > c.left - 8 && r.left < c.right + 8 && r.bottom > c.top - 8 && r.top < c.bottom + 8);
+        li.classList.toggle("is-quiet", hit);
+      });
+    };
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   const contents = [
     { icon: "peak", n: 0, count: pad(PLATES.length) },
     { icon: "hollow", n: 1, count: pad(more) },
@@ -97,7 +118,8 @@ function TitleSheet({ activity, more }: { activity: number | null | "failed"; mo
       <ol className="atl-coords atl-coords--bottom" aria-hidden="true">{[...GRID_COLS].map((c) => <li key={c}>{c}</li>)}</ol>
       <ol className="atl-coords atl-coords--left" aria-hidden="true">{Array.from({ length: GRID_ROWS }, (_, i) => <li key={i}>{i + 1}</li>)}</ol>
       <ol className="atl-coords atl-coords--right" aria-hidden="true">{Array.from({ length: GRID_ROWS }, (_, i) => <li key={i}>{i + 1}</li>)}</ol>
-      <div className="atl-map">
+      <div className="atl-map" ref={map}>
+        <div className="atl-map-art">
         <Contours lines={T.lines} className="atl-map-lines" />
         <div className="atl-map-grid" aria-hidden="true" />
         <ul className="atl-peaks">
@@ -111,6 +133,7 @@ function TitleSheet({ activity, more }: { activity: number | null | "failed"; mo
             </li>
           ))}
         </ul>
+        </div>
 
         <div className="atl-card">
           <p className="atl-card-top"><span>Sheet I · An atlas of the work of</span><span className="atl-north" aria-hidden="true"><svg viewBox="0 0 12 16"><path d="M6 0 11 12 6 9 1 12Z" /></svg><b>N</b></span></p>
@@ -236,6 +259,7 @@ function Bar({ rows }: { rows: Row[] }) {
           onBlur={() => setTimeout(() => setOpen(false), 120)}
           onKeyDown={onKeyDown}
         />
+        <span className="atl-pct" aria-hidden="true">0%</span>
         <kbd aria-hidden="true">/</kbd>
         {open && results.length > 0 && (
           <ul className="atl-results" id="atl-results" role="listbox" aria-label="Matches">
@@ -247,7 +271,7 @@ function Bar({ rows }: { rows: Row[] }) {
           </ul>
         )}
       </div>
-      <div className="atl-progress" aria-hidden="true"><span className="atl-progress-track"><i /></span><span className="atl-pct">0%</span></div>
+      <span className="atl-progress" aria-hidden="true" />
       <InterfaceSwitcher current="atlas" />
     </header>
   );
@@ -381,7 +405,24 @@ function smooth(pts: [number, number][]) {
   return d;
 }
 
+/** Adds `is-in` once the element is on screen, so the profile draws where it can be seen. */
+function useSeen<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === "undefined") { el.classList.add("is-in"); return; }
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { el.classList.add("is-in"); io.disconnect(); }
+    }, { threshold: 0.35 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return ref;
+}
+
 function ActivityBody({ a }: { a: Activity }) {
+  const seen = useSeen<HTMLDivElement>();
   const VW = 1000, VH = 300, TOP = 34, BASE = 280;
   const max = Math.max(1, ...a.weeks.map((w) => w.count));
   const n = a.weeks.length;
@@ -405,12 +446,12 @@ function ActivityBody({ a }: { a: Activity }) {
         </dl>
       </div>
       <figure className="atl-profile">
-        <div className="atl-profile-plot">
+        <div className="atl-profile-plot" ref={seen}>
           <svg viewBox={`0 0 ${VW} ${VH}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
             <path d={`${ridge}L${VW} ${VH}L0 ${VH}Z`} className="atl-profile-fill" />
             <path d={ridge} className="atl-profile-line" pathLength={1} />
           </svg>
-          {peak && <p className="atl-peak-tag" style={{ left: `${(peak[0] / VW) * 100}%`, top: `${(peak[1] / VH) * 100}%` }}><span className="atl-tri" aria-hidden="true" /> Peak, {a.busiest.count}</p>}
+          {peak && <p className={`atl-peak-tag${peak[0] / VW > 0.85 ? " is-flip" : ""}`} style={{ left: `${(peak[0] / VW) * 100}%`, top: `${(peak[1] / VH) * 100}%` }}><span className="atl-tri" aria-hidden="true" /> Peak, {a.busiest.count}</p>}
         </div>
         <div className="atl-axis" aria-hidden="true">{months.map(({ i, d }) => <span key={i} style={{ left: `${(i / Math.max(1, n - 1)) * 100}%` }}>{d.toLocaleDateString("en-GB", { month: "short" })}</span>)}</div>
         <div className="atl-plan" aria-hidden="true" style={{ "--lead": lead } as CSSProperties}>
@@ -491,6 +532,7 @@ function Contact() {
   ];
   return (
     <section className="atl-sec atl-contact" id="contact" aria-labelledby="contact-h">
+      <Ruler />
       <div className="atl-contact-left">
         <p className="atl-roman" aria-hidden="true">VI</p>
         <h2 id="contact-h" className="atl-h2 atl-h2--xl">Contact</h2>

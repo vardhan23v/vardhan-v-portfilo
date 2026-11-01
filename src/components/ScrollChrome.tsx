@@ -7,6 +7,7 @@ const ACCENTS: Record<string, string> = {
   landing: "#7c6cff",
   term: "#36e57c",
   classic: "#bbaf4a",
+  atlas: "#ff5b24",
   paper: "#be4b2a",
   aurora: "#f0abfc",
   forge: "#7dd3fc",

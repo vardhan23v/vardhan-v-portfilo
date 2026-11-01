@@ -6,6 +6,8 @@ import { Hero } from "./components/Hero";
 import { About } from "./components/About";
 import { NightSky } from "./components/NightSky";
 import { Work } from "./components/Work";
+import { Stats } from "./components/Stats";
+import { Process } from "./components/Process";
 import { Experience } from "./components/Experience";
 import { Skills } from "./components/Skills";
 import { Contact } from "./components/Contact";
@@ -50,8 +52,10 @@ export function ClassicSite() {
       <Navbar />
       <main id="main">
         <Hero />
+        <Stats />
         <About />
         <Work />
+        <Process />
         <Experience />
         <Skills />
         <Contact />

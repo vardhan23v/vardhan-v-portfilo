@@ -1,4 +1,5 @@
 import { skillCategories } from "../data/skills";
+import { usedIn } from "../data/stats";
 
 /** Small line glyphs drawn for this page, one per category; decorative. */
 const GLYPH: Record<string, string> = {
@@ -16,7 +17,7 @@ export function Skills() {
       <div className="wrap">
         <div className="section-head">
           <h2 className="h2" id="skills-h2">Skills</h2>
-          <p className="section-sub">Grouped the way the projects above use them.</p>
+          <p className="section-sub">Grouped the way the projects above use them. The small number is how many projects use that tool.</p>
         </div>
         <dl className="skills-list">
           {skillCategories.map((c) => (
@@ -26,10 +27,10 @@ export function Skills() {
                 {c.label}
               </dt>
               <dd>
-                <span className="sr-only">{c.items.map((s) => s.name).join(", ")}</span>
+                <span className="sr-only">{c.items.map((s) => (usedIn(s.name) ? `${s.name} (used in ${usedIn(s.name)} projects)` : s.name)).join(", ")}</span>
                 <span className="chips" aria-hidden="true">
                   {c.items.map((s, w) => (
-                    <span className="chip sk-word" key={s.name} style={{ "--w": w } as React.CSSProperties}>{s.name}</span>
+                    <span className="chip sk-word" key={s.name} style={{ "--w": w } as React.CSSProperties}>{s.name}{usedIn(s.name) > 0 && <b className="chip-n">{usedIn(s.name)}</b>}</span>
                   ))}
                 </span>
               </dd>

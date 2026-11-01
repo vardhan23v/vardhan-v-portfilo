@@ -4,6 +4,7 @@ import { GithubIcon } from "../../lib/icons";
 import { useNav } from "../../hooks/useNav";
 import { usePalette } from "../../hooks/usePalette";
 import { featuredProjects, otherProjects, type Project } from "../../data/projects";
+import { caseStudyPath, hasCaseStudy } from "../../../work/links";
 import { catOf, categoryCounts, CATEGORY_LABELS, type ProjectCategory } from "../../lib/projects";
 import { Reveal } from "../../components/ui/Reveal";
 import { useTilt } from "../../hooks/useTilt";
@@ -188,6 +189,11 @@ function ProjectModal({
           {project.live && (
             <a className="mac-btn mac-btn--primary" href={project.live} target="_blank" rel="noopener noreferrer">
               <ExternalLink /> Live Demo
+            </a>
+          )}
+          {hasCaseStudy(project.slug) && (
+            <a className="mac-btn mac-btn--ghost" href={caseStudyPath(project.slug)} target="_blank" rel="noopener noreferrer">
+              Case study<span className="sr-only"> (opens in a new tab)</span>
             </a>
           )}
         </div>

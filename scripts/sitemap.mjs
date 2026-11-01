@@ -4,7 +4,7 @@ import { loadSeo } from "./seo-routes.mjs";
 
 const { SEO_ROUTES, canonicalUrl } = await loadSeo();
 const today = new Date().toISOString().slice(0, 10);
-const priority = (path) => (path === "/" ? "1.0" : path.startsWith("/terminal/work/") ? "0.5" : "0.8");
+const priority = (path) => (path === "/" ? "1.0" : path.startsWith("/work/") ? "0.7" : "0.8");
 const urls = SEO_ROUTES
   .filter((r) => r.path === r.canonicalPath) // skip aliases such as /editions → /
   .map((r) => ({ loc: canonicalUrl(r), priority: priority(r.path) }));

@@ -15,6 +15,7 @@ import { useMagnetic } from "../hooks/useMagnetic";
 import { useGithub } from "../hooks/useGithub";
 import { EmberField } from "./EmberField";
 import { featuredProjects, type Project, CATEGORY_LABEL } from "../classic/data/projects";
+import { caseStudyPath, hasCaseStudy } from "../work/links";
 import { experience } from "../classic/data/experience";
 import { skillCategories } from "../classic/data/skills";
 import { site } from "../classic/data/site";
@@ -831,6 +832,7 @@ function ProjectCard({ p, i }: { p: (typeof FORGE_PROJECTS)[number]; i: number }
               Live Demo <span aria-hidden="true">↗</span>
             </a>
           )}
+          {hasCaseStudy(p.slug) && <Link to={caseStudyPath(p.slug)} state={{ from: "/forge" }} className="fg-proj-link">Case study →</Link>}
         </div>
         <span className="fg-proj-emoji" aria-hidden="true">{p.emoji}</span>
         </div>

@@ -1,5 +1,5 @@
 import { useEffect, lazy, Suspense } from "react";
-import { Outlet, Route, RouterProvider, createBrowserRouter, createRoutesFromElements, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, Outlet, Route, RouterProvider, createBrowserRouter, createRoutesFromElements, useLocation, useNavigate } from "react-router-dom";
 import { CursorFX } from "./CursorFX";
 import { ScrollChrome } from "./components/ScrollChrome";
 import { CommandPalette } from "./components/CommandPalette";
@@ -21,6 +21,7 @@ const MacPortfolio = lazy(() => import("./mac/MacPortfolio").then((m) => ({ defa
 const TerminalLayout = lazy(() => import("./terminal/TerminalLayout").then((m) => ({ default: m.TerminalLayout })));
 const TerminalHome = lazy(() => import("./terminal/TerminalHome").then((m) => ({ default: m.TerminalHome })));
 const WorkDetail = lazy(() => import("./terminal/components/WorkDetail").then((m) => ({ default: m.WorkDetail })));
+const CaseStudy = lazy(() => import("./work/CaseStudy").then((m) => ({ default: m.CaseStudy })));
 
 const interfaceRoutes = editionRoutes;
 
@@ -36,7 +37,7 @@ function RouteSeo() {
 
   useEffect(() => {
     const base = "/" + pathname.split("/")[1];
-    const known = pathname === "/" || pathname === "/editions" || interfaceRoutes.includes(base);
+    const known = pathname === "/" || pathname === "/editions" || interfaceRoutes.includes(base) || Boolean(SEO_BY_PATH[pathname]);
     const seo = known ? (SEO_BY_PATH[pathname] ?? SEO_BY_PATH[base]) : NOT_FOUND_SEO;
     const url = canonicalUrl({ canonicalPath: SEO_BY_PATH[pathname]?.canonicalPath ?? pathname });
     document.title = seo.title;
@@ -145,6 +146,8 @@ const router = createBrowserRouter(
         <Route index element={<TerminalHome />} />
         <Route path="work/:slug" element={<WorkDetail />} />
       </Route>
+      <Route path="/work" element={<Navigate to="/" replace />} />
+      <Route path="/work/:slug" element={<CaseStudy />} />
       <Route path="*" element={<NotFound />} />
     </Route>
   )

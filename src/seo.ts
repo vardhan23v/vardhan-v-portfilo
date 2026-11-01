@@ -30,10 +30,17 @@ export const SEO_ROUTES: readonly RouteSeoEntry[] = [
   { path: "/editions", ...LANDING_SEO, canonicalPath: "/" },
   ...EDITIONS.map((e) => ({ path: e.to, ...e.seo, canonicalPath: e.to })),
   ...caseStudies.map((s) => ({
+    path: `/work/${s.slug}`,
+    title: `${s.name} — case study | ${site.name}`,
+    description: s.description,
+    canonicalPath: `/work/${s.slug}`,
+  })),
+  // The Terminal keeps its own reading of each study; search engines are pointed at /work.
+  ...caseStudies.map((s) => ({
     path: `/terminal/work/${s.slug}`,
     title: `${s.name} — case study | ${site.name}`,
     description: s.description,
-    canonicalPath: `/terminal/work/${s.slug}`,
+    canonicalPath: `/work/${s.slug}`,
   })),
 ];
 
@@ -45,4 +52,4 @@ export const canonicalUrl = (entry: Pick<RouteSeoEntry, "canonicalPath">) => `${
 
 /** Browser theme-color per route: Paper is the only light edition. */
 export const themeColorFor = (pathname: string) =>
-  pathname === "/paper" || pathname.startsWith("/paper/") ? "#f5f1ea" : pathname === "/classic" ? "#1d274e" : "#05060f";
+  pathname === "/paper" || pathname.startsWith("/paper/") ? "#f5f1ea" : pathname === "/classic" ? "#1d274e" : pathname.startsWith("/work/") ? "#0b0f1a" : "#05060f";

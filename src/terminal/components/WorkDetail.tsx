@@ -50,6 +50,8 @@ export function WorkDetail() {
           <a href={p.github} target="_blank" rel="noopener noreferrer">
             git clone ../{p.slug}
           </a>
+          <span className="bracket">·</span>
+          <Link to={`/work/${p.slug}`} state={{ from: "/terminal" }}>open ./share-page</Link>
           <span className="bracket case-keys" aria-hidden="true">[ / ] prev · next</span>
         </div>
 

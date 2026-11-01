@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { site } from "../classic/data/site";
+import { caseStudies } from "../terminal/data/work";
 import "./command-palette.css";
 import { motionReduced, motionSummary, setMotionPreference } from "../lib/motion";
 
@@ -22,6 +23,7 @@ const ITEMS: Item[] = [
   { id: "aurora", label: "Aurora interface", hint: "4", keywords: "glass gradient", path: "/aurora" },
   { id: "forge", label: "Forge interface", hint: "5", keywords: "industrial", path: "/forge" },
   { id: "mac", label: "macOS interface", hint: "6", keywords: "mac application desktop", path: "/mac" },
+  ...caseStudies.map((c): Item => ({ id: `cs-${c.slug}`, label: `Case study — ${c.name}`, hint: "case", keywords: `project work ${c.tagline}`, path: `/work/${c.slug}` })),
   { id: "random", label: "Surprise me — random interface", hint: "⚄", keywords: "shuffle lucky", action: "random" },
   { id: "top", label: "Back to top", hint: "top", keywords: "scroll up", action: "top" },
   { id: "copy-email", label: "Copy email address", hint: "⧉", keywords: "clipboard contact", action: "copy-email" },
@@ -148,7 +150,8 @@ export function CommandPalette() {
         const others = editionPaths.filter((p) => p !== window.location.pathname);
         navigate(others[Math.floor(Math.random() * others.length)], { viewTransition: true });
       } else if (item.path) {
-        navigate(item.path, { viewTransition: true });
+        // Case studies offer a way back to the edition the palette was opened from.
+        navigate(item.path, { viewTransition: true, state: { from: "/" + pathname.split("/")[1] } });
       } else if (item.href) {
         if (item.href.startsWith("mailto:")) {
           window.location.href = item.href;
@@ -160,7 +163,7 @@ export function CommandPalette() {
         window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
       }
     },
-    [navigate]
+    [navigate, pathname]
   );
 
   useEffect(() => {

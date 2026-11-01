@@ -10,6 +10,7 @@ import { useTilt } from "../hooks/useTilt";
 import { useIstTime } from "../hooks/useIstTime";
 import { Link } from "react-router-dom";
 import { featuredProjects, type Project } from "../classic/data/projects";
+import { caseStudyPath, hasCaseStudy } from "../work/links";
 import { experience, education, certifications } from "../classic/data/experience";
 import { skillCategories, exploring } from "../classic/data/skills";
 import { site } from "../classic/data/site";
@@ -395,6 +396,7 @@ function ProjectModal({
               Live Demo <span aria-hidden="true">↗</span>
             </a>
           )}
+          {hasCaseStudy(p.slug) && <Link to={caseStudyPath(p.slug)} state={{ from: "/aurora" }} className="aurora-btn au-modal-btn">Case study →</Link>}
           <button type="button" className="aurora-btn au-modal-btn" onClick={copyLink}>
             Copy link <span aria-hidden="true">⧉</span>
           </button>
@@ -445,6 +447,7 @@ function FeaturedProject({ p, onOpen }: { p: Project; onOpen: () => void }) {
                 Live Demo <span aria-hidden="true">↗</span>
               </a>
             )}
+            {hasCaseStudy(p.slug) && <Link to={caseStudyPath(p.slug)} state={{ from: "/aurora" }}>Case study →</Link>}
           </div>
           <div onClick={(e) => e.stopPropagation()}>
             <AuroraDetails p={p} />
@@ -503,6 +506,7 @@ function AuroraCard({ p, n, i, onOpen }: { p: Project; n: string; i: number; onO
               Live Demo <span aria-hidden="true">↗</span>
             </a>
           )}
+          {hasCaseStudy(p.slug) && <Link to={caseStudyPath(p.slug)} state={{ from: "/aurora" }}>Case study →</Link>}
         </div>
         <span className="au-card-cta" aria-hidden="true">
           quick view →

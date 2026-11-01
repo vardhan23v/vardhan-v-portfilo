@@ -5,6 +5,7 @@ import { featuredProjects, type Project } from "../classic/data/projects";
 import { experience } from "../classic/data/experience";
 import { skillCategories } from "../classic/data/skills";
 import { site } from "../classic/data/site";
+import { caseStudyPath, hasCaseStudy } from "../work/links";
 import "./styles/paper.css";
 
 export const paperProjects = featuredProjects;
@@ -175,6 +176,7 @@ export function PaperSite() {
                       live demo ↗
                     </a>
                   )}
+                  {hasCaseStudy(p.slug) && <Link to={caseStudyPath(p.slug)} state={{ from: "/paper" }}>case study →</Link>}
                 </div>
                 <EngineeringDetails p={p} />
               </div>

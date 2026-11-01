@@ -1,4 +1,4 @@
-import "@fontsource-variable/bricolage-grotesque";
+import "@fontsource-variable/fraunces";
 import { useEffect, useRef } from "react";
 import { useClassicEffects } from "./useEffects";
 import { Navbar } from "./components/Navbar";
@@ -15,8 +15,8 @@ import { Footer } from "./components/Footer";
 import "./styles/classic.css";
 
 /**
- * Classic — the recruiter edition, "Starry Night": a still midnight sky behind night-blue
- * surfaces, moonlight text and one celestial-blue accent; Bricolage Grotesque for headings, Inter for reading. Four projects lead, the rest are browsable,
+ * Classic — the recruiter edition, "Starry Night" after Van Gogh: a painted, swirling sky behind
+ * cobalt surfaces, canvas-cream text and starlight-gold actions; Fraunces for headings, Inter for reading. Four projects lead, the rest are browsable,
  * and motion is kept to feedback that explains an interaction.
  */
 /** "g" then a letter jumps to a section: a About, p Projects, e Experience, s Skills, c Contact. */

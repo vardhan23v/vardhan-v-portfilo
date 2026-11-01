@@ -3,6 +3,7 @@ import { skillCategories } from "../data/skills";
 
 const FIRST = 6;
 import { usedIn } from "../data/stats";
+import { smooth } from "../lib/vt";
 
 /** Small line glyphs drawn for this page, one per category; decorative. */
 const GLYPH: Record<string, string> = {
@@ -38,7 +39,7 @@ export function Skills() {
                   ))}
                 </span>
                 {c.items.length > FIRST && (
-                  <button type="button" className="chip chip-more" aria-expanded={!!open[c.label]} onClick={() => setOpen((o) => ({ ...o, [c.label]: !o[c.label] }))}>
+                  <button type="button" className="chip chip-more" aria-expanded={!!open[c.label]} onClick={() => smooth(() => setOpen((o) => ({ ...o, [c.label]: !o[c.label] })))}>
                     {open[c.label] ? "Show less" : `+${c.items.length - FIRST} more`}
                   </button>
                 )}

@@ -3,6 +3,7 @@ import { CATEGORY_LABEL, featuredProjects, type Project, type ProjectCategory } 
 import { CREDIT, FEATURED_SLUGS, KEY_WORK } from "../content";
 import { embeddable, framesOf, hostOf } from "../lib/frames";
 import { LiveFrame } from "./LiveFrame";
+import { smooth } from "../lib/vt";
 import { ProjectDialog } from "./ProjectDialog";
 import { Builds } from "./Builds";
 
@@ -103,7 +104,7 @@ export function Work() {
               {(["all", ...CATEGORIES] as const).map((c) => {
                 const n = c === "all" ? rest.length : rest.filter((p) => p.category === c).length;
                 return (
-                  <button key={c} type="button" className="filter" aria-pressed={cat === c} aria-controls={listId} onClick={() => { setCat(c); setExpanded(false); }}>
+                  <button key={c} type="button" className="filter" aria-pressed={cat === c} aria-controls={listId} onClick={() => smooth(() => { setCat(c); setExpanded(false); })}>
                     {c === "all" ? "All" : CATEGORY_LABEL[c]} <span className="filter-n">{n}</span>
                   </button>
                 );
@@ -120,7 +121,7 @@ export function Work() {
           </div>
           {filtered.length === 0 && <p className="empty">No project matches “{query}”. <button type="button" className="link link-btn" onClick={() => { setQuery(""); setCat("all"); }}>Clear search</button></p>}
           {cat === "all" && !query && (hidden > 0 || expanded) && (
-            <button type="button" className="btn btn--secondary more-toggle" aria-expanded={expanded} aria-controls={listId} onClick={() => setExpanded((v) => !v)}>
+            <button type="button" className="btn btn--secondary more-toggle" aria-expanded={expanded} aria-controls={listId} onClick={() => smooth(() => setExpanded((v) => !v))}>
               {expanded ? "Show fewer projects" : `Show ${hidden} more project${hidden === 1 ? "" : "s"}`}
             </button>
           )}

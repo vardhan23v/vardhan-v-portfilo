@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { otherProjects } from "../data/projects";
+import { smooth } from "../lib/vt";
 
 const FIRST = 0;
 
@@ -24,7 +25,7 @@ export function Builds() {
         ))}
       </ul>}
       {otherProjects.length > FIRST && (
-        <button type="button" className="btn btn--secondary more-toggle" aria-expanded={all} aria-controls="builds-list" onClick={() => setAll((v) => !v)}>
+        <button type="button" className="btn btn--secondary more-toggle" aria-expanded={all} aria-controls="builds-list" onClick={() => smooth(() => setAll((v) => !v))}>
           {all ? "Show fewer builds" : `Show ${otherProjects.length} smaller builds`}
         </button>
       )}

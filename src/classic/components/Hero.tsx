@@ -1,6 +1,6 @@
 import { experience, education } from "../data/experience";
 import { site } from "../data/site";
-import { Constellation } from "./NightSky";
+import { HeroPainting } from "./NightSky";
 import { CopyEmail } from "./CopyEmail";
 
 export function Hero() {
@@ -8,7 +8,7 @@ export function Hero() {
   const school = education[0];
   return (
     <section className="hero" id="top" aria-labelledby="hero-h1">
-      <Constellation />
+      <HeroPainting />
       <div className="wrap hero-grid">
         <div className="hero-copy">
           <p className="hero-status" data-load style={{ "--d": "40ms" } as React.CSSProperties}>

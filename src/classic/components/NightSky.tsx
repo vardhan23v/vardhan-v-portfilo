@@ -5,7 +5,7 @@
  * A handful of stars twinkle through CSS opacity only, and only when motion is allowed.
  */
 
-interface Star { x: number; y: number; r: number; o: number; twinkle?: number; warm?: boolean }
+interface Star { x: number; y: number; r: number; o: number; twinkle?: number; warm?: boolean; halo?: boolean }
 
 function mulberry32(seed: number) {
   return () => {
@@ -34,6 +34,8 @@ const STARS: Star[] = (() => {
     if (r >= 1.05 && twinkles < 8 && rnd() < 0.35) star.twinkle = twinkles++;
     // Roughly one star in nine burns warm, like the painting's starlight against the blue.
     if (r >= 1.05 && i % 9 === 4) star.warm = true;
+    // A few of the brightest burn gold with Van Gogh's concentric halos.
+    if (r >= 1.05 && i % 4 === 1) { star.warm = true; star.halo = true; }
     out.push(star);
   }
   return out;
@@ -44,29 +46,21 @@ export function NightSky() {
     <svg className="sky" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id="shoot-tail" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#e9eef8" stopOpacity="0" />
-          <stop offset="1" stopColor="#e9eef8" stopOpacity="0.9" />
+          <stop offset="0" stopColor="#f3ecd8" stopOpacity="0" />
+          <stop offset="1" stopColor="#f3ecd8" stopOpacity="0.9" />
         </linearGradient>
-        <radialGradient id="nebula-a"><stop offset="0" stopColor="#6f7fe0" stopOpacity="0.22" /><stop offset="1" stopColor="#6f7fe0" stopOpacity="0" /></radialGradient>
-        <radialGradient id="nebula-b"><stop offset="0" stopColor="#f6d7a0" stopOpacity="0.09" /><stop offset="1" stopColor="#f6d7a0" stopOpacity="0" /></radialGradient>
       </defs>
-      {/* A soft, still nebula behind the hero: two faint glows, indigo and starlight. */}
-      <g className="nebula">
-        <ellipse cx="1150" cy="170" rx="420" ry="230" fill="url(#nebula-a)" />
-        <ellipse cx="260" cy="90" rx="320" ry="170" fill="url(#nebula-b)" />
-      </g>
       {/* Two depth layers: small, dim stars are far and drift less as the page scrolls. */}
       {(["far", "near"] as const).map((layer) => (
         <g key={layer} className={`sky-layer sky-layer--${layer}`}>
           {STARS.map((s, i) => ((s.r >= 1.05) === (layer === "near") ? (
-            <circle
-              key={i}
+            <g key={i}>{s.halo && <><circle cx={s.x} cy={s.y} r={s.r * 7} className="halo halo--outer" /><circle cx={s.x} cy={s.y} r={s.r * 4} className="halo" /></>}<circle
               cx={s.x}
               cy={s.y}
               r={s.r}
               className={`star${s.twinkle !== undefined ? " star--twinkle" : ""}${s.warm ? " star--warm" : ""}`}
               style={{ opacity: s.o, ...(s.twinkle !== undefined ? { animationDelay: `${s.twinkle * -1.3}s`, animationDuration: `${7 + (s.twinkle % 4)}s` } : null) } as React.CSSProperties}
-            />
+            /></g>
           ) : null))}
         </g>
       ))}
@@ -81,19 +75,98 @@ export function NightSky() {
   );
 }
 
-/** A small, fixed constellation for the hero's right margin (desktop only). Decorative. */
-const POINTS: [number, number, number][] = [
-  [20, 132, 1.7], [74, 96, 1.3], [128, 112, 2.1], [176, 58, 1.4], [232, 76, 1.8], [262, 22, 1.2], [214, 138, 1.3],
-];
-const LINKS: [number, number][] = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [2, 6], [6, 4]];
 
-export function Constellation() {
+/* ---------- The hero's painted canvas, after "The Starry Night" (1889) ----------
+   Each moving part is its own SVG layer and moves by CSS transform only, so the browser composites it
+   without repainting; the brush texture (a turbulence displacement) is computed once per layer. */
+const PW = 1440, PH = 720;
+
+/** An Archimedean spiral as a polyline path, opening outward from (cx, cy). */
+function spiral(cx: number, cy: number, r0: number, r1: number, turns: number, phase = 0) {
+  const steps = Math.round(turns * 48);
+  let d = "";
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const a = phase + t * turns * Math.PI * 2;
+    const r = r0 + (r1 - r0) * t;
+    d += `${i ? "L" : "M"}${(cx + Math.cos(a) * r).toFixed(1)} ${(cy + Math.sin(a) * r * 0.82).toFixed(1)}`;
+  }
+  return d;
+}
+
+/** The great rolling wave across the sky, as parallel brush strokes. */
+const WAVE = [0, 1, 2, 3, 4, 5, 6].map((k) => {
+  const o = k * 13;
+  return { d: `M 640 ${330 + o} C 760 ${170 + o}, 860 ${400 + o}, 1010 ${300 + o} S 1300 ${150 + o}, 1520 ${270 + o}`, k };
+});
+const SPIRAL_A = [0, 1, 2, 3].map((k) => spiral(960, 270, 6 + k * 7, 118 + k * 6, 2.4, k * 0.5));
+const SPIRAL_B = [0, 1, 2].map((k) => spiral(1230, 470, 4 + k * 6, 74 + k * 5, 2, k * 0.6));
+const HERO_STARS: [number, number, number][] = [[620, 110, 0.9], [800, 60, 0.75], [1120, 140, 0.9], [760, 560, 0.6], [1395, 330, 0.75], [1060, 610, 0.6]];
+
+function Brush({ id, seed }: { id: string; seed: number }) {
   return (
-    <svg className="constellation" viewBox="0 0 284 160" aria-hidden="true" focusable="false">
-      {LINKS.map(([a, b]) => (
-        <line key={`${a}-${b}`} x1={POINTS[a][0]} y1={POINTS[a][1]} x2={POINTS[b][0]} y2={POINTS[b][1]} className="constellation-line" pathLength={1} style={{ "--c": LINKS.findIndex((l) => l[0] === a && l[1] === b) } as React.CSSProperties} />
-      ))}
-      {POINTS.map(([x, y, r], i) => <circle key={i} cx={x} cy={y} r={r} className={`constellation-star${r >= 1.7 ? " constellation-star--warm" : ""}`} style={{ "--c": i } as React.CSSProperties} />)}
-    </svg>
+    <filter id={id} x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.018 0.03" numOctaves="2" seed={seed} result="n" />
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="9" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  );
+}
+
+const layer = (cls: string, children: React.ReactNode) => (
+  <svg className={`paint ${cls}`} viewBox={`0 0 ${PW} ${PH}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">{children}</svg>
+);
+
+export function HeroPainting() {
+  return (
+    <div className="painting" aria-hidden="true">
+      <div className="painting-sky">
+        {layer("paint-wave", <>
+          <defs><Brush id="brush-w" seed={3} /></defs>
+          <g filter="url(#brush-w)" fill="none" strokeLinecap="round">
+            {WAVE.map((w) => <path key={w.k} d={w.d} className={`stroke stroke--${w.k % 3}`} strokeWidth={w.k % 3 === 0 ? 7 : 4} />)}
+          </g>
+        </>)}
+        {layer("paint-spiral-a", <>
+          <defs><Brush id="brush-a" seed={8} /></defs>
+          <g filter="url(#brush-a)" fill="none" strokeLinecap="round">
+            {SPIRAL_A.map((d, k) => <path key={k} d={d} className={`stroke stroke--${k % 3}`} strokeWidth={k === 0 ? 6 : 3.5} />)}
+          </g>
+        </>)}
+        {layer("paint-spiral-b", <>
+          <defs><Brush id="brush-b" seed={14} /></defs>
+          <g filter="url(#brush-b)" fill="none" strokeLinecap="round">
+            {SPIRAL_B.map((d, k) => <path key={k} d={d} className={`stroke stroke--${(k + 1) % 3}`} strokeWidth={k === 0 ? 5 : 3} />)}
+          </g>
+        </>)}
+        {layer("paint-stars", <>
+          {HERO_STARS.map(([x, y, s], i) => (
+            <g key={i} className="hstar" style={{ "--i": i } as React.CSSProperties}>
+              <circle cx={x} cy={y} r={30 * s} className="halo halo--outer" />
+              <circle cx={x} cy={y} r={17 * s} className="halo" />
+              <circle cx={x} cy={y} r={5 * s} className="hstar-core" />
+            </g>
+          ))}
+        </>)}
+      </div>
+      {layer("paint-moon", <>
+        <defs>
+          <radialGradient id="moon-glow"><stop offset="0" stopColor="#f4c542" stopOpacity="0.55" /><stop offset="0.45" stopColor="#e8a93b" stopOpacity="0.18" /><stop offset="1" stopColor="#e8a93b" stopOpacity="0" /></radialGradient>
+          <mask id="moon-cut"><rect width={PW} height={PH} fill="#fff" /><circle cx="1318" cy="96" r="30" fill="#000" /></mask>
+        </defs>
+        <circle cx="1300" cy="110" r="130" fill="url(#moon-glow)" className="moon-glow" />
+        <circle cx="1300" cy="110" r="62" className="moon-ring" />
+        <circle cx="1300" cy="110" r="44" className="moon-ring" />
+        <circle cx="1300" cy="110" r="32" className="moon" mask="url(#moon-cut)" />
+      </>)}
+      <svg className="paint-hills" viewBox="0 0 1440 160" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <path d="M0 96 C 180 60, 330 112, 520 84 S 860 46, 1040 82 S 1320 64, 1440 78 L1440 160 L0 160 Z" className="hill hill--far" />
+        <path d="M0 128 C 220 100, 420 140, 640 118 S 1060 98, 1240 120 S 1400 112, 1440 116 L1440 160 L0 160 Z" className="hill" />
+      </svg>
+      <svg className="paint-cypress" viewBox="0 0 120 420" aria-hidden="true" focusable="false">
+        <defs><Brush id="brush-c" seed={21} /></defs>
+        <path filter="url(#brush-c)" className="cypress" d="M60 6 C 70 60, 92 96, 84 150 C 104 196, 96 240, 108 290 C 118 340, 104 380, 112 420 L 8 420 C 16 380, 2 340, 14 292 C 22 244, 12 200, 34 154 C 26 100, 50 64, 60 6 Z" />
+        <path filter="url(#brush-c)" className="cypress-light" d="M60 40 C 66 90, 78 120, 72 170 C 84 220, 80 260, 88 320" />
+      </svg>
+    </div>
   );
 }

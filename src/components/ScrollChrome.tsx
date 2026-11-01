@@ -6,7 +6,7 @@ import { motionReduced } from "../lib/motion";
 const ACCENTS: Record<string, string> = {
   landing: "#7c6cff",
   term: "#36e57c",
-  classic: "#9cc0ff",
+  classic: "#f4c542",
   paper: "#be4b2a",
   aurora: "#f0abfc",
   forge: "#7dd3fc",

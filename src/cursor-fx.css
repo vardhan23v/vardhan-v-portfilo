@@ -1,43 +1,59 @@
-/* ---------- Global Cursor FX ---------- */
+/* ---------- Global Cursor FX ----------
+   One overlay, eight looks. JS (src/CursorFX.tsx) only writes transform/opacity on
+   .cur-dot, .cur-ring, .cur-tail and the pooled .cur-p particles; every child below is
+   switched on per edition with .cur-fx[data-cur="…"]. The native cursor is never hidden
+   here (macOS swaps it for CSS cursor images in src/cursors/mac-cursors.css). */
 
 .cur-fx {
   position: fixed;
   inset: 0;
   z-index: 9999;
   pointer-events: none;
+  contain: layout style;
   --cur-accent: #7c6cff;
+  --cur-hue: 0deg;
+  --cur-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.cur-dot {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 6px;
-  height: 6px;
-  border-radius: 9999px;
-  background: var(--cur-accent);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--cur-accent) 55%, transparent);
-  opacity: 0.9;
-  transition: opacity 0.25s ease, background 0.25s ease;
-}
-
-.cur-ring {
+.cur-dot,
+.cur-ring,
+.cur-tail,
+.cur-p {
   position: fixed;
   top: 0;
   left: 0;
   will-change: transform;
 }
 
-.cur-ring-inner {
+/* Every variant piece is off until its edition turns it on. */
+.cur-core,
+.cur-star,
+.cur-caret,
+.cur-ring-inner,
+.cur-glow,
+.cur-swirl,
+.cur-halo,
+.cur-brk,
+.cur-tail,
+.cur-p {
+  display: none;
+}
+
+.cur-core,
+.cur-star,
+.cur-caret,
+.cur-ring-inner,
+.cur-glow,
+.cur-swirl,
+.cur-halo,
+.cur-brk {
   position: absolute;
-  top: -17px;
-  left: -17px;
-  width: 34px;
-  height: 34px;
-  border-radius: 9999px;
-  border: 1.5px solid color-mix(in srgb, var(--cur-accent) 55%, transparent);
-  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.28s ease,
-    background 0.28s ease;
+  top: 0;
+  left: 0;
+}
+
+.cur-p {
+  opacity: 0;
 }
 
 .cur-fx.cur-hidden {
@@ -45,18 +61,44 @@
   transition: opacity 0.2s ease;
 }
 
-.cur-fx.cur-interactive .cur-ring-inner {
-  transform: scale(1.6);
-  border-color: color-mix(in srgb, var(--cur-accent) 90%, transparent);
-  background: color-mix(in srgb, var(--cur-accent) 8%, transparent);
+/* =========================================================
+   Default (404 and anything outside an edition): dot + lagging ring
+   ========================================================= */
+.cur-fx[data-cur="default"] .cur-core,
+.cur-fx[data-cur="default"] .cur-ring-inner {
+  display: block;
 }
 
-.cur-fx.cur-interactive .cur-dot {
+.cur-fx[data-cur="default"] .cur-core {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 9999px;
+  background: var(--cur-accent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--cur-accent) 55%, transparent);
+  opacity: 0.9;
+  transition: opacity 0.25s ease;
+}
+
+.cur-fx[data-cur="default"] .cur-ring-inner {
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border-radius: 9999px;
+  border: 1.5px solid color-mix(in srgb, var(--cur-accent) 55%, transparent);
+  transition: transform 0.28s var(--cur-ease), opacity 0.28s ease;
+}
+
+.cur-fx[data-cur="default"].cur-interactive .cur-ring-inner {
+  transform: scale(1.6);
+}
+
+.cur-fx[data-cur="default"].cur-interactive .cur-core {
   opacity: 0.3;
 }
 
-.cur-fx.cur-pulse .cur-ring-inner {
-  animation: cur-pulse 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+.cur-fx[data-cur="default"].cur-pulse .cur-ring-inner {
+  animation: cur-pulse 0.45s var(--cur-ease) forwards;
 }
 
 @keyframes cur-pulse {
@@ -64,12 +106,399 @@
   100% { transform: scale(2.4); opacity: 0; }
 }
 
-.cur-fx[data-cur="term"] { --cur-accent: #36e57c; }
-.cur-fx[data-cur="classic"] { --cur-accent: #bbaf4a; }
-.cur-fx[data-cur="paper"] { --cur-accent: #be4b2a; }
-.cur-fx[data-cur="aurora"] { --cur-accent: #f0abfc; }
-.cur-fx[data-cur="forge"] { --cur-accent: #7dd3fc; }
-.cur-fx[data-cur="landing"] { --cur-accent: #7c6cff; }
+/* =========================================================
+   Landing: a violet comet whose tail stretches with speed.
+   Over an edition card the overlay switches to that edition's cursor.
+   ========================================================= */
+.cur-fx[data-cur="landing"] .cur-core,
+.cur-fx[data-cur="landing"] .cur-tail {
+  display: block;
+}
+
+.cur-fx[data-cur="landing"] .cur-core {
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 40% 40%, #fff 0 22%, #b7adff 45%, #7c6cff 75%);
+  box-shadow: 0 0 10px 2px rgba(124, 108, 255, 0.55), 0 0 26px 6px rgba(124, 108, 255, 0.18);
+  transition: transform 0.3s var(--cur-ease);
+}
+
+.cur-fx[data-cur="landing"] .cur-tail {
+  width: 46px;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 9999px;
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, rgba(183, 173, 255, 0.85), rgba(124, 108, 255, 0.35) 45%, transparent);
+  opacity: 0;
+}
+
+.cur-fx[data-cur="landing"].cur-interactive .cur-core {
+  transform: scale(1.7);
+}
+
+.cur-fx[data-cur="landing"].cur-pulse .cur-core {
+  animation: cur-comet-flash 0.45s var(--cur-ease);
+}
+
+@keyframes cur-comet-flash {
+  0% { transform: scale(2.4); }
+  100% { transform: scale(1); }
+}
+
+/* =========================================================
+   Terminal: a phosphor block caret on a character grid, leaving afterglow.
+   Over links/buttons the caret gives way to [ ] brackets around the pointer.
+   --cur-accent is copied live from the terminal's --green (data-phosphor).
+   ========================================================= */
+.cur-fx[data-cur="term"] {
+  --cur-accent: #36e57c;
+}
+
+.cur-fx[data-cur="term"] .cur-caret,
+.cur-fx[data-cur="term"] .cur-brk,
+.cur-fx[data-cur="term"] .cur-p {
+  display: block;
+}
+
+.cur-fx[data-cur="term"] .cur-caret {
+  width: 9px;
+  height: 17px;
+  margin: -8.5px 0 0 -4.5px;
+  background: var(--cur-accent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--cur-accent) 70%, transparent);
+  opacity: 0.85;
+  transition: transform 0.18s var(--cur-ease), opacity 0.18s ease;
+  animation: cur-blink 1.06s steps(1) infinite;
+}
+
+/* a real terminal holds the caret solid while you type; here, while you move */
+.cur-fx[data-cur="term"].cur-moving .cur-caret {
+  animation: none;
+}
+
+@keyframes cur-blink {
+  0%, 55% { opacity: 0.85; }
+  56%, 100% { opacity: 0; }
+}
+
+.cur-fx[data-cur="term"] .cur-p {
+  width: 9px;
+  height: 17px;
+  margin: -8.5px 0 0 -4.5px;
+  background: var(--cur-accent);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--cur-accent) 60%, transparent);
+}
+
+.cur-fx[data-cur="term"] .cur-brk {
+  width: 12px;
+  height: 24px;
+  margin: -13px 0 0 -6px;
+  font: 700 21px/24px "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--cur-accent);
+  text-align: center;
+  text-shadow: 0 0 8px color-mix(in srgb, var(--cur-accent) 70%, transparent);
+  opacity: 0;
+  transition: transform 0.2s var(--cur-ease), opacity 0.16s ease;
+}
+
+.cur-fx[data-cur="term"] .cur-brk-l { transform: translateX(-6px); }
+.cur-fx[data-cur="term"] .cur-brk-r { transform: translateX(6px); }
+
+.cur-fx[data-cur="term"].cur-interactive .cur-brk { opacity: 1; }
+.cur-fx[data-cur="term"].cur-interactive .cur-brk-l { transform: translateX(-17px); }
+.cur-fx[data-cur="term"].cur-interactive .cur-brk-r { transform: translateX(17px); }
+
+.cur-fx[data-cur="term"].cur-interactive .cur-caret {
+  opacity: 0;
+  transform: scaleY(0.2);
+  animation: none;
+}
+
+.cur-fx[data-cur="term"].cur-pulse .cur-brk-l { animation: cur-brk-l 0.3s var(--cur-ease); }
+.cur-fx[data-cur="term"].cur-pulse .cur-brk-r { animation: cur-brk-r 0.3s var(--cur-ease); }
+.cur-fx[data-cur="term"].cur-pulse:not(.cur-interactive) .cur-caret { animation: cur-caret-hit 0.3s var(--cur-ease); }
+
+@keyframes cur-brk-l { 0% { transform: translateX(-9px); } 100% { transform: translateX(-17px); } }
+@keyframes cur-brk-r { 0% { transform: translateX(9px); } 100% { transform: translateX(17px); } }
+@keyframes cur-caret-hit {
+  0% { transform: scaleX(2.2); opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0.85; }
+}
+
+/* =========================================================
+   Classic (The Starry Night): a four-point star inside a slowly turning brushed
+   swirl. Interactive targets open the swirl into concentric halos like the
+   painting's stars; a click sends the halos out as ripples.
+   ========================================================= */
+.cur-fx[data-cur="classic"] .cur-star,
+.cur-fx[data-cur="classic"] .cur-swirl,
+.cur-fx[data-cur="classic"] .cur-halo {
+  display: block;
+}
+
+.cur-fx[data-cur="classic"] .cur-star {
+  margin: -12px 0 0 -12px;
+  transition: transform 0.4s var(--cur-ease);
+}
+
+.cur-fx[data-cur="classic"] .cur-swirl {
+  margin: -24px 0 0 -24px;
+  fill: none;
+  stroke-linecap: round;
+  opacity: 0.85;
+  transition: opacity 0.35s ease, transform 0.5s var(--cur-ease);
+}
+
+.cur-swirl-a {
+  stroke: #6e89a2;
+  stroke-width: 2.2;
+}
+
+.cur-swirl-b {
+  stroke: #cfcfbb;
+  stroke-width: 1.1;
+  opacity: 0.65;
+}
+
+/* the turning lives on the paths' group so hover can scale the svg itself */
+.cur-fx[data-cur="classic"] .cur-swirl path {
+  transform-origin: 0 0;
+  animation: cur-swirl-turn 9s linear infinite;
+}
+
+@keyframes cur-swirl-turn {
+  to { transform: rotate(360deg); }
+}
+
+.cur-fx[data-cur="classic"] .cur-halo {
+  border-radius: 9999px;
+  opacity: 0;
+  transform: scale(0.4);
+  transition: transform 0.45s var(--cur-ease), opacity 0.3s ease;
+}
+
+.cur-fx[data-cur="classic"] .cur-halo-1 {
+  width: 24px;
+  height: 24px;
+  margin: -12px 0 0 -12px;
+  border: 1.5px solid rgba(187, 175, 74, 0.9);
+}
+
+.cur-fx[data-cur="classic"] .cur-halo-2 {
+  width: 38px;
+  height: 38px;
+  margin: -19px 0 0 -19px;
+  border: 1.5px solid rgba(207, 207, 187, 0.6);
+  transition-delay: 0.04s;
+}
+
+.cur-fx[data-cur="classic"] .cur-halo-3 {
+  width: 54px;
+  height: 54px;
+  margin: -27px 0 0 -27px;
+  border: 1.5px solid rgba(110, 137, 162, 0.55);
+  transition-delay: 0.08s;
+}
+
+.cur-fx[data-cur="classic"].cur-interactive .cur-swirl {
+  opacity: 0;
+  transform: scale(1.5);
+}
+
+.cur-fx[data-cur="classic"].cur-interactive .cur-halo {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.cur-fx[data-cur="classic"].cur-interactive .cur-star {
+  transform: scale(1.25) rotate(45deg);
+}
+
+.cur-fx[data-cur="classic"].cur-pulse .cur-halo {
+  animation: cur-halo-ripple 0.8s var(--cur-ease) both;
+}
+
+.cur-fx[data-cur="classic"].cur-pulse .cur-halo-2 { animation-delay: 0.08s; }
+.cur-fx[data-cur="classic"].cur-pulse .cur-halo-3 { animation-delay: 0.16s; }
+
+@keyframes cur-halo-ripple {
+  0% { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(2.1); opacity: 0; }
+}
+
+/* =========================================================
+   Paper: a terracotta ink dot that leaves a short drying trail.
+   Over links it draws an ink underline; a click splats.
+   ========================================================= */
+.cur-fx[data-cur="paper"] {
+  --cur-accent: #be4b2a;
+}
+
+.cur-fx[data-cur="paper"] .cur-core,
+.cur-fx[data-cur="paper"] .cur-p {
+  display: block;
+}
+
+.cur-fx[data-cur="paper"] .cur-core {
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 46% 54% 50% 48% / 52% 46% 54% 48%;
+  background: var(--cur-accent);
+  opacity: 0.92;
+  transition: transform 0.24s var(--cur-ease), opacity 0.2s ease;
+}
+
+.cur-fx[data-cur="paper"].cur-interactive .cur-core {
+  /* the dot pulls into a short underline beneath the pointer */
+  transform: translate(4px, 15px) scale(3.4, 0.42);
+  opacity: 0.8;
+}
+
+.cur-fx[data-cur="paper"] .cur-p {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: var(--cur-accent);
+}
+
+.cur-fx[data-cur="paper"].cur-pulse .cur-core {
+  animation: cur-ink-splat 0.42s var(--cur-ease);
+}
+
+@keyframes cur-ink-splat {
+  0% { transform: scale(2.6, 2.2) rotate(12deg); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 0.92; }
+}
+
+/* =========================================================
+   Aurora: a soft luminous glow drifting behind a bright core, stretching along the
+   direction of travel. Hue follows the visitor's preset (--au-hue -> --cur-hue).
+   ========================================================= */
+.cur-fx[data-cur="aurora"] .cur-core,
+.cur-fx[data-cur="aurora"] .cur-glow {
+  display: block;
+}
+
+.cur-fx[data-cur="aurora"] .cur-core {
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  border-radius: 9999px;
+  background: #fff;
+  box-shadow: 0 0 8px 2px hsl(calc(265deg + var(--cur-hue)) 95% 78% / 0.9);
+  transition: transform 0.3s var(--cur-ease);
+}
+
+.cur-fx[data-cur="aurora"] .cur-glow {
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 38% 42%, hsl(calc(265deg + var(--cur-hue)) 95% 74% / 0.5), transparent 52%),
+    radial-gradient(circle at 64% 58%, hsl(calc(190deg + var(--cur-hue)) 95% 66% / 0.42), transparent 55%),
+    radial-gradient(circle, hsl(calc(225deg + var(--cur-hue)) 90% 70% / 0.18), transparent 70%);
+  opacity: 0.75;
+  transition: transform 0.45s var(--cur-ease), opacity 0.35s ease;
+}
+
+.cur-fx[data-cur="aurora"].cur-interactive .cur-glow {
+  transform: scale(1.55);
+  opacity: 1;
+}
+
+.cur-fx[data-cur="aurora"].cur-interactive .cur-core {
+  transform: scale(1.5);
+}
+
+.cur-fx[data-cur="aurora"].cur-pulse .cur-glow {
+  animation: cur-aurora-flare 0.6s var(--cur-ease);
+}
+
+@keyframes cur-aurora-flare {
+  0% { transform: scale(2.1); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+/* =========================================================
+   Forge: a hot ember that throws sparks upward when moved fast; interactive
+   targets get a hammer-strike ring; a click bursts sparks. Cyan, orange when
+   stoked (--cur-accent copied live from --fg-cyan).
+   ========================================================= */
+.cur-fx[data-cur="forge"] {
+  --cur-accent: #7dd3fc;
+}
+
+.cur-fx[data-cur="forge"] .cur-core,
+.cur-fx[data-cur="forge"] .cur-ring-inner,
+.cur-fx[data-cur="forge"] .cur-p {
+  display: block;
+}
+
+.cur-fx[data-cur="forge"] .cur-core {
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, #fff 0 28%, var(--cur-accent) 62%, transparent 74%);
+  box-shadow: 0 0 10px 2px color-mix(in srgb, var(--cur-accent) 55%, transparent);
+  transition: transform 0.25s var(--cur-ease);
+}
+
+.cur-fx[data-cur="forge"] .cur-ring-inner {
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  border-radius: 9999px;
+  border: 2px solid var(--cur-accent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--cur-accent) 40%, transparent),
+    inset 0 0 0 4px color-mix(in srgb, var(--cur-accent) 12%, transparent);
+  opacity: 0;
+  transform: scale(1.9);
+  transition: transform 0.22s cubic-bezier(0.5, 1.8, 0.5, 1), opacity 0.15s ease;
+}
+
+.cur-fx[data-cur="forge"].cur-interactive .cur-ring-inner {
+  opacity: 0.9;
+  transform: scale(1);
+}
+
+.cur-fx[data-cur="forge"].cur-interactive .cur-core {
+  transform: scale(0.7);
+}
+
+.cur-fx[data-cur="forge"].cur-pulse .cur-ring-inner {
+  animation: cur-strike 0.4s var(--cur-ease);
+}
+
+@keyframes cur-strike {
+  0% { transform: scale(0.55); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+.cur-fx[data-cur="forge"] .cur-p {
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, #fff 0 30%, var(--cur-accent) 70%);
+  box-shadow: 0 0 6px var(--cur-accent);
+}
+
+/* Landing's macOS card previews the edition's hand. */
+.edition-card[data-cursor="mac"] { --mc-arrow: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2724%27%20height%3D%2724%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cpath%20d%3D%27M5%203L5%2019.6L9.1%2015.8L11.8%2021.7L14.6%2020.5L12%2014.7L17.8%2014.7Z%27%20fill%3D%27none%27%20stroke%3D%27%23000%27%20stroke-opacity%3D%27.38%27%20stroke-width%3D%273.6%27%20stroke-linejoin%3D%27round%27%2F%3E%3Cpath%20d%3D%27M5%203L5%2019.6L9.1%2015.8L11.8%2021.7L14.6%2020.5L12%2014.7L17.8%2014.7Z%27%20fill%3D%27%236ea8ff%27%20stroke%3D%27%23fff%27%20stroke-width%3D%271.6%27%20stroke-linejoin%3D%27round%27%2F%3E%3C%2Fsvg%3E") 5 3, default; --mc-hand: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2724%27%20height%3D%2724%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cg%20stroke%3D%27%23000%27%20stroke-opacity%3D%27.38%27%20stroke-width%3D%273.4%27%20stroke-linejoin%3D%27round%27%20fill%3D%27%23000%27%3E%3Crect%20x%3D%278.2%27%20y%3D%272%27%20width%3D%273.6%27%20height%3D%2712%27%20rx%3D%271.8%27%2F%3E%3Crect%20x%3D%2711.4%27%20y%3D%278.2%27%20width%3D%273.2%27%20height%3D%276%27%20rx%3D%271.6%27%2F%3E%3Crect%20x%3D%2714.1%27%20y%3D%279%27%20width%3D%273.2%27%20height%3D%276%27%20rx%3D%271.6%27%2F%3E%3Crect%20x%3D%2716.7%27%20y%3D%2710.4%27%20width%3D%272.9%27%20height%3D%275.4%27%20rx%3D%271.45%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%2711.6%27%20width%3D%2712.6%27%20height%3D%279.6%27%20rx%3D%273.6%27%2F%3E%3Crect%20x%3D%274%27%20y%3D%2711%27%20width%3D%273.4%27%20height%3D%277.4%27%20rx%3D%271.7%27%20transform%3D%27rotate(-32%205.7%2014.7)%27%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%27%23fff%27%20stroke-width%3D%271.6%27%20fill%3D%27%23fff%27%3E%3Crect%20x%3D%278.2%27%20y%3D%272%27%20width%3D%273.6%27%20height%3D%2712%27%20rx%3D%271.8%27%2F%3E%3Crect%20x%3D%2711.4%27%20y%3D%278.2%27%20width%3D%273.2%27%20height%3D%276%27%20rx%3D%271.6%27%2F%3E%3Crect%20x%3D%2714.1%27%20y%3D%279%27%20width%3D%273.2%27%20height%3D%276%27%20rx%3D%271.6%27%2F%3E%3Crect%20x%3D%2716.7%27%20y%3D%2710.4%27%20width%3D%272.9%27%20height%3D%275.4%27%20rx%3D%271.45%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%2711.6%27%20width%3D%2712.6%27%20height%3D%279.6%27%20rx%3D%273.6%27%2F%3E%3Crect%20x%3D%274%27%20y%3D%2711%27%20width%3D%273.4%27%20height%3D%277.4%27%20rx%3D%271.7%27%20transform%3D%27rotate(-32%205.7%2014.7)%27%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%27%236ea8ff%27%3E%3Crect%20x%3D%278.2%27%20y%3D%272%27%20width%3D%273.6%27%20height%3D%2712%27%20rx%3D%271.8%27%2F%3E%3Crect%20x%3D%2711.4%27%20y%3D%278.2%27%20width%3D%273.2%27%20height%3D%276%27%20rx%3D%271.6%27%2F%3E%3Crect%20x%3D%2714.1%27%20y%3D%279%27%20width%3D%273.2%27%20height%3D%276%27%20rx%3D%271.6%27%2F%3E%3Crect%20x%3D%2716.7%27%20y%3D%2710.4%27%20width%3D%272.9%27%20height%3D%275.4%27%20rx%3D%271.45%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%2711.6%27%20width%3D%2712.6%27%20height%3D%279.6%27%20rx%3D%273.6%27%2F%3E%3Crect%20x%3D%274%27%20y%3D%2711%27%20width%3D%273.4%27%20height%3D%277.4%27%20rx%3D%271.7%27%20transform%3D%27rotate(-32%205.7%2014.7)%27%2F%3E%3C%2Fg%3E%3Cpath%20d%3D%27M11.6%2011.4V14M14.3%2012V14.6M16.9%2013V15%27%20stroke%3D%27%23fff%27%20stroke-opacity%3D%27.75%27%20stroke-width%3D%27.9%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E") 10 2, pointer; cursor: var(--mc-hand); }
+
+/* =========================================================
+   macOS: no overlay (native CSS cursors, see src/cursors/mac-cursors.css).
+   ========================================================= */
+.cur-fx[data-cur="mac"] {
+  opacity: 0;
+}
 
 @media (pointer: coarse) {
   .cur-fx {
@@ -77,7 +506,8 @@
   }
 }
 
-/* Reduced motion: no custom cursor at all (otherwise the dot/ring sit idle at 0,0). */
+/* Reduced motion: no animated overlay at all; the native cursor (and macOS's static
+   CSS cursor images) remain. */
 html[data-motion="reduce"] .cur-fx {
   display: none;
 }

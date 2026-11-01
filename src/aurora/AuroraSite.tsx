@@ -875,7 +875,7 @@ export function AuroraSite() {
   const hueDeg = HUES.find((h) => h.id === hue)?.deg ?? 0;
 
   return (
-    <div className="aurora-root" data-cursor-off data-hue={hue} style={{ "--au-hue": `${hueDeg}deg` } as React.CSSProperties}>
+    <div className="aurora-root" data-cursor-accent="aurora" data-hue={hue} style={{ "--au-hue": `${hueDeg}deg` } as React.CSSProperties}>
       <div className="aurora-bg" aria-hidden="true" style={{ "--mx": `${mouse.x}%`, "--my": `${mouse.y}%` } as React.CSSProperties}>
         <div className="au-glow au-glow-purple" />
         <div className="au-glow au-glow-blue" />

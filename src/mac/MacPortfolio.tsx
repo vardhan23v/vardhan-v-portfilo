@@ -12,6 +12,7 @@ import { CommandPalette } from "./components/command-palette/CommandPalette";
 import { HelpOverlay } from "./components/desktop/HelpOverlay";
 import { BootScreen } from "./components/boot/BootScreen";
 import "./styles.css";
+import "../cursors/mac-cursors.css";
 
 function MacInner() {
   const { theme } = useTheme();
@@ -21,7 +22,7 @@ function MacInner() {
     <div
       className="mac-root"
       data-theme={theme}
-      data-cursor-off
+      data-cursor-accent="mac"
       data-mac-motion={prefs.reduceMotion ? "off" : "on"}
       data-accent={prefs.accent}
       style={{ "--cc-brightness": String(prefs.brightness) } as CSSProperties}

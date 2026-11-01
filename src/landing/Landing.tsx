@@ -325,7 +325,7 @@ export function Landing() {
   const current = EDITIONS[index];
 
   return (
-    <div ref={rootRef} className={`landing-root${portal ? " is-leaving" : ""}`} data-tone={current.tone}>
+    <div ref={rootRef} className={`landing-root${portal ? " is-leaving" : ""}`} data-cursor-accent="landing" data-tone={current.tone}>
       {portal && <PortalOverlay p={portal} />}
       <div className="land-wall" aria-hidden="true"><i className="a" /><i className="b" /><i className="c" /><i className="grain" /></div>
 

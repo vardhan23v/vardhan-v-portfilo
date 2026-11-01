@@ -68,8 +68,6 @@ export function useScrollProgress(root: RefObject<HTMLElement | null>) {
     });
     watch();
     // Rows from GitHub and the contribution chart arrive after the first render.
-    const mo = new MutationObserver(watch);
-    mo.observe(host, { childList: true, subtree: true });
     let raf = 0;
     const tick = () => {
       raf = 0;
@@ -78,12 +76,25 @@ export function useScrollProgress(root: RefObject<HTMLElement | null>) {
     const queue = () => {
       if (!raf) raf = requestAnimationFrame(tick);
     };
+    // Late layout shifts (content arriving, fonts swapping in, a tab coming back) move
+    // elements without a scroll, so they re-measure too.
+    const mo = new MutationObserver(() => {
+      watch();
+      queue();
+    });
+    mo.observe(host, { childList: true, subtree: true });
+    const onVisible = () => !document.hidden && queue();
     addEventListener("scroll", queue, { passive: true });
     addEventListener("resize", queue);
+    addEventListener("load", queue);
+    document.addEventListener("visibilitychange", onVisible);
+    document.fonts?.ready.then(queue);
     return () => {
       cancelAnimationFrame(raf);
       removeEventListener("scroll", queue);
       removeEventListener("resize", queue);
+      removeEventListener("load", queue);
+      document.removeEventListener("visibilitychange", onVisible);
       io.disconnect();
       mo.disconnect();
     };

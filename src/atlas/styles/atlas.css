@@ -63,7 +63,7 @@
 .atl-search:focus-within { border-bottom-color: var(--orange); }
 .atl-search input::-webkit-search-cancel-button { display: none; }
 .atl-search kbd { font-family: var(--mono); font-size: 11px; padding: 1px 6px; border: 1px solid var(--line-2); border-radius: 2px; color: var(--ink-2); background: none; }
-.atl-pct { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); min-width: 3.2ch; text-align: right; font-variant-numeric: tabular-nums; }
+.atl-pct { font-family: var(--mono); font-size: 11.5px; color: var(--orange); min-width: 4ch; margin-right: 6px; text-align: right; font-variant-numeric: tabular-nums; }
 .atl-results { position: absolute; top: calc(100% + 6px); left: 0; right: 0; margin: 0; padding: 6px 0; list-style: none; background: #111; border: 1px solid var(--line-2); max-height: 60vh; overflow: auto; z-index: 2; }
 .atl-results li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 14px; cursor: pointer; font-size: 14px; }
 .atl-results li span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -406,8 +406,8 @@ html:has(.atlas) .sc-top:hover { background: #ff5b24; color: #0a0a0a; border-col
 .atl-band::before { top: 18px; background: linear-gradient(90deg, transparent, rgba(236, 232, 223, 0.12) 25%, rgba(236, 232, 223, 0.12) 75%, transparent); }
 .atl-band::after { top: 34px; transform: translateY(calc((1 - var(--p, 1)) * 80px)); background: linear-gradient(90deg, transparent 10%, rgba(122, 86, 68, 0.45) 40%, rgba(122, 86, 68, 0.45) 60%, transparent 90%); }
 .atl-head .atl-roman { opacity: clamp(0, (var(--p, 1) - 0.1) * 4, 1); }
-.atl-head .atl-h2 { opacity: clamp(0, (var(--p, 1) - 0.15) * 3, 1); transform: translateY(calc((1 - clamp(0, (var(--p, 1) - 0.15) * 2, 1)) * 0.35em)); }
-.atl-head .atl-lead { opacity: clamp(0, (var(--p, 1) - 0.35) * 3, 1); transform: translateY(calc((1 - clamp(0, (var(--p, 1) - 0.35) * 2, 1)) * 16px)); }
+.atl-head .atl-h2 { --r: clamp(0, (var(--p, 1) - 0.12) * 2.2, 1); clip-path: inset(-0.2em -0.1em calc((1 - var(--r)) * 100% - 0.25em) -0.1em); transform: translateY(calc((1 - var(--r)) * 0.4em)); }
+.atl-head .atl-lead { --r: clamp(0, (var(--p, 1) - 0.3) * 2.2, 1); clip-path: inset(0 calc((1 - var(--r)) * 100%) 0 0); }
 
 /* plates: survey lines cross each card corner and draw in; the picture settles up */
 .atl-sv { position: absolute; background: var(--line-2); pointer-events: none; }
@@ -417,7 +417,7 @@ html:has(.atlas) .sc-top:hover { background: #ff5b24; color: #0a0a0a; border-col
 .atl-plate--2 .atl-sv-v { left: auto; right: -1px; transform-origin: 50% 0; }
 @media (max-width: 640px) { .atl-sv-h { left: -10px; right: -10px; } .atl-sv-v { top: -10px; bottom: -10px; } }
 .atl-plate:not(.atl-plate--0) .atl-plate-inner { opacity: clamp(0, var(--p, 1) * 1.6, 1); transform: translateY(calc((1 - var(--p, 1)) * 28px)); }
-.atl-plate:not(.atl-plate--0) .atl-plate-cap { opacity: clamp(0, (var(--p, 1) - 0.25) * 2.5, 1); }
+.atl-plate:not(.atl-plate--0) .atl-plate-cap { clip-path: inset(-4px calc((1 - clamp(0, (var(--p, 1) - 0.2) * 2.2, 1)) * 100%) -4px 0); }
 
 /* plate 01: a sticky stage; the picture grows from a small centred frame, then steps left as its caption arrives */
 @media (min-width: 960px) {
@@ -425,17 +425,17 @@ html:has(.atlas) .sc-top:hover { background: #ff5b24; color: #0a0a0a; border-col
   .atl-plate--0 .atl-plate-stage { position: sticky; top: 52px; height: calc(100vh - 52px); display: grid; grid-template-columns: var(--cols); column-gap: var(--colgap); align-content: center; }
   .atl-plate--0 .atl-plate-card { transform-origin: 50% 50%; transform: translateX(calc((1 - var(--s2)) * (100vw - 2 * var(--gut)) * 0.125)) scale(calc(0.42 + 0.58 * var(--s1))); }
   .atl-plate--0 .atl-plate-ref { opacity: var(--s2); }
-  .atl-plate--0 .atl-plate-cap { opacity: var(--s2); transform: translateX(calc((1 - var(--s2)) * 56px)); }
+  .atl-plate--0 .atl-plate-cap { clip-path: inset(-4px calc((1 - var(--s2)) * 100%) -4px 0); transform: translateX(calc((1 - var(--s2)) * 56px)); }
 }
 
 /* more projects and route: each row's rule draws, its mark scales in, its words settle */
 .atl-gaz-list > li, .atl-route > li { position: relative; border-bottom-color: transparent; }
 .atl-gaz-list > li::after, .atl-route > li::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: var(--line); transform-origin: 0 50%; transform: scaleX(var(--p, 1)); }
 .atl-gaz-list .atl-tri--hollow, .atl-route-mark { transform: scale(calc(0.3 + 0.7 * var(--p, 1))); opacity: var(--p, 1); }
-.atl-gaz-list > li > :not(.atl-gaz-n):not(.atl-tri), .atl-route > li > :not(.atl-gaz-n):not(.atl-route-mark) { opacity: clamp(0, var(--p, 1) * 2.2, 1); transform: translateY(calc((1 - clamp(0, var(--p, 1) * 1.6, 1)) * 12px)); }
+.atl-gaz-list > li > :not(.atl-gaz-n):not(.atl-tri), .atl-route > li > :not(.atl-gaz-n):not(.atl-route-mark) { clip-path: inset(-6px calc((1 - clamp(0, var(--p, 1) * 1.8, 1)) * 100%) -6px 0); transform: translateY(calc((1 - clamp(0, var(--p, 1) * 1.6, 1)) * 10px)); }
 
 /* skills: the two columns drift at different rates while they cross the screen */
-.atl-index-group { transform: translateY(calc((1 - var(--p, 1)) * 44px * var(--rate, 1))); }
+.atl-index-group { transform: translateY(calc((1 - var(--p, 1)) * 20px * var(--rate, 1))); }
 
 /* activity: an orange front sweeps the ridge open; the peak tag appears as it passes */
 .atl-profile-plot { container-type: inline-size; }
@@ -458,3 +458,37 @@ html[data-motion="reduce"] .atlas [data-p] { --p: 1 !important; }
 html[data-motion="reduce"] .atlas [data-range="exit"] { --x: 0 !important; }
 html[data-motion="reduce"] .atl-plate--0 { height: auto !important; }
 html[data-motion="reduce"] .atl-plate--0 .atl-plate-stage { position: static !important; height: auto !important; }
+
+/* ============================================================
+   Phones: the same content, denser. Facts become one meta line,
+   links one row, lists flow instead of stacking.
+   ============================================================ */
+@media (max-width: 640px) {
+  .atl-plates { row-gap: 56px; }
+  .atl-plate-cap { padding-top: 16px; }
+  .atl-plate-name { font-size: 1.6rem; margin-top: 6px; }
+  .atl-plate-text { margin-top: 6px; font-size: 16px; }
+  /* Category · Role on one line, stack as one wrapped mono line; the labels stay for screen readers */
+  .atl-plate-card { padding: 6px; }
+  .atl-plate-inner { aspect-ratio: 16 / 9; }
+  .atl-plate-cap .atl-facts { margin-top: 12px; display: block; }
+  .atl-plate-cap .atl-facts div { display: inline; padding: 0; border: 0; }
+  .atl-plate-cap .atl-facts dt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .atl-plate-cap .atl-facts dd { display: inline; font-family: var(--mono); font-size: 12.5px; color: var(--ink-2); line-height: 1.6; }
+  .atl-plate-cap .atl-facts div:nth-child(1) dd::after { content: "·"; margin: 0 8px; color: var(--ink-3); }
+  .atl-plate-cap .atl-facts div:nth-child(3) dd { display: block; margin-top: 4px; color: var(--ink-3); }
+  .atl-plate-links { margin-top: 10px; display: block; }
+  .atl-plate-links p { display: block; }
+  .atl-plate-links span { white-space: nowrap; margin-right: 8px; }
+  .atl-plate-links a { font-size: 15px; min-height: 36px; }
+  .atl-plate-links span { font-size: 11.5px; }
+
+  .atl-gaz-list > li { padding: 16px 0; row-gap: 4px; }
+  .atl-gaz-name { font-size: 20px; }
+  .atl-gaz-text { font-size: 15px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
+
+  .atl-index { row-gap: 36px; }
+  .atl-index-group ul { display: flex; flex-wrap: wrap; gap: 6px 18px; padding-top: 12px; }
+  .atl-index-group li { padding: 2px 0; border: 0; gap: 6px; justify-content: flex-start; font-size: 15.5px; }
+  .atl-index-refs { font-size: 11px; align-self: center; }
+}

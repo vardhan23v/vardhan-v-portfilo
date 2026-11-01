@@ -379,7 +379,7 @@ function Skills() {
       <Head i={2} lead={`${SKILL_COUNT} entries in ${skillCategories.length} groups. The numbers after a name are the projects that use it.`} />
       <div className="atl-index">
         {skillCategories.map((c, gi) => (
-          <div key={c.label} className="atl-index-group" data-p="" data-range="cover" style={{ "--rate": gi % 2 ? 1.7 : 1 } as CSSProperties}>
+          <div key={c.label} className="atl-index-group" data-p="" data-range="cover" style={{ "--rate": gi % 2 ? 1.25 : 1 } as CSSProperties}>
             <h3><span>{c.label}</span><span className="atl-index-count">{pad(c.items.length)}</span></h3>
             <ul>
               {c.items.map((s) => {
@@ -405,8 +405,9 @@ function smooth(pts: [number, number][]) {
   let d = `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
   for (let i = 0; i < pts.length - 1; i++) {
     const p0 = pts[i - 1] ?? pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] ?? p2;
-    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
-    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    const lo = Math.max(p1[1], p2[1]), hi = Math.min(p1[1], p2[1]);
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, Math.min(lo, Math.max(hi, p1[1] + (p2[1] - p0[1]) / 6))];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, Math.min(lo, Math.max(hi, p2[1] - (p3[1] - p1[1]) / 6))];
     d += `C${c1[0].toFixed(1)} ${c1[1].toFixed(1)} ${c2[0].toFixed(1)} ${c2[1].toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
   }
   return d;
@@ -414,9 +415,12 @@ function smooth(pts: [number, number][]) {
 
 function ActivityBody({ a }: { a: Activity }) {
   const VW = 1000, VH = 300, TOP = 34, BASE = 280;
-  const max = Math.max(1, ...a.weeks.map((w) => w.count));
+  // The drawn ridge is a 3-week centred average so it reads as terrain, not needles;
+  // every number shown (stats, peak tag, table) stays the raw weekly total.
+  const sm = a.weeks.map((_, i) => { const win = a.weeks.slice(Math.max(0, i - 1), i + 2); return win.reduce((t, w) => t + w.count, 0) / win.length; });
+  const max = Math.max(1, ...sm);
   const n = a.weeks.length;
-  const pts = a.weeks.map((w, i) => [(i / Math.max(1, n - 1)) * VW, BASE - Math.sqrt(w.count / max) * (BASE - TOP)] as [number, number]);
+  const pts = sm.map((c, i) => [(i / Math.max(1, n - 1)) * VW, BASE - Math.sqrt(c / max) * (BASE - TOP)] as [number, number]);
   const ridge = smooth(pts);
   const pi = a.weeks.indexOf(a.busiest);
   const peak = pts[Math.max(0, pi)];
@@ -449,7 +453,7 @@ function ActivityBody({ a }: { a: Activity }) {
           {Array.from({ length: lead }, (_, i) => <i key={`pad${i}`} className="is-pad" />)}
           {a.days.map((d) => <i key={d.date} style={{ "--l": d.count ? (0.2 + 0.8 * Math.sqrt(d.count / dayMax)).toFixed(2) : 0 } as CSSProperties} />)}
         </div>
-        <figcaption className="atl-act-caps"><span>Section: the weekly totals, heights on a square-root scale</span><span>Plan: a square a day <i className="atl-plan-key" aria-hidden="true"><b /><b /><b /><b /><b /></i></span></figcaption>
+        <figcaption className="atl-act-caps"><span>Section: weekly totals, smoothed over three weeks, heights on a square-root scale</span><span>Plan: a square a day <i className="atl-plan-key" aria-hidden="true"><b /><b /><b /><b /><b /></i></span></figcaption>
       </figure>
       <table className="sr-only">
         <caption>Contributions per month, last year</caption>

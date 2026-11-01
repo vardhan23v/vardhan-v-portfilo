@@ -18,7 +18,7 @@
 [![Editions](https://img.shields.io/badge/editions-6_(landing_+_5_interfaces)-a78bfa?style=for-the-badge)](#-editions)
 
 [![Aurora 2.0](https://img.shields.io/badge/Aurora-2.0-luminous-22d3ee?style=for-the-badge)](#aurora-20--luminous-interactive)
-[![Classic](https://img.shields.io/badge/Classic-cinematic-34d399?style=for-the-badge)](#classic--cinematic)
+[![Classic](https://img.shields.io/badge/Classic-starry_night-9cc0ff?style=for-the-badge)](#-whats-new--nov-1-2026--classic-starry-night)
 [![Motion](https://img.shields.io/badge/motion-View_Transitions_+_scroll--driven-38bdf8?style=for-the-badge)](#-tech-stack)
 
 </div>
@@ -34,6 +34,18 @@ A production-quality portfolio positioning me as a **Generative AI Developer & F
 </div>
 
 ---
+
+## 🌌 What’s New — Nov 1 2026 · Classic “Starry Night”
+
+`/classic` is rebuilt as a recruiter-first dark edition (`src/classic/`):
+
+- **Look** — seeded night sky with parallax depth, a rare shooting star, a soft nebula and a hero constellation; night-blue surfaces, one celestial-blue accent, warm starlight used sparingly.
+- **Hero** — availability pill, masked-name load sequence, résumé/contact actions, copy-email button, and an "at a glance" card; a count-up **stats strip** follows.
+- **Projects** — Extension AI as the wide flagship, then TrustLens AI, HPL Auction and AI Code Reviewer in browser frames with a pointer tilt and on-demand live previews; stack chips; **search** and category filters for the rest; a **details dialog** (problem, features, stack, prev/next) for every project; 18 **smaller builds**.
+- **How I work** — the five stages from the Terminal edition.
+- **Experience & skills** — role cards on a drawn timeline (current roles glow), education and certificate cards, skill cards with glyphs and per-tool project counts.
+- **Motion** — scroll reveals with a failsafe so content is never left hidden, nav section progress, `g` + letter jump keys; everything off under reduced motion.
+- **Checks** — typecheck, lint, Vitest, build, Puppeteer smoke (9 routes), axe (0 violations at 1280/375), no horizontal overflow from 1440 to 320 px.
 
 ## 🆕 What’s New — Sep 15 2026 · Vardhan OS 2.0 “glass edition”
 
@@ -56,7 +68,7 @@ The macOS interface was rebuilt from the visual layer up: a **dark-glass OS with
 |---|---|---|
 | **macOS** `src/mac/MacPortfolio.tsx:1` | Premium OS shell — 8-phase build | **Desktop shell** + **window manager** (drag/resize/maximize/minimize, `is-active` accent border) + **menu bar dropdowns** (Apple/App/File/Edit/View/Window/Help) + **Control Center** (Wi-Fi/BT/AirDrop/Focus/DND, appearance, brightness, volume, auto-hide dock, Show Desktop, persisted `mac-preferences`) + **Settings sidebar** (accent 6 swatches, theme, motion, dock, network, sound, dev-mode toggle) + **Terminal** (`about`/`date`/`repo <slug>`/`github`/`linkedin`/`resume` + `open <app>`) + **Spotlight** label-first ranking + 5 app commands + **Vardhan AI** intent engine (project/stack/experience/education/contact with `[app:]` links) + **Developer Mode** chip + live inspector (windows/prefs JSON/console/uptime) + **Help overlay** (`?` + Help menu, 5 sections) + **mobile desktop-area bounds** + `prefers-reduced-motion` + `?` help, all scoped under `.mac-root` |
 | **Aurora 2.0** `src/aurora/AuroraSite.tsx:1` | Luminous + interactive | Toolbar with live search / sort (`Featured` / `A-Z` / Most stack) / grid↔list, result count + empty state, glass **project modal** (Esc/backdrop, scroll-lock), **Stack Lab** (28 tech pills filter Work + category breakdown + exploring notes), expandable experience rows, new **Education + Certs** timeline, 2-col contact (direct + validation form + toast), availability + IST + mouse aura, `204kB CSS` |
-| **Classic** `src/classic/ClassicSite.tsx:1` + `src/classic/styles/animations.css:1` | Cinematic | Top scroll-progress gradient bar, nav slide-down + logo pulse, hero stagger (`classicHeroIn` 0.1→0.52s) + 3D terminal entrance + `useClassicHeroFX` parallax (rAF, `y/700` fade), neural glow pulse, project filter shine + card tech-pop, timeline dot enter, skill wave, `Hero::after` scroll hint `classicScrollHint` |
+| **Classic** `src/classic/ClassicSite.tsx:1` + `src/classic/styles/classic.css:1` | Starry Night | Seeded night sky with two-layer scroll parallax, a shooting star and a faint nebula; masked-name load sequence; framed screenshots with a gentle pointer tilt; scroll reveals with a failsafe (`src/classic/useEffects.ts:1`); count-up stats; role cards on a drawn timeline |
 
 All respect `prefers-reduced-motion`, use `viewTransition` crossfades, and ship via Vercel auto-deploy on `main`.
 
@@ -70,7 +82,7 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
 |---|---|---|---|
 | `/` | **Landing** | Picker | Crossfading mini-skins stage (Terminal/Classic/Paper/Aurora/Forge/macOS), GitHub stats, two-column hero (`/editions` is an alias) |
 | `/terminal` | **Terminal** | Retro CRT | Boot seq, shell `help` / `whoami` / `cat skills.tree` / `neofetch` / `cowsay` / `ping`, `↑↓` history + Tab + `` ` `` focus, work at `/terminal/work/:slug` |
-| `/classic` | **Classic** | Recruiter edition | "Starry Night": a still, seeded night sky (stars in the margins, a faint twinkle, one constellation) behind night-blue surfaces, moonlight text and one celestial-blue accent; Bricolage Grotesque headings with Inter body. Concise hero, About, four featured projects as datasheets (real screenshots, live app on request), a system diagram of HPL Auction's sync model, the rest browsable by category, an experience timeline, grouped skills and the contact form. |
+| `/classic` | **Classic** | Recruiter edition | "Starry Night": a still, seeded night sky (stars in the margins, a faint twinkle, a soft nebula, one constellation) behind night-blue surfaces, moonlight text and one celestial-blue accent; Bricolage Grotesque headings with Inter body. Hero with availability pill, a stats strip, About, a flagship plus three featured projects in browser frames (live app on request), searchable "More projects", a details dialog for every project, smaller builds, How I work, an experience timeline of role cards, skill cards with usage counts and the contact form. |
 | `/paper` | **Paper** | Light editorial | Fraunces serifs, overlines, hairline rules, quiet readable |
 | `/aurora` | **Aurora 2.0** — *luminous* | Glassmorphism | Frosted glass + drifting blobs + gradient text **plus** searchable/sortable work, quick-view modal, Stack Lab, expandable log, education/certs, mouse aura |
 | `/forge` | **Forge** | Editorial dark | Kanit headlines, build pipeline pulse + hover trace, marquee, cached GitHub stats, sticky problem→solution cards |
@@ -91,12 +103,12 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
 - **12 featured projects** — Extension AI (flagship), TrustLens AI, LaunchRadar, ChitChain, AI Code Reviewer, CareerForge Pro, Vard AI, DisasterMind AI, DriveNest, HPL Auction, Apex Retail ERP, Dayflow HRMS — each with *problem → features → AI engine (Gemini/Claude/Groq/MCP) → stack → GitHub/Live*
 - **macOS OS shell** — window manager + Control Center + Settings (accent 6 swatches / theme / motion) + Terminal (`about`/`date`/`repo`) + Spotlight ranking fix + Vardhan AI links + Developer Mode inspector + Help `?` + mobile bounds fix + persisted prefs + a11y (0 buttons without name, `aria-label` on dialogs, `data-mac-motion`) `src/mac/MacPortfolio.tsx:1` — `MacPortfolio-*.js 113kB / 29.9kB gzip` (budget 150kB) + `MacPortfolio-*.css 69kB / 12kB gzip`
 - **Aurora 2.0 discovery** — search across name/tagline/tech/slug, sort, view toggle, highlight pills, empty state, modal body with `problem | features•bullet | tech chips` `src/aurora/AuroraSite.tsx:62`
-- **Classic cinematic** — `ClassicScrollProgress` `src/classic/ClassicSite.tsx:14`, `classicNavIn`/`classicHeroName`/`classicTerminalIn` `src/classic/styles/animations.css:9`, hero parallax `useClassicHeroFX` `src/classic/components/Hero.tsx:56`, filter `::after` shine, timeline `classicDotEnter`
+- **Classic Starry Night** — sky and constellation `src/classic/components/NightSky.tsx:1`, effects hook `src/classic/useEffects.ts:1`, all motion gated on `prefers-reduced-motion` and the site motion toggle
 - **“Other things”** — 13 compact cards + GitHub CTA
-- **Experience** — OxCode, FlyRank AI, Zetheta, Zaalima — now expandable in Aurora, slide-in in Classic
-- **Tech stack** — honest grouped categories (Languages / Frontend / Backend / Databases / AI-LLM / Cloud & Tools) with glyphs `src/classic/components/Skills.tsx:7`, no % bars; **Stack Lab** makes them interactive in Aurora
-- **Live GitHub stats** — followers/repos (session-cached, static fallback) `src/classic/components/GithubSection.tsx:33`, count-up via `requestAnimationFrame`
-- **SEO & a11y** — per-route `ROUTE_SEO` `src/App.tsx:20`, OG/Twitter/canonical `index.html:14`, `sitemap.xml`/`robots.txt`, skip-link `src/classic/styles/global.css:341`, focus rings, `prefers-reduced-motion` honoured by default (the motion toggle can force animations on/off; unset = follow the OS)
+- **Experience** — OxCode, FlyRank AI, Zetheta, Zaalima — expandable in Aurora, role cards on a timeline in Classic
+- **Tech stack** — honest grouped categories (Languages / Frontend / Backend / Databases / AI-LLM / Cloud & Tools) with glyphs `src/classic/components/Skills.tsx:1` and per-tool project counts (`usedIn` in `src/classic/data/stats.ts`), no % bars; **Stack Lab** makes them interactive in Aurora
+- **GitHub stats** — followers/repos with a static fallback `src/classic/data/stats.ts:9`, count-up via `requestAnimationFrame`
+- **SEO & a11y** — per-route `ROUTE_SEO` `src/App.tsx:20`, OG/Twitter/canonical `index.html:14`, `sitemap.xml`/`robots.txt`, skip-link `src/classic/styles/classic.css:70`, focus rings, `prefers-reduced-motion` honoured by default (the motion toggle can force animations on/off; unset = follow the OS)
 - **QA** — GitHub Actions CI (`.github/workflows/ci.yml`: lint → typecheck → build → `npm test` → `npm run smoke`), Vitest data/shell tests, a Puppeteer smoke run over every route, plus the audit scripts: `layout-audit` (375–1440px overflow), `mob-check`, `shortcut-check`, `switcher-click-check`, `shell-test` (see Scripts)
 
 ---
@@ -106,8 +118,8 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
 | Layer | Tools | Notes |
 |---|---|---|
 | Framework | **Vite 8.2** + **React 19.2** + **TypeScript 6** + `react-router-dom 7` `viewTransition` | `src/App.tsx:90` number-key + `ScrollToTop` + `RouteSeo` |
-| Styling | **Hand-written CSS per edition** — tokens (`--bg`, `--accent`, `--surface`) `src/classic/styles/global.css:1`, `src/aurora/styles/aurora.css:5`, `src/classic/styles/animations.css:1` | Zero UI lib; hand-written CSS, no utility framework |
-| Animation | View Transitions, `animation-timeline: view()` + `IntersectionObserver` `useReveal` `src/hooks/useReveal.tsx:1` (one hook shared by Classic/Terminal/macOS), `useTilt`/`useMagnetic`, `Aurora 2.0` modal/toolbar/lab + `Classic` parallax/scroll-progress/cinematic `src/styles/motion.css:1` | All `prefers-reduced-motion: reduce` safe — the OS setting is the default; no animation library |
+| Styling | **Hand-written CSS per edition** — tokens (`--bg`, `--accent`, `--surface`) `src/classic/styles/classic.css:1`, `src/aurora/styles/aurora.css:5` | Zero UI lib; hand-written CSS, no utility framework |
+| Animation | View Transitions, `animation-timeline: view()` + `IntersectionObserver` `useReveal` `src/hooks/useReveal.tsx:1` (one hook shared by Classic/Terminal/macOS), `useTilt`/`useMagnetic`, `Aurora 2.0` modal/toolbar/lab + Classic sky parallax/reveals (`src/classic/useEffects.ts`) `src/styles/motion.css:1` | All `prefers-reduced-motion: reduce` safe — the OS setting is the default; no animation library |
 | Icons | `lucide-react` + custom `Icon` `src/classic/lib/icons.tsx:1` (20+ glyphs) | No huge icon packs |
 | Data | GitHub REST (live stats, session cache) | Fallback `33 followers`/`60 repos` (`src/classic/data/stats.ts`) |
 | QA | `vitest` + `puppeteer` + `oxlint` + GitHub Actions | `npm run lint` — 0 errors baseline; `npm test`; `npm run smoke` |
@@ -171,10 +183,13 @@ Built at `src/mac/MacPortfolio.tsx:12` — providers `ThemeProvider → WindowMa
     ├── App.tsx        # createBrowserRouter + InterfaceShortcuts(1-6) + RouteSeo + ErrorBoundary + ScrollChrome + CommandPalette + KonamiFX
     ├── landing/       # Landing + EditionStage (stage-frame, mini-skins including macOS)
     ├── terminal/      # CRT shell + work man pages
-    ├── classic/       # Classic — data + hooks + lib + styles/animations.css (cinematic)
+    ├── classic/       # Classic — data + hooks + lib + styles/classic.css (Starry Night)
     │   ├── data/      # site.ts / projects.ts / experience.ts / skills.ts — source of truth
-    │   ├── hooks/     # useReveal.tsx (re-exports src/hooks/useReveal)
-    │   └── styles/    # global.css + animations.css (Sep 13 hero/scroll/timeline/skill)
+    │   ├── components/ # Hero, Stats, Work, ProjectDialog, Builds, Process, Experience, Skills, NightSky…
+    │   ├── lib/       # frames.ts (screenshots, live embeds), icons, monogram
+    │   ├── content.ts # Classic-only wording (featured order, what I built, credits)
+    │   ├── useEffects.ts # reveals, tilt and glow, scroll state
+    │   └── styles/    # classic.css (tokens, layout, effects)
     ├── paper/         # Paper
     ├── aurora/        # Aurora 2.0 — AuroraSite.tsx + styles/aurora.css (~2.9k lines: toolbar/modal/lab/edu/form)
     ├── forge/         # Forge + EmberField
@@ -187,11 +202,11 @@ Built at `src/mac/MacPortfolio.tsx:12` — providers `ThemeProvider → WindowMa
     ├── components/    # CommandPalette, KonamiFX, ScrollChrome, ErrorBoundary, MotionToggle, LiquidButton, expandable-tabs, ui/CountUp
     ├── interface-switcher/ # magnetic switcher (every page)
     ├── hooks/         # useTilt, useMagnetic, useReveal, useIstTime, useGithub, usePrefersReducedMotion (shared by every edition)
-    └── styles/        # motion.css (6 editions + Aurora 2.0 + Classic cinematic + view-transitions + scroll-rise)
+    └── styles/        # motion.css (6 editions + Aurora 2.0 + view-transitions + scroll-rise)
 ```
 
 Content in two places:
-- `src/classic/data/` — shared truth (identity, `featuredProjects` 12 + `otherProjects` 13, `experience`/`education`/`certifications`, `skillCategories`/`exploring`) used by Landing/Classic/Paper/Aurora/Forge/macOS.
+- `src/classic/data/` — shared truth (identity, `featuredProjects` 12 + `otherProjects` 18, `experience`/`education`/`certifications`, `skillCategories`/`exploring`) used by Landing/Classic/Paper/Aurora/Forge/macOS.
 - `src/terminal/data/` — Terminal’s man-page-rich case studies + `how_i_work.sh` + `site` subset reusing `classic/data/site.ts`.
 
 ---
@@ -230,7 +245,7 @@ Data-driven — edit `src/classic/data/`:
 | File | Controls | Example |
 |---|---|---|
 | `site.ts` | Name, title, `tagline`, `location`, `email`, `github`, `resume` | Used by `Hero`, `AuroraSite`, `CommandPalette` |
-| `projects.ts` | `featuredProjects` (problem/features/tech/accent/emoji/highlight/live) + `otherProjects` | `catOf()` `src/aurora/AuroraSite.tsx:22` + `CATEGORY` `src/classic/components/Projects.tsx:11` |
+| `projects.ts` | `featuredProjects` (problem/features/tech/accent/emoji/highlight/live) + `otherProjects` | `catOf()` `src/aurora/AuroraSite.tsx:22` + `CATEGORY_LABEL` `src/classic/data/projects.ts` |
 | `experience.ts` | `experience` (role/company/period/points/accent) + `education` + `certifications` | `Timeline` + `Au-edu` + `Stack Lab` |
 | `skills.ts` | `skillCategories` (Languages/Frontend/Backend/DB/AI/Tools) + `exploring` | `labTechs` 28 pills `src/aurora/AuroraSite.tsx:240` |
 
@@ -256,4 +271,4 @@ No component edits for content. Rebuild → push `main` → Vercel deploys.
 
 ---
 
-© Sree Vardhan V · Designed & built by me — no template involved. `src/styles/motion.css:1` + `src/classic/styles/animations.css:1` power the motion system.
+© Sree Vardhan V · Designed & built by me — no template involved. `src/styles/motion.css:1` power the motion system.

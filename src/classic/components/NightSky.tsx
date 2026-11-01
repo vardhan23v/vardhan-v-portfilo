@@ -47,8 +47,8 @@ export function NightSky() {
     <svg className="sky" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id="shoot-tail" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#f3ecd8" stopOpacity="0" />
-          <stop offset="1" stopColor="#f3ecd8" stopOpacity="0.9" />
+          <stop offset="0" stopColor="#cfcfbb" stopOpacity="0" />
+          <stop offset="1" stopColor="#cfcfbb" stopOpacity="0.9" />
         </linearGradient>
       </defs>
       {/* Two depth layers: small, dim stars are far and drift less as the page scrolls. */}
@@ -158,19 +158,19 @@ export function HeroPainting() {
         {layer("paint-wave", -30, <>
           <defs><Brush id="brush-w" seed={3} /></defs>
           <g filter="url(#brush-w)" fill="none" strokeLinecap="round">
-            {WAVE.map((w) => <path key={w.k} d={w.d} className={`stroke stroke--${w.k % 3}`} strokeWidth={w.k % 3 === 0 ? 7 : 4} />)}
+            {WAVE.map((w) => <path key={w.k} d={w.d} className={`stroke stroke--${w.k % 5}`} strokeWidth={w.k % 3 === 0 ? 7 : 4} />)}
           </g>
         </>)}
         {layer("paint-spiral-a", -60, <>
           <defs><Brush id="brush-a" seed={8} /></defs>
           <g filter="url(#brush-a)" fill="none" strokeLinecap="round">
-            {SPIRAL_A.map((d, k) => <path key={k} d={d} className={`stroke stroke--${k % 3}`} strokeWidth={k === 0 ? 6 : 3.5} />)}
+            {SPIRAL_A.map((d, k) => <path key={k} d={d} className={`stroke stroke--${k % 5}`} strokeWidth={k === 0 ? 6 : 3.5} />)}
           </g>
         </>)}
         {layer("paint-spiral-b", -45, <>
           <defs><Brush id="brush-b" seed={14} /></defs>
           <g filter="url(#brush-b)" fill="none" strokeLinecap="round">
-            {SPIRAL_B.map((d, k) => <path key={k} d={d} className={`stroke stroke--${(k + 1) % 3}`} strokeWidth={k === 0 ? 5 : 3} />)}
+            {SPIRAL_B.map((d, k) => <path key={k} d={d} className={`stroke stroke--${(k + 3) % 5}`} strokeWidth={k === 0 ? 5 : 3} />)}
           </g>
         </>)}
         {layer("paint-stars", -90, <>
@@ -184,7 +184,7 @@ export function HeroPainting() {
         </>)}
       {layer("paint-moon", -120, <>
         <defs>
-          <radialGradient id="moon-glow"><stop offset="0" stopColor="#f4c542" stopOpacity="0.55" /><stop offset="0.45" stopColor="#e8a93b" stopOpacity="0.18" /><stop offset="1" stopColor="#e8a93b" stopOpacity="0" /></radialGradient>
+          <radialGradient id="moon-glow"><stop offset="0" stopColor="#cfcfbb" stopOpacity="0.6" /><stop offset="0.25" stopColor="#bbaf4a" stopOpacity="0.45" /><stop offset="0.55" stopColor="#bba327" stopOpacity="0.18" /><stop offset="1" stopColor="#bba327" stopOpacity="0" /></radialGradient>
           <mask id="moon-cut"><rect width={PW} height={PH} fill="#fff" /><circle cx="1318" cy="96" r="30" fill="#000" /></mask>
         </defs>
         <circle cx="1300" cy="110" r="130" fill="url(#moon-glow)" className="moon-glow" />
@@ -193,6 +193,10 @@ export function HeroPainting() {
         <circle cx="1300" cy="110" r="32" className="moon" mask="url(#moon-cut)" />
       </>, false)}
       <div className="depth" style={{ "--z": 20 } as React.CSSProperties}><svg className="paint-hills" viewBox="0 0 1440 160" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="hill-far" x1="0" y1="0" x2="0" y2="1"><stop offset="0" className="hill-stop--village" /><stop offset="1" className="hill-stop--sky" /></linearGradient>
+          <linearGradient id="hill-near" x1="0" y1="0" x2="0" y2="1"><stop offset="0" className="hill-stop--ground" /><stop offset="0.55" className="hill-stop--ground" /><stop offset="1" className="hill-stop--sky" /></linearGradient>
+        </defs>
         <path d="M0 96 C 180 60, 330 112, 520 84 S 860 46, 1040 82 S 1320 64, 1440 78 L1440 160 L0 160 Z" className="hill hill--far" />
         <path d="M0 128 C 220 100, 420 140, 640 118 S 1060 98, 1240 120 S 1400 112, 1440 116 L1440 160 L0 160 Z" className="hill" />
       </svg></div>

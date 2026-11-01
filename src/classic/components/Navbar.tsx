@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { site } from "../data/site";
+import { motionReduced } from "../../lib/motion";
 
 const LINKS = [
   { href: "#about", label: "About" },
@@ -20,15 +21,29 @@ export function Navbar() {
   const activeRef = useRef<string | null>(null);
   const progRef = useRef<HTMLSpanElement>(null);
   useEffect(() => { activeRef.current = active; }, [active]);
+  const openRef = useRef(false);
+  useEffect(() => {
+    openRef.current = open;
+    if (open) headerRef.current?.removeAttribute("data-hidden");
+  }, [open]);
 
   // A hairline shadow once the page has moved, so the bar reads as sitting above the content.
   useEffect(() => {
     const nav = headerRef.current;
     if (!nav) return;
     let raf = 0;
+    let lastY = window.scrollY;
     const update = () => {
       raf = 0;
-      nav.classList.toggle("is-scrolled", window.scrollY > 8);
+      const y = window.scrollY;
+      nav.classList.toggle("is-scrolled", y > 8);
+      // Out of the way while reading down (past 200px), back the moment the reader scrolls up. Never while
+      // the menu is open or focus is inside the bar, and never under reduced motion.
+      const keep = openRef.current || nav.contains(document.activeElement) || motionReduced() || document.visibilityState !== "visible" || y <= 200;
+      if (keep) nav.removeAttribute("data-hidden");
+      else if (y > lastY + 4) nav.setAttribute("data-hidden", "");
+      else if (y < lastY - 4) nav.removeAttribute("data-hidden");
+      if (Math.abs(y - lastY) > 4 || keep) lastY = y;
       // How far through the current section the reader is: fills the hairline under the bar.
       const bar = progRef.current;
       const sec = activeRef.current ? document.getElementById(activeRef.current) : null;
@@ -40,9 +55,15 @@ export function Navbar() {
       }
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    // Keyboard users tabbing into a hidden bar get it back at once.
+    const onFocus = () => nav.removeAttribute("data-hidden");
+    // A page that goes hidden may stop ticking frames; never leave the bar parked off screen there.
+    const onVis = () => { if (document.visibilityState !== "visible") nav.removeAttribute("data-hidden"); };
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => { window.removeEventListener("scroll", onScroll); if (raf) cancelAnimationFrame(raf); };
+    nav.addEventListener("focusin", onFocus);
+    document.addEventListener("visibilitychange", onVis);
+    return () => { window.removeEventListener("scroll", onScroll); nav.removeEventListener("focusin", onFocus); document.removeEventListener("visibilitychange", onVis); nav.removeAttribute("data-hidden"); if (raf) cancelAnimationFrame(raf); };
   }, []);
 
   // The section in the middle band of the viewport is the current one.
@@ -78,9 +99,9 @@ export function Navbar() {
     if (!open) return;
     const sheet = sheetRef.current;
     const focusables = () => Array.from(sheet?.querySelectorAll<HTMLElement>("a, button") ?? []);
-    focusables()[0]?.focus();
+    focusables()[0]?.focus({ preventScroll: true });
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { setOpen(false); buttonRef.current?.focus(); return; }
+      if (e.key === "Escape") { setOpen(false); buttonRef.current?.focus({ preventScroll: true }); return; }
       if (e.key !== "Tab") return;
       const f = focusables();
       if (f.length === 0) return;
@@ -94,7 +115,8 @@ export function Navbar() {
   }, [open]);
 
   return (
-    <header className="nav" ref={headerRef}>
+    <>
+    <header className="nav" ref={headerRef} data-menu-open={open ? "" : undefined}>
       <div className="nav-inner">
         <a className="nav-mark" href="#top" aria-label={`${site.name}, home`}>{site.name}</a>
         <span className="nav-progress" ref={progRef} aria-hidden="true" />
@@ -112,6 +134,7 @@ export function Navbar() {
           </button>
         </div>
       </div>
+    </header>
       <div className={`nav-sheet${open ? " is-open" : ""}`} id="nav-sheet" ref={sheetRef} role="dialog" aria-modal="true" aria-label="Menu" hidden={!open}>
         <nav aria-label="Menu sections">
           {LINKS.map((l) => (
@@ -124,9 +147,9 @@ export function Navbar() {
           <a className="btn btn--secondary" href={site.github} target="_blank" rel="noopener noreferrer">GitHub</a>
           <a className="btn btn--secondary" href={site.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
           <a className="btn btn--secondary" href={`mailto:${site.email}`}>Email</a>
-          <button type="button" className="btn btn--ghost" onClick={() => { setOpen(false); buttonRef.current?.focus(); }}>Close</button>
+          <button type="button" className="btn btn--ghost" onClick={() => { setOpen(false); buttonRef.current?.focus({ preventScroll: true }); }}>Close</button>
         </div>
       </div>
-    </header>
+    </>
   );
 }

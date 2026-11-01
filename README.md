@@ -39,7 +39,7 @@ A production-quality portfolio positioning me as a **Generative AI Developer & F
 
 `/classic` is rebuilt as a recruiter-first dark edition (`src/classic/`):
 
-- **Look** — after Van Gogh’s *The Starry Night*: the hero is a painted canvas (brushed swirls, a gold crescent moon with halos, ringed stars, a cypress and rolling hills); cobalt and Prussian surfaces, canvas-cream text, starlight-gold actions; Fraunces headings with Inter body.
+- **Look** — after Van Gogh’s *The Starry Night*: the hero is a painted canvas (brushed swirls, a gold crescent moon with halos, ringed stars, a cypress and rolling hills); every colour sampled from the MoMA painting itself (deep sky #1d274e, Prussian #30437a, swirl blues, teal, sage, star yellow #bbaf4a, ochre moon, cypress #1d211f); Fraunces headings with Inter body. Scroll effects run both ways: blocks fold in and out, a swirl rail draws down the page edge, the sky shifts toward dusk, titles brighten at centre, screenshots drift, and the nav steps aside while reading down.
 - **Hero** — availability pill, masked-name load sequence, résumé/contact actions, copy-email button, and an "at a glance" card; a count-up **stats strip** follows.
 - **Projects** — Extension AI as the wide flagship, then TrustLens AI, HPL Auction and AI Code Reviewer in browser frames with a pointer tilt and on-demand live previews; stack chips; **search** and category filters for the rest; a **details dialog** (problem, features, stack, prev/next) for every project; 18 **smaller builds**.
 - **How I work** — the five stages from the Terminal edition.

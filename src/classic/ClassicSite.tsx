@@ -5,6 +5,7 @@ import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
 import { About } from "./components/About";
 import { NightSky } from "./components/NightSky";
+import { SwirlRail } from "./components/SwirlRail";
 import { Work } from "./components/Work";
 import { Stats } from "./components/Stats";
 import { Process } from "./components/Process";
@@ -47,7 +48,10 @@ export function ClassicSite() {
   useJumpKeys();
   return (
     <div className={`classic-root${js ? " js" : ""}`} ref={rootRef} data-cursor-accent="classic">
+      {/* The night deepens toward the village as you read down (a scroll-linked tint, transform only). */}
+      <div className="night-shift" aria-hidden="true" />
       <NightSky />
+      <SwirlRail />
       <a href="#main" className="skip-link">Skip to content</a>
       <Navbar />
       <main id="main">

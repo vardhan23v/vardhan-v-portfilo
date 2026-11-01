@@ -11,10 +11,12 @@ import { motionReduced } from "../../lib/motion";
  * hero scrolls away. Loaded lazily on wide, fine-pointer screens only; the SVG painting is the poster.
  * Plain three.js with named imports keeps the chunk small; it pauses off screen and in hidden tabs.
  */
-const CREAM = new Color("#f3ecd8");
-const CERULEAN = new Color("#6f9be0");
-const ULTRA = new Color("#2a4f9e");
-const GOLD = new Color("#f4c542");
+// Sampled from the painting: pale highlight, light swirl blue, ultramarine, sage, star yellow.
+const CREAM = new Color("#cfcfbb");
+const CERULEAN = new Color("#6e89a2");
+const ULTRA = new Color("#3f5a8f");
+const SAGE = new Color("#b2b580");
+const GOLD = new Color("#bbaf4a");
 
 function rng(seed: number) {
   return () => {
@@ -63,7 +65,7 @@ function field(stars: number, wave: number, seed: number): Cloud {
     const band = (j % 6) * 0.13;
     const y = 0.9 + Math.sin(x * 0.75) * 0.75 - band + (r() - 0.5) * 0.08;
     positions.set([x, y, (r() - 0.5) * 0.8], i * 3);
-    c.copy(j % 3 === 0 ? CREAM : j % 3 === 1 ? CERULEAN : ULTRA);
+    c.copy([CREAM, CERULEAN, ULTRA, SAGE][j % 4]);
     colors.set([c.r, c.g, c.b], i * 3);
   }
   return { positions, colors };

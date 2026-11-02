@@ -803,29 +803,36 @@ html[data-motion="reduce"] .ed-portal { display: none; }
 }
 .land-project-item:hover::after { opacity: 1; }
 
-/* ---------- Atlas skin ---------- */
-.stage-atlas, .mini-atlas { position: relative; overflow: hidden; background: #0a0a0a; color: #ece8df; }
-.atlas-map { position: absolute; top: 0; bottom: 0; height: 100%; }
-.atlas-rings ellipse { fill: none; stroke: #ece8df; stroke-opacity: 0.28; stroke-width: 0.8; }
-.atlas-rings ellipse:nth-child(3n) { stroke-opacity: 0.6; stroke-width: 1.2; }
-.atlas-peak { fill: #ff5b24; }
-.stage-atlas { padding: 28px 30px; display: flex; flex-direction: column; justify-content: flex-end; }
-.stage-atlas p { position: relative; }
-.sat-k { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #aaa69d; }
-.sat-name { margin-top: 4px; font-family: var(--font-sans); font-weight: 500; letter-spacing: -0.04em; font-size: 30px; line-height: 1; }
-.sat-ref { margin-top: 8px; font-family: var(--font-mono); font-size: 11px; color: #ff5b24; }
-.mini-atlas { padding: 14px 16px; display: flex; flex-direction: column; justify-content: flex-end; }
-.mat-name { position: relative; font-family: var(--font-sans); font-weight: 500; letter-spacing: -0.03em; font-size: 17px; }
-.mat-ref { position: relative; margin-top: 3px; font-family: var(--font-mono); font-size: 9.5px; color: #ff5b24; }
+/* ---------- Atlas skin: a miniature title sheet over the edition's own terrain ---------- */
+/* the stage wrapper shares the tone class, so only the inner skin is positioned here */
+.stage-skin > .stage-atlas, .mini-atlas { position: absolute; inset: 0; overflow: hidden; background: #0a0a0a; color: #ece8df; }
+.atlas-map { position: absolute; inset: 0; width: 100%; height: 100%; }
+.atlas-map path { fill: none; stroke: rgba(236, 232, 223, 0.2); stroke-width: 1px; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.atlas-map path.ix { stroke: #7a5644; stroke-width: 1.4px; }
+.atlas-frame { position: absolute; inset: 10px; border: 1px solid rgba(236, 232, 223, 0.28); pointer-events: none; }
+.atlas-cols { position: absolute; top: 0; left: 10px; right: 10px; height: 10px; margin: 0; padding: 0; list-style: none; display: flex; font-family: var(--font-mono); font-size: 7px; line-height: 10px; color: #8f8b83; }
+.atlas-cols li { flex: 1; text-align: center; }
+.atlas-peak { position: absolute; transform: translate(-5px, -50%); display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.03em; color: #ece8df; white-space: nowrap; background: rgba(10, 10, 10, 0.75); padding: 1px 4px 1px 0; }
+.atlas-peak i { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-bottom: 7px solid #c9c4ba; }
+.atlas-peak.is-first i { border-bottom-color: #ff5b24; }
+.atlas-card { position: absolute; left: 18px; bottom: 18px; display: grid; gap: 4px; padding: 10px 12px; background: #0c0c0b; border: 1px solid rgba(236, 232, 223, 0.3); outline: 1px solid rgba(236, 232, 223, 0.12); outline-offset: 3px; z-index: 1; }
+.ac-k { font-family: var(--font-mono); font-size: 8.5px; color: #aaa69d; }
+.ac-name { font-family: var(--font-sans); font-weight: 500; font-size: 17px; line-height: 1; letter-spacing: -0.04em; }
+.stage-atlas .atlas-frame { inset: 14px; }
+.stage-atlas .atlas-cols { left: 14px; right: 14px; height: 14px; line-height: 14px; font-size: 9px; }
+.stage-atlas .atlas-peak { font-size: 11px; }
+.stage-atlas .atlas-card { left: 30px; bottom: 30px; padding: 16px 18px; }
+.stage-atlas .ac-k { font-size: 10px; }
+.stage-atlas .ac-name { font-size: 30px; }
+/* a narrow card has room for two summit names; the wide card shows all four */
+.mini-atlas .atlas-peak:nth-of-type(2n), .stage-atlas .atlas-peak:nth-of-type(2n) { display: none; }
+@media (min-width: 1081px) { .edition-grid > :last-child:nth-child(3n + 1) .mini-atlas .atlas-peak { display: inline-flex; } }
 .ed-atlas:hover { border-color: rgba(255, 91, 36, 0.5); }
 .ed-atlas:hover .ed-cta { color: #ff5b24; }
 /* Seven editions: the newest card spans the leftover row instead of sitting alone. */
 .edition-grid > :last-child:nth-child(3n + 1) { grid-column: 1 / -1; }
 @media (max-width: 1080px) { .edition-grid > :last-child:nth-child(3n + 1) { grid-column: auto; } .edition-grid > :last-child:nth-child(odd) { grid-column: 1 / -1; } }
 @media (max-width: 720px) { .edition-grid > :last-child:nth-child(odd) { grid-column: auto; } }
-.mini-atlas .atlas-map, .stage-atlas .atlas-map { left: auto; right: -4%; width: auto; aspect-ratio: 160 / 96; }
-.mini-atlas::before, .stage-atlas::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, #0a0a0a 22%, rgba(10,10,10,0.4) 55%, transparent 75%); z-index: 0; }
-.mini-atlas > :not(svg), .stage-atlas > :not(svg) { z-index: 1; }
 
 /* ---------- touch targets: every control at least 24×24px (WCAG 2.5.8); text sizes unchanged ---------- */
 .landing-links a, .landing-motion { min-height: 24px; display: inline-flex; align-items: center; }

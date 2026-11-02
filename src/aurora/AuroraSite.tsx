@@ -965,7 +965,7 @@ export function AuroraSite() {
                 <kbd>⌘K</kbd> palette
               </span>
               <span>
-                <kbd>1-6</kbd> switch interfaces
+                <kbd>1-7</kbd> switch interfaces
               </span>
               <span>click any card → quick view</span>
               <span className="au-hue" role="group" aria-label="Aurora colour">

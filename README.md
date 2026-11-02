@@ -187,6 +187,23 @@ Built at `src/mac/MacPortfolio.tsx:12` — providers `ThemeProvider → WindowMa
 
 ---
 
+## 🎨 Design docs
+
+Each interface has a `DESIGN.md` next to its code: concept, colour tokens (with computed contrast), type scale, layout grid, components with `file:line` references, motion and reduced-motion rules, cursor and shared chrome, accessibility, and rules for future changes.
+
+| Interface | Doc |
+|---|---|
+| Landing (`/`) | [src/landing/DESIGN.md](src/landing/DESIGN.md) |
+| Terminal | [src/terminal/DESIGN.md](src/terminal/DESIGN.md) |
+| Classic | [src/classic/DESIGN.md](src/classic/DESIGN.md) |
+| Paper | [src/paper/DESIGN.md](src/paper/DESIGN.md) |
+| Aurora | [src/aurora/DESIGN.md](src/aurora/DESIGN.md) |
+| Forge | [src/forge/DESIGN.md](src/forge/DESIGN.md) |
+| macOS | [src/mac/DESIGN.md](src/mac/DESIGN.md) |
+| Atlas | [src/atlas/DESIGN.md](src/atlas/DESIGN.md) |
+
+---
+
 ## 📁 Structure
 
 ```

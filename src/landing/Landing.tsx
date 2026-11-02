@@ -304,7 +304,7 @@ export function Landing() {
   useWallpaperParallax(rootRef, headRef, reduced);
   useMagnetic(".l-cta", 0.25, 10);
 
-  // 1–6 on the landing: run the portal from the matching card, then enter (works under reduced motion too).
+  // 1–7 on the landing: run the portal from the matching card, then enter (works under reduced motion too).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
@@ -393,7 +393,7 @@ export function Landing() {
           <div className="section-head" data-reveal>
             <span className="section-kicker">start here</span>
             <h2 className="section-title" id="editions-h2">Same work, <em>seven interfaces.</em></h2>
-            <p className="section-sub">Every edition has the same projects, experience and contact — pick the one that suits how you read. Press <kbd>1</kbd>–<kbd>6</kbd> from any page to switch.</p>
+            <p className="section-sub">Every edition has the same projects, experience and contact — pick the one that suits how you read. Press <kbd>1</kbd>–<kbd>7</kbd> from any page to switch.</p>
           </div>
           <div className="edition-grid" role="list" aria-label="Portfolio editions" ref={cardsRef}>
             {EDITIONS.map((e, i) => (

@@ -72,7 +72,7 @@
   --red: #ff5f6b;
   --ink: #d9f3e3;
   --ink-2: #93bda4;
-  --ink-3: #6a8b79; /* 5.0:1 on the darkest panel (was #52705f, 3.7:1) */
+  --ink-3: #6a8b79; /* 5.3:1 on --bg, 4.9:1 on --bg-3 (was #52705f, 3.7:1) */
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
   --font-crt: "VT323", "JetBrains Mono", ui-monospace, monospace;
   --radius: 10px;

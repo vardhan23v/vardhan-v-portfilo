@@ -6,12 +6,12 @@
   --bg: #0a0a0a;
   --paper: #0d0d0c;
   --card: #121110;
-  --ink: #ece8df;     /* 16.6:1 on bg */
-  --ink-2: #aaa69d;   /* 8.4:1 */
-  --ink-3: #8f8b83;   /* 5.9:1, small labels */
+  --ink: #ece8df;     /* 16.2:1 on bg */
+  --ink-2: #aaa69d;   /* 8.2:1 */
+  --ink-3: #8f8b83;   /* 5.8:1, small labels */
   --line: rgba(236, 232, 223, 0.14);
   --line-2: rgba(236, 232, 223, 0.3);
-  --orange: #ff5b24;  /* 6.3:1 */
+  --orange: #ff5b24;  /* 6.4:1 */
   --brown: #6b4c3b;
   --gut: clamp(16px, 3vw, 44px);
   --cols: repeat(12, minmax(0, 1fr));

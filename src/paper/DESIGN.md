@@ -25,7 +25,7 @@ Contrast ratios were computed with the WCAG 2 formula against `--paper` / `--pap
 | `--accent` | `#be4b2a` | terracotta: italic headline words, wordmark dot, hover colour, underlines, focus outline. 4.68 / 4.37 |
 | `--accent-2` | `#9a3b1f` | darker terracotta for the switcher's active number and focus ring. 6.56 / 6.11 |
 | `.paper-btn-primary` | `--ink` fill, `--paper` text; hover `--accent` fill | 16.70 at rest, 4.68 on hover (`paper.css:268-277`) |
-| `.paper-skip`, `.paper-root::selection` | `#fff` on `--accent` | 4.97 (`paper.css:26-29`, `:50-62`) |
+| `.paper-skip`, `.paper-root ::selection` | `#fff` on `--accent` | 4.97 (`paper.css:26-29`, `:50-62`) |
 | switcher active tint | `rgba(190,75,42,.09)` over paper ≈ `#f5e8e2` | `--accent-2` on it 5.80, `--accent` 4.14 (`paper.css:660-661`) |
 | `.paper-root::before` | fractal-noise SVG at 0.05 opacity | fixed paper grain over the whole page, `z-index: 2`, no pointer events (`paper.css:31-38`) |
 
@@ -106,7 +106,7 @@ All Paper motion uses `cubic-bezier(0.22, 1, 0.36, 1)` unless noted.
 - Landmarks: skip link to `#paper-main`, off screen until focused (`PaperSite.tsx:100`, `paper.css:50-66`); `nav` "Main" (`PaperSite.tsx:103`) containing the switcher's own `nav` "Switch interface" (`InterfaceSwitcher.tsx:12`); `main#paper-main`; a `footer` outside main. The masthead is a `<header>` inside `main`, so it is not a banner landmark.
 - Headings: one `h1` (the name), an `h2` overline per section that labels it through `aria-labelledby`, `h3` for project names and the contact headline. Project numbers are `aria-hidden` (`PaperSite.tsx:160`).
 - Keyboard: focus is a 2px `--accent` outline at 3px offset (`paper.css:45-48`), 4.68:1 against the paper. The engineering-details toggle is a real button with `aria-expanded` and `aria-controls` (`PaperSite.tsx:19-25`). When closed, its body is collapsed with a `0fr` row and opacity 0 rather than `hidden`, so its text stays in the accessibility tree.
-- Target sizes: nav, masthead meta, work and footer links and the details toggle get `min-height: 24px` to meet WCAG 2.5.8 (`paper.css:703-704`). Buttons have 12px vertical padding on 13.5px text.
+- Target sizes: nav, masthead meta, work and footer links and the details toggle get `min-height: 24px` to meet WCAG 2.5.8 (`paper.css:673-674`). Buttons have 12px vertical padding on 13.5px text.
 - Contrast: every text token passes 4.5:1 on `--paper`; on `--paper-2` only `--accent` falls short (4.37), and Paper sets no accent text on that fill. The switcher uses `--accent-2` because `--accent` reached only 4.14 on the active tint (`paper.css:660`).
 - External links open in a new tab with `rel="noopener noreferrer"`; unlike Classic, they carry no "opens in a new tab" text. Experience entries are `div`s, not a list.
 
@@ -119,5 +119,5 @@ All Paper motion uses `cubic-bezier(0.22, 1, 0.36, 1)` unless noted.
 - Keep the single 960px column with 32px gutters, and add layout changes at the existing 720px and 900px breakpoints.
 - New scroll-in blocks use `data-pp-reveal` (and an optional `--d`), so the existing observer and the reduced-motion reset cover them.
 - Any new animation must be safe when `html[data-motion="reduce"]` cuts it to 0.001s; do not add motion that only makes sense when it plays.
-- Add new text-link or text-button classes to the 24px target list (`paper.css:704`).
-- The `.paper-title`, `.pp-title`, `.pp-rule`, `.paper-rule`, `.pp-card`, `.paper-card`, `.pp-chip` and `.paper-chip` rules (`paper.css:673-701`) are not used by `PaperSite.tsx`; use them deliberately or leave them out.
+- Add new text-link or text-button classes to the 24px target list (`paper.css:674`).
+- Unused rules for `.paper-title`, `.pp-card`, `.pp-chip` and related classes were removed; keep `paper.css` to selectors that `PaperSite.tsx` renders.

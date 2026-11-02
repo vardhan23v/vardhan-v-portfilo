@@ -294,7 +294,14 @@ function ProjectModal({
   onToast: (msg: string) => void;
 }) {
   const overlayRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
   const gh = useRepoStats(p.github);
+  // Focus moves into the dialog on open and returns to whatever opened it on close.
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus({ preventScroll: true });
+    return () => opener?.focus?.({ preventScroll: true });
+  }, []);
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -302,6 +309,15 @@ function ProjectModal({
       if (e.key === "Escape") onClose();
       else if (e.key === "ArrowRight") onStep(1);
       else if (e.key === "ArrowLeft") onStep(-1);
+      else if (e.key === "Tab") {
+        // Keep Tab inside the dialog.
+        const items = overlayRef.current?.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if (!items?.length) return;
+        const first = items[0], last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        else if (!overlayRef.current?.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => {
@@ -332,7 +348,7 @@ function ProjectModal({
       }}
     >
       <div className="au-modal" key={p.slug} data-dir={dir}>
-        <button type="button" className="au-modal-close" onClick={onClose} aria-label="Close">
+        <button type="button" className="au-modal-close" onClick={onClose} aria-label="Close" ref={closeRef}>
           <Icon.close width={16} height={16} />
         </button>
         <div className="au-modal-nav">
@@ -1199,7 +1215,7 @@ export function AuroraSite() {
                   onClick={() => {
                     setSkillFilter((prev) => (prev === t ? null : t));
                     const el = document.getElementById("work");
-                    if (prevSkillFilter() !== t) el?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    if (prevSkillFilter() !== t) el?.scrollIntoView({ behavior: motionReduced() ? "auto" : "smooth", block: "start" });
                     function prevSkillFilter() {
                       return skillFilter;
                     }
@@ -1408,7 +1424,7 @@ export function AuroraSite() {
               GitHub
             </a>
             <a href={`mailto:${site.email}`}>Email</a>
-            <button type="button" className="au-foot-top" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+            <button type="button" className="au-foot-top" onClick={() => window.scrollTo({ top: 0, behavior: motionReduced() ? "auto" : "smooth" })}>
               top ↑
             </button>
           </span>

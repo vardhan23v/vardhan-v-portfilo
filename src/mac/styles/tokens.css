@@ -68,7 +68,7 @@
   --sidebar-border: rgba(255, 255, 255, 0.07);
   --text-primary: #f2f3f8;
   --text-secondary: #a9afc3;
-  --text-tertiary: #6d7590;
+  --text-tertiary: #838aa3; /* 5.1:1 on --surface, 5.4:1 on --bg (was #6d7590, 3.8:1) */
   --border: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.16);
   --hairline: rgba(255, 255, 255, 0.14);
@@ -114,7 +114,7 @@
   --sidebar-border: rgba(0, 0, 0, 0.06);
   --text-primary: #12151f;
   --text-secondary: #565c70;
-  --text-tertiary: #8b91a6;
+  --text-tertiary: #646878; /* 5.5:1 on --surface, 4.9:1 on --bg (was #8b91a6, 3.1:1) */
   --border: rgba(0, 0, 0, 0.08);
   --border-strong: rgba(0, 0, 0, 0.15);
   --hairline: rgba(0, 0, 0, 0.14);
@@ -146,11 +146,11 @@
 
 .mac-root[data-accent="orange"] { --wp-h1: 22; --wp-h2: 350; --wp-h3: 45; }
 .mac-root[data-accent="orange"][data-theme="dark"] { --accent: #ffab5e; --accent-hover: #ffc084; --accent-ink: #2b1400; --accent-subtle: rgba(255,171,94,0.15); --accent-border: rgba(255,171,94,0.42); --input-focus: rgba(255,171,94,0.3); }
-.mac-root[data-accent="orange"][data-theme="light"] { --accent: #ea580c; --accent-hover: #c2410c; --accent-subtle: rgba(234,88,12,0.1); --accent-border: rgba(234,88,12,0.35); --input-focus: rgba(234,88,12,0.25); }
+.mac-root[data-accent="orange"][data-theme="light"] { --accent: #c2410c; --accent-hover: #9a3412; /* white on it 5.2:1 (was #ea580c, 3.6:1) */ --accent-subtle: rgba(234,88,12,0.1); --accent-border: rgba(234,88,12,0.35); --input-focus: rgba(234,88,12,0.25); }
 
 .mac-root[data-accent="green"] { --wp-h1: 165; --wp-h2: 200; --wp-h3: 120; }
 .mac-root[data-accent="green"][data-theme="dark"] { --accent: #5fe3a1; --accent-hover: #86ecb9; --accent-ink: #032116; --accent-subtle: rgba(95,227,161,0.15); --accent-border: rgba(95,227,161,0.42); --input-focus: rgba(95,227,161,0.3); }
-.mac-root[data-accent="green"][data-theme="light"] { --accent: #059669; --accent-hover: #047857; --accent-subtle: rgba(5,150,105,0.1); --accent-border: rgba(5,150,105,0.35); --input-focus: rgba(5,150,105,0.25); }
+.mac-root[data-accent="green"][data-theme="light"] { --accent: #047857; --accent-hover: #065f46; /* white on it 5.5:1 (was #059669, 3.8:1) */ --accent-subtle: rgba(5,150,105,0.1); --accent-border: rgba(5,150,105,0.35); --input-focus: rgba(5,150,105,0.25); }
 
 .mac-root[data-accent="graphite"] { --wp-h1: 225; --wp-h2: 230; --wp-h3: 215; }
 .mac-root[data-accent="graphite"][data-theme="dark"] { --accent: #c7cbd8; --accent-hover: #e0e3ec; --accent-ink: #0b0f1a; --accent-subtle: rgba(199,203,216,0.14); --accent-border: rgba(199,203,216,0.4); --input-focus: rgba(199,203,216,0.3); }

@@ -21,7 +21,7 @@ All tokens live on `.forge-root` (`src/forge/styles/forge.css:6-20`). Stoked mod
 | `.fg-proj-card:hover` background | `#101014` | Card hover surface (`forge.css:1184`) |
 | `--fg-text` | `#d7e2ea` | Body text, headings' base colour |
 | `--fg-muted` | `rgba(215, 226, 234, 0.65)` | Secondary copy, nav links, descriptions |
-| `--fg-faint` | `rgba(215, 226, 234, 0.46)` | Indices, labels, footers of panels |
+| `--fg-faint` | `rgba(215, 226, 234, 0.55)` | Indices, labels, footers of panels |
 | `--fg-line` | `rgba(215, 226, 234, 0.13)` | Hairline borders |
 | `--fg-line-2` | `rgba(215, 226, 234, 0.22)` | Stronger borders (buttons, timeline numbers) |
 | `--fg-cyan` | `#7dd3fc` | Primary accent: eyebrows, focus ring, active filter, dots |
@@ -44,12 +44,12 @@ Contrast (WCAG 2 relative luminance, alpha tokens composited over `#0c0c0c`):
 | --- | --- |
 | `--fg-text` on `--fg-bg` | 14.86:1 |
 | `--fg-muted` on `--fg-bg` | 6.61:1 (6.60:1 on `--fg-card`) |
-| `--fg-faint` on `--fg-bg` | 3.79:1 (3.84:1 on `--fg-card`) |
+| `--fg-faint` on `--fg-bg` | 5.02:1 (4.95:1 on `--fg-card`) |
 | `--fg-cyan` on `--fg-bg` | 11.73:1 |
 | stoked `#fb923c` on `--fg-bg` | 8.64:1 |
 | `#0b0b0d` on `#7dd3fc` (active filter) | 11.79:1; on stoked `#fb923c` 8.69:1 |
 
-`--fg-faint` is below 4.5:1 and is used for 10–11px mono labels (indices, `fg-pipe-foot`, `fg-stat-label`, `fg-proj-label`). Treat it as decorative or supplementary text only.
+`--fg-faint` is used for 10–11px mono labels (indices, `fg-pipe-foot`, `fg-stat-label`, `fg-proj-label`); it was raised from 0.46 alpha (3.79:1) so these labels pass 4.5:1.
 
 ## Typography
 
@@ -152,7 +152,7 @@ Reduced motion is driven only by `html[data-motion]` (`src/lib/motion.ts`), neve
 - Focus: links and buttons get a 2px `--fg-cyan` outline at 3px offset (`forge.css:36-41`); nav links blur after click so the outline does not stick (`ForgeSite.tsx:306-309`).
 - Keyboard: `j` / `k` step through project cards (adds `.is-focus` and scrolls to it), `f` cycles the filter; ignored with modifiers or inside inputs (`ForgeSite.tsx:859-886`). Digits 1–7 are left to the site-wide edition shortcuts (`src/App.tsx:71-92`).
 - Targets: nav links, project links, flip buttons and footer links get `min-height: 28px` (`forge.css:2298-2299`); switcher items are at least 28×28px (`src/interface-switcher/interface-switcher.css:20-21`).
-- Contrast: see the table under Colour. Body and muted text pass AA; `--fg-faint` (3.79:1) does not and is kept to small supplementary labels.
+- Contrast: see the table under Colour. Body, muted and faint text all pass AA.
 
 ## Rules for changes
 

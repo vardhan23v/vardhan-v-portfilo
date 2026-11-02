@@ -37,10 +37,10 @@ Global tokens (`src/styles/base.css:4-21`) and landing-only values (`src/landing
 | `.stage-screen` | `#0a0d14` | stage viewport behind the skins |
 | `.stage-dot.r/.y/.g` | `#ff5f57` / `#febc2e` / `#28c840` | window dots on the stage bar |
 | `.ed-portal--<tone>` | e.g. term `#05100a` / `#36e57c`, paper `#f6f1e7` / `#1b1710`, atlas `#0a0a0a` / `#ece8df` | portal background / foreground for each edition (`Landing.css:216-225`) |
-| card hover CTA | term `#36e57c`, paper `#f0d9a8`, aurora `#ff7ac6`, forge `#ffab5e`, mac `#6ea8ff`, atlas `#ff5b24`; the rest use `--accent` | `.ed-<tone>:hover .ed-cta` (`Landing.css:147-148`, `:498`, `:831`) |
+| card hover CTA | term `#36e57c`, paper `#f0d9a8`, aurora `#ff7ac6`, forge `#ffab5e`, mac `#6ea8ff`, atlas `#ff5b24`; the rest use `--accent` | `.ed-<tone>:hover .ed-cta` (`Landing.css:147-148`, `:498`, `:813`) |
 | `.lr-status.is-live` | `--pa`, i.e. the project's `accent[0]`, passed inline | live badge in the ledger; the row name hovers to `--pb` (`accent[2]`) |
 
-The skin previews (`Landing.css:238-833`) carry each edition's own colours (for example `.stage-term` `#060a08` / `#36e57c`, `.stage-paper` `#f3f0ea` / `#1a1815`). They are miniatures, not landing tokens.
+The skin previews (`Landing.css:238-815`) carry each edition's own colours (for example `.stage-term` `#060a08` / `#36e57c`, `.stage-paper` `#f3f0ea` / `#1a1815`). They are miniatures, not landing tokens.
 
 Contrast, computed with the WCAG 2 formula:
 
@@ -88,9 +88,9 @@ Contrast, computed with the WCAG 2 formula:
 - Grids:
   - Hero: `1.05fr 0.95fr` with a `clamp(28px, 5vw, 64px)` gap (`:38`).
   - `.land-stats`: `repeat(4, 1fr)`, gap 14px.
-  - `.edition-grid`: `repeat(3, 1fr)`, gap 14px. A seventh card on its own row spans the full width (`:833`).
+  - `.edition-grid`: `repeat(3, 1fr)`, gap 14px. A seventh card on its own row spans the full width (`:815`).
   - `.land-row`: `34px 32px 1fr auto auto 24px` (`:152`).
-- Breakpoints (`Landing.css:181-183`, `:829`, `:834-835`):
+- Breakpoints (`Landing.css:181-183`, `:811`, `:816-817`):
   - 1080px and below: the hero becomes one column with the stage capped at 640px, editions and stats go to two columns, and the last odd card spans both.
   - 720px and below: editions go to one column, nav links other than "Hire me" are hidden, the ledger loses its tech column, and the hero top padding is 40px.
   - 480px and below: stats use `1fr 1fr` with a 10px gap, and CTAs get smaller padding.
@@ -193,7 +193,7 @@ Contrast, computed with the WCAG 2 formula:
 - Focus: base `:focus-visible` is a 2px `--accent` outline with a 3px offset (`base.css:29`). The stage link's outline is inset 3px (`Landing.css:82`).
 - Target sizes:
   - Stage segments are at least 24×24px and the pause button is 28×28px (`Landing.css:89`, `:94`).
-  - Footer links and the motion toggle have `min-height: 24px` (`:837-838`).
+  - Footer links and the motion toggle have `min-height: 24px` (`:819-820`).
 - Contrast: see the Colour section. The lowest computed text pair is `--text-3` on the term wallpaper mid-stop, at 4.71:1.
 
 ## Rules for changes
@@ -211,4 +211,4 @@ Contrast, computed with the WCAG 2 formula:
 - Anything that navigates to an edition should go through `usePortal().enter` / `onLinkClick`, so modifier-clicks, reduced motion and the view transition behave the same everywhere.
 - Mark decorative layers `aria-hidden` and keep the visible label in the accessible name. If a link opens a new tab, add `.sr-only` text saying so.
 - Keep controls at 24×24px or larger, and make sure the 1080px, 720px and 480px breakpoints still collapse the grids cleanly when a card is added.
-- `.landing-title .landing-grad` and `.land-project-item` (`Landing.css:759-804`) match nothing in `Landing.tsx`. Check them before you build on them.
+- Unused rules (`.landing-title .landing-grad`, `.land-project-item`) were removed; keep `Landing.css` to selectors that `Landing.tsx` or `skins.tsx` render.

@@ -39,14 +39,14 @@ Phosphor palettes (`global.css:2688-2740`), set by `data-phosphor` on the root a
 
 | `data-phosphor` | `--bg` | `--green` | `--green-2` | `--green-dim` | `--amber` | `--ink` / `--ink-2` / `--ink-3` |
 |---|---|---|---|---|---|---|
-| `amber` | `#080604` | `#ffb347` | `#ffd58f` | `#a5701f` | `#4cc9f0` (swapped to cyan) | `#f4e8d3` / `#c6ad86` / `#7b6547` |
-| `cyan` | `#04080a` | `#4cc9f0` | `#a3e6fb` | `#1f7f9c` | `#ffb347` | `#d8f1f8` / `#8fbccb` / `#4f6f7a` |
-| `white` | `#070707` | `#ededed` | `#ffffff` | `#8c8c8c` | `#ffb347` | `#e6e6e6` / `#a8a8a8` / `#6a6a6a` |
+| `amber` | `#080604` | `#ffb347` | `#ffd58f` | `#ad7a2e` | `#4cc9f0` (swapped to cyan) | `#f4e8d3` / `#c6ad86` / `#8e7b62` |
+| `cyan` | `#04080a` | `#4cc9f0` | `#a3e6fb` | `#3a8ca6` | `#ffb347` | `#d8f1f8` / `#8fbccb` / `#69858e` |
+| `white` | `#070707` | `#ededed` | `#ffffff` | `#8c8c8c` | `#ffb347` | `#e6e6e6` / `#a8a8a8` / `#808080` |
 
 Contrast, computed with the WCAG 2 relative-luminance formula against each palette's `--bg`:
 
 - Green: `--ink` 17.12:1, `--ink-2` 9.63:1, `--ink-3` 5.35:1 (4.86:1 on `--bg-3`), `--green` 12.12:1, `--green-dim` 4.61:1, `--amber` 11.29:1, `--cyan` 10.46:1, `--red` 6.80:1. `--on-accent` on `--green` is 11.42:1. The comment at `global.css:75` records both figures.
-- Amber / cyan / white: `--ink-3` comes out at 3.66:1, 3.72:1 and 3.72:1, which is below 4.5:1. `--green-dim` is 4.76:1, 4.38:1 and 5.99:1.
+- Amber / cyan / white: `--ink-3` is 4.97:1, 5.12:1 and 5.10:1 on `--bg` (at least 4.6:1 on `--bg-3`). `--green-dim` is 5.39:1, 5.25:1 and 5.99:1 on `--bg` (amber and cyan were lifted from `#a5701f` and `#1f7f9c` so dim text stays above 4.5:1 on `--bg-3`).
 - The hard-coded legacy block at the top of the file still uses `#36e57c` / `rgba(54,229,124,…)` for the `.shell-input` caret glow (`global.css:47-54`), so that glow stays green under every phosphor.
 
 ## Typography
@@ -156,7 +156,7 @@ JetBrains Mono sizes:
 - Reduced motion (`html[data-motion="reduce"]`, written by `src/lib/motion.ts` and the inline script in `index.html`):
   - CSS: smooth scroll off (`:110-112`); sweep hidden and flicker stopped (`:172-178`); `.reveal` shown at once (`:2244-2248`); all animations and transitions cut to 0.001s and 1 iteration (`:2249-2255`); staggered rules set to `animation: none` (`:2866-2878`). On top of that, `src/styles/motion.css:46-51` sets `animation: none !important` site-wide.
   - JS: `MatrixRain` never starts; boot shows every line and closes after 250ms; `TypeCmd` / `TypeText` render the full text; the auto-`neofetch` is skipped; `snake` refuses to start and the `sl` train is skipped; every `scrollIntoView` / `scrollTo` uses `behavior: "auto"`.
-  - Side effect worth knowing: `.pipe-chip` starts at `opacity: 0` and `.pipe-rail i` at `scaleX(0)`, and only their animations reveal them. With those animations removed they stay hidden or empty. Both elements are `aria-hidden`.
+  - `.pipe-chip` starts at `opacity: 0` and `.pipe-rail i` at `scaleX(0)`, and only their animations reveal them, so the reduce block pins them to their finished state (`opacity: 1`, `scaleX(1)`).
 
 ## Cursor and shared chrome
 
@@ -199,7 +199,7 @@ JetBrains Mono sizes:
   - Invalid inputs get a `--red` border.
   - `noValidate`, with a custom error line (`Contact.tsx:22-27`, `:91-103`).
 - Target sizes (WCAG 2.5.8):
-  - Links (`.tlink`, footer, case nav, prev/next) and `.shell-input` get `min-height: 24px`. `.contact-channels a` gets 26px (`global.css:2880-2884`).
+  - Links (`.tlink`, footer, case nav, prev/next) and `.shell-input` get `min-height: 24px`. `.contact-channels a` gets 26px (`global.css:2883-2887`).
   - The status bar is 34px tall.
 - Contrast: see the Colour section. The default green palette meets 4.5:1 for every text token. The other phosphors' `--ink-3` does not.
 

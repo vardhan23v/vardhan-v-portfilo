@@ -7,7 +7,7 @@
   --fg-bg: #0c0c0c;
   --fg-text: #d7e2ea;
   --fg-muted: rgba(215, 226, 234, 0.65);
-  --fg-faint: rgba(215, 226, 234, 0.46);
+  --fg-faint: rgba(215, 226, 234, 0.55); /* 5.0:1 on --fg-bg (was 0.46, 3.8:1) */
   --fg-line: rgba(215, 226, 234, 0.13);
   --fg-line-2: rgba(215, 226, 234, 0.22);
   --fg-card: #0e0e10;

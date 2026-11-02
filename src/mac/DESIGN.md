@@ -26,7 +26,7 @@ Theme tokens (`src/mac/styles/tokens.css:51-136`):
 | `--toolbar-bg` | `rgba(14, 18, 32, 0.55)` | `rgba(255, 255, 255, 0.5)` | Menu bar |
 | `--text-primary` | `#f2f3f8` | `#12151f` | Main text |
 | `--text-secondary` | `#a9afc3` | `#565c70` | Secondary text, menu triggers |
-| `--text-tertiary` | `#6d7590` | `#8b91a6` | Captions, `.mac-caps`, shortcuts |
+| `--text-tertiary` | `#838aa3` | `#646878` | Captions, `.mac-caps`, shortcuts |
 | `--border` / `--border-strong` | `rgba(255,255,255,0.08)` / `0.16` | `rgba(0,0,0,0.08)` / `0.15` | Hairlines |
 | `--overlay` | `rgba(4, 6, 12, 0.55)` | `rgba(20, 24, 40, 0.35)` | Launchpad, Mission Control, help backdrop |
 | `--traffic-close` / `--traffic-minimize` / `--traffic-maximize` | `#ff5f57` / `#febc2e` / `#28c840` | same | Window controls |
@@ -41,8 +41,8 @@ Accent matrix (`src/mac/styles/tokens.css:91-93`, `132-134`, `139-157`). `data-a
 | `blue` (default, no attribute rule) | 225 / 262 / 196 | `#6ea8ff` / `#8dbaff` / `#061024` | `#2563eb` / `#1d4ed8` |
 | `purple` | 258 / 290 / 230 | `#b48cff` / `#c6a6ff` / `#14082b` | `#7c3aed` / `#6d28d9` |
 | `pink` | 330 / 355 / 280 | `#ff7ab3` / `#ff9cc6` / `#2b0815` | `#db2777` / `#be185d` |
-| `orange` | 22 / 350 / 45 | `#ffab5e` / `#ffc084` / `#2b1400` | `#ea580c` / `#c2410c` |
-| `green` | 165 / 200 / 120 | `#5fe3a1` / `#86ecb9` / `#032116` | `#059669` / `#047857` |
+| `orange` | 22 / 350 / 45 | `#ffab5e` / `#ffc084` / `#2b1400` | `#c2410c` / `#9a3412` |
+| `green` | 165 / 200 / 120 | `#5fe3a1` / `#86ecb9` / `#032116` | `#047857` / `#065f46` |
 | `graphite` | 225 / 230 / 215 | `#c7cbd8` / `#e0e3ec` / `#0b0f1a` | `#3f4757` / `#2b3140` |
 
 Each accent also defines `--accent-subtle` (0.14–0.15 alpha dark, 0.1 light), `--accent-border` (0.4–0.42 dark, 0.35 light) and `--input-focus`. Graphite desaturates app glyphs (`tokens.css:158`, `shell.css:244`). The Settings swatches use separate display colours (`#0a84ff`, `#bf5af2`, `#ff375f`, `#ff9f0a`, `#30d158`, `#98989d`) that are not the tokens (`src/mac/apps/SettingsApp.tsx:25-32`).
@@ -55,11 +55,11 @@ Contrast (WCAG 2 formula, against the opaque `--surface`; real windows are 84% s
 | --- | --- | --- |
 | `--text-primary` | 15.63:1 | 18.22:1 |
 | `--text-secondary` | 7.92:1 | 6.64:1 |
-| `--text-tertiary` | 3.79:1 | 3.13:1 |
-| `--accent` on surface (blue / purple / pink / orange / green / graphite) | 7.18 / 6.71 / 7.17 / 9.27 / 10.71 / 10.69 | 5.17 / 5.70 / 4.60 / 3.56 / 3.77 / 9.33 |
-| `--accent-ink` on `--accent` (same order) | 7.86 / 7.40 / 7.57 / 9.34 / 10.53 / 11.81 | 5.17 / 5.70 / 4.60 / 3.56 / 3.77 / 9.33 |
+| `--text-tertiary` | 5.06:1 | 5.54:1 |
+| `--accent` on surface (blue / purple / pink / orange / green / graphite) | 7.18 / 6.71 / 7.17 / 9.27 / 10.71 / 10.69 | 5.17 / 5.70 / 4.60 / 5.18 / 5.48 / 9.33 |
+| `--accent-ink` on `--accent` (same order) | 7.86 / 7.40 / 7.57 / 9.34 / 10.53 / 11.81 | 5.17 / 5.70 / 4.60 / 5.18 / 5.48 / 9.33 |
 
-Light orange and light green fall below 4.5:1 for white text on the accent (highlighted menu items, palette selection, primary buttons). Tertiary text is below 4.5:1 in both themes.
+Every pair passes 4.5:1. Light orange and light green were darkened (from `#ea580c` and `#059669`, 3.56 and 3.77) and tertiary text was lifted in both themes (from `#6d7590` and `#8b91a6`, 3.79 and 3.13).
 
 ## Typography
 
@@ -137,7 +137,7 @@ Light orange and light green fall below 4.5:1 for white text on the accent (high
 - State: Control Center tiles and switches use `aria-pressed`; Show Desktop windows become `inert` and `aria-hidden` (`WindowFrame.tsx:516-517`).
 - Focus: `:focus-visible` draws a 2px `--accent` outline at 2px offset (`tokens.css:184`); highlighted menu and context items use accent fill instead (`shell.css:110`, `smooth.css:113`).
 - Target sizes: `.mac-link` gets at least 24px (`src/mac/styles.css:11-12`). Menu bar triggers (22px tall), the clock and the 12px traffic lights are intentionally native-sized to match macOS; the status buttons are 24×24px.
-- Contrast decisions: see the tables under Colour. Primary and secondary text pass AA in both themes; tertiary does not; light orange and light green accents fall under 4.5:1 with white text.
+- Contrast decisions: see the tables under Colour. Primary, secondary and tertiary text pass AA in both themes, and white text passes on every accent.
 
 ## Rules for changes
 

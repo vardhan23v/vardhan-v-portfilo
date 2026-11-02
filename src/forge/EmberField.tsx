@@ -16,7 +16,7 @@ type Ember = {
 /**
  * Rising ember particles behind the Forge hero — cyan/violet sparks drifting
  * up from the bottom with a little mouse "wind". Canvas is capped, pauses when
- * the tab is hidden, and skips entirely for reduced-motion / coarse pointers.
+ * the tab is hidden, skips entirely under reduced motion, and draws 26 embers instead of 46 on coarse pointers.
  */
 export function EmberField({ stoked = false }: { stoked?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);

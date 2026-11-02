@@ -2932,7 +2932,8 @@ html:not([data-motion="reduce"]) .au-random.is-rolling span {
 }
 .aurora-root .au-card:hover,
 .aurora-root .au-ft:hover {
-  transform: translateY(-6px) scale(1.015);
+  /* keep the pointer tilt from useTilt while lifting the card */
+  transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-6px) scale(1.015);
   box-shadow: 0 20px 40px rgba(0,0,0,0.25), 0 0 28px rgba(167,139,250,0.18);
 }
 .aurora-root .au-card::after,

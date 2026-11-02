@@ -2695,12 +2695,12 @@ html:has(.terminal-root) .sc-top {
   --green: #ffb347;
   --green-rgb: 255, 179, 71;
   --green-2: #ffd58f;
-  --green-dim: #a5701f;
+  --green-dim: #ad7a2e; /* text on --bg-3 stays at 4.6:1 */
   --amber: #4cc9f0;
   --on-accent: #1a1006;
   --ink: #f4e8d3;
   --ink-2: #c6ad86;
-  --ink-3: #7b6547;
+  --ink-3: #8e7b62; /* 5.0:1 on --bg, 4.6:1 on --bg-3 */
 }
 
 .terminal-root[data-phosphor="cyan"] {
@@ -2713,12 +2713,12 @@ html:has(.terminal-root) .sc-top {
   --green: #4cc9f0;
   --green-rgb: 76, 201, 240;
   --green-2: #a3e6fb;
-  --green-dim: #1f7f9c;
+  --green-dim: #3a8ca6; /* text on --bg-3 stays at 4.6:1 */
   --amber: #ffb347;
   --on-accent: #04161c;
   --ink: #d8f1f8;
   --ink-2: #8fbccb;
-  --ink-3: #4f6f7a;
+  --ink-3: #69858e; /* 5.1:1 on --bg, 4.6:1 on --bg-3 */
 }
 
 .terminal-root[data-phosphor="white"] {
@@ -2736,7 +2736,7 @@ html:has(.terminal-root) .sc-top {
   --on-accent: #111111;
   --ink: #e6e6e6;
   --ink-2: #a8a8a8;
-  --ink-3: #6a6a6a;
+  --ink-3: #808080; /* 5.1:1 on --bg, 4.6:1 on --bg-3 */
 }
 
 
@@ -2876,6 +2876,9 @@ html[data-motion="reduce"] .terminal-root .reveal.is-visible .exp-item,
 html[data-motion="reduce"] .terminal-root .reveal.is-visible .other-item {
     animation: none;
   }
+/* elements that only an animation reveals rest in their finished state when motion is off */
+html[data-motion="reduce"] .terminal-root .pipe-chip { opacity: 1; }
+html[data-motion="reduce"] .terminal-root .pipe-rail i { transform: scaleX(1); }
 
 /* ---------- touch targets: every control at least 24×24px (WCAG 2.5.8); text sizes unchanged ---------- */
 .terminal-root .tlink, .terminal-root .tlink-dim { min-height: 24px; min-width: 24px; justify-content: center; display: inline-flex; align-items: center; }

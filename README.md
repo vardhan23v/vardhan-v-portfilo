@@ -15,10 +15,11 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![CSS](https://img.shields.io/badge/CSS-663399?style=for-the-badge&logo=css3&logoColor=white)](#-tech-stack)
 [![Bundle](https://img.shields.io/badge/bundle-~132kB_JS_+_~37kB_CSS_gzip-7c6cff?style=for-the-badge)](#-tech-stack)
-[![Editions](https://img.shields.io/badge/editions-6_(landing_+_5_interfaces)-a78bfa?style=for-the-badge)](#-editions)
+[![Editions](https://img.shields.io/badge/editions-7_interfaces_+_landing-a78bfa?style=for-the-badge)](#-editions)
 
 [![Aurora 2.0](https://img.shields.io/badge/Aurora-2.0-luminous-22d3ee?style=for-the-badge)](#aurora-20--luminous-interactive)
 [![Classic](https://img.shields.io/badge/Classic-starry_night-9cc0ff?style=for-the-badge)](#-whats-new--nov-1-2026--classic-starry-night)
+[![Atlas](https://img.shields.io/badge/Atlas-survey_atlas-ff5b24?style=for-the-badge)](#-whats-new--nov-2-2026--atlas-case-studies-and-a-site-wide-pass)
 [![Motion](https://img.shields.io/badge/motion-View_Transitions_+_scroll--driven-38bdf8?style=for-the-badge)](#-tech-stack)
 
 </div>
@@ -34,6 +35,19 @@ A production-quality portfolio positioning me as a **Generative AI Developer & F
 </div>
 
 ---
+
+## 🗺 What’s New — Nov 2 2026 · Atlas, case studies and a site-wide pass
+
+- **Atlas (`/atlas`, edition 07)** — the work as a survey atlas, laid out after the Forkfolio atlas page and written from scratch on this site's own data (`src/atlas/`):
+  - **Title sheet** — a framed A–H × 1–5 map with a seeded contour terrain (`terrain.ts`, marching squares) where every featured project is a summit, a name card and a contents legend.
+  - **Sheets** — project plates; a gazetteer of smaller builds plus public repos read live from the GitHub API (offline fallback); a skills index that cites project numbers; a year of contributions as a smoothed elevation profile and day plan (via github-contributions-api, hidden if it fails); the route of roles; the contact form.
+  - **Background** — a fixed WebGL contour field (`ContourField.tsx`, one fragment shader, no library) that slides and warps as you scroll, draws only on scroll or resize, and falls back to static SVG contours.
+  - **Scroll effects** — one engine (`useScrollProgress.ts`) writes `--p` per element, both ways: the first plate zooms on a sticky stage, survey lines draw, rows rule themselves in, an orange front sweeps the ridge, the compass swings north. Reduced motion pins everything finished.
+  - **Layout** — one 12-column grid shared by every block and the ruler ticks; a bar with section, `/` search and a progress line; Host Grotesk + Fragment Mono; a crosshair cursor that reads the grid square.
+- **Case studies at `/work/:slug`** — one shareable page per long write-up (Extension AI, AI Code Reviewer, CareerForge Pro, Vard AI, DisasterMind AI), linked from every edition and the ⌘K palette; `[` `]` step between them; the Terminal pages point their canonical URL here.
+- **A cursor per interface** — `src/CursorFX.tsx` + `src/cursor-fx.css`: comet (landing), grid-snapped caret (Terminal), star in a swirl (Classic), ink dot (Paper), lagging glow (Aurora), ember spark (Forge), tinted system cursors (macOS), survey crosshair (Atlas). Off on touch and under reduced motion.
+- **Site-wide accessibility pass** — axe reports 0 issues on every route at 1440 and 390 px: real list markup in Terminal, stronger secondary text in Terminal and the landing preview, Aurora cards open from a real button inside `<main>`, the Forge pipeline demo is a labelled group, the macOS desktop is the main landmark. Controls are at least 24 × 24 px (the macOS menu bar and window lights stay native-sized by design). Lint warnings 58 → 51.
+- **Checks** — typecheck, lint, Vitest (17), build, Puppeteer smoke (12 routes), axe at 1440/390, no horizontal overflow from 1440 to 320 px.
 
 ## 🌌 What’s New — Nov 1 2026 · Classic “Starry Night”
 
@@ -183,7 +197,7 @@ Built at `src/mac/MacPortfolio.tsx:12` — providers `ThemeProvider → WindowMa
 │                      # switcher-click-check, shell-test (terminal), live-check, forge-probe, lib/browser.mjs
 ├── tests/             # Vitest: data.test.ts (projects/editions/stats), shell.test.ts (terminal engine)
 └── src/
-    ├── App.tsx        # createBrowserRouter + InterfaceShortcuts(1-6) + RouteSeo + ErrorBoundary + ScrollChrome + CommandPalette + KonamiFX
+    ├── App.tsx        # createBrowserRouter + InterfaceShortcuts(1-7) + RouteSeo + ErrorBoundary + ScrollChrome + CommandPalette + KonamiFX + CursorFX
     ├── landing/       # Landing + EditionStage (stage-frame, mini-skins including macOS)
     ├── terminal/      # CRT shell + work man pages
     ├── classic/       # Classic — data + hooks + lib + styles/classic.css (Starry Night)
@@ -196,6 +210,8 @@ Built at `src/mac/MacPortfolio.tsx:12` — providers `ThemeProvider → WindowMa
     ├── paper/         # Paper
     ├── aurora/        # Aurora 2.0 — AuroraSite.tsx + styles/aurora.css (~2.9k lines: toolbar/modal/lab/edu/form)
     ├── forge/         # Forge + EmberField
+    ├── atlas/         # Atlas — AtlasSite, terrain (contours), ContourField (WebGL backdrop), useScrollProgress, useLive (GitHub repos + contributions)
+    ├── work/          # CaseStudy (/work/:slug) + links helper used by every edition
     ├── mac/           # macOS — premium OS shell (scoped under .mac-root, 8 phases)
     │   ├── components/# Desktop, Dock, MenuBar, ControlCenter, DevPanel, HelpOverlay, WindowFrame, CommandPalette, Toast, Finder/Terminal/AI/Settings apps
     │   ├── hooks/     # useWindowManager, usePreferences (accent/devMode persisted), useTheme, useNav, usePalette, useIstTime
@@ -205,7 +221,8 @@ Built at `src/mac/MacPortfolio.tsx:12` — providers `ThemeProvider → WindowMa
     ├── components/    # CommandPalette, KonamiFX, ScrollChrome, ErrorBoundary, MotionToggle, LiquidButton, expandable-tabs, ui/CountUp
     ├── interface-switcher/ # magnetic switcher (every page)
     ├── hooks/         # useTilt, useMagnetic, useReveal, useIstTime, useGithub, usePrefersReducedMotion (shared by every edition)
-    └── styles/        # motion.css (6 editions + Aurora 2.0 + view-transitions + scroll-rise)
+    ├── CursorFX.tsx   # one cursor overlay, a look per edition (cursor-fx.css)
+    └── styles/        # motion.css (editions + Aurora 2.0 + view-transitions + scroll-rise)
 ```
 
 Content in two places:
@@ -266,12 +283,12 @@ No component edits for content. Rebuild → push `main` → Vercel deploys.
 
 ## 🔗 Links
 
-- **Live:** https://vardhan-v-portfilo.vercel.app — `/mac` (premium) · `/classic` · `/aurora` (2.0) · `/forge` · `/terminal` · `/paper` · `/` picker
+- **Live:** https://vardhan-v-portfilo.vercel.app — `/mac` (premium) · `/classic` · `/aurora` (2.0) · `/forge` · `/terminal` · `/paper` · `/atlas` · `/work/extension-ai` (case studies) · `/` picker
 - **Vercel aliases:** `portfilo-rho-steel.vercel.app` + `vardhan-v-portfilo-vardhan23vs-projects.vercel.app` (auto on `main` push)
-- **GitHub:** https://github.com/vardhan23v — repo `vardhan-v-portfilo` `main` `a00ec01` (macOS premium polish)
+- **GitHub:** https://github.com/vardhan23v — repo `vardhan-v-portfilo` (`main`)
 - **LinkedIn:** https://www.linkedin.com/in/vardhan-v23
 - **Email:** 23vvardhan@gmail.com
 
 ---
 
-© Sree Vardhan V · Designed & built by me — no template involved. `src/styles/motion.css:1` power the motion system.
+© Sree Vardhan V · Designed & built by me; the Atlas edition's layout follows the Forkfolio atlas page, and all code is my own. `src/styles/motion.css:1` power the motion system.

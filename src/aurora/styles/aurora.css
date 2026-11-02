@@ -3027,3 +3027,12 @@ html:not([data-motion="reduce"]) .au-random.is-rolling span {
   outline: 2px solid var(--violet);
   outline-offset: 2px;
 }
+
+/* the project name is the card's real control: a plain-looking button that opens the quick view */
+.au-open { all: unset; cursor: pointer; color: inherit; font: inherit; letter-spacing: inherit; }
+.au-ft:has(.au-open:focus-visible), .au-card:has(.au-open:focus-visible) { border-color: rgba(255, 255, 255, 0.35); }
+
+/* ---------- touch targets: every control at least 24×24px (WCAG 2.5.8); text sizes unchanged ---------- */
+.au-hue-swatch { min-width: 24px; min-height: 24px; }
+.au-search input, .au-sort select { min-height: 32px; }
+.au-card-links a, .au-eng-btn, .au-work-foot-link, .aurora-foot-links a, .au-foot-top { min-height: 26px; display: inline-flex; align-items: center; }

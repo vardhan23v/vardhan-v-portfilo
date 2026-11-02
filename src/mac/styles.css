@@ -7,3 +7,6 @@
 @import "./styles/responsive.css";
 @import "./styles/motion.css";
 @import "./styles/smooth.css";
+
+/* ---------- touch targets: every control at least 24×24px (WCAG 2.5.8); text sizes unchanged ---------- */
+.mac-link { min-height: 24px; display: inline-flex; align-items: center; }

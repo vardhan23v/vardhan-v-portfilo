@@ -10,8 +10,6 @@ const chk = (l, c) => {
     f++;
   }
 };
-const txt = (sel) =>
-  p.evaluate((s) => (document.querySelector(s)?.textContent ?? "").replace(/\s+/g, " "), sel);
 const bodyTxt = () => p.evaluate(() => document.body.innerText.replace(/\s+/g, " "));
 
 await p.goto(base + "/", { waitUntil: "networkidle0" });

@@ -2,8 +2,9 @@ import { EDITIONS } from "../../editions";
 import { useIstTime } from "../../hooks/useIstTime";
 import { site } from "../data/site";
 
+const year = new Date().getFullYear();
+
 export function Footer() {
-  const year = new Date().getFullYear();
   const time = useIstTime(false);
   return (
     <footer className="foot" aria-label="Footer">

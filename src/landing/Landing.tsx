@@ -22,6 +22,8 @@ import { skillCategories } from "../classic/data/skills";
 import "./Landing.css";
 import { MotionToggle } from "../components/MotionToggle";
 
+const YEAR = new Date().getFullYear();
+
 const STAGE_INTERVAL_MS = 4200;
 const PORTAL_GROW_MS = 60;
 const PORTAL_HOLD_MS = 640;
@@ -187,24 +189,23 @@ function EditionStage({ index, setIndex, reduced, onEnter }: {
       <div className="stage-bar">
         <span className="stage-dot r" /><span className="stage-dot y" /><span className="stage-dot g" />
         <span className="stage-url" aria-hidden="true">{site.host}{ed.to}</span>
-        <span className="stage-count" aria-hidden="true">{ed.num} / 06</span>
+        <span className="stage-count" aria-hidden="true">{ed.num} / {String(EDITIONS.length).padStart(2, "0")}</span>
       </div>
-      <Link
-        to={ed.to}
-        id={panelId}
-        role="tabpanel"
-        aria-live="polite"
-        className="stage-screen"
-        aria-label={`Open the ${ed.label} edition`}
-        onClick={(e) => onEnter(e, ed, e.currentTarget)}
-      >
+      <div id={panelId} role="tabpanel" aria-live="polite" aria-label={`${ed.label} preview`} className="stage-screen">
         {EDITIONS.map((s, i) => (
           <div key={s.to} className={`stage-skin stage-${s.tone}${i === index ? " is-active" : ""}`} aria-hidden="true">
             <Skin tone={s.tone} size="stage" />
           </div>
         ))}
-        <span className="stage-enter" aria-hidden="true">enter {ed.label} →</span>
-      </Link>
+        <Link
+          to={ed.to}
+          className="stage-hit"
+          aria-label={`Open the ${ed.label} edition`}
+          onClick={(e) => onEnter(e, ed, e.currentTarget.parentElement ?? e.currentTarget)}
+        >
+          <span className="stage-enter" aria-hidden="true">enter {ed.label} →</span>
+        </Link>
+      </div>
       <div className="stage-foot">
         <div className="stage-segments" role="tablist" aria-label="Choose edition preview" ref={tabsRef} onKeyDown={onTabKey}>
           {EDITIONS.map((s, i) => (
@@ -425,7 +426,7 @@ export function Landing() {
       </main>
 
       <footer className="landing-foot" data-reveal>
-        <span>© {new Date().getFullYear()} {site.name} · {site.location.split(",").slice(0, 1)}, India</span>
+        <span>© {YEAR} {site.name} · {site.location.split(",").slice(0, 1)}, India</span>
         <span className="landing-links">
           <a href={site.github} target="_blank" rel="noopener">GitHub</a>
           <a href={site.linkedin} target="_blank" rel="noopener">LinkedIn</a>

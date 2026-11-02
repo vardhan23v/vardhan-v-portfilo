@@ -657,7 +657,7 @@ html[data-motion="reduce"] {
   --sw-text: var(--ink);
   --sw-dim: var(--ink-2);
   --sw-num: var(--ink-3);
-  --sw-accent: var(--accent);
+  --sw-accent: var(--accent-2); /* 5.6:1 on the active tint (the lighter accent was 4.1:1) */
   --sw-active-bg: rgba(190, 75, 42, 0.09);
 }
 
@@ -699,3 +699,6 @@ html[data-motion="reduce"] {
 .paper-root .pp-chip:hover {
   transform: translateY(-2px);
 }
+
+/* ---------- touch targets: every control at least 24×24px (WCAG 2.5.8); text sizes unchanged ---------- */
+.paper-nav-links a, .paper-mast-meta a, .paper-work-links a, .paper-foot-links a, .paper-eng-btn { min-height: 24px; display: inline-flex; align-items: center; }

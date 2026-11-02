@@ -22,6 +22,7 @@ import { motionReduced } from "../lib/motion";
 import { mailtoHref, sendMessage } from "../lib/contact";
 
 export const auroraProjects = featuredProjects;
+const YEAR = new Date().getFullYear();
 
 type Filter = "all" | "ai" | "full-stack" | "tools";
 type Sort = "default" | "az" | "tech";
@@ -417,21 +418,12 @@ function FeaturedProject({ p, onOpen }: { p: Project; onOpen: () => void }) {
         className="au-ft"
         style={{ "--pa1": p.accent[0] } as React.CSSProperties}
         onClick={onOpen}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            onOpen();
-          }
-        }}
-        aria-label={`Open ${p.name} quick view`}
         onMouseMove={spotlight}
       >
         <span className="au-spot" aria-hidden="true" />
         <div className="au-ft-copy">
           <span className="au-rank">Project 01 · flagship — click to explore</span>
-          <h3 className="au-ft-name">{p.name}</h3>
+          <h3 className="au-ft-name"><button type="button" className="au-open" onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-label={`Open ${p.name} quick view`}>{p.name}</button></h3>
           <p className="au-ft-tagline">{p.tagline}</p>
           <div className="au-card-tech">
             {p.tech.slice(0, 7).map((t) => (
@@ -477,20 +469,11 @@ function AuroraCard({ p, n, i, onOpen }: { p: Project; n: string; i: number; onO
         className="au-card"
         style={{ "--pa1": p.accent[0] } as React.CSSProperties}
         onClick={onOpen}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            onOpen();
-          }
-        }}
-        aria-label={`Open ${p.name} quick view`}
         onMouseMove={spotlight}
       >
         <span className="au-spot" aria-hidden="true" />
         <span className="au-rank">{n} · {catOf(p)}</span>
-        <h3 className="au-card-name">{p.name}</h3>
+        <h3 className="au-card-name"><button type="button" className="au-open" onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-label={`Open ${p.name} quick view`}>{p.name}</button></h3>
         <p className="au-card-tagline">{p.tagline}</p>
         <div className="au-card-tech">
           {p.tech.slice(0, 5).map((t) => (
@@ -940,6 +923,7 @@ export function AuroraSite() {
           <InterfaceSwitcher current="aurora" />
         </nav>
 
+        <main id="main">
         <header className="aurora-hero" id="home">
           <div className="au-hero-copy">
             <p className="aurora-name">
@@ -1414,8 +1398,10 @@ export function AuroraSite() {
           </div>
         </section>
 
+        </main>
+
         <footer className="aurora-foot au-reveal">
-          <span>© {new Date().getFullYear()} {site.name} — Aurora edition · IST {ist}</span>
+          <span>© {YEAR} {site.name} — Aurora edition · IST {ist}</span>
           <span className="aurora-foot-links">
             <Link to="/">editions</Link>
             <a href={site.github} target="_blank" rel="noopener noreferrer">

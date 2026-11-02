@@ -72,7 +72,7 @@
   --red: #ff5f6b;
   --ink: #d9f3e3;
   --ink-2: #93bda4;
-  --ink-3: #52705f;
+  --ink-3: #6a8b79; /* 5.0:1 on the darkest panel (was #52705f, 3.7:1) */
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
   --font-crt: "VT323", "JetBrains Mono", ui-monospace, monospace;
   --radius: 10px;
@@ -1054,7 +1054,19 @@ html[data-motion="reduce"] .terminal-root::after {
   display: grid;
   grid-template-columns: 1fr;
   gap: 8px;
-  margin-top: 16px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.terminal-root .other-grid > li {
+  display: flex;
+  min-width: 0;
+}
+
+.terminal-root .other-grid > li > .other-item {
+  flex: 1;
+  min-width: 0;
 }
 
 @media (min-width: 900px) {
@@ -2864,3 +2876,9 @@ html[data-motion="reduce"] .terminal-root .reveal.is-visible .exp-item,
 html[data-motion="reduce"] .terminal-root .reveal.is-visible .other-item {
     animation: none;
   }
+
+/* ---------- touch targets: every control at least 24×24px (WCAG 2.5.8); text sizes unchanged ---------- */
+.terminal-root .tlink, .terminal-root .tlink-dim { min-height: 24px; min-width: 24px; justify-content: center; display: inline-flex; align-items: center; }
+.terminal-root .contact-channels a { min-height: 26px; display: inline-flex; align-items: center; }
+.terminal-root .shell-input { min-height: 24px; }
+.terminal-root .footer-inner a, .terminal-root .case-nav-top a, .terminal-root .case-prevnext a { min-height: 24px; display: inline-flex; align-items: center; }

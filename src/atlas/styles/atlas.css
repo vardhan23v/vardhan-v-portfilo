@@ -492,3 +492,7 @@ html[data-motion="reduce"] .atl-plate--0 .atl-plate-stage { position: static !im
   .atl-index-group li { padding: 2px 0; border: 0; gap: 6px; justify-content: flex-start; font-size: 15.5px; }
   .atl-index-refs { font-size: 11px; align-self: center; }
 }
+
+/* ---------- touch targets: every control at least 24×24px (WCAG 2.5.8); text sizes unchanged ---------- */
+.atl-gaz-name { min-height: 28px; }
+@media (max-width: 640px) { .atl-peaks a { min-width: 32px; justify-content: center; padding: 0; } }

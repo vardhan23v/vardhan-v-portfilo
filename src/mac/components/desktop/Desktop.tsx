@@ -40,7 +40,7 @@ export function Desktop() {
   const ctxMenu = useContextMenu();
   const { prefs } = usePreferences();
   const { toggle: toggleTheme } = useTheme();
-  const areaRef = useRef<HTMLDivElement>(null);
+  const areaRef = useRef<HTMLElement>(null);
   const [snapHint, setSnapHint] = useState<"left" | "right" | "full" | null>(null);
   const lastSnap = useRef<"left" | "right" | "full">("left");
   if (snapHint) lastSnap.current = snapHint;
@@ -249,10 +249,11 @@ export function Desktop() {
     <div className="mac-desktop" onContextMenu={onDesktopContextMenu}>
       <Wallpaper />
       <MenuBar />
-      <div
+      <main
+        id="main"
+        aria-label="Desktop"
         className={`mac-desktop__area${overlay === "expose" ? " is-expose" : ""}${overlay === "launchpad" ? " is-behind" : ""}${settling ? " is-settling" : ""}`}
         ref={areaRef}
-        role="presentation"
         onClick={(e) => {
           // Backdrop click leaves Mission Control; Escape does the same for keyboard users (see onKey above).
           if (overlay === "expose" && e.target === e.currentTarget) setOverlay("none");
@@ -279,7 +280,7 @@ export function Desktop() {
             <div className="mac-desktop__empty-sub mac-caps">click the dock · press ⌘K</div>
           </div>
         )}
-      </div>
+      </main>
       {cornerFx && !motionReduced() && <div key={cornerFx.n} className={`mac-corner-fx mac-corner-fx--${cornerFx.corner}`} aria-hidden="true" />}
       <Dock />
       <WidgetsPanel />

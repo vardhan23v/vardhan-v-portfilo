@@ -238,7 +238,7 @@ export function CommandPalette() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [open, handleClose]);
+  }, [open, handleClose, setOpen]);
 
   useEffect(() => {
     setActiveIdx(0);

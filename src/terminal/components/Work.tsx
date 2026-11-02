@@ -90,12 +90,11 @@ export function Work() {
                   ALSO_BUILT <span className="dim">// {otherWork.length} more projects &amp; tools</span>
                 </h3>
               </div>
-              <div className="other-grid" role="list">
+              <ul className="other-grid">
                 {otherWork.map((o, i) => (
+                  <li key={o.name}>
                   <a
                     className="other-item"
-                    role="listitem"
-                    key={o.name}
                     href={o.url}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -116,8 +115,9 @@ export function Work() {
                     </span>
                     <span className="other-go" aria-hidden="true">↗</span>
                   </a>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           </Reveal>
         </div>

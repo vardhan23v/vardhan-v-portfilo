@@ -504,7 +504,7 @@ function Hero({ stoked, onStoke }: { stoked: boolean; onStoke: () => void }) {
           </button>
         </div>
       </div>
-      <div ref={pipeRef} className="fg-hero-visual fg-enter" style={{ "--d": "0.34s" } as CSSProperties} aria-hidden="true">
+      <div ref={pipeRef} className="fg-hero-visual fg-enter" style={{ "--d": "0.34s" } as CSSProperties} role="group" aria-label="Build pipeline demo">
         <div className={`fg-pipe${step !== null ? " is-building" : ""}${passed ? " is-passed" : ""}`}>
           <div className="fg-pipe-head">
             <span>build pipeline{builds > 0 && <span className="fg-pipe-count"> · #{builds}</span>}</span>

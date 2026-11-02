@@ -2294,3 +2294,6 @@ html:not([data-motion="reduce"]) .fg-stoke.is-on i {
   opacity: 1;
   transform: none;
 }
+
+/* ---------- touch targets: every control at least 24×24px (WCAG 2.5.8); text sizes unchanged ---------- */
+.fg-nav-links a, .fg-proj-link, .fg-proj-flip, .fg-foot-links a { min-height: 28px; display: inline-flex; align-items: center; }

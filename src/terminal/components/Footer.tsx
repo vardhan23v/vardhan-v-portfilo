@@ -4,6 +4,8 @@ import { site } from "../data/site";
 import { usePhosphor } from "../hooks/usePhosphor";
 import { OS_VERSION, loadHistory, uptime } from "../lib/shell";
 
+const YEAR = new Date().getFullYear();
+
 export function Footer() {
   const phosphor = usePhosphor();
   const [tick, setTick] = useState(0);
@@ -26,7 +28,7 @@ export function Footer() {
       <div className="container">
         <div className="footer-inner">
           <span>
-            <span className="green">© {new Date().getFullYear()}</span> {site.fullName} <span className="bracket">·</span> built with
+            <span className="green">© {YEAR}</span> {site.fullName} <span className="bracket">·</span> built with
             react + typescript <span className="bracket">·</span> no template was harmed
           </span>
           <span>

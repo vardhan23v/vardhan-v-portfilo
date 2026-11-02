@@ -9,6 +9,7 @@ import { caseStudyPath, hasCaseStudy } from "../work/links";
 import "./styles/paper.css";
 
 export const paperProjects = featuredProjects;
+const YEAR = new Date().getFullYear();
 
 export function EngineeringDetails({ p }: { p: Project }) {
   const [open, setOpen] = useState(false);
@@ -255,7 +256,7 @@ export function PaperSite() {
       </main>
 
       <footer className="paper-foot">
-        <span>© {new Date().getFullYear()} {site.name}</span>
+        <span>© {YEAR} {site.name}</span>
         <span className="paper-foot-links">
           <Link to="/">editions</Link>
           <a href={site.github} target="_blank" rel="noopener noreferrer">

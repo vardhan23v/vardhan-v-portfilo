@@ -38,7 +38,7 @@ export class SupabaseStore implements KnowledgeStore {
         document_id: id, chunk_index: c.chunkIndex, content: c.content, token_count: c.tokenCount,
         content_hash: c.contentHash, embedding: JSON.stringify(c.embedding), metadata: c.metadata,
       }));
-      this.check(await this.db.from("document_chunks").insert(batch), "insert chunks");
+      this.check(await this.db.from("document_chunks").upsert(batch, { onConflict: "document_id,chunk_index" }), "insert chunks");
     }
     return id;
   }

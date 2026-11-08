@@ -6,8 +6,10 @@ import { chunkText, estimateTokens } from "../api/_lib/chunking";
 import { MemoryStore } from "../api/_lib/store";
 import { ingestDocuments } from "../api/_lib/ingest/pipeline";
 import { buildPortfolioDocuments } from "../api/_lib/ingest/portfolio";
-import { matchProjects, retrieve, normalizeQuestion, searchQueries, standaloneQuestion } from "../api/_lib/retrieval";
-import { streamChat } from "../api/_lib/chat";
+import { matchProjects, retrieve, normalizeQuestion, searchQueries, standaloneQuestion, termSummary } from "../api/_lib/retrieval";
+import { projectDigest } from "../api/_lib/digest";
+import { parsePlan, planQuestion } from "../api/_lib/planner";
+import { effortFor, streamChat } from "../api/_lib/chat";
 import { buildMessages, citationStream, citedNumbers, normalizeCitations, looksLikeInjection, sanitizeSourceText, SYSTEM_PROMPT } from "../api/_lib/prompt";
 import { featuredProjects } from "../src/classic/data/projects";
 import { site } from "../src/classic/data/site";
@@ -219,5 +221,76 @@ describe("answer quality helpers", () => {
     const s = citationStream();
     expect(s.push("Done【2")).toBe("Done");
     expect(s.flush()).toBe("");
+  });
+});
+
+describe("reasoning pipeline", () => {
+  const scripted = (answer: string) => new ScriptedLLM(answer);
+
+  it("keeps the project overview small and complete", () => {
+    const digest = projectDigest();
+    expect(estimateTokens(digest)).toBeLessThan(800);
+    for (const p of featuredProjects) expect(digest).toContain(p.name);
+  });
+
+  it("uses a valid plan from the small model", async () => {
+    const plan = await planQuestion("Which use Groq?", [], scripted('{"intent":"list","standalone":"Which projects use Groq?","searches":["Groq API projects"],"terms":["Groq"]}'));
+    expect(plan).toEqual({ intent: "list", standalone: "Which projects use Groq?", searches: ["Groq API projects"], terms: ["Groq"] });
+  });
+
+  it("falls back to heuristics on bad output, failure or delay", async () => {
+    expect((await planQuestion("What is his strongest project?", [], scripted("not json"))).intent).toBe("judgement");
+    const failing = { name: "x", model: "x", async *streamChat(): AsyncIterable<string> { const fail = true; if (fail) throw new Error("boom"); yield ""; } };
+    expect((await planQuestion("Does he know Docker?", [], failing)).intent).toBe("skill-check");
+    const slow = { name: "x", model: "x", async *streamChat() { await new Promise((r) => setTimeout(r, 200)); yield "{}"; } };
+    expect((await planQuestion("Does he know Docker?", [], slow, 10)).terms).toEqual(["docker"]);
+  });
+
+  it("drops unsafe or malformed plan fields", () => {
+    const fallback = { intent: "fact" as const, standalone: "q", searches: [], terms: [] };
+    expect(parsePlan('{"intent":"hack"}', fallback)).toBeNull();
+    expect(parsePlan('{"intent":"list","terms":["Groq","a b; drop","%"]}', fallback)?.terms).toEqual(["Groq"]);
+  });
+
+  it("groups text-search hits and reports absent terms", () => {
+    const hit = (repo: string, title: string, path?: string) => ({ title, sourceType: "github" as const, metadata: { repo, path } });
+    const summary = termSummary("Groq", [hit("a", "a/README.md"), hit("a", "a/x.ts"), hit("b", "b/n.md", ".oxcode-memory/n.md")], 300);
+    expect(summary).toContain("Exhaustive");
+    expect(summary).toContain("- a:");
+    expect(summary).not.toContain("oxcode");
+    expect(termSummary("Groq", [hit("a", "a/README.md")], 1)).toContain("Partial");
+    expect(termSummary("Kubernetes", [], 300)).toContain("appears nowhere");
+  });
+
+  it("adds overview and text search for list questions", async () => {
+    const deps = await indexedPortfolio();
+    const got = await retrieve("Which projects use React?", deps, { topK: 3, threshold: 0.05, maxContextTokens: 2800, plan: { intent: "list", standalone: "Which projects use React?", searches: [], terms: ["React"] } });
+    expect(got.map((c) => c.title).slice(0, 2)).toEqual(["All projects overview", "Text search: React"]);
+    expect(got.map((c) => c.n)).toEqual(got.map((_, i) => i + 1));
+  });
+
+  it("retries a refusal when sources are strong, without leaking it", async () => {
+    const deps = await indexedPortfolio();
+    let n = 0;
+    const llm = new ScriptedLLM(() => (n++ === 0 ? UNSUPPORTED_ANSWER : "Extension AI is his strongest [1]."));
+    const strong = { ...deps, store: Object.assign(Object.create(deps.store), { matchChunks: async (e: number[], o: { count: number; threshold: number }) => (await deps.store.matchChunks(e, o)).map((c) => ({ ...c, similarity: 0.8 })) }) };
+    const events = await readAll(streamChat({ messages: [{ role: "user", content: "Tell me about Extension AI" }], sessionId: "abcdefgh12", surface: "global" }, { ...strong, llm, cfg: RAG_CFG }));
+    const text = events.filter((e) => e.type === "token").map((e) => e.text).join("");
+    expect(n).toBe(2);
+    expect(text).toBe("Extension AI is his strongest [1].");
+  });
+
+  it("gives the refusal once when retrying can't help", async () => {
+    const deps = await indexedPortfolio();
+    const llm = new ScriptedLLM(UNSUPPORTED_ANSWER);
+    const strong = { ...deps, store: Object.assign(Object.create(deps.store), { matchChunks: async (e: number[], o: { count: number; threshold: number }) => (await deps.store.matchChunks(e, o)).map((c) => ({ ...c, similarity: 0.8 })) }) };
+    const events = await readAll(streamChat({ messages: [{ role: "user", content: "Tell me about Extension AI" }], sessionId: "abcdefgh12", surface: "global" }, { ...strong, llm, cfg: RAG_CFG }));
+    expect(events.filter((e) => e.type === "token").map((e) => e.text).join("")).toBe(UNSUPPORTED_ANSWER);
+    expect(llm.calls.length).toBe(2);
+  });
+
+  it("picks more effort for harder questions", () => {
+    expect(effortFor("judgement").reasoningEffort).toBe("high");
+    expect(effortFor("fact").reasoningEffort).toBe("low");
   });
 });

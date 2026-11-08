@@ -34,8 +34,10 @@ export async function POST(req: Request): Promise<Response> {
     const embedder = createEmbeddingProvider(cfg);
     const llm = new GroqProvider({ apiKey: cfg.GROQ_API_KEY, model: cfg.GROQ_MODEL, fallbackModel: cfg.GROQ_FALLBACK_MODEL, timeoutMs: cfg.GROQ_TIMEOUT_MS });
 
+    const planner = new GroqProvider({ apiKey: cfg.GROQ_API_KEY, model: cfg.GROQ_FALLBACK_MODEL, timeoutMs: 2500 });
+
     const stream = streamChat(body, {
-      store, embedder, llm, cfg,
+      store, embedder, llm, planner, cfg,
       onComplete: (answer, sources) =>
         store.logChat?.({ clientSessionId: body.sessionId, ipHash, surface: body.surface, question: body.messages[body.messages.length - 1].content, answer, sources })
           .catch((e) => logError("chat-log", e)),

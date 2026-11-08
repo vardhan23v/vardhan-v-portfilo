@@ -39,12 +39,20 @@ export interface ChunkMatch {
   similarity: number;
 }
 
+export interface TermHit {
+  title: string;
+  sourceType: SourceType;
+  metadata: Record<string, unknown>;
+}
+
 export interface KnowledgeStore {
   listDocuments(sourceType: SourceType): Promise<StoredDocument[]>;
   /** Insert/update the document row and replace all of its chunks. Returns the document id. */
   replaceDocument(doc: KnowledgeDocument & { contentHash: string }, chunks: ChunkInput[]): Promise<string>;
   deleteDocuments(ids: string[]): Promise<void>;
   matchChunks(embedding: number[], opts: { count: number; threshold: number; sourceTypes?: SourceType[] }): Promise<ChunkMatch[]>;
+  /** Every chunk containing a term, for exhaustive "which projects use X" answers. */
+  findTerm?(term: string, limit: number): Promise<TermHit[]>;
   startJob(sourceType: string, metadata?: Record<string, unknown>): Promise<string>;
   finishJob(id: string, status: "succeeded" | "failed", stats: Record<string, unknown>, error?: string): Promise<void>;
   status(): Promise<Record<string, unknown>>;
@@ -84,6 +92,14 @@ export class MemoryStore implements KnowledgeStore {
       }
     }
     return out.sort((a, b) => b.similarity - a.similarity).slice(0, opts.count);
+  }
+  async findTerm(term: string, limit: number) {
+    const out: TermHit[] = [];
+    for (const [docId, list] of this.chunks) {
+      const d = this.docs.get(docId)!;
+      if (list.some((c) => c.content.toLowerCase().includes(term.toLowerCase()))) out.push({ title: d.title, sourceType: d.sourceType, metadata: d.metadata });
+    }
+    return out.slice(0, limit);
   }
   async startJob() { const id = this.id(); this.jobs.push({ id, status: "running", stats: {} }); return id; }
   async finishJob(id: string, status: "succeeded" | "failed", stats: Record<string, unknown>) {

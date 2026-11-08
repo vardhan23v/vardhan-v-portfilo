@@ -24,7 +24,7 @@ interface TreeEntry { path: string; type: "blob" | "tree"; sha: string; size?: n
 
 /* ---------- file selection ---------- */
 
-const EXCLUDED_DIRS = /(^|\/)(node_modules|dist|build|out|coverage|\.next|\.nuxt|\.vercel|\.git|\.github\/workflows|vendor|target|__pycache__|\.venv|venv|public\/assets|generated|\.cache)(\/|$)/i;
+const EXCLUDED_DIRS = /(^|\/)(\.oxcode-memory|\.claude|\.cursor|\.codex|\.windsurf|references|node_modules|dist|build|out|coverage|\.next|\.nuxt|\.vercel|\.git|\.github\/workflows|vendor|target|__pycache__|\.venv|venv|public\/assets|generated|\.cache)(\/|$)/i;
 const EXCLUDED_FILES = /(^|\/)(package-lock\.json|yarn\.lock|pnpm-lock\.yaml|bun\.lockb?|composer\.lock|Cargo\.lock|poetry\.lock|\.env(\..*)?|.*\.min\.(js|css)|.*\.map|.*secret.*|.*credential.*|.*\.pem|.*\.key|id_rsa.*)$/i;
 const BINARY = /\.(png|jpe?g|gif|webp|avif|ico|svg|bmp|tiff?|pdf|zip|gz|tgz|rar|7z|mp[34]|mov|webm|wav|ogg|woff2?|ttf|otf|eot|exe|dll|so|dylib|bin|wasm|jar|class|pyc|sqlite|db|psd|fig)$/i;
 const DOCS = /(^|\/)(readme|architecture|design|contributing|changelog|overview|docs?\/[^/]+)(\.[a-z]+)?$|\.mdx?$/i;

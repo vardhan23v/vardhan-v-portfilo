@@ -2,7 +2,9 @@ import { featuredProjects, otherProjects } from "../../src/classic/data/projects
 import type { ChatTurn, SourceRef, SourceType } from "../../src/lib/ai/types.js";
 import { estimateTokens } from "./chunking.js";
 import type { EmbeddingProvider } from "./embeddings/types.js";
-import type { ChunkMatch, KnowledgeStore } from "./store.js";
+import { DIGEST_TITLE, projectDigest } from "./digest.js";
+import type { QueryPlan } from "./planner.js";
+import type { ChunkMatch, KnowledgeStore, TermHit } from "./store.js";
 
 export interface RetrievedChunk extends ChunkMatch {
   n: number;
@@ -16,6 +18,7 @@ export interface RetrievalOptions {
   maxContextTokens: number;
   /** Conversation before the current question, used to resolve follow-ups like "why is it hard?". */
   history?: ChatTurn[];
+  plan?: QueryPlan;
 }
 
 /** Lowercase, strip punctuation/zero-width chars, collapse whitespace. */
@@ -62,11 +65,11 @@ export function preferredSources(question: string): SourceType[] {
 }
 
 const FOLLOW_UP = /\b(it|its|that|this|those|these|them|they|former|latter|first one|second one|the project|more|else|hardest part)\b/i;
-const JUDGEMENT = /\b(strongest|best|most (?:impressive|complex|challenging|difficult)|hardest|favou?rite|stand ?out|more (?:complex|impressive|difficult)|compare|versus|vs)\b/i;
-const HIRING = /\b(hire|hiring|fit for|good fit|right fit|why (?:him|vardhan)|strengths?|qualified)\b/i;
+export const JUDGEMENT = /\b(strongest|best|most (?:impressive|complex|challenging|difficult)|hardest|favou?rite|stand ?out|more (?:complex|impressive|difficult)|compare|versus|vs)\b/i;
+export const HIRING = /\b(hire|hiring|fit for|good fit|right fit|why (?:him|vardhan)|strengths?|qualified)\b/i;
 const CONTACT = /\b(e-?mail|contact|reach|linkedin|phone)\b/i;
 const EDUCATION = /\b(study|studied|studying|education|degree|college|university|school|b\.?tech|cgpa)\b/i;
-const STOPWORDS = new Set("the and for with has have had his him was were are does did what which where when who why how can could would should about from that this those these they them built build used using use know work worked project projects tell please vardhan".split(" "));
+const STOPWORDS = new Set("list all any give show the and for with has have had his him was were are does did what which where when who why how can could would should about from that this those these they them built build used using use know work worked project projects tell please vardhan".split(" "));
 
 /** The current question, rewritten with the previous one when it can't stand alone. */
 export function standaloneQuestion(question: string, history: ChatTurn[] = []): string {
@@ -89,8 +92,33 @@ export function searchQueries(question: string, projects: string[] = []): string
   return [...new Set(out)].slice(0, 5);
 }
 
-function keywords(question: string): string[] {
+export function keywords(question: string): string[] {
   return [...new Set(norm(question).split(" ").filter((w) => w.length >= 3 && !STOPWORDS.has(w)))];
+}
+
+/** Agent notes and tool folders mention technologies without showing Vardhan's work. */
+export const NOISE_PATH = /(^|\/)(\.[a-z][\w-]*|references)\//i;
+
+function isNoise(metadata: Record<string, unknown>) {
+  return typeof metadata.path === "string" && NOISE_PATH.test(metadata.path);
+}
+
+function syntheticChunk(id: string, title: string, content: string): ChunkMatch {
+  return { chunkId: id, documentId: id, title, content, sourceType: "portfolio", chunkMetadata: {}, documentMetadata: {}, similarity: 1 };
+}
+
+/** Groups exact-text matches by project so the model sees the full picture for a technology. */
+export function termSummary(term: string, hits: TermHit[], limit: number): string {
+  const useful = hits.filter((h) => !isNoise(h.metadata));
+  if (!useful.length) return `Exhaustive text search: "${term}" appears nowhere in Vardhan's portfolio, resume or indexed repositories.`;
+  const groups = new Map<string, Set<string>>();
+  for (const h of useful) {
+    const key = String(h.metadata.repo ?? h.metadata.project ?? h.sourceType);
+    groups.set(key, (groups.get(key) ?? new Set()).add(h.title));
+  }
+  const lines = [...groups].map(([k, titles]) => `- ${k}: ${[...titles].slice(0, 2).join("; ")}`);
+  const complete = hits.length < limit;
+  return `${complete ? "Exhaustive" : "Partial (result limit reached)"} text search for "${term}" across his portfolio, resume and indexed repositories. A match is a mention, not proof he built that feature:\n${lines.slice(0, 20).join("\n")}`;
 }
 
 function chunkProject(c: ChunkMatch): string | undefined {
@@ -104,11 +132,11 @@ export async function retrieve(
   opts: RetrievalOptions,
 ): Promise<RetrievedChunk[]> {
   const asked = normalizeQuestion(question);
-  const q = standaloneQuestion(asked, opts.history);
+  const q = opts.plan?.standalone ? normalizeQuestion(opts.plan.standalone) : standaloneQuestion(asked, opts.history);
   const projects = matchProjects(q);
   const prefer = preferredSources(q);
   const terms = keywords(asked);
-  const queries = searchQueries(q, projects);
+  const queries = [...new Set([q, ...(opts.plan?.searches ?? []).map(normalizeQuestion), ...searchQueries(q, projects).slice(1)])].slice(0, 5);
   const embeddings = await deps.embedder.embedDocuments(queries);
   const results = await Promise.all(embeddings.map((e) => deps.store.matchChunks(e, { count: opts.topK * 4, threshold: opts.threshold })));
 
@@ -118,7 +146,7 @@ export async function retrieve(
     const had = merged.get(c.chunkId);
     if (!had || c.similarity > had.similarity) merged.set(c.chunkId, c);
   }
-  const candidates = [...merged.values()];
+  const candidates = [...merged.values()].filter((c) => !isNoise(c.chunkMetadata) && !isNoise(c.documentMetadata));
 
   // Exact project-name match: make sure that project's own chunks are in the pool even if the
   // vector search ranked them lower than generic text.
@@ -156,18 +184,34 @@ export async function retrieve(
     relevant.sort((a, b) => Number(leaders.has(b.chunkId)) - Number(leaders.has(a.chunkId)) || b.score - a.score);
   }
 
-  const picked: RetrievedChunk[] = [];
+  // No real evidence and nothing to look up: let the caller refuse without a model call.
+  if (!relevant.length && !opts.plan?.terms.length) return [];
+
+  // Context every answer of this kind needs, ahead of the ranked evidence.
+  const fixed: ChunkMatch[] = [];
+  const intent = opts.plan?.intent;
+  if (intent === "list" || intent === "judgement" || intent === "comparison") fixed.push(syntheticChunk("digest", DIGEST_TITLE, projectDigest()));
+  if (deps.store.findTerm) {
+    const TERM_LIMIT = 300;
+    for (const term of opts.plan?.terms ?? []) {
+      const hits = await deps.store.findTerm(term, TERM_LIMIT);
+      fixed.push(syntheticChunk(`term:${term}`, `Text search: ${term}`, termSummary(term, hits, TERM_LIMIT)));
+    }
+  }
+
+  const picked: RetrievedChunk[] = fixed.map((c, i) => ({ ...c, n: i + 1, score: 1 }));
   const seen = new Set<string>();
   const perDocument = new Map<string, number>();
-  let budget = opts.maxContextTokens;
+  let budget = opts.maxContextTokens - fixed.reduce((n, c) => n + estimateTokens(c.content), 0);
+  const maxPicked = opts.topK + fixed.length;
   for (const c of relevant) {
-    if (picked.length >= opts.topK) break;
+    if (picked.length >= maxPicked) break;
     const fp = c.content.slice(0, 200);
     if (seen.has(fp)) continue;
     // Several chunks of one README would crowd out the other evidence.
     if ((perDocument.get(c.documentId) ?? 0) >= 2) continue;
     const cost = estimateTokens(c.content);
-    if (cost > budget && picked.length) continue;
+    if (cost > budget && picked.length > fixed.length) continue;
     seen.add(fp);
     perDocument.set(c.documentId, (perDocument.get(c.documentId) ?? 0) + 1);
     budget -= cost;

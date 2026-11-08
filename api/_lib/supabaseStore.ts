@@ -2,7 +2,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { SourceType } from "../../src/lib/ai/types.js";
 import type { ServerConfig } from "./config.js";
 import { AppError } from "./errors.js";
-import type { ChunkInput, ChunkMatch, KnowledgeDocument, KnowledgeStore, StoredDocument } from "./store.js";
+import type { ChunkInput, ChunkMatch, KnowledgeDocument, KnowledgeStore, StoredDocument, TermHit } from "./store.js";
 
 /** Supabase/pgvector store. Uses the service-role key, which only exists in server env. */
 export class SupabaseStore implements KnowledgeStore {
@@ -63,6 +63,15 @@ export class SupabaseStore implements KnowledgeStore {
       sourceType: r.source_type as SourceType, sourceUrl: r.source_url as string | null,
       documentMetadata: (r.document_metadata ?? {}) as Record<string, unknown>, similarity: Number(r.similarity),
     }));
+  }
+
+  async findTerm(term: string, limit: number): Promise<TermHit[]> {
+    const pattern = `%${term.replace(/[\\%_]/g, "\\$&")}%`;
+    const rows = this.check(
+      await this.db.from("document_chunks").select("documents!inner(title, source_type, metadata)").ilike("content", pattern).limit(limit),
+      "find term",
+    ) as unknown as { documents: { title: string; source_type: SourceType; metadata: Record<string, unknown> } }[] | null;
+    return (rows ?? []).map((r) => ({ title: r.documents.title, sourceType: r.documents.source_type, metadata: r.documents.metadata ?? {} }));
   }
 
   async startJob(sourceType: string, metadata: Record<string, unknown> = {}) {

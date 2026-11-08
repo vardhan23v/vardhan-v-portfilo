@@ -68,10 +68,10 @@ export class SupabaseStore implements KnowledgeStore {
   async findTerm(term: string, limit: number): Promise<TermHit[]> {
     const pattern = `%${term.replace(/[\\%_]/g, "\\$&")}%`;
     const rows = this.check(
-      await this.db.from("document_chunks").select("documents!inner(title, source_type, metadata)").ilike("content", pattern).limit(limit),
+      await this.db.from("document_chunks").select("content, documents!inner(title, source_type, metadata)").ilike("content", pattern).limit(limit),
       "find term",
-    ) as unknown as { documents: { title: string; source_type: SourceType; metadata: Record<string, unknown> } }[] | null;
-    return (rows ?? []).map((r) => ({ title: r.documents.title, sourceType: r.documents.source_type, metadata: r.documents.metadata ?? {} }));
+    ) as unknown as { content: string; documents: { title: string; source_type: SourceType; metadata: Record<string, unknown> } }[] | null;
+    return (rows ?? []).map((r) => ({ title: r.documents.title, content: r.content, sourceType: r.documents.source_type, metadata: r.documents.metadata ?? {} }));
   }
 
   async startJob(sourceType: string, metadata: Record<string, unknown> = {}) {

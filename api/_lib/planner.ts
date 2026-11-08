@@ -58,7 +58,8 @@ export function parsePlan(raw: string, fallback: QueryPlan): QueryPlan | null {
 /** Plans the search with a small model, falling back to heuristics on any failure or delay. */
 export async function planQuestion(question: string, history: ChatTurn[], llm?: LLMProvider, timeoutMs = 2500): Promise<QueryPlan> {
   const fallback = heuristicPlan(question, history);
-  if (!llm) return fallback;
+  // The small model is only worth a call when the question can't stand alone.
+  if (!llm || fallback.standalone === normalizeQuestion(question)) return fallback;
   const context = history.slice(-2).map((t) => `${t.role}: ${t.content.slice(0, 300)}`).join("\n");
   const run = async () => {
     let raw = "";

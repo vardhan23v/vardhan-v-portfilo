@@ -234,16 +234,20 @@ describe("reasoning pipeline", () => {
   });
 
   it("uses a valid plan from the small model", async () => {
-    const plan = await planQuestion("Which use Groq?", [], scripted('{"intent":"list","standalone":"Which projects use Groq?","searches":["Groq API projects"],"terms":["Groq"]}'));
+    const plan = await planQuestion("Which of those use it?", [{ role: "user", content: "Groq projects" }], scripted('{"intent":"list","standalone":"Which projects use Groq?","searches":["Groq API projects"],"terms":["Groq"]}'));
     expect(plan).toEqual({ intent: "list", standalone: "Which projects use Groq?", searches: ["Groq API projects"], terms: ["Groq"] });
   });
 
   it("falls back to heuristics on bad output, failure or delay", async () => {
     expect((await planQuestion("What is his strongest project?", [], scripted("not json"))).intent).toBe("judgement");
     const failing = { name: "x", model: "x", async *streamChat(): AsyncIterable<string> { const fail = true; if (fail) throw new Error("boom"); yield ""; } };
-    expect((await planQuestion("Does he know Docker?", [], failing)).intent).toBe("skill-check");
+    expect((await planQuestion("Does he know it?", [{ role: "user", content: "Docker" }], failing)).intent).toBe("skill-check");
     const slow = { name: "x", model: "x", async *streamChat() { await new Promise((r) => setTimeout(r, 200)); yield "{}"; } };
-    expect((await planQuestion("Does he know Docker?", [], slow, 10)).terms).toEqual(["docker"]);
+    expect((await planQuestion("Does he know it?", [{ role: "user", content: "Docker" }], slow, 10)).intent).toBe("skill-check");
+    let called = false;
+    const spy = { name: "x", model: "x", async *streamChat() { called = true; yield "{}"; } };
+    await planQuestion("Does he know Docker?", [], spy);
+    expect(called).toBe(false);
   });
 
   it("drops unsafe or malformed plan fields", () => {
@@ -253,10 +257,10 @@ describe("reasoning pipeline", () => {
   });
 
   it("groups text-search hits and reports absent terms", () => {
-    const hit = (repo: string, title: string, path?: string) => ({ title, sourceType: "github" as const, metadata: { repo, path } });
+    const hit = (repo: string, title: string, path?: string) => ({ title, content: "wired up Groq for chat", sourceType: "github" as const, metadata: { repo, path } });
     const summary = termSummary("Groq", [hit("a", "a/README.md"), hit("a", "a/x.ts"), hit("b", "b/n.md", ".oxcode-memory/n.md")], 300);
     expect(summary).toContain("Exhaustive");
-    expect(summary).toContain("- a:");
+    expect(summary).toContain('- a: "wired up Groq for chat"');
     expect(summary).not.toContain("oxcode");
     expect(termSummary("Groq", [hit("a", "a/README.md")], 1)).toContain("Partial");
     expect(termSummary("Kubernetes", [], 300)).toContain("appears nowhere");
@@ -289,8 +293,18 @@ describe("reasoning pipeline", () => {
     expect(llm.calls.length).toBe(2);
   });
 
+  it("always includes career and contact facts when asked", async () => {
+    const deps = await indexedPortfolio();
+    const got = await retrieve("What is his email and work experience?", deps, { topK: 3, threshold: 0.05, maxContextTokens: 2800, plan: { intent: "fact", standalone: "What is his email and work experience?", searches: [], terms: [] } });
+    expect(got.map((c) => c.title).slice(0, 2)).toEqual(["Work experience overview", "Contact details"]);
+    expect(got[0].content).toContain("FlyRank AI");
+    expect(got[1].content).toContain("@");
+  });
+
   it("picks more effort for harder questions", () => {
-    expect(effortFor("judgement").reasoningEffort).toBe("high");
+    expect(effortFor("judgement", 7000).reasoningEffort).toBe("high");
+    expect(effortFor("judgement", 2000).reasoningEffort).toBe("medium");
+    expect(effortFor("judgement").reasoningEffort).toBe("medium");
     expect(effortFor("fact").reasoningEffort).toBe("low");
   });
 });

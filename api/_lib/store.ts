@@ -41,6 +41,7 @@ export interface ChunkMatch {
 
 export interface TermHit {
   title: string;
+  content: string;
   sourceType: SourceType;
   metadata: Record<string, unknown>;
 }
@@ -97,7 +98,7 @@ export class MemoryStore implements KnowledgeStore {
     const out: TermHit[] = [];
     for (const [docId, list] of this.chunks) {
       const d = this.docs.get(docId)!;
-      if (list.some((c) => c.content.toLowerCase().includes(term.toLowerCase()))) out.push({ title: d.title, sourceType: d.sourceType, metadata: d.metadata });
+      if (list.some((c) => c.content.toLowerCase().includes(term.toLowerCase()))) out.push({ title: d.title, content: list.find((c) => c.content.toLowerCase().includes(term.toLowerCase()))!.content, sourceType: d.sourceType, metadata: d.metadata });
     }
     return out.slice(0, limit);
   }

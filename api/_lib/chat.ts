@@ -23,12 +23,14 @@ const SMALL_TALK = /^(hi|hii+|hello|hey|hola|namaste|yo|thanks|thank you|thx|ok|
 const SMALL_TALK_REPLY = "Hi! I can tell you about Vardhan's projects, skills, experience and education. What would you like to know?";
 
 /** How hard the model should think for each kind of question. */
-export function effortFor(intent: Intent): { reasoningEffort: "low" | "medium" | "high"; maxTokens: number } {
-  if (intent === "judgement" || intent === "comparison") return { reasoningEffort: "high", maxTokens: 1500 };
+export function effortFor(intent: Intent, tokensLeft?: number): { reasoningEffort: "low" | "medium" | "high"; maxTokens: number } {
+  // High effort spends the free per-minute token allowance fast, so it needs known headroom.
+  if ((intent === "judgement" || intent === "comparison") && tokensLeft !== undefined && tokensLeft >= HIGH_EFFORT_MIN_TOKENS) return { reasoningEffort: "high", maxTokens: 1400 };
   if (intent === "fact") return { reasoningEffort: "low", maxTokens: 900 };
   return { reasoningEffort: "medium", maxTokens: 1100 };
 }
 
+const HIGH_EFFORT_MIN_TOKENS = 6000;
 const REFUSAL_PROBE = 60;
 const STRONG_SOURCE = 0.4;
 const RETRY_NOTE = "\n\n(The sources above are relevant. Answer from them, stating plainly anything they do not cover.)";
@@ -76,7 +78,8 @@ export function streamChat(req: ChatRequest, deps: ChatDeps): ReadableStream<Uin
         }
 
         const messages = buildMessages(req.messages, chunks);
-        const hasStrongSource = chunks.some((c) => !c.chunkId.includes(":") && c.chunkId !== "digest" && c.similarity >= STRONG_SOURCE);
+        const hasStrongSource = chunks.some((c) => !c.chunkMetadata.synthetic && c.similarity >= STRONG_SOURCE);
+        const effort = () => effortFor(plan.intent, deps.llm.tokensRemaining?.());
         const emit = (text: string) => {
           answer += text;
           controller.enqueue(sse({ type: "token", text }));
@@ -102,14 +105,14 @@ export function streamChat(req: ChatRequest, deps: ChatDeps): ReadableStream<Uin
           return answer.trim() ? "answered" : "empty";
         };
 
-        const first = await attempt(messages, effortFor(plan.intent));
+        const first = await attempt(messages, effort());
         if (first === "empty") {
           // Reasoning models can spend the whole token limit thinking and return nothing.
           console.error("[chat] model returned an empty answer");
           await attempt(messages, { reasoningEffort: "low", maxTokens: 1400 });
         } else if (first === "refused" && hasStrongSource) {
           const last = messages[messages.length - 1];
-          await attempt([...messages.slice(0, -1), { ...last, content: last.content + RETRY_NOTE }], effortFor(plan.intent));
+          await attempt([...messages.slice(0, -1), { ...last, content: last.content + RETRY_NOTE }], effort());
         }
 
         if (!answer.trim()) {

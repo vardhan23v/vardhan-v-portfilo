@@ -53,7 +53,7 @@ def ask(url, history, sid):
 def score(case, text, sources, error):
     if error:
         return ["error: " + error]
-    t = text.lower()
+    t = re.sub(r"[\u00a0\u202f\u2009]", " ", text).replace("\u2011", "-").lower()
     fails = [f"missing /{p}/" for p in case.get("all", []) if not re.search(p, t)]
     fails += [f"banned /{p}/" for p in case.get("none", []) if re.search(p, t)]
     fails += [f"banned source /{p}/" for p in case.get("none_sources", []) if any(re.search(p, s) for s in sources)]

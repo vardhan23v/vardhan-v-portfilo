@@ -2,7 +2,7 @@ import { featuredProjects, otherProjects } from "../../src/classic/data/projects
 import type { ChatTurn, SourceRef, SourceType } from "../../src/lib/ai/types.js";
 import { estimateTokens } from "./chunking.js";
 import type { EmbeddingProvider } from "./embeddings/types.js";
-import { DIGEST_TITLE, projectDigest } from "./digest.js";
+import { CAREER_TITLE, CONTACT_TITLE, DIGEST_TITLE, careerOverview, contactOverview, projectDigest } from "./digest.js";
 import type { QueryPlan } from "./planner.js";
 import type { ChunkMatch, KnowledgeStore, TermHit } from "./store.js";
 
@@ -67,6 +67,7 @@ export function preferredSources(question: string): SourceType[] {
 const FOLLOW_UP = /\b(it|its|that|this|those|these|them|they|former|latter|first one|second one|the project|more|else|hardest part)\b/i;
 export const JUDGEMENT = /\b(strongest|best|most (?:impressive|complex|challenging|difficult)|hardest|favou?rite|stand ?out|more (?:complex|impressive|difficult)|compare|versus|vs)\b/i;
 export const HIRING = /\b(hire|hiring|fit for|good fit|right fit|why (?:him|vardhan)|strengths?|qualified)\b/i;
+const EXPERIENCE = /\b(experience|internships?|intern|employ\w*|career|jobs?|compan(?:y|ies))\b/i;
 const CONTACT = /\b(e-?mail|contact|reach|linkedin|phone)\b/i;
 const EDUCATION = /\b(study|studied|studying|education|degree|college|university|school|b\.?tech|cgpa)\b/i;
 const STOPWORDS = new Set("list all any give show the and for with has have had his him was were are does did what which where when who why how can could would should about from that this those these they them built build used using use know work worked project projects tell please vardhan".split(" "));
@@ -104,21 +105,26 @@ function isNoise(metadata: Record<string, unknown>) {
 }
 
 function syntheticChunk(id: string, title: string, content: string): ChunkMatch {
-  return { chunkId: id, documentId: id, title, content, sourceType: "portfolio", chunkMetadata: {}, documentMetadata: {}, similarity: 1 };
+  return { chunkId: id, documentId: id, title, content, sourceType: "portfolio", chunkMetadata: { synthetic: true }, documentMetadata: {}, similarity: 1 };
 }
 
-/** Groups exact-text matches by project so the model sees the full picture for a technology. */
+function snippet(content: string, term: string): string {
+  const at = content.toLowerCase().indexOf(term.toLowerCase());
+  return content.slice(Math.max(0, at - 50), at + term.length + 50).replace(/\s+/g, " ").replace(/"/g, "'").trim();
+}
+
+/** Groups exact-text matches by project, with the words around each so "no X" reads as no. */
 export function termSummary(term: string, hits: TermHit[], limit: number): string {
-  const useful = hits.filter((h) => !isNoise(h.metadata));
+  const useful = hits.filter((h) => !isNoise(h.metadata)).sort((a, b) => Number(a.sourceType === "github") - Number(b.sourceType === "github"));
   if (!useful.length) return `Exhaustive text search: "${term}" appears nowhere in Vardhan's portfolio, resume or indexed repositories.`;
-  const groups = new Map<string, Set<string>>();
+  const groups = new Map<string, TermHit>();
   for (const h of useful) {
     const key = String(h.metadata.repo ?? h.metadata.project ?? h.sourceType);
-    groups.set(key, (groups.get(key) ?? new Set()).add(h.title));
+    if (!groups.has(key)) groups.set(key, h);
   }
-  const lines = [...groups].map(([k, titles]) => `- ${k}: ${[...titles].slice(0, 2).join("; ")}`);
-  const complete = hits.length < limit;
-  return `${complete ? "Exhaustive" : "Partial (result limit reached)"} text search for "${term}" across his portfolio, resume and indexed repositories. A match is a mention, not proof he built that feature:\n${lines.slice(0, 20).join("\n")}`;
+  const lines = [...groups].slice(0, 12).map(([k, h]) => `- ${k}: "${snippet(h.content, term)}"`);
+  const complete = hits.length < limit && groups.size <= 12;
+  return `${complete ? "Exhaustive" : "Partial (result limit reached)"} text search for "${term}". A match is only a mention: read the quoted words, because "no ${term}" means it was not used:\n${lines.join("\n")}`;
 }
 
 function chunkProject(c: ChunkMatch): string | undefined {
@@ -136,7 +142,7 @@ export async function retrieve(
   const projects = matchProjects(q);
   const prefer = preferredSources(q);
   const terms = keywords(asked);
-  const queries = [...new Set([q, ...(opts.plan?.searches ?? []).map(normalizeQuestion), ...searchQueries(q, projects).slice(1)])].slice(0, 5);
+  const queries = [...new Set([q, ...searchQueries(q, projects).slice(1), ...(opts.plan?.searches ?? []).map(normalizeQuestion)])].slice(0, 5);
   const embeddings = await deps.embedder.embedDocuments(queries);
   const results = await Promise.all(embeddings.map((e) => deps.store.matchChunks(e, { count: opts.topK * 4, threshold: opts.threshold })));
 
@@ -180,7 +186,7 @@ export async function retrieve(
 
   // The top hit of every search gets a guaranteed slot before the general ranking fills the rest.
   if (results.length > 1) {
-    const leaders = new Set(results.map((r) => r[0]?.chunkId));
+    const leaders = new Set(results.map((r) => r.find((c) => !isNoise(c.chunkMetadata) && !isNoise(c.documentMetadata))?.chunkId));
     relevant.sort((a, b) => Number(leaders.has(b.chunkId)) - Number(leaders.has(a.chunkId)) || b.score - a.score);
   }
 
@@ -190,9 +196,11 @@ export async function retrieve(
   // Context every answer of this kind needs, ahead of the ranked evidence.
   const fixed: ChunkMatch[] = [];
   const intent = opts.plan?.intent;
-  if (intent === "list" || intent === "judgement" || intent === "comparison") fixed.push(syntheticChunk("digest", DIGEST_TITLE, projectDigest()));
+  if (intent === "list" || intent === "judgement" || (intent === "comparison" && projects.length < 2)) fixed.push(syntheticChunk("digest", DIGEST_TITLE, projectDigest()));
+  if (opts.plan && (EXPERIENCE.test(q) || HIRING.test(q))) fixed.push(syntheticChunk("career", CAREER_TITLE, careerOverview()));
+  if (opts.plan && CONTACT.test(q)) fixed.push(syntheticChunk("contact", CONTACT_TITLE, contactOverview()));
   if (deps.store.findTerm) {
-    const TERM_LIMIT = 300;
+    const TERM_LIMIT = 150;
     for (const term of opts.plan?.terms ?? []) {
       const hits = await deps.store.findTerm(term, TERM_LIMIT);
       fixed.push(syntheticChunk(`term:${term}`, `Text search: ${term}`, termSummary(term, hits, TERM_LIMIT)));

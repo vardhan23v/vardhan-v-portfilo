@@ -33,3 +33,4 @@ dist-ssr
 
 # taste-skill working files
 .taste-skill
+.admin-token

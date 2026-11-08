@@ -256,3 +256,13 @@
 .mac-wallpaper.has-image .mac-wallpaper__layer { display: none; }
 .mac-wallpaper.has-image .mac-wallpaper__vignette { z-index: 2; background: radial-gradient(120% 90% at 50% 40%, transparent 50%, rgba(0,0,0,0.55) 100%); }
 .mac-wallpaper.has-image .mac-wallpaper__grain { z-index: 2; }
+
+/* Vardhan AI (RAG) additions */
+.msgs__clear { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 7px; border: 0; background: transparent; color: var(--text-secondary); cursor: pointer; }
+.msgs__clear:hover { background: var(--fill-secondary, rgba(127, 127, 127, 0.15)); }
+.msgs__error { display: block; margin-top: 4px; font-size: 12px; opacity: 0.85; }
+.msgs__bubble .pa-sources { border-top-color: currentColor; }
+.msgs__bubble .pa-sources li > a, .msgs__bubble .pa-sources li > span { color: inherit; background: rgba(127, 127, 127, 0.12); }
+.msgs__bubble p { margin: 0; }
+.msgs__bubble p + p, .msgs__bubble ul, .msgs__bubble ol { margin-top: 6px; }
+.msgs__bubble ul, .msgs__bubble ol { padding-left: 18px; margin-bottom: 0; }

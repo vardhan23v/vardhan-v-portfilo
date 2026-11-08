@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { Send } from "lucide-react";
-import { site } from "../data/site";
-import { aiStack } from "../../classic/data/stats";
-import { featuredProjects, type Project } from "../data/projects";
-import { skillCategories } from "../data/skills";
-import { experience, education, certifications } from "../data/experience";
+import { RotateCcw, Send, Square, Trash2 } from "lucide-react";
 import { useWindowManager, type AppId } from "../hooks/useWindowManager";
+import { localIntent } from "../lib/aiIntents";
+import { useChat, type ChatMessage } from "../../lib/ai/useChat";
+import { Markdown } from "../../components/ai/Markdown";
+import { SourceReferences } from "../../components/ai/SourceReferences";
 
 const SUGGESTED = [
   "Tell me about HPL Auction",
@@ -14,206 +13,68 @@ const SUGGESTED = [
   "Open Settings",
 ];
 
-interface Answer { text: string; open?: AppId; }
-
-const OPEN_APPS: Record<string, AppId> = {
-  overview: "overview", home: "overview", main: "overview",
-  about: "about", "about-mac": "about-mac",
-  projects: "projects", project: "projects", portfolio: "projects", work: "projects",
-  experience: "experience", skills: "skills", tech: "skills", stack: "skills",
-  achievements: "achievements", education: "achievements",
-  contact: "contact", finder: "finder", terminal: "terminal",
-  settings: "settings", preferences: "settings", ai: "vardhan-ai",
-  "vardhan-ai": "vardhan-ai", assistant: "vardhan-ai", messages: "vardhan-ai", notes: "notes", photos: "photos",
-};
-
-function projectText(p: Project): string {
-  const highlights = p.features.slice(0, 3).join(" · ");
-  return `${p.name} — ${p.tagline} ${p.problem} Built with ${p.tech.join(
-    ", "
-  )}. ${highlights}. ${p.github ? `[GitHub](${p.github})` : ""} ${
-    p.live ? `[Live](${p.live})` : ""
-  } — [Open Projects](app:projects)`;
-}
-
-/** Rule-based answer engine over real portfolio data. */
-function answer(q: string): Answer {
-  const norm = q
-    .toLowerCase()
-    .replace(/[?.!]/g, "")
-    .replace(/[’']/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  const openMatch = norm.match(/^(?:open|launch|start|show me|take me to|go to)\s+(.+)$/);
-  if (openMatch) {
-    const key = openMatch[1].trim().replace(/\s+/g, "-");
-    if (OPEN_APPS[key]) {
-      return { text: `Opening ${openMatch[1].trim()}…`, open: OPEN_APPS[key] };
-    }
-    const proj = featuredProjects.find(
-      (p) =>
-        p.name.toLowerCase() === openMatch[1].trim() ||
-        p.slug.replace(/-/g, " ") === openMatch[1].trim()
-    );
-    if (proj) return { text: projectText(proj) };
-    return {
-      text: `I can open an app or pull up a project — try "open settings", "open finder", or ask about a project by name.`,
-    };
-  }
-
-  const proj = featuredProjects.find(
-    (p) =>
-      norm.includes(p.name.toLowerCase()) ||
-      norm.includes(p.slug.replace(/-/g, " "))
-  );
-  if (proj) return { text: projectText(proj) };
-
-  if (/(projects|built|work|portfolio|apps|applications)/.test(norm)) {
-    const names = featuredProjects.slice(0, 5).map((p) => p.name).join(", ");
-    return {
-      text: `Vardhan has shipped ${featuredProjects.length} featured projects, including ${names} — plus more on GitHub. [Open Projects](app:projects) for the full build notes.`,
-    };
-  }
-
-  if (/(stack|tech|skill|frontend|backend|language|tool)/.test(norm)) {
-    const fe = skillCategories
-      .find((c) => c.label === "Frontend")
-      ?.items.slice(0, 6)
-      .map((i) => i.name)
-      .join(", ");
-    const be = skillCategories
-      .find((c) => c.label === "Backend")
-      ?.items.slice(0, 4)
-      .map((i) => i.name)
-      .join(", ");
-    return {
-      text: `Core stack: ${fe}. Backend: ${be}. For AI he uses ${aiStack.slice(0, 4).join(", ")}. [Open Skills](app:skills) has the full list.`,
-    };
-  }
-
-  if (/(experience|intern|job|role|work history)/.test(norm)) {
-    const roles = experience
-      .map((e) => `${e.role} @ ${e.company} (${e.period})`)
-      .join(" · ");
-    return { text: `${roles}. [Open Experience](app:experience)` };
-  }
-
-  if (/(education|degree|college|school|university|certif|achievement|award)/.test(norm)) {
-    const edu = education
-      .map((e) => `${e.degree} — ${e.school} (${e.period})`)
-      .join(" · ");
-    const cert = certifications.slice(0, 4).join(", ");
-    return {
-      text: `Education: ${edu}. Certifications: ${cert}. [Open Achievements](app:achievements)`,
-    };
-  }
-
-  if (/(contact|email|hire|reach|mail|social|linkedin|github|resume|cv)/.test(norm)) {
-    return {
-      text: `You can reach Vardhan at [${site.email}](mailto:${site.email}), on [GitHub](${site.github}) or [LinkedIn](${site.linkedin}), or grab the [resume](${site.resume}). He's based in ${site.location}.`,
-    };
-  }
-
-  if (/(deploy|live|host|website|production|vercel|where can i see)/.test(norm)) {
-    return {
-      text: `Vardhan ships on Vercel — this very Vardhan OS runs live at [vardhan-v-portfilo.vercel.app/mac](https://vardhan-v-portfilo.vercel.app/mac). Open [About This Mac](app:about-mac) for the system rundown.`,
-    };
-  }
-
-  if (/(who|about|vardhan|what is this|what's this|os|macos|made with|built with|how does|is this|this site)/.test(norm)) {
-    return {
-      text: `${site.name} — ${site.title}. ${site.tagline} Based in ${site.location}. VardhanOS itself is a React + TypeScript take on macOS — open [About This Mac](app:about-mac) or the [Projects](app:projects) app to see what he ships.`,
-    };
-  }
-
-  return {
-    text: `I mostly know portfolio facts — try asking about projects, a specific project ("Tell me about HPL Auction"), tech stack, experience, education, or how to contact Vardhan.`,
-  };
-}
-
-/** Render `[label](target)` links; `app:` targets navigate inside the OS. */
-function RichText({ text }: { text: string }) {
-  const { openWindow } = useWindowManager();
-  const parts = text.split(/(\[[^\]]+\]\([^)]+\))/g);
-  return (
-    <>
-      {parts.map((part, i) => {
-        const m = /^\[([^\]]+)\]\(([^)]+)\)$/.exec(part);
-        if (!m) return <span key={i}>{part}</span>;
-        const [label, target] = [m[1], m[2]];
-        if (target.startsWith("app:")) {
-          return (
-            <button
-              key={i}
-              className="aiapp__link"
-              onClick={() => openWindow(target.slice(4) as AppId)}
-            >
-              {label}
-            </button>
-          );
-        }
-        return (
-          <a key={i} className="aiapp__link" href={target} target="_blank" rel="noreferrer">
-            {label}
-          </a>
-        );
-      })}
-    </>
-  );
-}
-
-interface Msg { id: number; from: "me" | "them"; text: string; reaction?: string; at: number }
 const CONTACTS = [
   { id: "vardhan", name: "Vardhan", initials: "SV", sub: "Ask about projects, stack, work", hue: 225 },
   { id: "projects", name: "Projects bot", initials: "PB", sub: "Type a project name", hue: 28 },
-];
+] as const;
+type ContactId = (typeof CONTACTS)[number]["id"];
 const REACTIONS = ["❤️", "👍", "😂", "‼️", "❓"];
 
-/** Messages: an iMessage-style front end over the rule-based intent engine. */
+const plain = (s: string) => s.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").replace(/\[\d+(?:,\s*\d+)*\]/g, "").replace(/[*_`]/g, "");
+
+/**
+ * Messages: an iMessage-style front end. Navigation intents ("open settings") are handled
+ * locally; every factual question goes to the same /api/chat RAG backend as the global assistant.
+ */
 export function VardhanAIApp() {
   const { openWindow } = useWindowManager();
-  const [contact, setContact] = useState(CONTACTS[0].id);
-  const [threads, setThreads] = useState<Record<string, Msg[]>>({});
+  const threads = { vardhan: useChat("mac"), projects: useChat("mac") };
+  const [contact, setContact] = useState<ContactId>("vardhan");
   const [value, setValue] = useState("");
-  const [typing, setTyping] = useState(false);
-  const [picker, setPicker] = useState<number | null>(null);
+  const [picker, setPicker] = useState<string | null>(null);
+  const [reactions, setReactions] = useState<Record<string, string>>({});
   const bodyRef = useRef<HTMLDivElement>(null);
-  const msgs = threads[contact] ?? [];
+  const chat = threads[contact];
+  const msgs = chat.messages;
   const c = CONTACTS.find((x) => x.id === contact)!;
+  const last = msgs[msgs.length - 1];
+  const typing = last?.role === "assistant" && last.status === "streaming" && !last.content;
 
-  useEffect(() => { bodyRef.current?.scrollTo({ top: bodyRef.current.scrollHeight, behavior: "smooth" }); }, [msgs.length, typing]);
+  useEffect(() => {
+    bodyRef.current?.scrollTo({ top: bodyRef.current.scrollHeight, behavior: "smooth" });
+  }, [msgs.length, last?.content]);
 
-  const push = (m: Omit<Msg, "id" | "at">) => setThreads((t) => ({ ...t, [contact]: [...(t[contact] ?? []).slice(-40), { ...m, id: Date.now() + Math.random(), at: Date.now() }] }));
+  const stamp = (m: ChatMessage) => new Date(m.at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
 
   const ask = (q: string) => {
     const query = q.trim();
-    if (!query || typing) return;
-    push({ from: "me", text: query });
+    if (!query || chat.busy) return;
     setValue("");
-    const res = answer(contact === "projects" ? `tell me about ${query}` : query);
-    setTyping(true);
-    const delay = Math.min(1800, 500 + res.text.length * 6);
-    window.setTimeout(() => {
-      setTyping(false);
-      push({ from: "them", text: res.text });
-      if (res.open) openWindow(res.open);
-    }, delay);
+    const local = localIntent(query);
+    if (local) {
+      chat.addLocal(query, local.text);
+      if (local.open) openWindow(local.open);
+      return;
+    }
+    chat.send(contact === "projects" && !/\b(project|tell|what|how|why|explain)\b/i.test(query) ? `Tell me about the project ${query}` : query);
   };
-  const react = (id: number, r: string) => { setThreads((t) => ({ ...t, [contact]: (t[contact] ?? []).map((m) => (m.id === id ? { ...m, reaction: m.reaction === r ? undefined : r } : m)) })); setPicker(null); };
-  const stamp = (t: number) => new Date(t).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+
+  const react = (id: string, r: string) => {
+    setReactions((x) => ({ ...x, [id]: x[id] === r ? "" : r }));
+    setPicker(null);
+  };
 
   return (
     <div className="msgs">
       <aside className="msgs__side">
         <div className="msgs__side-head"><span className="mac-caps">Pinned</span></div>
         {CONTACTS.map((k) => {
-          const last = (threads[k.id] ?? []).slice(-1)[0];
+          const lastMsg = threads[k.id].messages.slice(-1)[0];
           return (
             <button key={k.id} className={`msgs__contact${contact === k.id ? " is-active" : ""}`} onClick={() => setContact(k.id)}>
               <span className="msgs__avatar" style={{ "--h": k.hue } as React.CSSProperties}>{k.initials}</span>
-              <span className="msgs__contact-text"><b>{k.name}</b><span>{last ? last.text.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").slice(0, 40) : k.sub}</span></span>
-              {last && <time>{stamp(last.at)}</time>}
+              <span className="msgs__contact-text"><b>{k.name}</b><span>{lastMsg?.content ? plain(lastMsg.content).slice(0, 40) : k.sub}</span></span>
+              {lastMsg && <time>{stamp(lastMsg)}</time>}
             </button>
           );
         })}
@@ -221,7 +82,12 @@ export function VardhanAIApp() {
       <div className="msgs__main">
         <div className="msgs__head">
           <span className="msgs__avatar msgs__avatar--lg" style={{ "--h": c.hue } as React.CSSProperties}>{c.initials}</span>
-          <span><b>{c.name}</b><em>{typing ? "typing…" : "iMessage · local, no API key"}</em></span>
+          <span><b>{c.name}</b><em>{typing ? "typing…" : "iMessage · answers cite portfolio, GitHub & resume"}</em></span>
+          {msgs.length > 0 && (
+            <button type="button" className="msgs__clear" onClick={chat.clear} aria-label="Clear conversation" title="Clear conversation" style={{ marginLeft: "auto" }}>
+              <Trash2 aria-hidden width={14} height={14} />
+            </button>
+          )}
         </div>
         {/* Click-outside dismisses the reaction picker; the picker's own buttons are the keyboard path. */}
         <div className="msgs__body" ref={bodyRef} aria-live="polite" role="presentation" onClick={() => setPicker(null)}>
@@ -231,28 +97,48 @@ export function VardhanAIApp() {
               <p>Ask about projects, stack, experience, education or how to reach Vardhan. Double-click a bubble to react.</p>
             </div>
           )}
-          {msgs.map((m, i) => (
-            <div key={m.id} className={`msgs__row msgs__row--${m.from}`}>
-              <div className={`msgs__bubble${m.reaction ? " has-reaction" : ""}`} onDoubleClick={(e) => { e.stopPropagation(); setPicker(m.id); }}>
-                <RichText text={m.text} />
-                {m.reaction && <span className="msgs__reaction">{m.reaction}</span>}
-                {picker === m.id && (
-                  <div className="msgs__picker" onClick={(e) => e.stopPropagation()}>
-                    {REACTIONS.map((r) => <button key={r} onClick={() => react(m.id, r)}>{r}</button>)}
-                  </div>
-                )}
+          {msgs.map((m, i) => {
+            const reaction = reactions[m.id];
+            const from = m.role === "user" ? "me" : "them";
+            if (m.role === "assistant" && m.status === "streaming" && !m.content) return null;
+            return (
+              <div key={m.id} className={`msgs__row msgs__row--${from}`}>
+                <div className={`msgs__bubble${reaction ? " has-reaction" : ""}`} onDoubleClick={(e) => { e.stopPropagation(); setPicker(m.id); }}>
+                  {m.role === "user" ? (
+                    <span>{m.content}</span>
+                  ) : (
+                    <Markdown text={m.content} onAppLink={(t) => openWindow(t as AppId)} citations={new Set((m.sources ?? []).map((s) => s.n))} />
+                  )}
+                  {m.status === "error" && (
+                    <span className="msgs__error" role="alert">
+                      {m.error}{" "}
+                      <button type="button" className="aiapp__link" onClick={() => chat.retry(m.id)}><RotateCcw aria-hidden width={11} height={11} /> Retry</button>
+                    </span>
+                  )}
+                  {m.sources && m.sources.length > 0 && <SourceReferences sources={m.sources} />}
+                  {reaction && <span className="msgs__reaction">{reaction}</span>}
+                  {picker === m.id && (
+                    <div className="msgs__picker" onClick={(e) => e.stopPropagation()}>
+                      {REACTIONS.map((r) => <button key={r} onClick={() => react(m.id, r)}>{r}</button>)}
+                    </div>
+                  )}
+                </div>
+                {m.role === "user" && i === msgs.length - 1 && <span className="msgs__status">Delivered</span>}
               </div>
-              {m.from === "me" && i === msgs.length - 1 && !typing && <span className="msgs__status">Delivered</span>}
-            </div>
-          ))}
+            );
+          })}
           {typing && <div className="msgs__row msgs__row--them"><div className="msgs__bubble msgs__typing"><i /><i /><i /></div></div>}
         </div>
         <div className="aiapp__suggest">
-          {SUGGESTED.map((s) => <button key={s} className="aiapp__chip" onClick={() => ask(s)}>{s}</button>)}
+          {SUGGESTED.map((s) => <button key={s} className="aiapp__chip" onClick={() => ask(s)} disabled={chat.busy}>{s}</button>)}
         </div>
         <form className="msgs__row-input" onSubmit={(e) => { e.preventDefault(); ask(value); }}>
-          <input className="aiapp__input" value={value} onChange={(e) => setValue(e.target.value)} placeholder={`Message ${c.name}…`} aria-label="Message" />
-          <button className="msgs__send" type="submit" aria-label="Send" disabled={!value.trim()}><Send /></button>
+          <input className="aiapp__input" value={value} onChange={(e) => setValue(e.target.value)} placeholder={`Message ${c.name}…`} aria-label="Message" maxLength={1500} />
+          {chat.busy ? (
+            <button className="msgs__send" type="button" aria-label="Stop" onClick={chat.stop}><Square /></button>
+          ) : (
+            <button className="msgs__send" type="submit" aria-label="Send" disabled={!value.trim()}><Send /></button>
+          )}
         </form>
       </div>
     </div>

@@ -3,7 +3,7 @@
  * purpose: these carry long-form prose (problem / approach / decisions / lessons)
  * the other editions do not render. Slugs match the classic edition.
  */
-import { featuredProjects, otherProjects } from "../../classic/data/projects";
+import { featuredProjects, otherProjects } from "../../classic/data/projects.js";
 
 export interface CaseStudy {
   slug: string;

@@ -30,7 +30,7 @@ const ROUTES = [
 ];
 
 /* Noise we do not treat as failures: third-party/analytics beacons and the GitHub API being rate-limited. */
-const IGNORED_CONSOLE = [/api\.github\.com/, /vercel-insights|va\.vercel-scripts|speed-insights|\/_vercel\//, /favicon/, /net::ERR_/];
+const IGNORED_CONSOLE = [/api\.github\.com/, /vercel-insights|va\.vercel-scripts|speed-insights|\/_vercel\//, /favicon/, /net::ERR_/, /\/api\/chat/];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -100,6 +100,9 @@ try {
     page.off("pageerror", onPageError);
     page.off("console", onConsole);
 
+    // The global assistant launcher must be present on every route.
+    const hasLauncher = !navError && (await page.$(".pa-launcher").catch(() => null)) !== null;
+    if (!hasLauncher && !navError) navError = "assistant launcher missing";
     const titleOk = expectTitle instanceof RegExp ? expectTitle.test(title) : title.includes(expectTitle);
     const ok = !navError && titleOk && pageErrors.length === 0 && consoleErrors.length === 0;
     if (!ok) failures++;
@@ -112,6 +115,59 @@ try {
       detail: navError || (!titleOk ? `expected title to match ${expectTitle}` : "") || pageErrors[0] || consoleErrors[0] || "",
     });
   }
+
+  /* ---- Assistant UI: open, keyboard, error state (no /api under vite preview), mobile sheet ---- */
+  const check = (name, ok, detail = "") => {
+    if (!ok) failures++;
+    rows.push({ route: `assistant: ${name}`, status: ok ? "ok" : "FAIL", title: "", pageErrors: 0, consoleErrors: 0, detail });
+  };
+  const ai = await browser.newPage();
+  const aiErrors = [];
+  ai.on("pageerror", (e) => aiErrors.push(String(e?.message ?? e)));
+  const SCENARIOS = [
+    ["desktop", { width: 1280, height: 800 }, "/classic"],
+    ["mobile", { width: 375, height: 812, isMobile: true, hasTouch: true }, "/paper"],
+    ["mac", { width: 1280, height: 800 }, "/mac?noboot=1"],
+  ];
+  for (const [label, vp, route] of SCENARIOS) {
+    await ai.setViewport(vp);
+    await ai.goto(BASE + route, { waitUntil: "networkidle0", timeout: 30000 });
+    await ai.waitForSelector(".pa-launcher", { timeout: 10000 });
+    await ai.click(".pa-launcher");
+    await ai.waitForSelector(".pa-panel", { timeout: 5000 });
+    await sleep(100);
+    const focused = await ai.evaluate(() => document.activeElement?.id);
+    check(`${label} opens with input focused`, focused === "pa-input-field", `focus=${focused}`);
+    const box = await ai.$eval(".pa-panel", (el) => {
+      const r = el.getBoundingClientRect();
+      return { l: r.left, r: r.right, t: r.top, b: r.bottom, w: innerWidth, h: innerHeight };
+    });
+    const inside = box.l >= 0 && box.r <= box.w + 0.5 && box.t >= 0 && box.b <= box.h + 0.5;
+    check(`${label} panel fits viewport`, inside, JSON.stringify(box));
+    if (label === "mobile") check("mobile panel is a full-width sheet", Math.abs(box.r - box.l - box.w) < 1, `${box.r - box.l} vs ${box.w}`);
+    if (label === "desktop") {
+      await ai.click(".pa-suggest button");
+      await ai.waitForSelector(".pa-msg__error", { timeout: 10000 }).catch(() => {});
+      const err = await ai.$eval(".pa-msg__error", (el) => el.textContent).catch(() => "");
+      check("error state + retry when backend is absent", Boolean(err) && (await ai.$('button[aria-label="Retry"]')) !== null, err);
+      await ai.click('button[aria-label="Clear conversation"]');
+      check("clear conversation", (await ai.$$(".pa-msg")).length === 0);
+      await ai.focus("#pa-input-field");
+      const before = await ai.evaluate(() => location.pathname);
+      await ai.keyboard.type("1 what is his stack");
+      await ai.keyboard.press("Enter");
+      await sleep(300);
+      check("digits typed in the panel don't trigger edition shortcuts", (await ai.evaluate(() => location.pathname)) === before);
+      check("Enter sends a message", (await ai.$$(".pa-msg--me")).length === 1);
+      await ai.focus("#pa-input-field");
+    }
+    await ai.keyboard.press("Escape");
+    await sleep(150);
+    const closed = (await ai.$(".pa-panel")) === null;
+    const back = await ai.evaluate(() => document.activeElement?.classList.contains("pa-launcher"));
+    check(`${label} Escape closes and returns focus`, closed && back, `closed=${closed} focus=${back}`);
+  }
+  check("no page errors during assistant checks", aiErrors.length === 0, aiErrors[0] ?? "");
 } catch (e) {
   failures++;
   rows.push({ route: "(setup)", status: "FAIL", title: "", pageErrors: 0, consoleErrors: 0, detail: String(e?.message ?? e) });

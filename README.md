@@ -36,6 +36,12 @@ A production-quality portfolio positioning me as a **Generative AI Developer & F
 
 ---
 
+## 🤖 What’s New — Nov 7 2026 · Vardhan AI (RAG assistant)
+
+A floating **Vardhan AI** assistant now lives on every edition, and the macOS Messages app uses the same backend. Answers stream from Groq and draw only on the portfolio data, public GitHub repos and the resume, with numbered source citations. Unsupported questions get an honest "no verified information" reply. The stack is Vercel functions in `api/`, Supabase pgvector and a separate embedding provider. Setup, migration and the deployment checklist are in [docs/RAG_ASSISTANT.md](docs/RAG_ASSISTANT.md).
+
+---
+
 ## 🗺 What’s New — Nov 2 2026 · Atlas, case studies and a site-wide pass
 
 - **Atlas (`/atlas`, edition 07)** — the work as a survey atlas, laid out after the Forkfolio atlas page and written from scratch on this site's own data (`src/atlas/`):

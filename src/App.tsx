@@ -11,6 +11,7 @@ import { NotFound } from "./components/NotFound";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { ErrorBoundary, RouteError } from "./components/ErrorBoundary";
+import { PortfolioAssistant } from "./components/ai/PortfolioAssistant";
 
 const Landing = lazy(() => import("./landing/Landing").then((m) => ({ default: m.Landing })));
 const ClassicSite = lazy(() => import("./classic/ClassicSite").then((m) => ({ default: m.ClassicSite })));
@@ -115,6 +116,7 @@ function Root() {
       <ScrollChrome />
       <CommandPalette />
       <KonamiFX />
+      <PortfolioAssistant />
       <Analytics />
       <SpeedInsights />
       <RouteSeo />

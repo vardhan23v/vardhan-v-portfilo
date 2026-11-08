@@ -3,7 +3,7 @@ import type { ServerConfig } from "./config.js";
 import type { EmbeddingProvider } from "./embeddings/types.js";
 import { logError, toPublicError } from "./errors.js";
 import type { LLMProvider } from "./llm/types.js";
-import { buildMessages, citedNumbers, isUnsupportedAnswer } from "./prompt.js";
+import { buildMessages, citationStream, citedNumbers, isUnsupportedAnswer } from "./prompt.js";
 import { retrieve, toSourceRef } from "./retrieval.js";
 import type { KnowledgeStore } from "./store.js";
 import type { ChatRequest } from "./validation.js";
@@ -15,6 +15,9 @@ export interface ChatDeps {
   cfg: Pick<ServerConfig, "RAG_TOP_K" | "RAG_SIMILARITY_THRESHOLD" | "RAG_MAX_CONTEXT_TOKENS">;
   onComplete?: (answer: string, sources: SourceRef[]) => void | Promise<void>;
 }
+
+const SMALL_TALK = /^(hi|hii+|hello|hey|hola|namaste|yo|thanks|thank you|thx|ok|okay|cool|nice|great|bye|good (?:morning|afternoon|evening))(?:\s+(?:there|vardhan|vardhan ai))?[\s!.,]*$/i;
+const SMALL_TALK_REPLY = "Hi! I can tell you about Vardhan's projects, skills, experience and education. What would you like to know?";
 
 const enc = new TextEncoder();
 const sse = (e: ChatStreamEvent) => enc.encode(`data: ${JSON.stringify(e)}\n\n`);
@@ -29,7 +32,17 @@ export function streamChat(req: ChatRequest, deps: ChatDeps): ReadableStream<Uin
       let answer = "";
       try {
         const question = req.messages[req.messages.length - 1].content;
+        if (SMALL_TALK.test(question.trim())) {
+          answer = SMALL_TALK_REPLY;
+          controller.enqueue(sse({ type: "token", text: answer }));
+          controller.enqueue(sse({ type: "sources", sources: [] }));
+          controller.enqueue(sse({ type: "done", supported: true }));
+          await deps.onComplete?.(answer, []);
+          return;
+        }
+
         const chunks = await retrieve(question, deps, {
+          history: req.messages.slice(0, -1),
           topK: deps.cfg.RAG_TOP_K,
           threshold: deps.cfg.RAG_SIMILARITY_THRESHOLD,
           maxContextTokens: deps.cfg.RAG_MAX_CONTEXT_TOKENS,
@@ -44,11 +57,29 @@ export function streamChat(req: ChatRequest, deps: ChatDeps): ReadableStream<Uin
           return;
         }
 
-        for await (const delta of deps.llm.streamChat(buildMessages(req.messages, chunks))) {
-          answer += delta;
-          controller.enqueue(sse({ type: "token", text: delta }));
+        const citations = citationStream();
+        const messages = buildMessages(req.messages, chunks);
+        // Reasoning models can spend the whole token limit thinking and return nothing; retry leaner once.
+        for (const opts of [{}, { reasoningEffort: "low" as const, maxTokens: 1400 }]) {
+          for await (const delta of deps.llm.streamChat(messages, opts)) {
+            const text = citations.push(delta);
+            if (!text) continue;
+            answer += text;
+            controller.enqueue(sse({ type: "token", text }));
+          }
+          if (answer.trim()) break;
+          console.error("[chat] model returned an empty answer");
+        }
+        const tail = citations.flush();
+        if (tail) {
+          answer += tail;
+          controller.enqueue(sse({ type: "token", text: tail }));
         }
 
+        if (!answer.trim()) {
+          answer = UNSUPPORTED_ANSWER;
+          controller.enqueue(sse({ type: "token", text: answer }));
+        }
         const supported = !isUnsupportedAnswer(answer);
         const cited = citedNumbers(answer);
         const refs = supported

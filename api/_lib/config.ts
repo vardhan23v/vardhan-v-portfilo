@@ -4,6 +4,7 @@ import { z } from "zod";
 const schema = z.object({
   GROQ_API_KEY: z.string().min(1).optional(),
   GROQ_MODEL: z.string().default("openai/gpt-oss-120b"),
+  GROQ_FALLBACK_MODEL: z.string().default("openai/gpt-oss-20b"),
   GROQ_TIMEOUT_MS: z.coerce.number().int().positive().default(25_000),
 
   EMBEDDING_PROVIDER: z.enum(["openai", "hash"]).default("openai"),
@@ -24,11 +25,11 @@ const schema = z.object({
   SITE_URL: z.string().url().default("https://vardhan-v-portfilo.vercel.app"),
   ALLOWED_ORIGINS: z.string().default(""),
 
-  RAG_TOP_K: z.coerce.number().int().min(1).max(20).default(5),
+  RAG_TOP_K: z.coerce.number().int().min(1).max(20).default(7),
   RAG_SIMILARITY_THRESHOLD: z.coerce.number().min(0).max(1).default(0.3),
   RAG_CHUNK_TOKENS: z.coerce.number().int().min(100).default(700),
   RAG_CHUNK_OVERLAP: z.coerce.number().int().min(0).default(100),
-  RAG_MAX_CONTEXT_TOKENS: z.coerce.number().int().min(500).default(3500),
+  RAG_MAX_CONTEXT_TOKENS: z.coerce.number().int().min(500).default(2800),
 
   RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(10),
   RATE_LIMIT_PER_DAY: z.coerce.number().int().positive().default(150),

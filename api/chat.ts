@@ -32,7 +32,7 @@ export async function POST(req: Request): Promise<Response> {
     if (!cfg.GROQ_API_KEY) throw new AppError(503, "not_configured", "The assistant is not configured yet.");
     const store = createStore(cfg);
     const embedder = createEmbeddingProvider(cfg);
-    const llm = new GroqProvider({ apiKey: cfg.GROQ_API_KEY, model: cfg.GROQ_MODEL, timeoutMs: cfg.GROQ_TIMEOUT_MS });
+    const llm = new GroqProvider({ apiKey: cfg.GROQ_API_KEY, model: cfg.GROQ_MODEL, fallbackModel: cfg.GROQ_FALLBACK_MODEL, timeoutMs: cfg.GROQ_TIMEOUT_MS });
 
     const stream = streamChat(body, {
       store, embedder, llm, cfg,

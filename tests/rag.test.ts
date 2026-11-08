@@ -6,9 +6,9 @@ import { chunkText, estimateTokens } from "../api/_lib/chunking";
 import { MemoryStore } from "../api/_lib/store";
 import { ingestDocuments } from "../api/_lib/ingest/pipeline";
 import { buildPortfolioDocuments } from "../api/_lib/ingest/portfolio";
-import { matchProjects, retrieve, normalizeQuestion } from "../api/_lib/retrieval";
+import { matchProjects, retrieve, normalizeQuestion, searchQueries, standaloneQuestion } from "../api/_lib/retrieval";
 import { streamChat } from "../api/_lib/chat";
-import { buildMessages, citedNumbers, looksLikeInjection, sanitizeSourceText, SYSTEM_PROMPT } from "../api/_lib/prompt";
+import { buildMessages, citationStream, citedNumbers, normalizeCitations, looksLikeInjection, sanitizeSourceText, SYSTEM_PROMPT } from "../api/_lib/prompt";
 import { featuredProjects } from "../src/classic/data/projects";
 import { site } from "../src/classic/data/site";
 import { UNSUPPORTED_ANSWER } from "../src/lib/ai/types";
@@ -192,5 +192,32 @@ describe("resume PDF", () => {
   it("rejects non-PDF uploads", async () => {
     const { pdfToText } = await import("../api/_lib/ingest/pdf");
     await expect(pdfToText(new TextEncoder().encode("<html>nope</html>"))).rejects.toMatchObject({ code: "not_pdf" });
+  });
+});
+
+describe("answer quality helpers", () => {
+  it("rewrites follow-ups using the previous question", () => {
+    const history = [{ role: "user" as const, content: "Tell me about Extension AI" }, { role: "assistant" as const, content: "It generates extensions." }];
+    expect(standaloneQuestion("What was the hardest part of it?", history)).toContain("Extension AI");
+    expect(standaloneQuestion("Where did he study?", history)).toBe("Where did he study?");
+  });
+
+  it("splits compound questions and adds judgement anchors", () => {
+    expect(searchQueries("What is his email and where did he study?")).toEqual(expect.arrayContaining(["What is his email", "where did he study?"]));
+    expect(searchQueries("What is his strongest project?").length).toBeGreaterThan(1);
+  });
+
+  it("normalizes model citation styles, even split across deltas", () => {
+    expect(normalizeCitations("Uses React【3†L1-L4】")).toBe("Uses React[3]");
+    const s = citationStream();
+    expect(s.push("Uses React【")).toBe("Uses React");
+    expect(s.push("3】 well")).toBe("[3] well");
+    expect(s.flush()).toBe("");
+  });
+
+  it("drops an unfinished citation at the end of a stream", () => {
+    const s = citationStream();
+    expect(s.push("Done【2")).toBe("Done");
+    expect(s.flush()).toBe("");
   });
 });

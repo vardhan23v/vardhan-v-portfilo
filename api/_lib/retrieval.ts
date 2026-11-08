@@ -1,5 +1,5 @@
 import { featuredProjects, otherProjects } from "../../src/classic/data/projects.js";
-import type { SourceRef, SourceType } from "../../src/lib/ai/types.js";
+import type { ChatTurn, SourceRef, SourceType } from "../../src/lib/ai/types.js";
 import { estimateTokens } from "./chunking.js";
 import type { EmbeddingProvider } from "./embeddings/types.js";
 import type { ChunkMatch, KnowledgeStore } from "./store.js";
@@ -14,6 +14,8 @@ export interface RetrievalOptions {
   topK: number;
   threshold: number;
   maxContextTokens: number;
+  /** Conversation before the current question, used to resolve follow-ups like "why is it hard?". */
+  history?: ChatTurn[];
 }
 
 /** Lowercase, strip punctuation/zero-width chars, collapse whitespace. */
@@ -59,6 +61,38 @@ export function preferredSources(question: string): SourceType[] {
   return out;
 }
 
+const FOLLOW_UP = /\b(it|its|that|this|those|these|them|they|former|latter|first one|second one|the project|more|else|hardest part)\b/i;
+const JUDGEMENT = /\b(strongest|best|most (?:impressive|complex|challenging|difficult)|hardest|favou?rite|stand ?out|more (?:complex|impressive|difficult)|compare|versus|vs)\b/i;
+const HIRING = /\b(hire|hiring|fit for|good fit|right fit|why (?:him|vardhan)|strengths?|qualified)\b/i;
+const CONTACT = /\b(e-?mail|contact|reach|linkedin|phone)\b/i;
+const EDUCATION = /\b(study|studied|studying|education|degree|college|university|school|b\.?tech|cgpa)\b/i;
+const STOPWORDS = new Set("the and for with has have had his him was were are does did what which where when who why how can could would should about from that this those these they them built build used using use know work worked project projects tell please vardhan".split(" "));
+
+/** The current question, rewritten with the previous one when it can't stand alone. */
+export function standaloneQuestion(question: string, history: ChatTurn[] = []): string {
+  const q = normalizeQuestion(question);
+  const prev = [...history].reverse().find((t) => t.role === "user")?.content;
+  if (!prev || matchProjects(q).length || q.split(" ").length > 14 || !FOLLOW_UP.test(q)) return q;
+  return `${normalizeQuestion(prev).slice(0, 300)} ${q}`;
+}
+
+/** Searches to run for one question: the question, each part of a compound one, and intent anchors. */
+export function searchQueries(question: string, projects: string[] = []): string[] {
+  const out = [question];
+  const parts = question.split(/\?\s+|\s+and\s+(?=(?:what|where|when|who|how|which|why|does|did|is|can|his)\b)/i).map((p) => p.trim());
+  if (parts.length > 1) out.push(...parts.filter((p) => p.split(" ").length >= 2));
+  if (JUDGEMENT.test(question)) out.push("featured projects architecture, key decisions, technical challenges and impact");
+  if (HIRING.test(question)) out.push("professional summary, work experience, skills and flagship projects");
+  if (CONTACT.test(question)) out.push("Sree Vardhan V profile and contact email LinkedIn GitHub");
+  if (EDUCATION.test(question)) out.push("Education degree college university B.Tech school");
+  if (projects.length > 1) out.push(...projects.map((p) => `${p} project overview architecture tech stack`));
+  return [...new Set(out)].slice(0, 5);
+}
+
+function keywords(question: string): string[] {
+  return [...new Set(norm(question).split(" ").filter((w) => w.length >= 3 && !STOPWORDS.has(w)))];
+}
+
 function chunkProject(c: ChunkMatch): string | undefined {
   const v = (c.chunkMetadata.project ?? c.documentMetadata.project ?? c.documentMetadata.repo) as string | undefined;
   return v?.toLowerCase();
@@ -69,12 +103,22 @@ export async function retrieve(
   deps: { store: KnowledgeStore; embedder: EmbeddingProvider },
   opts: RetrievalOptions,
 ): Promise<RetrievedChunk[]> {
-  const q = normalizeQuestion(question);
+  const asked = normalizeQuestion(question);
+  const q = standaloneQuestion(asked, opts.history);
   const projects = matchProjects(q);
   const prefer = preferredSources(q);
-  const embedding = await deps.embedder.embedText(q);
+  const terms = keywords(asked);
+  const queries = searchQueries(q, projects);
+  const embeddings = await deps.embedder.embedDocuments(queries);
+  const results = await Promise.all(embeddings.map((e) => deps.store.matchChunks(e, { count: opts.topK * 4, threshold: opts.threshold })));
 
-  const candidates = await deps.store.matchChunks(embedding, { count: opts.topK * 4, threshold: opts.threshold });
+  // Merge the searches, keeping each chunk's best similarity.
+  const merged = new Map<string, ChunkMatch>();
+  for (const c of results.flat()) {
+    const had = merged.get(c.chunkId);
+    if (!had || c.similarity > had.similarity) merged.set(c.chunkId, c);
+  }
+  const candidates = [...merged.values()];
 
   // Exact project-name match: make sure that project's own chunks are in the pool even if the
   // vector search ranked them lower than generic text.
@@ -90,24 +134,42 @@ export async function retrieve(
     if (projects.length && proj && projects.includes(proj)) score += 0.2;
     else if (projects.length && proj) score -= 0.05; // a different named project is probably noise
     if (prefer.includes(c.sourceType)) score += 0.05;
+    // Curated pages describe Vardhan; raw repository files often only mention a term in passing.
+    if (c.sourceType !== "github") score += 0.04;
+    else if (c.documentMetadata.kind === "source" && !prefer.includes("github")) score -= 0.06;
+    // Exact technology and product names are where embeddings are weakest.
+    const text = ` ${norm(`${c.title} ${c.content}`)} `;
+    score += Math.min(0.09, terms.filter((t) => text.includes(` ${t} `)).length * 0.03);
     return { ...c, score };
   });
   scored.sort((a, b) => b.score - a.score);
 
   // Drop the long tail: anything far below the best match is unlikely to help and costs tokens.
   const best = scored[0]?.score ?? 0;
-  const relevant = scored.filter((c) => c.score >= best - 0.25 && (c.similarity >= opts.threshold || (projects.length && projects.includes(chunkProject(c) ?? ""))));
+  // Each search keeps its best hits, so one part of a compound question can't erase the other.
+  const anchors = new Set(results.flatMap((r) => r.slice(0, 2).map((c) => c.chunkId)));
+  const relevant = scored.filter((c) => (c.score >= best - 0.25 || anchors.has(c.chunkId)) && (c.similarity >= opts.threshold || (projects.length && projects.includes(chunkProject(c) ?? ""))));
+
+  // The top hit of every search gets a guaranteed slot before the general ranking fills the rest.
+  if (results.length > 1) {
+    const leaders = new Set(results.map((r) => r[0]?.chunkId));
+    relevant.sort((a, b) => Number(leaders.has(b.chunkId)) - Number(leaders.has(a.chunkId)) || b.score - a.score);
+  }
 
   const picked: RetrievedChunk[] = [];
   const seen = new Set<string>();
+  const perDocument = new Map<string, number>();
   let budget = opts.maxContextTokens;
   for (const c of relevant) {
     if (picked.length >= opts.topK) break;
     const fp = c.content.slice(0, 200);
     if (seen.has(fp)) continue;
+    // Several chunks of one README would crowd out the other evidence.
+    if ((perDocument.get(c.documentId) ?? 0) >= 2) continue;
     const cost = estimateTokens(c.content);
     if (cost > budget && picked.length) continue;
     seen.add(fp);
+    perDocument.set(c.documentId, (perDocument.get(c.documentId) ?? 0) + 1);
     budget -= cost;
     picked.push({ ...c, n: picked.length + 1, section: (c.chunkMetadata.section ?? c.documentMetadata.section) as string | undefined });
   }

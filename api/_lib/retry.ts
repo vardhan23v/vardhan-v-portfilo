@@ -10,7 +10,7 @@ export function isTransient(status: number) {
 export async function fetchWithRetry(
   url: string,
   init: RequestInit,
-  opts: { timeoutMs: number; retries?: number; fetchImpl?: typeof fetch; label: string },
+  opts: { timeoutMs: number; retries?: number; fetchImpl?: typeof fetch; label: string; failFastOn429?: boolean },
 ): Promise<Response> {
   const retries = opts.retries ?? 2;
   const f = opts.fetchImpl ?? fetch;
@@ -19,7 +19,7 @@ export async function fetchWithRetry(
     try {
       const res = await f(url, { ...init, signal: AbortSignal.timeout(opts.timeoutMs) });
       if (res.ok) return res;
-      if (!isTransient(res.status) || attempt === retries) {
+      if (!isTransient(res.status) || attempt === retries || (res.status === 429 && opts.failFastOn429)) {
         const detail = (await res.text().catch(() => "")).slice(0, 300).replace(/sk-[A-Za-z0-9_-]+|gsk_[A-Za-z0-9]+/g, "[key]");
         console.error(`[${opts.label}] HTTP ${res.status}: ${detail}`);
         if (res.status === 429) {

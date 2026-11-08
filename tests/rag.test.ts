@@ -10,6 +10,7 @@ import { matchProjects, retrieve, normalizeQuestion, searchQueries, standaloneQu
 import { projectDigest } from "../api/_lib/digest";
 import { parsePlan, planQuestion } from "../api/_lib/planner";
 import { effortFor, streamChat } from "../api/_lib/chat";
+import { GroqProvider } from "../api/_lib/llm/groq";
 import { buildMessages, citationStream, citedNumbers, normalizeCitations, looksLikeInjection, sanitizeSourceText, SYSTEM_PROMPT } from "../api/_lib/prompt";
 import { featuredProjects } from "../src/classic/data/projects";
 import { site } from "../src/classic/data/site";
@@ -306,5 +307,32 @@ describe("reasoning pipeline", () => {
     expect(effortFor("judgement", 2000).reasoningEffort).toBe("medium");
     expect(effortFor("judgement").reasoningEffort).toBe("medium");
     expect(effortFor("fact").reasoningEffort).toBe("low");
+  });
+});
+
+describe("groq model fallback", () => {
+  const stream = () => new Response('data: {"choices":[{"delta":{"content":"ok"}}]}\n\ndata: [DONE]\n\n', { status: 200 });
+  const limited = () => new Response('{"error":{"message":"limit"}}', { status: 429, headers: { "retry-after": "1" } });
+  const collect = async (p: GroqProvider) => { let t = ""; for await (const d of p.streamChat([{ role: "user", content: "q" }])) t += d; return t; };
+
+  it("moves through the models once each when rate limited", async () => {
+    const asked: string[] = [];
+    const fetchImpl = (async (_u: string, init: RequestInit) => {
+      const { model } = JSON.parse(String(init.body));
+      asked.push(model);
+      return model === "c" ? stream() : limited();
+    }) as typeof fetch;
+    expect(await collect(new GroqProvider({ apiKey: "k", model: "a", fallbackModels: ["b", "c"], timeoutMs: 1000, fetchImpl }))).toBe("ok");
+    expect(asked).toEqual(["a", "b", "c"]);
+  });
+
+  it("does not switch model for errors other than rate limits", async () => {
+    const asked: string[] = [];
+    const fetchImpl = (async (_u: string, init: RequestInit) => {
+      asked.push(JSON.parse(String(init.body)).model);
+      return new Response("{}", { status: 401 });
+    }) as typeof fetch;
+    await expect(collect(new GroqProvider({ apiKey: "k", model: "a", fallbackModels: ["b"], timeoutMs: 1000, fetchImpl }))).rejects.toThrow();
+    expect(asked).toEqual(["a"]);
   });
 });

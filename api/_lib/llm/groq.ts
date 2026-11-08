@@ -11,15 +11,15 @@ let remainingTokens: number | undefined;
 export class GroqProvider implements LLMProvider {
   readonly name = "groq";
   readonly model: string;
-  private readonly fallbackModel?: string;
+  private readonly fallbackModels: string[];
   private readonly apiKey: string;
   private readonly timeoutMs: number;
   private readonly fetchImpl?: typeof fetch;
 
-  constructor(opts: { apiKey: string; model: string; fallbackModel?: string; timeoutMs: number; fetchImpl?: typeof fetch }) {
+  constructor(opts: { apiKey: string; model: string; fallbackModels?: string[]; timeoutMs: number; fetchImpl?: typeof fetch }) {
     this.apiKey = opts.apiKey;
     this.model = opts.model;
-    this.fallbackModel = opts.fallbackModel && opts.fallbackModel !== opts.model ? opts.fallbackModel : undefined;
+    this.fallbackModels = [...new Set(opts.fallbackModels ?? [])].filter((m) => m && m !== opts.model);
     this.timeoutMs = opts.timeoutMs;
     this.fetchImpl = opts.fetchImpl;
   }
@@ -29,7 +29,7 @@ export class GroqProvider implements LLMProvider {
   }
 
   async *streamChat(messages: LLMMessage[], opts: { temperature?: number; maxTokens?: number; reasoningEffort?: "low" | "medium" | "high" } = {}): AsyncIterable<string> {
-    const request = (model: string) => fetchWithRetry(
+    const request = (model: string, failFastOn429: boolean) => fetchWithRetry(
       GROQ_URL,
       {
         method: "POST",
@@ -42,18 +42,24 @@ export class GroqProvider implements LLMProvider {
           // Reasoning tokens count against this limit on gpt-oss models.
           max_tokens: opts.maxTokens ?? 1100,
           ...(model.includes("gpt-oss") ? { reasoning_effort: opts.reasoningEffort ?? "medium", include_reasoning: false } : {}),
+          ...(model.includes("qwen") ? { reasoning_format: "hidden" } : {}),
         }),
       },
-      { timeoutMs: this.timeoutMs, label: "groq", fetchImpl: this.fetchImpl },
+      { timeoutMs: this.timeoutMs, label: "groq", fetchImpl: this.fetchImpl, failFastOn429 },
     );
-    let res: Response;
-    try {
-      res = await request(this.model);
-    } catch (err) {
-      // Rate limits are per model, so a smaller model usually still has capacity.
-      if (!this.fallbackModel || !(err instanceof AppError) || err.code !== "upstream_busy") throw err;
-      res = await request(this.fallbackModel);
+    // Rate limits are per model, so the next model usually still has capacity.
+    const models = [this.model, ...this.fallbackModels];
+    let res: Response | undefined;
+    for (const [i, model] of models.entries()) {
+      const last = i === models.length - 1;
+      try {
+        res = await request(model, !last);
+        break;
+      } catch (err) {
+        if (last || !(err instanceof AppError) || err.code !== "upstream_busy") throw err;
+      }
     }
+    if (!res) throw new AppError(503, "upstream_busy", "The assistant is busy right now. Please try again shortly.");
     const left = Number(res.headers.get("x-ratelimit-remaining-tokens"));
     if (Number.isFinite(left) && res.headers.has("x-ratelimit-remaining-tokens")) remainingTokens = left;
     if (!res.body) throw new AppError(502, "upstream_error", "The assistant service returned an empty response.");

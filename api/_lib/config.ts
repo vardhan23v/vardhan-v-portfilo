@@ -5,6 +5,7 @@ const schema = z.object({
   GROQ_API_KEY: z.string().min(1).optional(),
   GROQ_MODEL: z.string().default("openai/gpt-oss-120b"),
   GROQ_FALLBACK_MODEL: z.string().default("openai/gpt-oss-20b"),
+  GROQ_BACKUP_MODEL: z.string().default("qwen/qwen3.8-27b"),
   GROQ_TIMEOUT_MS: z.coerce.number().int().positive().default(25_000),
 
   EMBEDDING_PROVIDER: z.enum(["openai", "hash"]).default("openai"),

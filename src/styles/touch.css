@@ -1,0 +1,101 @@
+/* ============================================================
+   Touch targets on phones and touch screens, for every edition.
+   Kept in one file because each rule only changes hit area, not design.
+   `html body` outranks the edition stylesheets, which load later.
+   ============================================================ */
+@media (max-width: 640px), (hover: none) and (pointer: coarse) {
+  /* Links: grow the row and centre the text inside it. */
+  html body :is(
+    .aurora-wordmark, .au-card-links a, .au-work-foot-link, .aurora-foot-links a,
+    .paper-wordmark, .paper-nav-links a, .paper-mast-meta a, .paper-work-links a, .paper-foot-links a,
+    .prog-name, .prog-links .tlink, .prog-links .tlink-dim,
+    .fg-nav-name, .fg-proj-link, .fg-foot-links a,
+    .lt-hire
+  ) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
+
+  /* Controls that are already boxes. */
+  html body :is(
+    .et-tab, .au-eng-btn, .au-open, .au-exp-toggle, .au-foot-top,
+    .paper-eng-btn,
+    .boot-skip, .copy-btn,
+    .fg-stoke, .fg-pipe-run, .fg-proj-flip,
+    .stage-pause, .chip-more
+  ) {
+    min-height: 40px;
+  }
+  html body :is(.stage-pause, .au-foot-top) { min-width: 40px; }
+
+  html body .prog-links .tlink { min-width: 40px; justify-content: center; }
+  html body .iswitcher-item { min-width: 40px; min-height: 40px; }
+
+  /* Full-width list rows stay full width. */
+  html body .atl-gaz-name { display: flex; align-items: center; min-height: 40px; }
+
+  /* Small labels that carry meaning. Miniature mock-ups on the landing page stay as drawn. */
+  html body :is(
+    .land-stat-label, .lr-status, .ed-role, .stage-count, .ed-key, .iswitcher-num,
+    .pipe-chip, .sl-mode, .shell-title .dim,
+    .au-meta-row dt, .au-card-cta, .au-eng-label, .au-filter-count, .au-ft-vtag, .au-stat-sub, .au-sys-chip,
+    .fg-proj-flip, .fg-proj-flip span, .fg-meta-cell dt, .fg-pipe-idx, .fg-pipe-meta, .fg-pipe-uptime,
+    .fg-proj-badge, .fg-proj-label, .fg-stack-idx, .fg-stat-label,
+    .mac-stat__label, .mac-cover__slug, .mac-edition__num
+  ) {
+    font-size: 11px;
+  }
+
+  /* The phone dock scrolls sideways; fade the edge so the extra apps are discoverable. */
+  html body .mac-dock {
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
+  }
+  html body .mac-menubar__btn { position: relative; }
+  html body .mac-menubar__btn::after { content: ""; position: absolute; inset: -8px -4px; }
+
+  /* Fields and controls that can simply be 40px tall. */
+  html body :is(
+    .shell-input, .mail-input, .au-search input, .au-sort select, .au-lab-pill,
+    .fg-filter, .fg-menu, .fg-nav-panel a, .mac-btn
+  ) {
+    min-height: 40px;
+  }
+  html body .fg-menu { min-width: 40px; }
+
+  /* Controls in tight rows: an invisible larger hit area, so nothing moves. */
+  html body :is(
+    .hero-quick, .sl-brand, .sl-burger, .sl-phosphor, .terminal-root .contact-channels a,
+    .au-filter, .au-random, .au-view-btn, .au-contact-links a, .aurora-foot-links a,
+    .fg-foot-links a,
+    .atl-sec p > a, .atl-title a, .atl-foot a,
+    .classic-root .foot-col a, .classic-root .contact-direct a, .classic-root .copy, .classic-root .links .link-btn, .classic-root .filters .filter,
+    .mac-link, .mac-toast__action, .mac-menubar__clock
+  ) {
+    position: relative;
+  }
+  html body :is(
+    .hero-quick, .sl-brand, .sl-burger, .sl-phosphor, .terminal-root .contact-channels a,
+    .au-filter, .au-random, .au-view-btn, .au-contact-links a, .aurora-foot-links a,
+    .fg-foot-links a,
+    .atl-sec p > a, .atl-title a, .atl-foot a,
+    .classic-root .foot-col a, .classic-root .contact-direct a, .classic-root .copy, .classic-root .links .link-btn, .classic-root .filters .filter,
+    .mac-link, .mac-toast__action, .mac-menubar__clock
+  )::before {
+    content: "";
+    position: absolute;
+    inset: -8px -4px;
+  }
+  html body .mac-menubar__btn::after { inset: -8px; }
+  html body .terminal-root .shell-title .dim, html body .terminal-root .dim { font-size: max(11px, 0.8em); }
+  html body .terminal-root .shell-input { min-height: 40px; }
+
+  /* Tightly packed dots: extend the tappable area without moving them. */
+  html body :is(.stage-seg, .au-hue-swatch) { position: relative; }
+  html body :is(.stage-seg, .au-hue-swatch)::after {
+    content: "";
+    position: absolute;
+    inset: -8px -2px;
+  }
+}

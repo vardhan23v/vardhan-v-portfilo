@@ -1,6 +1,17 @@
 /* Classic — the recruiter edition, "Starry Night" after Van Gogh: a painted, swirling night sky behind
    cobalt and Prussian surfaces, canvas-cream text, starlight-gold actions. Fraunces for headings, Inter for reading.
    Tokens first; everything below uses them. Contrast: body text 6:1+, muted 4.7:1+ on every surface (figures in the token block). */
+
+/* Classic's headings use the weight-only cut (no optical sizing), latin only. This face is declared
+   after the site-wide one, so it wins for upright text and the larger file is never fetched here. */
+@font-face {
+  font-family: "Fraunces Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url("@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
 .classic-root {
   /* Van Gogh, "The Starry Night" (1889), sampled from the MoMA image: deep-sky and Prussian blues,
      ultramarine and swirl-blue brushwork, sage and teal highlights, star yellow and moon ochre, cypress
@@ -949,3 +960,14 @@ html:has(.classic-root) .sc-top { background: rgba(38, 50, 87, 0.9); border-colo
 html:has(.classic-root) .sc-top:hover { color: #1d274e; }
 html:not([data-motion="reduce"]) .classic-root :is(.section-head, .feature, .xp-row, .skill-row, .compact, .build):focus-within,
 html:not([data-motion="reduce"]) .classic-root :is(.skill-row, .feature):focus-within :is(.sk-word, .feature-shot img) { animation: none; }
+
+/* Smaller builds: the list stays in the page for aria-controls, and its rows settle in one after another. */
+.classic-root .builds-list[hidden] { display: none; }
+@keyframes build-in { from { opacity: 0; transform: translateY(8px); } }
+html:not([data-motion="reduce"]) .classic-root .build { animation: build-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(min(var(--k, 0), 12) * 28ms); }
+
+/* The three project cards share a row, so their links line up along the bottom edge. */
+.classic-root .features .feature:not(.feature--flagship) .links { margin-top: auto; padding-top: 6px; }
+
+/* Cards shrink to their column on phones rather than widening it to fit their longest line. */
+.classic-root .features > *, .classic-root .feature-body { min-width: 0; }

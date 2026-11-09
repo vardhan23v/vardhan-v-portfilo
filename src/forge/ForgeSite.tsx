@@ -791,7 +791,7 @@ function ProjectCard({ p, i }: { p: (typeof FORGE_PROJECTS)[number]; i: number }
               specs <span aria-hidden="true">⟳</span>
             </button>
             {featured && <span className="fg-proj-badge">featured</span>}
-            <span className="fg-proj-cat" style={{ color: p.accent[0] }}>
+            <span className="fg-proj-cat" style={{ color: `color-mix(in srgb, ${p.accent[0]} 75%, #fff)` }}>
               {p.cat}
             </span>
           </span>

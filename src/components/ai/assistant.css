@@ -218,13 +218,15 @@ html:not([data-motion="reduce"]) .pa-typing i { animation: pa-dot 1.3s infinite 
 .pa-input__btn { transition: opacity 0.18s ease, transform 0.22s var(--pa-spring); }
 html:not([data-motion="reduce"]) .pa-input__btn:hover:not(:disabled) { transform: translateY(-1px); }
 html:not([data-motion="reduce"]) .pa-input__btn:active:not(:disabled) { transform: scale(0.93); }
+.pa-input__btn.is-stop { background: rgba(255, 255, 255, 0.12); color: var(--pa-text); box-shadow: 0 0 0 1px var(--pa-line); }
+.pa-input__btn.is-stop svg { width: 12px; height: 12px; fill: currentColor; }
 .pa-input__btn:disabled { opacity: 0.35; cursor: default; }
 .pa-input__btn svg { width: 16px; height: 16px; }
 .pa-input__hint { position: absolute; left: 12px; top: -18px; font-size: 11px; color: #ff9b9b; }
 
 /* Phones: the panel becomes a bottom sheet; the launcher shrinks to an icon. */
 @media (max-width: 560px) {
-  .pa-panel { left: 0; right: 0; bottom: 0; width: 100%; height: min(86dvh, 100dvh - 40px); border-radius: 18px 18px 0 0; padding-bottom: env(safe-area-inset-bottom); }
+  .pa-panel { left: 0; right: 0; bottom: var(--pa-keyboard, 0px); width: 100%; height: min(86dvh, 100dvh - 40px - var(--pa-keyboard, 0px)); border-radius: 18px 18px 0 0; padding-bottom: env(safe-area-inset-bottom); }
   .pa-root[data-open] .pa-launcher { display: none; }
   .pa-launcher { padding: 0; width: 46px; justify-content: center; }
   .pa-launcher__label { display: none; }
@@ -239,4 +241,9 @@ html:not([data-motion="reduce"]) .pa-input__btn:active:not(:disabled) { transfor
 
 @media (forced-colors: active) {
   .pa-launcher, .pa-panel, .pa-msg { border: 1px solid CanvasText; }
+}
+
+/* On phones the macOS dock spans the full width, so the launcher sits just above it. */
+@media (max-width: 640px) {
+  html:has(.mac-root) .pa-launcher { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
 }

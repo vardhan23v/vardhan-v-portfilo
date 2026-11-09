@@ -33,6 +33,18 @@ export function AssistantPanel({ chat, closing, reopened, onClose, onClosed }: P
     return () => document.body.removeEventListener("keydown", stop);
   }, []);
 
+  // Phones: lift the sheet above the on-screen keyboard, which 100dvh doesn't account for.
+  useEffect(() => {
+    const vv = window.visualViewport;
+    const panel = ref.current;
+    if (!vv || !panel) return;
+    const fit = () => panel.style.setProperty("--pa-keyboard", `${Math.max(0, window.innerHeight - vv.height - vv.offsetTop)}px`);
+    fit();
+    vv.addEventListener("resize", fit);
+    vv.addEventListener("scroll", fit);
+    return () => { vv.removeEventListener("resize", fit); vv.removeEventListener("scroll", fit); };
+  }, []);
+
   // Reopened mid-close: the text box stays mounted, so autoFocus won't run again.
   const wasClosing = useRef(false);
   useEffect(() => {

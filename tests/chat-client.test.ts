@@ -62,6 +62,18 @@ describe("streaming client", () => {
 });
 
 describe("markdown", () => {
+  it("always leaves a space before a citation", () => {
+    expect(parseInline("Built in React[1]")).toEqual([{ t: "text", v: "Built in React" }, { t: "text", v: " " }, { t: "cite", n: 1 }]);
+    expect(parseInline("Built in React [1][2]")).toEqual([{ t: "text", v: "Built in React " }, { t: "cite", n: 1 }, { t: "cite", n: 2 }]);
+  });
+
+  it("keeps short bold phrases but not whole bold sentences", () => {
+    expect(parseInline("**HPL Auction** works")[0]).toMatchObject({ t: "strong" });
+    const nodes = parseInline("**HPL Auction is a full-stack real-time cricket auction platform built by Vardhan**");
+    expect(nodes.some((n) => n.t === "strong")).toBe(false);
+    expect(nodes[0]).toMatchObject({ t: "text" });
+  });
+
   it("only links safe URLs", () => {
     expect(safeHref("javascript:alert(1)")).toBeNull();
     expect(safeHref("data:text/html,x")).toBeNull();

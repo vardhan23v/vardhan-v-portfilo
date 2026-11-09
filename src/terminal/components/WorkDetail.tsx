@@ -91,7 +91,7 @@ export function WorkDetail() {
             <div className="case-shots-grid">
               {p.screenshots.map((s, i) => (
                 <figure className="case-shot" key={s.src} style={{ "--i": i } as React.CSSProperties}>
-                  <img src={s.src} alt={`${p.name}: ${s.caption}`} loading="lazy" decoding="async" />
+                  <img src={s.src} alt={`${p.name}: ${s.caption}`} width={/phone/.test(s.src) ? 390 : 1440} height={/phone/.test(s.src) ? 844 : 900} loading="lazy" decoding="async" />
                   <figcaption>
                     <span className="bracket">{String(i + 1).padStart(2, "0")}</span> {s.caption}
                   </figcaption>

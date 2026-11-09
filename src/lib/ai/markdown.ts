@@ -17,6 +17,8 @@ export type Block =
   | { t: "ul" | "ol"; items: Inline[][] }
   | { t: "pre"; v: string };
 
+const MAX_BOLD_WORDS = 8;
+
 /** Only http(s), mailto, same-site paths and in-app `app:` targets are ever linked. */
 export function safeHref(href: string): string | null {
   const h = href.trim();
@@ -34,12 +36,21 @@ export function parseInline(s: string): Inline[] {
   for (const m of s.matchAll(INLINE)) {
     const i = m.index ?? 0;
     if (i > last) out.push({ t: "text", v: s.slice(last, i) });
-    if (m[1]) out.push({ t: "strong", c: parseInline(m[2]) });
+    // Models sometimes bold a whole sentence; emphasis only works on short phrases.
+    if (m[1]) {
+      if (m[2].trim().split(/\s+/).length > MAX_BOLD_WORDS) out.push(...parseInline(m[2]));
+      else out.push({ t: "strong", c: parseInline(m[2]) });
+    }
     else if (m[3]) out.push({ t: "code", v: m[4] });
     else if (m[5]) {
       const href = safeHref(m[7]);
       out.push(href ? { t: "link", href, c: parseInline(m[6]) } : { t: "text", v: m[6] });
-    } else if (m[8]) for (const n of m[9].split(",")) out.push({ t: "cite", n: Number(n.trim()) });
+    } else if (m[8]) {
+      // Models often attach a citation straight to the word before it.
+      const prev = out.at(-1);
+      if (prev && prev.t !== "cite" && !(prev.t === "text" && /\s$/.test(prev.v))) out.push({ t: "text", v: " " });
+      for (const n of m[9].split(",")) out.push({ t: "cite", n: Number(n.trim()) });
+    }
     else if (m[10]) out.push({ t: "em", c: parseInline(m[11]) });
     else if (m[12]) out.push({ t: "em", c: parseInline(m[13]) });
     last = i + m[0].length;

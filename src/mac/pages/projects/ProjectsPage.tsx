@@ -307,7 +307,7 @@ export function ProjectsPage() {
         <button className={`mac-pill${cat === "all" ? " mac-pill--active" : ""}`} onClick={() => setCat("all")}>
           All <span className="mac-pill__count">{featuredProjects.length}</span>
         </button>
-        {(Object.keys(CATEGORY_LABELS) as ProjectCategory[]).map((c) => (
+        {(Object.keys(CATEGORY_LABELS) as ProjectCategory[]).filter((c) => counts[c] > 0).map((c) => (
           <button
             key={c}
             className={`mac-pill${cat === c ? " mac-pill--active" : ""}`}

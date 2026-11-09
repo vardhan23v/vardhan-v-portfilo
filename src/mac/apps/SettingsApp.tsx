@@ -214,7 +214,7 @@ function DesktopPanel() {
               <button key={g.id} className={`wp-tile wp-tile--${g.id.replace("grad:", "")}${prefs.wallpaper === g.id ? " is-selected" : ""}`} onClick={() => set("wallpaper", g.id)} aria-label={g.label} title={g.label}><span>{g.label}</span></button>
             ))}
             {shots.map(({ src, p }) => (
-              <button key={src} className={`wp-tile wp-tile--img${prefs.wallpaper === src ? " is-selected" : ""}`} onClick={() => set("wallpaper", src)} aria-label={`${p.name} screenshot`} title={p.name}><img src={src} alt="" loading="lazy" /></button>
+              <button key={src} className={`wp-tile wp-tile--img${prefs.wallpaper === src ? " is-selected" : ""}`} onClick={() => set("wallpaper", src)} aria-label={`${p.name} screenshot`} title={p.name}><img src={src} alt="" width={1440} height={900} loading="lazy" /></button>
             ))}
             {featuredProjects.slice(0, 4).map((p) => (
               <button key={p.slug} className={`wp-tile wp-tile--img${prefs.wallpaper === `cover:${p.slug}` ? " is-selected" : ""}`} onClick={() => set("wallpaper", `cover:${p.slug}`)} aria-label={`${p.name} cover`} title={p.name}><ProjectCover project={p} size="sm" ratio="16/9" /></button>

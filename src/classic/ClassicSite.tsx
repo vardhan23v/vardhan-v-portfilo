@@ -1,4 +1,3 @@
-import "@fontsource-variable/fraunces";
 import { useEffect, useRef } from "react";
 import { useClassicEffects } from "./useEffects";
 import { Navbar } from "./components/Navbar";

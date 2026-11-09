@@ -36,7 +36,7 @@ export function ProjectCover({
         <span className="mac-cover__name">{project.name}</span>
         <span className="mac-cover__slug">/{project.slug}</span>
       </div>
-      {img && <img className="mac-cover__img" src={img} alt={`${project.name} screenshot`} loading="lazy" decoding="async" />}
+      {img && <img className="mac-cover__img" src={img} alt={`${project.name} screenshot`} width={1440} height={900} loading="lazy" decoding="async" />}
       <span className="mac-cover__sheen" aria-hidden="true" />
     </div>
   );

@@ -1,4 +1,5 @@
 import { Component, lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from "react";
+import { motionReduced, subscribeMotion } from "../../lib/motion";
 /**
  * The Starry Night backdrop: one fixed SVG behind everything. Stars come from a fixed seed, so the
  * sky is identical on every visit (no runtime randomness, nothing to hydrate differently). Density
@@ -130,17 +131,42 @@ class Quiet extends Component<{ children: ReactNode }, { failed: boolean }> {
 const StarSky3D = lazy(() => import("./StarSky3D"));
 const hasWebGL = () => { try { const c = document.createElement("canvas"); return Boolean(c.getContext("webgl2") ?? c.getContext("webgl")); } catch { return false; } };
 
-/** Mounts the WebGL sky after first paint, on wide fine-pointer screens with WebGL only. */
+/** Few cores, little memory or Data Saver: the painted poster is the better choice. */
+const lowPower = () => {
+  const n = navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } };
+  return n.hardwareConcurrency <= 4 || (n.deviceMemory ?? 8) <= 4 || n.connection?.saveData === true;
+};
+
+/** Runs `cb` once the page has finished loading and the browser is idle. Returns a cancel function. */
+function afterPageReady(cb: () => void) {
+  const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
+  let cancelIdle = () => {};
+  const idle = () => {
+    if (w.requestIdleCallback) { const id = w.requestIdleCallback(cb, { timeout: 2000 }); cancelIdle = () => w.cancelIdleCallback?.(id); return; }
+    const t = window.setTimeout(cb, 800);
+    cancelIdle = () => window.clearTimeout(t);
+  };
+  if (document.readyState === "complete") { idle(); return () => cancelIdle(); }
+  window.addEventListener("load", idle, { once: true });
+  return () => { window.removeEventListener("load", idle); cancelIdle(); };
+}
+
+/** Mounts the WebGL sky once the page is ready, on capable wide fine-pointer screens with motion allowed. */
 function Sky3D() {
   const [on, setOn] = useState(false);
   const [ready, setReady] = useState(false);
   const markReady = useCallback(() => setReady(true), []);
   useEffect(() => {
-    if (!window.matchMedia("(min-width: 900px) and (hover: hover) and (pointer: fine)").matches || !hasWebGL()) return;
-    const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
-    if (w.requestIdleCallback) { const id = w.requestIdleCallback(() => setOn(true), { timeout: 2000 }); return () => w.cancelIdleCallback?.(id); }
-    const t = window.setTimeout(() => setOn(true), 800);
-    return () => window.clearTimeout(t);
+    if (!window.matchMedia("(min-width: 900px) and (hover: hover) and (pointer: fine)").matches || lowPower() || !hasWebGL()) return;
+    let cancel = () => {};
+    const sync = () => {
+      cancel();
+      if (motionReduced()) { setOn(false); setReady(false); return; }
+      cancel = afterPageReady(() => setOn(true));
+    };
+    sync();
+    const unsubscribe = subscribeMotion(sync);
+    return () => { cancel(); unsubscribe(); };
   }, []);
   if (!on) return null;
   return (

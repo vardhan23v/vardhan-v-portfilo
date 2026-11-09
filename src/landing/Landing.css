@@ -91,7 +91,7 @@
 .stage-seg i::after { content: ""; position: absolute; inset: 0; background: var(--accent); transform: scaleX(0); transform-origin: left; }
 .stage-seg.is-active i::after { animation: stage-fill var(--stage-interval, 4.2s) linear forwards; }
 .stage-frame:hover .stage-seg.is-active i::after, .stage-frame.is-paused .stage-seg.is-active i::after { animation-play-state: paused; }
-.stage-pause { width: 28px; height: 28px; border-radius: 6px; border: 0.5px solid var(--border); font-size: 9px; color: var(--text-2); display: inline-flex; align-items: center; justify-content: center; }
+.stage-pause { width: 28px; height: 28px; border-radius: 6px; background: transparent; border: 0.5px solid var(--border); font-size: 9px; color: var(--text); display: inline-flex; align-items: center; justify-content: center; }
 .stage-pause:hover { background: rgba(255,255,255,0.08); color: var(--text); }
 @keyframes stage-fill { to { transform: scaleX(1); } }
 .stage-tone { font-family: var(--font-display); font-style: italic; font-size: 0.95rem; color: var(--text-2); white-space: nowrap; }
@@ -818,3 +818,6 @@ html[data-motion="reduce"] .ed-portal { display: none; }
 
 /* ---------- touch targets: every control at least 24×24px (WCAG 2.5.8); text sizes unchanged ---------- */
 .landing-links a, .landing-motion { min-height: 24px; display: inline-flex; align-items: center; }
+
+/* Let the hero column shrink to the screen instead of growing to its widest line. */
+.hero-grid > * { min-width: 0; }

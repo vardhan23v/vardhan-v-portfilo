@@ -21,8 +21,11 @@ const setMeta = (html, attr, key, value) => {
   throw new Error(`prerender: <meta ${attr}="${key}"> not found in dist/index.html`);
 };
 
-const render = ({ title, description, url, themeColor, noindex = false }) => {
+const render = ({ title, description, url, themeColor, noindex = false, keepShellFont = false }) => {
   let html = template;
+  // The loading shell's headline is set in Fraunces. Only the landing page goes on to use both of
+  // its files, so every other route shows it in the fallback serif and skips the download.
+  if (!keepShellFont) html = html.replace("font-family:'Fraunces Variable',Fraunces,Georgia,serif;", "font-family:Georgia,serif;");
   html = html.replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(title)}</title>`);
   html = setMeta(html, "name", "description", description);
   html = setMeta(html, "name", "theme-color", themeColor);
@@ -48,6 +51,7 @@ for (const route of SEO_ROUTES) {
     description: route.description,
     url: canonicalUrl(route),
     themeColor: themeColorFor(route.path),
+    keepShellFont: route.path === "/",
   });
   const file = route.path === "/" ? join(DIST, "index.html") : join(DIST, route.path, "index.html");
   write(file, html);

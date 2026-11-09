@@ -1,7 +1,7 @@
 /* ============================================================
-   Self-hosted fonts shared by every edition (woff2 only, latin + latin-ext).
-   Files come from @fontsource-variable; the variable packages only ship an
-   all-subsets stylesheet, so the two faces are declared here by hand.
+   Self-hosted fonts shared by every edition (woff2 only).
+   Inter comes from @fontsource-variable, which only ships an all-subsets
+   stylesheet, so the faces are declared here by hand.
    Edition-only families (Kanit, Space Grotesk, VT323) are imported from each
    edition's entry module so they ship in that edition's chunk.
    ============================================================ */
@@ -24,36 +24,22 @@
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 
-/* Fraunces — "full" build: wght 100..900, opsz 9..144, SOFT 0..100, WONK 0..1 */
+/* Fraunces: subset built by scripts/subset-fraunces.sh from the "full" files.
+   wght 300..700, opsz 9..144, SOFT 0..40, WONK off, Latin text only.
+   font-weight stays 100 900: it must match Classic's face exactly for that face to override this one. */
 @font-face {
   font-family: "Fraunces Variable";
   font-style: normal;
   font-display: swap;
   font-weight: 100 900;
-  src: url("@fontsource-variable/fraunces/files/fraunces-latin-ext-full-normal.woff2") format("woff2-variations");
-  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
-}
-@font-face {
-  font-family: "Fraunces Variable";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 100 900;
-  src: url("@fontsource-variable/fraunces/files/fraunces-latin-full-normal.woff2") format("woff2-variations");
-  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+  src: url("../assets/fonts/fraunces-subset-normal.woff2") format("woff2-variations");
+  unicode-range: U+0020-007E,U+00A0-00FF,U+2013,U+2014,U+2018,U+2019,U+201C,U+201D,U+2022,U+2026;
 }
 @font-face {
   font-family: "Fraunces Variable";
   font-style: italic;
   font-display: swap;
   font-weight: 100 900;
-  src: url("@fontsource-variable/fraunces/files/fraunces-latin-ext-full-italic.woff2") format("woff2-variations");
-  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
-}
-@font-face {
-  font-family: "Fraunces Variable";
-  font-style: italic;
-  font-display: swap;
-  font-weight: 100 900;
-  src: url("@fontsource-variable/fraunces/files/fraunces-latin-full-italic.woff2") format("woff2-variations");
-  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+  src: url("../assets/fonts/fraunces-subset-italic.woff2") format("woff2-variations");
+  unicode-range: U+0020-007E,U+00A0-00FF,U+2013,U+2014,U+2018,U+2019,U+201C,U+201D,U+2022,U+2026;
 }

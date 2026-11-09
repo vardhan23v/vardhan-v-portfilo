@@ -18,7 +18,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![CSS](https://img.shields.io/badge/CSS-663399?style=for-the-badge&logo=css&logoColor=white)](#-tech-stack)
 [![Vitest](https://img.shields.io/badge/Vitest-5-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev)
-[![Bundle](https://img.shields.io/badge/bundle-~132kB_JS_+_~37kB_CSS_gzip-7c6cff?style=for-the-badge)](#-tech-stack)
+[![Landing page size](https://img.shields.io/badge/landing_page-~143kB_JS_+_~18kB_CSS_gzip-7c6cff?style=for-the-badge)](#-tech-stack)
 [![Editions](https://img.shields.io/badge/editions-7_interfaces_+_landing-a78bfa?style=for-the-badge)](#-editions)
 
 [![Vardhan AI](https://img.shields.io/badge/Vardhan_AI-RAG_assistant-6ea8ff?style=for-the-badge)](#-whats-new--nov-9-2026--vardhan-ai-motion-and-reasoning)
@@ -146,7 +146,7 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
 - **macOS OS shell** — window manager + Control Center + Settings (accent 6 swatches / theme / motion) + Terminal (`about`/`date`/`repo`) + Spotlight ranking fix + Vardhan AI links + Developer Mode inspector + Help `?` + mobile bounds fix + persisted prefs + a11y (0 buttons without name, `aria-label` on dialogs, `data-mac-motion`) `src/mac/MacPortfolio.tsx:1` — `MacPortfolio-*.js 113kB / 29.9kB gzip` (budget 150kB) + `MacPortfolio-*.css 69kB / 12kB gzip`
 - **Aurora 2.0 discovery** — search across name/tagline/tech/slug, sort, view toggle, highlight pills, empty state, modal body with `problem | features•bullet | tech chips` `src/aurora/AuroraSite.tsx:62`
 - **Classic Starry Night** — painted hero and star field `src/classic/components/NightSky.tsx:1`, effects hook `src/classic/useEffects.ts:1`, all motion gated on `prefers-reduced-motion` and the site motion toggle
-- **Classic 3D** — the hero is a CSS 3D diorama (moon, swirls, stars, hills and cypress at real depths, leaning toward the pointer) over a lazy-loaded WebGL star sky (`src/classic/components/StarSky3D.tsx`, plain `three`, ~119 kB gzip, desktop with a fine pointer only, paused off-screen, still under reduced motion, painted poster as the fallback); cards tilt with lifted titles and sections fold into place
+- **Classic 3D** — the hero is a CSS 3D diorama (moon, swirls, stars, hills and cypress at real depths, leaning toward the pointer) over a lazy-loaded WebGL star sky (`src/classic/components/StarSky3D.tsx`, plain `three`, ~119 kB gzip, starts after page load on desktop with a fine pointer only, skipped on low-power devices and under reduced motion, paused off-screen, painted poster as the fallback); cards tilt with lifted titles and sections fold into place
 - **“Other things”** — 13 compact cards + GitHub CTA
 - **Experience** — OxCode, FlyRank AI, Zetheta, Zaalima — expandable in Aurora, role cards on a timeline in Classic
 - **Tech stack** — honest grouped categories (Languages / Frontend / Backend / Databases / AI-LLM / Cloud & Tools) with glyphs `src/classic/components/Skills.tsx:1` and per-tool project counts (`usedIn` in `src/classic/data/stats.ts`), no % bars; **Stack Lab** makes them interactive in Aurora

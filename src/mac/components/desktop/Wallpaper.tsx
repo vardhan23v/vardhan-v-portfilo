@@ -56,7 +56,7 @@ export function Wallpaper() {
 
   return (
     <div className={`mac-wallpaper is-${part}${grad ? ` mac-wallpaper--${grad}` : ""}${isImg || coverProject ? " has-image" : ""}`} ref={ref} aria-hidden="true">
-      {isImg && <img className="mac-wallpaper__img" src={wp} alt="" />}
+      {isImg && <img className="mac-wallpaper__img" src={wp} alt="" width={1440} height={900} />}
       {coverProject && <div className="mac-wallpaper__img mac-wallpaper__cover"><ProjectCover project={coverProject} size="lg" ratio="16/9" /></div>}
       <div className="mac-wallpaper__layer mac-wallpaper__layer--a" />
       <div className="mac-wallpaper__layer mac-wallpaper__layer--b" />

@@ -46,7 +46,7 @@ Notes on what actually wins:
 
 ## Typography
 
-- **Fraunces Variable** (`--font-head`, `classic.css:47`) for h1-h4, nav mark, skill group names, build names, stat numbers, contact address. Declared globally in `src/styles/fonts.css:28-58`; Classic also imports `@fontsource-variable/fraunces` (`src/classic/ClassicSite.tsx:1`).
+- **Fraunces Variable** (`--font-head`, `classic.css:47`) for h1-h4, nav mark, skill group names, build names, stat numbers, contact address. Declared globally in `src/styles/fonts.css`; Classic declares its own weight-only upright face at the top of `classic.css`.
 - **Inter Variable** (`--font-text`, `classic.css:48`) for everything else, 16px / 1.6 (`classic.css:76-78`).
 - A system mono stack (`ui-monospace, "SF Mono", Menlo, monospace`) only for the screenshot address bar (`classic.css:507`) and process step numbers (`classic.css:582`).
 - Headings end at weight 600, `-0.01em` (`classic.css:697`); class rules below override where noted.

@@ -53,7 +53,7 @@ Contrast, computed with the WCAG 2 formula:
 
 - Families are loaded site-wide in `src/main.tsx:4-11` and `src/styles/fonts.css`:
   - Inter Variable, weight 100–900: `--font-sans`, the body face.
-  - Fraunces Variable, with the wght, opsz, SOFT and WONK axes: `--font-display`.
+  - Fraunces Variable, a subset with the wght (300-700), opsz and SOFT (0-40) axes: `--font-display`.
   - JetBrains Mono 400/500/700: `--font-mono`.
 - Kanit 400/500/600/700 is imported by the landing itself, only for the Forge skin and the Forge portal name (`Landing.tsx:1-8`).
 - Display sizes (Fraunces):

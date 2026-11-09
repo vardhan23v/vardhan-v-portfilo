@@ -14,11 +14,23 @@ export interface ChatMessage {
   at: number;
 }
 
+const SAVED_LIMIT = 12;
+const savedKey = (surface: ChatSurface) => `vardhan-ai:chat:${surface}`;
+
+/** Only the single global panel keeps its chat across reloads; finished messages only. */
+function loadSaved(surface: ChatSurface): ChatMessage[] {
+  if (surface !== "global" || typeof sessionStorage === "undefined") return [];
+  try {
+    const list = JSON.parse(sessionStorage.getItem(savedKey(surface)) ?? "[]") as ChatMessage[];
+    return Array.isArray(list) ? list.filter((m) => m.status === "done") : [];
+  } catch { return []; }
+}
+
 const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
 
 /** Conversation state + streaming for any chat surface. */
 export function useChat(surface: ChatSurface) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => loadSaved(surface));
   const [busy, setBusy] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const sessionRef = useRef<string>("");
@@ -26,6 +38,13 @@ export function useChat(surface: ChatSurface) {
   useEffect(() => { messagesRef.current = messages; }, [messages]);
 
   useEffect(() => () => abortRef.current?.abort(), []);
+
+  useEffect(() => {
+    if (surface !== "global") return;
+    try {
+      sessionStorage.setItem(savedKey(surface), JSON.stringify(messages.filter((m) => m.status === "done").slice(-SAVED_LIMIT)));
+    } catch { /* storage blocked or full: the chat still works for this page */ }
+  }, [messages, surface]);
 
   const run = useCallback(async (history: ChatTurn[], assistantId: string) => {
     sessionRef.current ||= getSessionId();

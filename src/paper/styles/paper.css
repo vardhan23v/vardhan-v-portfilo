@@ -52,7 +52,7 @@
   left: -9999px;
   top: 10px;
   z-index: 20;
-  background: var(--accent);
+  background: color-mix(in srgb, var(--accent) 75%, #000);
   color: #fff;
   padding: 10px 16px;
   font-family: var(--mono);

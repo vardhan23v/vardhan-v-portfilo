@@ -49,7 +49,7 @@ export function ChatInput({ busy, onSend, onStop, autoFocus }: Props) {
       />
       {over && <span id="pa-input-hint" className="pa-input__hint">Keep it under {CHAT_LIMITS.maxMessageChars} characters</span>}
       {busy ? (
-        <button type="button" className="pa-input__btn" onClick={onStop} aria-label="Stop generating"><Square aria-hidden /></button>
+        <button type="button" className="pa-input__btn is-stop" onClick={onStop} aria-label="Stop generating" title="Stop generating"><Square aria-hidden /></button>
       ) : (
         <button type="submit" className="pa-input__btn" disabled={!value.trim() || over} aria-label="Send"><ArrowUp aria-hidden /></button>
       )}

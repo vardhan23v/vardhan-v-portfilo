@@ -16,6 +16,7 @@
 .mac-btn:active { transform: translateY(0); }
 .mac-btn:disabled { opacity: 0.55; pointer-events: none; }
 .mac-btn--primary { background: var(--accent); border-color: transparent; color: var(--accent-ink); }
+.mac-root a.mac-btn--primary { color: var(--accent-ink); }
 .mac-btn--primary:hover { background: var(--accent-hover); }
 .mac-btn--ghost { background: transparent; }
 .mac-link { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.02em; color: var(--accent); }

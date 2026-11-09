@@ -107,16 +107,33 @@ function LoadingFallback() {
   );
 }
 
+/** Editions without a skip link of their own. */
+const NEEDS_SKIP_LINK = new Set(["/", "/editions", "/aurora", "/forge", "/mac"]);
+
+function SkipLink() {
+  const { pathname } = useLocation();
+  const path = pathname.replace(/\/+$/, "") || "/";
+  if (!NEEDS_SKIP_LINK.has(path) && !path.startsWith("/work/")) return null;
+  const toMain = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const main = document.querySelector("main");
+    if (!main) return;
+    main.setAttribute("tabindex", "-1");
+    main.focus();
+  };
+  return <a className="skip-global" href="#main" onClick={toMain}>Skip to content</a>;
+}
+
 /** Root layout: global chrome + a Suspense boundary around the lazy edition routes. */
 function Root() {
   return (
     <>
+      <SkipLink />
       <CursorFX />
       <InterfaceShortcuts />
       <ScrollChrome />
       <CommandPalette />
       <KonamiFX />
-      <PortfolioAssistant />
       <Analytics />
       <SpeedInsights />
       <RouteSeo />
@@ -126,6 +143,8 @@ function Root() {
           <Outlet />
         </ErrorBoundary>
       </Suspense>
+      {/* After the page so an edition's own skip link is the first tab stop; the launcher is fixed-position. */}
+      <PortfolioAssistant />
     </>
   );
 }

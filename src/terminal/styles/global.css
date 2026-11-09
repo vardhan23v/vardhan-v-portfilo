@@ -2766,6 +2766,7 @@ html:has(.terminal-root) .sc-top {
 .terminal-root .case-shot img {
   display: block;
   width: 100%;
+  height: auto;
   aspect-ratio: 16 / 10;
   object-fit: cover;
   object-position: top;
@@ -2885,3 +2886,10 @@ html[data-motion="reduce"] .terminal-root .pipe-rail i { transform: scaleX(1); }
 .terminal-root .contact-channels a { min-height: 26px; display: inline-flex; align-items: center; }
 .terminal-root .shell-input { min-height: 24px; }
 .terminal-root .footer-inner a, .terminal-root .case-nav-top a, .terminal-root .case-prevnext a { min-height: 24px; display: inline-flex; align-items: center; }
+
+/* A comment inside a solid button reads as part of the label. */
+.terminal-root button .bracket { color: inherit; }
+/* The prompt has no outline of its own, so mark the whole line while it has focus. */
+.terminal-root .shell-entry:has(.shell-input:focus-visible) { outline: 1px solid var(--green); outline-offset: -4px; }
+
+.terminal-root .hero-grid > * { min-width: 0; }

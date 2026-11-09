@@ -51,6 +51,7 @@ A production-quality portfolio positioning me as a **Generative AI Developer & F
 - **Better reasoning** — each question is planned first, follow-ups are rewritten to stand alone, and judgement or comparison questions see an overview of every project. “Which projects use X” runs an exact text search, so answers don't claim “only” without a complete list.
 - **Free-tier backend** — embeddings moved to Jina (`jina-embeddings-v3`, 1024 dimensions). Chat falls back through three Groq models when rate-limited: `openai/gpt-oss-120b`, `openai/gpt-oss-20b`, then `qwen/qwen3.8-27b`.
 - **Reading and recovery** — visitors can scroll up while an answer streams and return with a “Latest” button. A busy or failed request shows a calm card with **Try again**, and questions about his location now use the contact details.
+- **GitHub refresh** — added IPL Mega Auction and VeriTrace, plus freelance projects StockSense and Nitte Resolve, and updated the skills and GitHub figures.
 - **Quality checks** — the CI smoke test covers the assistant's open, close, keyboard and error states, and the open code scanning alerts are resolved.
 
 ---
@@ -164,7 +165,7 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
 | Animation | View Transitions, `animation-timeline: view()` + `IntersectionObserver` `useReveal` `src/hooks/useReveal.tsx:1` (one hook shared by Classic/Terminal/macOS), `useTilt`/`useMagnetic`, `Aurora 2.0` modal/toolbar/lab + Classic sky parallax/reveals (`src/classic/useEffects.ts`) `src/styles/motion.css:1` | All `prefers-reduced-motion: reduce` safe — the OS setting is the default; no animation library |
 | Icons | `lucide-react` + custom `Icon` `src/classic/lib/icons.tsx:1` (20+ glyphs) | No huge icon packs |
 | AI assistant | **Groq** chat, **Jina** embeddings, **Supabase pgvector**, Vercel functions in `api/` | Streaming answers with cited sources; setup in `docs/RAG_ASSISTANT.md` |
-| Data | GitHub REST (live stats, session cache) | Fallback `33 followers`/`60 repos` (`src/classic/data/stats.ts`) |
+| Data | GitHub REST (live stats, session cache) | Fallback `35 followers`/`66 repos` (`src/classic/data/stats.ts`) |
 | QA | `vitest` + `puppeteer` + `oxlint` + GitHub Actions | `npm run lint` — 0 errors baseline; `npm test`; `npm run smoke` |
 | Deploy | **Vercel** `vercel.json:1` `{rewrites:[{source:"/(.*)",destination:"/index.html"}]}` auto-deploy on `main` | `project.json: team_InTZCfnybRSk3JlAYIXFN3UA` |
 

@@ -4,9 +4,9 @@ import { skillCategories } from "./skills";
 
 /**
  * Static GitHub fallback, used until the live API answers (or when it is rate-limited).
- * Checked 2026-10-29 — update alongside the README.
+ * Checked 2026-11-09 — update alongside the README.
  */
-export const GITHUB_FALLBACK = { repos: 60, followers: 33 } as const;
+export const GITHUB_FALLBACK = { repos: 66, followers: 35 } as const;
 export const github = GITHUB_FALLBACK;
 
 /** Featured projects with a public deployment. */

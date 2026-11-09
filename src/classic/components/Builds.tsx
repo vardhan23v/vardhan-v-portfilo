@@ -11,7 +11,7 @@ export function Builds() {
   return (
     <div className="builds">
       <h3 className="h3">Smaller builds <span className="filter-n">{otherProjects.length}</span></h3>
-      <p className="meta">Weekend projects, coursework and experiments, all on GitHub.</p>
+      <p className="meta">Freelance work, weekend projects and experiments, all on GitHub.</p>
       {list.length > 0 && <ul className="builds-list" id="builds-list">
         {list.map((p) => (
           <li className="build" key={p.github}>

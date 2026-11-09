@@ -39,6 +39,8 @@ export const skillCategories: SkillCategory[] = [
     items: [
       { name: "Node.js", icon: "node" },
       { name: "Express.js", icon: "express" },
+      { name: "Spring Boot", icon: "java" },
+      { name: "Jakarta EE", icon: "java" },
       { name: "REST APIs", icon: "rest" },
       { name: "Socket.IO", icon: "socket" },
       { name: "JWT / NextAuth", icon: "jwt" },

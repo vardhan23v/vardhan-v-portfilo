@@ -319,6 +319,7 @@ export const featuredProjects: Project[] = [
     ],
     tech: ["React", "TypeScript", "Vite", "Express", "Cloud MySQL", "Railway", "Cloudinary API", "Tailwind CSS"],
     github: "https://github.com/vardhan23v/Human-Resource-Management-System",
+    live: "https://frontend-iota-two-70.vercel.app",
     accent: ["#8b5cf6", "#7c3aed", "#a78bfa"],
     emoji: "👥",
   },
@@ -335,6 +336,46 @@ export interface MiniProject {
 }
 
 export const otherProjects: MiniProject[] = [
+  {
+    name: "IPL Mega Auction",
+    description:
+      "Open-source auction rooms for the IPL: create a room, share the code, claim one of ten franchises and bid live from your phone, with server-authoritative bidding, Right-To-Match cards and a 547-player pool.",
+    tech: ["Next.js 16", "React 19", "TypeScript", "Prisma", "MySQL", "Socket.IO", "Railway"],
+    github: "https://github.com/vardhan23v/ipl-auction",
+    live: "https://ipl-web-production-0e11.up.railway.app",
+    emoji: "🏏",
+    category: "full-stack",
+  },
+  {
+    name: "StockSense",
+    description:
+      "Freelance project. A stock exploration app with price history, technical indicators, explainable rule-based BUY / HOLD / SELL recommendations, private watchlists and an admin console.",
+    tech: ["Java", "Spring Boot 3", "Spring Security", "JSP", "MySQL", "Railway"],
+    github: "https://github.com/vardhan23v/stocks",
+    live: "https://web-production-4861b6.up.railway.app",
+    emoji: "📈",
+    category: "full-stack",
+  },
+  {
+    name: "Nitte Resolve",
+    description:
+      "Freelance project. A campus complaint management system: students and faculty report facility problems, the complaint cell assigns them, maintenance staff resolve them, and every step is notified and kept in history.",
+    tech: ["Java", "Jakarta Faces 4", "CDI", "JDBC", "MySQL", "Tomcat", "Railway"],
+    github: "https://github.com/vardhan23v/campus-complaint-management-system",
+    live: "https://campus-complaint-management.up.railway.app",
+    emoji: "🏫",
+    category: "full-stack",
+  },
+  {
+    name: "VeriTrace",
+    description:
+      "A hackathon pipeline that detects a face, finds where the image appears on the web with reverse-image search, face-verifies each match, and anchors a tamper-evident SHA-256 fingerprint on an EVM chain.",
+    tech: ["Python", "InsightFace", "Solidity", "SerpAPI"],
+    github: "https://github.com/vardhan23v/VeriTrace",
+    live: "https://veritrace-dusky.vercel.app",
+    emoji: "🔎",
+    category: "ai",
+  },
   {
     name: "Skyline Student Association",
     description:

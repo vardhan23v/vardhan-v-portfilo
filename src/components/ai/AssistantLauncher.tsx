@@ -13,8 +13,11 @@ export const AssistantLauncher = forwardRef<HTMLButtonElement, { open: boolean; 
       aria-label={open ? "Close Vardhan AI" : "Ask Vardhan AI"}
       data-cursor="pointer"
     >
-      {open ? <X aria-hidden /> : <MessageCircle aria-hidden />}
-      {!open && <span className="pa-launcher__label">Ask AI</span>}
+      <span className="pa-launcher__icons" aria-hidden>
+        <MessageCircle className="pa-launcher__chat" />
+        <X className="pa-launcher__x" />
+      </span>
+      <span className="pa-launcher__label">Ask AI</span>
     </button>
   );
 });

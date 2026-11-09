@@ -36,6 +36,14 @@ A production-quality portfolio positioning me as a **Generative AI Developer & F
 
 ---
 
+## 💬 What’s New — Nov 9 2026 · Vardhan AI motion and reasoning
+
+- **Open and close animations** — the panel grows out of the launcher and shrinks back into it, its sections fade up in a short stagger, and the launcher icon rotates between chat and close. On phones it slides up and down as a bottom sheet. CSS only, no animation library, and switched off when reduced motion is on.
+- **Better reasoning** — each question is planned first, follow-ups are rewritten to stand alone, and judgement or comparison questions see an overview of every project. “Which projects use X” runs an exact text search, so answers don't claim “only” without a complete list.
+- **Free-tier backend** — embeddings moved to Jina (`jina-embeddings-v3`, 1024 dimensions). Chat falls back through three Groq models when rate-limited: `openai/gpt-oss-120b`, `openai/gpt-oss-20b`, then `qwen/qwen3.8-27b`.
+
+---
+
 ## 🤖 What’s New — Nov 7 2026 · Vardhan AI (RAG assistant)
 
 A floating **Vardhan AI** assistant now lives on every edition, and the macOS Messages app uses the same backend. Answers stream from Groq and draw only on the portfolio data, public GitHub repos and the resume, with numbered source citations. Unsupported questions get an honest "no verified information" reply. The stack is Vercel functions in `api/`, Supabase pgvector and a separate embedding provider. Setup, migration and the deployment checklist are in [docs/RAG_ASSISTANT.md](docs/RAG_ASSISTANT.md).

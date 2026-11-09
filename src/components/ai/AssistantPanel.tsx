@@ -1,4 +1,4 @@
-import { useEffect, useRef, type KeyboardEvent } from "react";
+import { useEffect, useRef, type AnimationEvent, type KeyboardEvent } from "react";
 import { Trash2, X } from "lucide-react";
 import type { useChat } from "../../lib/ai/useChat";
 import { ChatInput } from "./ChatInput";
@@ -7,7 +7,14 @@ import { SuggestedQuestions } from "./SuggestedQuestions";
 
 type Chat = ReturnType<typeof useChat>;
 
-export function AssistantPanel({ chat, onClose }: { chat: Chat; onClose: () => void }) {
+interface Props {
+  chat: Chat;
+  closing: boolean;
+  onClose: () => void;
+  onClosed: () => void;
+}
+
+export function AssistantPanel({ chat, closing, onClose, onClosed }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
   // Escape closes; stopPropagation keeps the command palette / mac window manager from also reacting.
@@ -25,8 +32,20 @@ export function AssistantPanel({ chat, onClose }: { chat: Chat; onClose: () => v
     return () => document.body.removeEventListener("keydown", stop);
   }, []);
 
+  // Reopened mid-close: the text box stays mounted, so autoFocus won't run again.
+  const wasClosing = useRef(false);
+  useEffect(() => {
+    if (wasClosing.current && !closing) ref.current?.querySelector("textarea")?.focus({ preventScroll: true });
+    wasClosing.current = closing;
+  }, [closing]);
+
+  // Children animate too and their events bubble here; only the panel's own exit counts.
+  const onAnimationEnd = (e: AnimationEvent<HTMLDivElement>) => {
+    if (closing && e.target === e.currentTarget) onClosed();
+  };
+
   return (
-    <div id="pa-panel" ref={ref} className="pa-panel" role="dialog" aria-modal="false" aria-labelledby="pa-title" onKeyDown={onKey}>
+    <div id="pa-panel" ref={ref} className={`pa-panel${closing ? " is-closing" : ""}`} role="dialog" aria-modal="false" aria-labelledby="pa-title" inert={closing} onKeyDown={onKey} onAnimationEnd={onAnimationEnd}>
       <header className="pa-panel__head">
         <span className="pa-panel__dot" aria-hidden />
         <div className="pa-panel__titles">

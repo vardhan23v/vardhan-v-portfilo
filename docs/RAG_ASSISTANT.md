@@ -56,15 +56,15 @@ GitHub sync skips forks and private repos. It also skips these paths: `node_modu
 
 The migration creates:
 
-- **Tables:** `documents`, `document_chunks` (`vector(1536)` with an HNSW cosine index), `ingestion_jobs`, `chat_sessions` and `chat_messages`. All IDs are UUIDs, with JSONB metadata, `updated_at` triggers and GIN metadata indexes.
+- **Tables:** `documents`, `document_chunks` (`vector(1024)` with an HNSW cosine index), `ingestion_jobs`, `chat_sessions` and `chat_messages`. All IDs are UUIDs, with JSONB metadata, `updated_at` triggers and GIN metadata indexes.
 - **Function:** `match_document_chunks(...)`. It runs as security invoker with a fixed `search_path`, and only `service_role` may execute it.
 - **Access control:** RLS is enabled on every table with no policies, and table grants are revoked from `anon` and `authenticated`. The public anon key cannot read the knowledge base or the chat logs.
 
-> Changing embedding dimensions? Edit both `vector(1536)` occurrences in the migration (column and function argument) and set `EMBEDDING_DIMENSIONS` to match, then run a forced re-sync.
+> Changing embedding dimensions? Add a migration like `20261108000000_embeddings_1024.sql` that changes the column and function argument and set `EMBEDDING_DIMENSIONS` to match, then run a forced re-sync.
 
 ## 2. Groq
 
-Create a key at console.groq.com and set `GROQ_API_KEY`. The model comes from `GROQ_MODEL` (default `openai/gpt-oss-120b`).
+Create a key at console.groq.com and set `GROQ_API_KEY`. The model comes from `GROQ_MODEL` (default `openai/gpt-oss-120b`). When it is rate-limited, chat moves to `GROQ_FALLBACK_MODEL` (default `openai/gpt-oss-20b`), then `GROQ_BACKUP_MODEL` (default `qwen/qwen3.8-27b`).
 
 The provider is `api/_lib/llm/groq.ts`, behind the `LLMProvider` interface in `api/_lib/llm/types.ts`. To switch vendors, add another implementation. The provider handles:
 
@@ -75,7 +75,7 @@ The provider is `api/_lib/llm/groq.ts`, behind the `LLMProvider` interface in `a
 
 ## 3. Embeddings
 
-Embeddings are independent of Groq. `api/_lib/embeddings/openai.ts` works with any OpenAI-compatible `/embeddings` endpoint. The default is OpenAI `text-embedding-3-small` at 1536 dimensions. Each provider implements `embedText()`, `embedDocuments()` and `getDimensions()`, and returned dimensions are checked against the config.
+Embeddings are independent of Groq. `api/_lib/embeddings/openai.ts` works with any OpenAI-compatible `/embeddings` endpoint. Production uses Jina `jina-embeddings-v3` at 1024 dimensions through `https://api.jina.ai/v1`. Each provider implements `embedText()`, `embedDocuments()` and `getDimensions()`, and returned dimensions are checked against the config.
 
 `EMBEDDING_PROVIDER=hash` is a deterministic offline embedder for tests and local experiments only. It is **not** for production.
 
@@ -144,7 +144,7 @@ Then trigger a sync against `http://localhost:3000/api/admin/sync` with your adm
 1. Run the Supabase migration (step 1).
 2. In Vercel → Project → Settings → Environment Variables, set (Production + Preview):
    - **Required:** `GROQ_API_KEY`, `EMBEDDING_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_TOKEN`, `CRON_SECRET`
-   - **Optional:** `GITHUB_TOKEN`, `GROQ_MODEL`, `ALLOWED_ORIGINS` (preview/custom domains), `RAG_*`, `RATE_LIMIT_*`
+   - **Optional:** `GITHUB_TOKEN`, `GROQ_MODEL`, `GROQ_FALLBACK_MODEL`, `GROQ_BACKUP_MODEL`, `ALLOWED_ORIGINS` (preview/custom domains), `RAG_*`, `RATE_LIMIT_*`
    - **None** of these may start with `VITE_`.
 3. Deploy. `api/*.ts` become Node serverless functions automatically. Folders starting with `_` are not routes.
 4. Run the first manual sync (step 5) and check `/api/admin/status`.

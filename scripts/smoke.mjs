@@ -135,7 +135,8 @@ try {
     await ai.waitForSelector(".pa-launcher", { timeout: 10000 });
     await ai.click(".pa-launcher");
     await ai.waitForSelector(".pa-panel", { timeout: 5000 });
-    await sleep(100);
+    // Measure the panel at rest, not partway through its entrance.
+    await ai.waitForFunction(() => document.querySelector(".pa-panel")?.getAnimations().every((a) => a.playState === "finished"), { timeout: 3000 });
     const focused = await ai.evaluate(() => document.activeElement?.id);
     check(`${label} opens with input focused`, focused === "pa-input-field", `focus=${focused}`);
     const box = await ai.$eval(".pa-panel", (el) => {
@@ -147,9 +148,9 @@ try {
     if (label === "mobile") check("mobile panel is a full-width sheet", Math.abs(box.r - box.l - box.w) < 1, `${box.r - box.l} vs ${box.w}`);
     if (label === "desktop") {
       await ai.click(".pa-suggest button");
-      await ai.waitForSelector(".pa-msg__error", { timeout: 10000 }).catch(() => {});
-      const err = await ai.$eval(".pa-msg__error", (el) => el.textContent).catch(() => "");
-      check("error state + retry when backend is absent", Boolean(err) && (await ai.$('button[aria-label="Retry"]')) !== null, err);
+      await ai.waitForSelector(".pa-error p", { timeout: 10000 }).catch(() => {});
+      const err = await ai.$eval(".pa-error p", (el) => el.textContent).catch(() => "");
+      check("error state + retry when backend is absent", Boolean(err) && (await ai.$(".pa-error button")) !== null, err);
       await ai.click('button[aria-label="Clear conversation"]');
       check("clear conversation", (await ai.$$(".pa-msg")).length === 0);
       await ai.focus("#pa-input-field");
@@ -162,8 +163,8 @@ try {
       await ai.focus("#pa-input-field");
     }
     await ai.keyboard.press("Escape");
-    await sleep(150);
-    const closed = (await ai.$(".pa-panel")) === null;
+    // The panel stays mounted for its exit animation; 1s also catches a close that never finishes.
+    const closed = await ai.waitForSelector(".pa-panel", { hidden: true, timeout: 1000 }).then(() => true, () => false);
     const back = await ai.evaluate(() => document.activeElement?.classList.contains("pa-launcher"));
     check(`${label} Escape closes and returns focus`, closed && back, `closed=${closed} focus=${back}`);
   }

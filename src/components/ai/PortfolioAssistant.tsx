@@ -5,7 +5,7 @@ import { AssistantLauncher } from "./AssistantLauncher";
 import { AssistantPanel } from "./AssistantPanel";
 import "./assistant.css";
 
-const CLOSE_FALLBACK_MS = 300;
+const CLOSE_FALLBACK_MS = 400;
 
 /** Global floating assistant, mounted once in the root layout so it persists across editions. */
 export function PortfolioAssistant() {
@@ -39,7 +39,7 @@ export function PortfolioAssistant() {
   useEffect(() => () => window.clearTimeout(closeTimer.current), []);
 
   return (
-    <div className="pa-root" data-open={open || undefined}>
+    <div className="pa-root" data-open={open || undefined} data-closing={closing || undefined}>
       {(open || closing) && <AssistantPanel chat={chat} closing={closing} onClose={close} onClosed={finishClosing} />}
       <AssistantLauncher ref={launcher} open={open} onToggle={() => (open ? close() : show())} />
     </div>

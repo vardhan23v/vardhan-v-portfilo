@@ -15,7 +15,7 @@ export function SourceReferences({ sources, highlight }: { sources: SourceRef[];
               <span className="pa-sources__text">
                 <span className="pa-sources__title">{s.title}</span>
                 <span className="pa-sources__meta">
-                  {SOURCE_LABEL[s.category]}{where ? ` · ${where}` : ""}{` · chunk ${s.chunkIndex + 1}`}
+                  {SOURCE_LABEL[s.category]}{where ? ` · ${where}` : ""}
                 </span>
               </span>
             </>

@@ -1,5 +1,5 @@
 import { useEffect, useRef, type AnimationEvent, type KeyboardEvent } from "react";
-import { Trash2, X } from "lucide-react";
+import { Sparkles, Trash2, X } from "lucide-react";
 import type { useChat } from "../../lib/ai/useChat";
 import { ChatInput } from "./ChatInput";
 import { ChatMessages } from "./ChatMessages";
@@ -47,7 +47,7 @@ export function AssistantPanel({ chat, closing, onClose, onClosed }: Props) {
   return (
     <div id="pa-panel" ref={ref} className={`pa-panel${closing ? " is-closing" : ""}`} role="dialog" aria-modal="false" aria-labelledby="pa-title" inert={closing} onKeyDown={onKey} onAnimationEnd={onAnimationEnd}>
       <header className="pa-panel__head">
-        <span className="pa-panel__dot" aria-hidden />
+        <span className="pa-panel__mark" aria-hidden><Sparkles /></span>
         <div className="pa-panel__titles">
           <h2 id="pa-title">Vardhan AI</h2>
           <p>Answers from his portfolio, GitHub and resume</p>
@@ -62,7 +62,8 @@ export function AssistantPanel({ chat, closing, onClose, onClosed }: Props) {
         onRetry={chat.retry}
         empty={
           <div className="pa-empty">
-            <p>Hi! Ask me anything about Vardhan's projects, skills or experience. Every answer cites where it came from.</p>
+            <h3 className="pa-empty__hi">Hi, I'm Vardhan AI</h3>
+            <p>Ask about his projects, skills or experience. Every answer shows where it came from.</p>
             <SuggestedQuestions onPick={chat.send} disabled={chat.busy} />
           </div>
         }

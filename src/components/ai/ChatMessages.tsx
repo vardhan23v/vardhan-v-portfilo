@@ -1,8 +1,11 @@
-import { useEffect, useRef, useState } from "react";
-import { Check, Copy, RotateCcw } from "lucide-react";
+import { useEffect, useRef, useState, type WheelEvent } from "react";
+import { ArrowDown, Check, Copy, RotateCcw } from "lucide-react";
 import type { ChatMessage } from "../../lib/ai/useChat";
+import { motionReduced } from "../../lib/motion";
 import { Markdown } from "./Markdown";
 import { SourceReferences } from "./SourceReferences";
+
+const NEAR_END_PX = 60;
 
 function MessageActions({ m, onRetry }: { m: ChatMessage; onRetry: (id: string) => void }) {
   const [copied, setCopied] = useState(false);
@@ -17,7 +20,7 @@ function MessageActions({ m, onRetry }: { m: ChatMessage; onRetry: (id: string) 
     <div className="pa-msg__actions">
       {m.status === "done" && m.content && (
         <button type="button" onClick={copy} aria-label={copied ? "Copied" : "Copy response"} title="Copy">
-          {copied ? <Check aria-hidden /> : <Copy aria-hidden />}
+          {copied ? <Check className="pa-copied" aria-hidden /> : <Copy aria-hidden />}
         </button>
       )}
       {m.status !== "streaming" && (
@@ -31,9 +34,9 @@ function AssistantBubble({ m, onRetry }: { m: ChatMessage; onRetry: (id: string)
   const [hl, setHl] = useState<number | null>(null);
   const cites = new Set((m.sources ?? []).map((s) => s.n));
   return (
-    <div className={`pa-msg pa-msg--bot${m.status === "error" ? " is-error" : ""}`}>
+    <div className={`pa-msg pa-msg--bot${m.status === "error" ? " is-error" : ""}${m.status === "streaming" && m.content ? " is-streaming" : ""}`}>
       {m.status === "streaming" && !m.content ? (
-        <div className="pa-typing" role="status" aria-label="Assistant is thinking"><i /><i /><i /></div>
+        <div className="pa-typing" role="status"><span>Thinking</span><i aria-hidden /><i aria-hidden /><i aria-hidden /></div>
       ) : (
         <Markdown className="pa-md" text={m.content} citations={cites} onCite={setHl} />
       )}
@@ -46,21 +49,51 @@ function AssistantBubble({ m, onRetry }: { m: ChatMessage; onRetry: (id: string)
 
 export function ChatMessages({ messages, onRetry, empty }: { messages: ChatMessage[]; onRetry: (id: string) => void; empty?: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
+  const following = useRef(true);
+  const seen = useRef(messages.length);
+  const [awayFromEnd, setAwayFromEnd] = useState(false);
   const last = messages[messages.length - 1];
+
   useEffect(() => {
     const el = ref.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    if (!el) return;
+    // A new question always returns to the end; streamed text only follows a reader who stayed there.
+    if (messages.length !== seen.current) following.current = true;
+    seen.current = messages.length;
+    if (following.current) el.scrollTop = el.scrollHeight;
   }, [messages.length, last?.content, last?.status]);
 
+  const onScroll = () => {
+    const el = ref.current;
+    if (!el) return;
+    following.current = el.scrollHeight - el.scrollTop - el.clientHeight < NEAR_END_PX;
+    setAwayFromEnd(!following.current);
+  };
+
+  // Scroll events arrive a frame late, so a fast stream could pull the reader back first.
+  const stopFollowing = (e: WheelEvent<HTMLDivElement>) => {
+    if (e.deltaY < 0) following.current = false;
+  };
+
+  const jumpToEnd = () => {
+    following.current = true;
+    ref.current?.scrollTo({ top: ref.current.scrollHeight, behavior: motionReduced() ? "auto" : "smooth" });
+  };
+
   return (
-    <div className="pa-messages" ref={ref} role="log" aria-live="polite" aria-relevant="additions" aria-busy={last?.status === "streaming"}>
-      {messages.length === 0 && empty}
-      {messages.map((m) =>
-        m.role === "user" ? (
-          <div key={m.id} className="pa-msg pa-msg--me"><p>{m.content}</p></div>
-        ) : (
-          <AssistantBubble key={m.id} m={m} onRetry={onRetry} />
-        ),
+    <div className="pa-messages-wrap">
+      <div className="pa-messages" ref={ref} onScroll={onScroll} onWheel={stopFollowing} onTouchMove={() => { following.current = false; }} role="log" aria-live="polite" aria-relevant="additions" aria-busy={last?.status === "streaming"}>
+        {messages.length === 0 && empty}
+        {messages.map((m) =>
+          m.role === "user" ? (
+            <div key={m.id} className="pa-msg pa-msg--me"><p>{m.content}</p></div>
+          ) : (
+            <AssistantBubble key={m.id} m={m} onRetry={onRetry} />
+          ),
+        )}
+      </div>
+      {awayFromEnd && (
+        <button type="button" className="pa-jump" onClick={jumpToEnd}><ArrowDown aria-hidden />Latest</button>
       )}
     </div>
   );

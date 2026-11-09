@@ -68,7 +68,7 @@ const FOLLOW_UP = /\b(it|its|that|this|those|these|them|they|former|latter|first
 export const JUDGEMENT = /\b(strongest|best|most (?:impressive|complex|challenging|difficult)|hardest|favou?rite|stand ?out|more (?:complex|impressive|difficult)|compare|versus|vs)\b/i;
 export const HIRING = /\b(hire|hiring|fit for|good fit|right fit|why (?:him|vardhan)|strengths?|qualified)\b/i;
 const EXPERIENCE = /\b(experience|internships?|intern|employ\w*|career|jobs?|compan(?:y|ies))\b/i;
-const CONTACT = /\b(e-?mail|contact|reach|linkedin|phone)\b/i;
+const CONTACT = /\b(e-?mail|contact|reach|linkedin|phone|locat\w*|based in|where (?:is|does) (?:he|vardhan) (?:from|live))\b/i;
 const EDUCATION = /\b(study|studied|studying|education|degree|college|university|school|b\.?tech|cgpa)\b/i;
 const STOPWORDS = new Set("list all any give show the and for with has have had his him was were are does did what which where when who why how can could would should about from that this those these they them built build used using use know work worked project projects tell please vardhan".split(" "));
 

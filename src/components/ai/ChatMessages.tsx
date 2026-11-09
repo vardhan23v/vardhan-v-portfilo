@@ -30,19 +30,24 @@ function MessageActions({ m, onRetry }: { m: ChatMessage; onRetry: (id: string) 
   );
 }
 
-function AssistantBubble({ m, onRetry }: { m: ChatMessage; onRetry: (id: string) => void }) {
+function AssistantBubble({ m, isNew, onRetry }: { m: ChatMessage; isNew: boolean; onRetry: (id: string) => void }) {
   const [hl, setHl] = useState<number | null>(null);
   const cites = new Set((m.sources ?? []).map((s) => s.n));
   return (
-    <div className={`pa-msg pa-msg--bot${m.status === "error" ? " is-error" : ""}${m.status === "streaming" && m.content ? " is-streaming" : ""}`}>
+    <div className={`pa-msg pa-msg--bot${isNew ? " is-new" : ""}${m.status === "error" ? " is-error" : ""}${m.status === "streaming" && m.content ? " is-streaming" : ""}`}>
       {m.status === "streaming" && !m.content ? (
         <div className="pa-typing" role="status"><span>Thinking</span><i aria-hidden /><i aria-hidden /><i aria-hidden /></div>
       ) : (
-        <Markdown className="pa-md" text={m.content} citations={cites} onCite={setHl} />
+        m.content && <Markdown className="pa-md" text={m.content} citations={cites} onCite={setHl} />
       )}
-      {m.status === "error" && <p className="pa-msg__error" role="alert">{m.error}</p>}
+      {m.status === "error" && (
+        <div className="pa-error" role="alert">
+          <p>{m.error}</p>
+          <button type="button" onClick={() => onRetry(m.id)}><RotateCcw aria-hidden />Try again</button>
+        </div>
+      )}
       {m.sources && <SourceReferences sources={m.sources} highlight={hl} />}
-      <MessageActions m={m} onRetry={onRetry} />
+      {m.status !== "error" && <MessageActions m={m} onRetry={onRetry} />}
     </div>
   );
 }
@@ -51,6 +56,8 @@ export function ChatMessages({ messages, onRetry, empty }: { messages: ChatMessa
   const ref = useRef<HTMLDivElement>(null);
   const following = useRef(true);
   const seen = useRef(messages.length);
+  // Messages from before this panel opened are history, so they don't replay their entrance.
+  const [openedAt] = useState(() => Date.now());
   const [awayFromEnd, setAwayFromEnd] = useState(false);
   const last = messages[messages.length - 1];
 
@@ -86,15 +93,13 @@ export function ChatMessages({ messages, onRetry, empty }: { messages: ChatMessa
         {messages.length === 0 && empty}
         {messages.map((m) =>
           m.role === "user" ? (
-            <div key={m.id} className="pa-msg pa-msg--me"><p>{m.content}</p></div>
+            <div key={m.id} className={`pa-msg pa-msg--me${m.at >= openedAt ? " is-new" : ""}`}><p>{m.content}</p></div>
           ) : (
-            <AssistantBubble key={m.id} m={m} onRetry={onRetry} />
+            <AssistantBubble key={m.id} m={m} isNew={m.at >= openedAt} onRetry={onRetry} />
           ),
         )}
       </div>
-      {awayFromEnd && (
-        <button type="button" className="pa-jump" onClick={jumpToEnd}><ArrowDown aria-hidden />Latest</button>
-      )}
+      <button type="button" className={`pa-jump${awayFromEnd ? " is-visible" : ""}`} onClick={jumpToEnd}><ArrowDown aria-hidden />Latest</button>
     </div>
   );
 }

@@ -294,6 +294,14 @@ describe("reasoning pipeline", () => {
     expect(llm.calls.length).toBe(2);
   });
 
+  it("answers location questions from the contact details", async () => {
+    const deps = await indexedPortfolio();
+    for (const q of ["Where is he located?", "What is his location?", "Where does he live?"]) {
+      const got = await retrieve(q, deps, { topK: 3, threshold: 0.05, maxContextTokens: 2800, plan: { intent: "fact", standalone: q, searches: [], terms: [] } });
+      expect(got.map((c) => c.title)).toContain("Contact details");
+    }
+  });
+
   it("always includes career and contact facts when asked", async () => {
     const deps = await indexedPortfolio();
     const got = await retrieve("What is his email and work experience?", deps, { topK: 3, threshold: 0.05, maxContextTokens: 2800, plan: { intent: "fact", standalone: "What is his email and work experience?", searches: [], terms: [] } });

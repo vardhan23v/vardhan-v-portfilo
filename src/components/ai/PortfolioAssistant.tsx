@@ -11,6 +11,7 @@ const CLOSE_FALLBACK_MS = 400;
 export function PortfolioAssistant() {
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
+  const [reopened, setReopened] = useState(false);
   const chat = useChat("global");
   const launcher = useRef<HTMLButtonElement>(null);
   const closeTimer = useRef<number | undefined>(undefined);
@@ -22,6 +23,7 @@ export function PortfolioAssistant() {
 
   const close = useCallback(() => {
     setOpen(false);
+    setReopened(false);
     if (!motionReduced()) {
       setClosing(true);
       // animationend is the normal exit; this covers a hidden tab or a skipped animation.
@@ -32,15 +34,23 @@ export function PortfolioAssistant() {
   }, [finishClosing]);
 
   const show = useCallback(() => {
+    // Reopened mid-close: continue from where the panel is now instead of restarting.
+    const panel = closing ? document.getElementById("pa-panel") : null;
+    if (panel) {
+      const now = getComputedStyle(panel);
+      panel.style.setProperty("--pa-from-opacity", now.opacity);
+      panel.style.setProperty("--pa-from-transform", now.transform);
+    }
+    setReopened(Boolean(panel));
     finishClosing();
     setOpen(true);
-  }, [finishClosing]);
+  }, [closing, finishClosing]);
 
   useEffect(() => () => window.clearTimeout(closeTimer.current), []);
 
   return (
     <div className="pa-root" data-open={open || undefined} data-closing={closing || undefined}>
-      {(open || closing) && <AssistantPanel chat={chat} closing={closing} onClose={close} onClosed={finishClosing} />}
+      {(open || closing) && <AssistantPanel chat={chat} closing={closing} reopened={reopened} onClose={close} onClosed={finishClosing} />}
       <AssistantLauncher ref={launcher} open={open} onToggle={() => (open ? close() : show())} />
     </div>
   );

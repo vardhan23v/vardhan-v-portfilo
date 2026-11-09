@@ -19,7 +19,7 @@ export function About() {
               The latest one turns a plain-English prompt into a working Chrome extension. Since March 2026 I have held {experience.length} roles, currently as {latest.role.toLowerCase().startsWith("ai") ? "an" : "a"} {latest.role} at {latest.company}, and I write TypeScript end to end.
             </p>
             <p>
-              Hackathons are where I build the real-time and agent-based systems, and every project is on GitHub with its source. I am {site.availability.toLowerCase().replace("&", "and")}.
+              Hackathons are where I build the real-time and agent-based systems, and every project is on GitHub with its source. I am {site.availability.toLowerCase().replace(/&/g, "and")}.
             </p>
           </div>
           <dl className="about-facts">

@@ -10,11 +10,12 @@ type Chat = ReturnType<typeof useChat>;
 interface Props {
   chat: Chat;
   closing: boolean;
+  reopened: boolean;
   onClose: () => void;
   onClosed: () => void;
 }
 
-export function AssistantPanel({ chat, closing, onClose, onClosed }: Props) {
+export function AssistantPanel({ chat, closing, reopened, onClose, onClosed }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
   // Escape closes; stopPropagation keeps the command palette / mac window manager from also reacting.
@@ -45,7 +46,7 @@ export function AssistantPanel({ chat, closing, onClose, onClosed }: Props) {
   };
 
   return (
-    <div id="pa-panel" ref={ref} className={`pa-panel${closing ? " is-closing" : ""}`} role="dialog" aria-modal="false" aria-labelledby="pa-title" inert={closing} onKeyDown={onKey} onAnimationEnd={onAnimationEnd}>
+    <div id="pa-panel" ref={ref} className={`pa-panel${closing ? " is-closing" : ""}${reopened && !closing ? " is-reopened" : ""}`} role="dialog" aria-modal="false" aria-labelledby="pa-title" inert={closing} onKeyDown={onKey} onAnimationEnd={onAnimationEnd}>
       <header className="pa-panel__head">
         <span className="pa-panel__mark" aria-hidden><Sparkles /></span>
         <div className="pa-panel__titles">
@@ -53,7 +54,7 @@ export function AssistantPanel({ chat, closing, onClose, onClosed }: Props) {
           <p>Answers from his portfolio, GitHub and resume</p>
         </div>
         {chat.messages.length > 0 && (
-          <button type="button" className="pa-icon" onClick={chat.clear} aria-label="Clear conversation" title="Clear conversation"><Trash2 aria-hidden /></button>
+          <button type="button" className="pa-icon pa-icon--clear" onClick={chat.clear} aria-label="Clear conversation" title="Clear conversation"><Trash2 aria-hidden /></button>
         )}
         <button type="button" className="pa-icon" onClick={onClose} aria-label="Close assistant"><X aria-hidden /></button>
       </header>

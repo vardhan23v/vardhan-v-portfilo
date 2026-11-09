@@ -13,8 +13,7 @@ interface Props {
 
 /** Render assistant Markdown as React elements — no innerHTML, links sanitized in the parser. */
 export function Markdown({ text, onAppLink, citations, onCite, className }: Props) {
-  const inline = (nodes: Inline[]): ReactNode =>
-    nodes.map((n, i) => {
+  const node = (n: Inline, i: number): ReactNode => {
       switch (n.t) {
         case "text": return <Fragment key={i}>{n.v}</Fragment>;
         case "strong": return <strong key={i}>{inline(n.c)}</strong>;
@@ -36,7 +35,24 @@ export function Markdown({ text, onAppLink, citations, onCite, className }: Prop
             <a key={i} href={n.href} target="_blank" rel="noopener noreferrer">{inline(n.c)}</a>
           );
       }
+  };
+
+  // Neighbouring citations share a no-wrap group, so [1][2] can't split across lines.
+  const inline = (nodes: Inline[]): ReactNode => {
+    const out: ReactNode[] = [];
+    let run: ReactNode[] = [];
+    const flush = () => {
+      if (run.length) out.push(<span key={`c${out.length}`} className="pa-cites">{run}</span>);
+      run = [];
+    };
+    nodes.forEach((n, i) => {
+      if (n.t === "cite") { run.push(node(n, i)); return; }
+      flush();
+      out.push(node(n, i));
     });
+    flush();
+    return out;
+  };
 
   return (
     <div className={className}>

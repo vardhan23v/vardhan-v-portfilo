@@ -12,7 +12,7 @@ export function Hero() {
       <div className="wrap hero-grid">
         <div className="hero-copy">
           <p className="hero-status" data-load style={{ "--d": "40ms" } as React.CSSProperties}>
-            <span className="hero-dot" aria-hidden="true" />{site.availability.replace("&", "and")}
+            <span className="hero-dot" aria-hidden="true" />{site.availability.replace(/&/g, "and")}
           </p>
           <p className="hero-role" data-load style={{ "--d": "120ms" } as React.CSSProperties}>Generative AI and full-stack developer</p>
           <h1 className="hero-title" id="hero-h1"><span className="mask"><span className="mask-in">Sree Vardhan V</span></span></h1>

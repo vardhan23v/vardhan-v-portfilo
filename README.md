@@ -8,16 +8,25 @@
 [![GitHub](https://img.shields.io/badge/GitHub-vardhan23v-7c6cff?style=for-the-badge&logo=github&logoColor=white)](https://github.com/vardhan23v)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-vardhan--v23-0a66c2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/vardhan-v23)
 
-[![CI](https://github.com/vardhan23v/vardhan-v-portfilo/actions/workflows/ci.yml/badge.svg)](https://github.com/vardhan23v/vardhan-v-portfilo/actions/workflows/ci.yml)
-[![Vercel](https://img.shields.io/badge/Vercel-Ready-black?style=for-the-badge&logo=vercel&logoColor=white)](https://vardhan-v-portfilo.vercel.app)
+[![CI](https://img.shields.io/github/actions/workflow/status/vardhan23v/vardhan-v-portfilo/ci.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/vardhan23v/vardhan-v-portfilo/actions/workflows/ci.yml)
+[![CodeQL](https://img.shields.io/github/actions/workflow/status/vardhan23v/vardhan-v-portfilo/codeql.yml?branch=main&style=for-the-badge&logo=github&logoColor=white&label=CodeQL)](https://github.com/vardhan23v/vardhan-v-portfilo/actions/workflows/codeql.yml)
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fvardhan-v-portfilo.vercel.app&style=for-the-badge&logo=vercel&logoColor=white&label=site&up_message=online&down_message=offline)](https://vardhan-v-portfilo.vercel.app)
+[![Last commit](https://img.shields.io/github/last-commit/vardhan23v/vardhan-v-portfilo/main?style=for-the-badge&logo=git&logoColor=white)](https://github.com/vardhan23v/vardhan-v-portfilo/commits/main)
+
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
 [![Vite](https://img.shields.io/badge/Vite-8.2-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![CSS](https://img.shields.io/badge/CSS-663399?style=for-the-badge&logo=css3&logoColor=white)](#-tech-stack)
+[![CSS](https://img.shields.io/badge/CSS-663399?style=for-the-badge&logo=css&logoColor=white)](#-tech-stack)
+[![Vitest](https://img.shields.io/badge/Vitest-5-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev)
 [![Bundle](https://img.shields.io/badge/bundle-~132kB_JS_+_~37kB_CSS_gzip-7c6cff?style=for-the-badge)](#-tech-stack)
 [![Editions](https://img.shields.io/badge/editions-7_interfaces_+_landing-a78bfa?style=for-the-badge)](#-editions)
 
-[![Aurora 2.0](https://img.shields.io/badge/Aurora-2.0-luminous-22d3ee?style=for-the-badge)](#aurora-20--luminous-interactive)
+[![Vardhan AI](https://img.shields.io/badge/Vardhan_AI-RAG_assistant-6ea8ff?style=for-the-badge)](#-whats-new--nov-9-2026--vardhan-ai-motion-and-reasoning)
+[![Groq](https://img.shields.io/badge/Groq-chat-F55036?style=for-the-badge)](docs/RAG_ASSISTANT.md)
+[![Jina AI](https://img.shields.io/badge/Jina_AI-embeddings-111827?style=for-the-badge)](docs/RAG_ASSISTANT.md)
+[![Supabase](https://img.shields.io/badge/Supabase-pgvector-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white)](docs/RAG_ASSISTANT.md)
+
+[![Aurora 2.0](https://img.shields.io/badge/Aurora-2.0_luminous-22d3ee?style=for-the-badge)](#aurora-20--luminous-interactive)
 [![Classic](https://img.shields.io/badge/Classic-starry_night-9cc0ff?style=for-the-badge)](#-whats-new--nov-1-2026--classic-starry-night)
 [![Atlas](https://img.shields.io/badge/Atlas-survey_atlas-ff5b24?style=for-the-badge)](#-whats-new--nov-2-2026--atlas-case-studies-and-a-site-wide-pass)
 [![Motion](https://img.shields.io/badge/motion-View_Transitions_+_scroll--driven-38bdf8?style=for-the-badge)](#-tech-stack)
@@ -41,6 +50,8 @@ A production-quality portfolio positioning me as a **Generative AI Developer & F
 - **Open and close animations** — the panel grows out of the launcher and shrinks back into it, its sections fade up in a short stagger, and the launcher icon rotates between chat and close. On phones it slides up and down as a bottom sheet. CSS only, no animation library, and switched off when reduced motion is on.
 - **Better reasoning** — each question is planned first, follow-ups are rewritten to stand alone, and judgement or comparison questions see an overview of every project. “Which projects use X” runs an exact text search, so answers don't claim “only” without a complete list.
 - **Free-tier backend** — embeddings moved to Jina (`jina-embeddings-v3`, 1024 dimensions). Chat falls back through three Groq models when rate-limited: `openai/gpt-oss-120b`, `openai/gpt-oss-20b`, then `qwen/qwen3.8-27b`.
+- **Reading and recovery** — visitors can scroll up while an answer streams and return with a “Latest” button. A busy or failed request shows a calm card with **Try again**, and questions about his location now use the contact details.
+- **Quality checks** — the CI smoke test covers the assistant's open, close, keyboard and error states, and the open code scanning alerts are resolved.
 
 ---
 
@@ -152,6 +163,7 @@ The site opens on a **landing page with a live edition picker** — a browser-fr
 | Styling | **Hand-written CSS per edition** — tokens (`--bg`, `--accent`, `--surface`) `src/classic/styles/classic.css:1`, `src/aurora/styles/aurora.css:5` | Zero UI lib; hand-written CSS, no utility framework |
 | Animation | View Transitions, `animation-timeline: view()` + `IntersectionObserver` `useReveal` `src/hooks/useReveal.tsx:1` (one hook shared by Classic/Terminal/macOS), `useTilt`/`useMagnetic`, `Aurora 2.0` modal/toolbar/lab + Classic sky parallax/reveals (`src/classic/useEffects.ts`) `src/styles/motion.css:1` | All `prefers-reduced-motion: reduce` safe — the OS setting is the default; no animation library |
 | Icons | `lucide-react` + custom `Icon` `src/classic/lib/icons.tsx:1` (20+ glyphs) | No huge icon packs |
+| AI assistant | **Groq** chat, **Jina** embeddings, **Supabase pgvector**, Vercel functions in `api/` | Streaming answers with cited sources; setup in `docs/RAG_ASSISTANT.md` |
 | Data | GitHub REST (live stats, session cache) | Fallback `33 followers`/`60 repos` (`src/classic/data/stats.ts`) |
 | QA | `vitest` + `puppeteer` + `oxlint` + GitHub Actions | `npm run lint` — 0 errors baseline; `npm test`; `npm run smoke` |
 | Deploy | **Vercel** `vercel.json:1` `{rewrites:[{source:"/(.*)",destination:"/index.html"}]}` auto-deploy on `main` | `project.json: team_InTZCfnybRSk3JlAYIXFN3UA` |

@@ -1347,7 +1347,8 @@
 .fg-proj-links {
   margin-top: 30px;
   display: flex;
-  gap: 24px;
+  flex-wrap: wrap;
+  gap: 6px 24px;
 }
 
 .fg-proj-link {
@@ -1360,8 +1361,11 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--fg-text);
+  white-space: nowrap;
   transition: color 0.2s ease;
 }
+
+button.fg-proj-link { padding: 0; border: 0; background: none; cursor: pointer; }
 
 .fg-proj-link span {
   transition: transform 0.25s ease;

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { caseStudies } from "../data/work";
+import { aboutProject, askAssistant } from "../../lib/ai/ask";
 
 /** Old terminal slugs → current ones (kept so shared links keep working). */
 const LEGACY: Record<string, string> = { "code-reviewer": "ai-code-reviewer" };
@@ -52,6 +53,8 @@ export function WorkDetail() {
           </a>
           <span className="bracket">·</span>
           <Link to={`/work/${p.slug}`} state={{ from: "/terminal" }}>open ./share-page</Link>
+          <span className="bracket">·</span>
+          <button type="button" data-ask-ai onClick={() => askAssistant(aboutProject(p.name))}>ask --ai<span className="sr-only"> about {p.name}</span></button>
           <span className="bracket case-keys" aria-hidden="true">[ / ] prev · next</span>
         </div>
 

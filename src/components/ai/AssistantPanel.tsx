@@ -73,6 +73,7 @@ export function AssistantPanel({ chat, closing, reopened, onClose, onClosed }: P
       <ChatMessages
         messages={chat.messages}
         onRetry={chat.retry}
+        onPick={chat.send}
         empty={
           <div className="pa-empty">
             <h3 className="pa-empty__hi">Hi, I'm Vardhan AI</h3>

@@ -22,6 +22,7 @@ import { site } from "../classic/data/site";
 import { github, aiStack } from "../classic/data/stats";
 import "./styles/forge.css";
 import { motionReduced } from "../lib/motion";
+import { aboutProject, askAssistant } from "../lib/ai/ask";
 
 function getCategory(p: Project): string {
   return (p.kicker ?? CATEGORY_LABEL[p.category]).toUpperCase();
@@ -833,6 +834,9 @@ function ProjectCard({ p, i }: { p: (typeof FORGE_PROJECTS)[number]; i: number }
             </a>
           )}
           {hasCaseStudy(p.slug) && <Link to={caseStudyPath(p.slug)} state={{ from: "/forge" }} className="fg-proj-link">Case study →</Link>}
+          <button type="button" className="fg-proj-link" data-ask-ai onClick={() => askAssistant(aboutProject(p.name))}>
+            Ask AI<span className="sr-only"> about {p.name}</span> <span aria-hidden="true">✦</span>
+          </button>
         </div>
         <span className="fg-proj-emoji" aria-hidden="true">{p.emoji}</span>
         </div>

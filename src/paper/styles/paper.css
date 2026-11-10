@@ -367,19 +367,22 @@
 
 .paper-work-links {
   display: flex;
-  gap: 18px;
+  flex-wrap: wrap;
+  gap: 4px 18px;
   margin-top: 16px;
   font-family: var(--mono);
   font-size: 12px;
   color: var(--ink-2);
 }
 
-.paper-work-links a {
+.paper-work-links button { padding: 0; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; }
+
+.paper-work-links :is(a, button) {
   border-bottom: 1px solid var(--rule);
   transition: color 0.2s ease, border-color 0.2s ease;
 }
 
-.paper-work-links a:hover {
+.paper-work-links :is(a, button):hover {
   color: var(--accent);
   border-color: var(--accent);
 }
@@ -671,4 +674,4 @@ html[data-motion="reduce"] {
 }
 
 /* ---------- touch targets: every control at least 24×24px (WCAG 2.5.8); text sizes unchanged ---------- */
-.paper-nav-links a, .paper-mast-meta a, .paper-work-links a, .paper-foot-links a, .paper-eng-btn { min-height: 24px; display: inline-flex; align-items: center; }
+.paper-nav-links a, .paper-mast-meta a, .paper-work-links :is(a, button), .paper-foot-links a, .paper-eng-btn { min-height: 24px; display: inline-flex; align-items: center; }

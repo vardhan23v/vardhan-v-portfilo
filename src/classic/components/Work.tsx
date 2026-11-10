@@ -8,6 +8,7 @@ import { ProjectDialog } from "./ProjectDialog";
 import { Builds } from "./Builds";
 import { Link } from "react-router-dom";
 import { caseStudyPath, hasCaseStudy } from "../../work/links";
+import { aboutProject, askAssistant } from "../../lib/ai/ask";
 
 const featured = FEATURED_SLUGS.map((s) => featuredProjects.find((p) => p.slug === s)).filter((p): p is Project => Boolean(p));
 const rest = featuredProjects.filter((p) => !featured.includes(p));
@@ -27,6 +28,7 @@ function Links({ p, onOpen }: { p: Project; onOpen?: () => void }) {
       {p.live && <a className="link" href={p.live} target="_blank" rel="noopener noreferrer">Live app<span className="sr-only"> for {p.name} (opens in a new tab)</span></a>}
       <a className="link" href={p.github} target="_blank" rel="noopener noreferrer">Source<span className="sr-only"> for {p.name} on GitHub (opens in a new tab)</span></a>
       {hasCaseStudy(p.slug) && <Link className="link" to={caseStudyPath(p.slug)} state={{ from: "/classic" }}>Case study<span className="sr-only"> of {p.name}</span></Link>}
+      <button type="button" className="link link-btn" data-ask-ai onClick={() => askAssistant(aboutProject(p.name))}>Ask AI<span className="sr-only"> about {p.name}</span></button>
     </p>
   );
 }

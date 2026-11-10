@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import { ChatError, parseEventStream, prepareHistory, streamAnswer } from "../src/lib/ai/chatService";
 import { parseInline, parseMarkdown, safeHref } from "../src/lib/ai/markdown";
+import { followUps } from "../src/lib/ai/followups";
+import type { ChatMessage } from "../src/lib/ai/useChat";
 import { localIntent } from "../src/mac/lib/aiIntents";
 import { featuredProjects } from "../src/classic/data/projects";
 import { streamChat } from "../api/_lib/chat";
@@ -107,5 +109,43 @@ describe("macOS AI local navigation intents", () => {
     expect(localIntent("Tell me about HPL Auction")).toBeNull();
     expect(localIntent("How can I contact him?")).toBeNull();
     expect(localIntent("open the pod bay doors")).toBeNull();
+  });
+});
+
+describe("follow-up questions", () => {
+  const msg = (role: "user" | "assistant", content: string, extra: Partial<ChatMessage> = {}): ChatMessage => ({ id: content, role, content, status: "done", at: 0, ...extra });
+  const src = (title: string, repo?: string) => ({ n: 1, chunkId: "c", title, category: "github" as const, repo, chunkIndex: 0, similarity: 0.8 });
+
+  it("asks about the project named in the question", () => {
+    const next = followUps([msg("user", "Tell me about HPL Auction"), msg("assistant", "It is an auction app.")]);
+    expect(next).toHaveLength(3);
+    expect(next[0]).toBe("What is the tech stack of HPL Auction?");
+  });
+
+  it("falls back to the project in the sources", () => {
+    const repo = featuredProjects[0].github.split("/").pop();
+    const next = followUps([msg("user", "What uses LLMs?"), msg("assistant", "One does.", { sources: [src("README", repo)] })]);
+    expect(next[0]).toContain(featuredProjects[0].name);
+  });
+
+  it("offers general questions when no project is involved or the answer was unsupported", () => {
+    expect(followUps([msg("user", "Where is he based?"), msg("assistant", "India.")]).every((q) => !q.includes("tech stack of"))).toBe(true);
+    const refused = followUps([msg("user", "Tell me about HPL Auction"), msg("assistant", "I don't have verified information.", { supported: false })]);
+    expect(refused.some((q) => q.includes("HPL Auction"))).toBe(false);
+  });
+
+  it("never repeats a question already asked", () => {
+    const next = followUps([
+      msg("user", "Tell me about HPL Auction"), msg("assistant", "An auction app."),
+      msg("user", "what is the tech stack of HPL Auction"), msg("assistant", "React."),
+    ]);
+    expect(next).not.toContain("What is the tech stack of HPL Auction?");
+    expect(next).toHaveLength(3);
+  });
+
+  it("offers nothing while an answer is streaming or after an error", () => {
+    expect(followUps([])).toEqual([]);
+    expect(followUps([msg("user", "Hi"), msg("assistant", "", { status: "streaming" })])).toEqual([]);
+    expect(followUps([msg("user", "Hi"), msg("assistant", "", { status: "error" })])).toEqual([]);
   });
 });

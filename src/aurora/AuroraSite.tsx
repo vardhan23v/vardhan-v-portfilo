@@ -19,6 +19,7 @@ import { Icon } from "../classic/lib/icons";
 import { ExpandableTabs, type ExpandableTabItem } from "../components/ui/expandable-tabs";
 import "./styles/aurora.css";
 import { motionReduced } from "../lib/motion";
+import { aboutProject, askAssistant } from "../lib/ai/ask";
 import { mailtoHref, sendMessage } from "../lib/contact";
 
 export const auroraProjects = featuredProjects;
@@ -414,6 +415,9 @@ function ProjectModal({
             </a>
           )}
           {hasCaseStudy(p.slug) && <Link to={caseStudyPath(p.slug)} state={{ from: "/aurora" }} className="aurora-btn au-modal-btn">Case study →</Link>}
+          <button type="button" className="aurora-btn au-modal-btn" data-ask-ai onClick={() => { onClose(); askAssistant(aboutProject(p.name)); }}>
+            Ask AI <span aria-hidden="true">✦</span>
+          </button>
           <button type="button" className="aurora-btn au-modal-btn" onClick={copyLink}>
             Copy link <span aria-hidden="true">⧉</span>
           </button>

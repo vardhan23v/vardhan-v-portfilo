@@ -1,17 +1,20 @@
 import { ArrowUpRight } from "lucide-react";
+import { STARTER_QUESTIONS } from "../../lib/ai/followups";
 
-const DEFAULT_SUGGESTIONS = [
-  "What has Vardhan built with AI?",
-  "Explain the architecture of Extension AI",
-  "What is his tech stack?",
-  "How can I contact him?",
-];
+interface Props {
+  items?: string[];
+  onPick: (q: string) => void;
+  disabled?: boolean;
+  /** "chips" is the compact row shown under an answer. */
+  variant?: "list" | "chips";
+}
 
-export function SuggestedQuestions({ items = DEFAULT_SUGGESTIONS, onPick, disabled }: { items?: string[]; onPick: (q: string) => void; disabled?: boolean }) {
+export function SuggestedQuestions({ items = STARTER_QUESTIONS, onPick, disabled, variant = "list" }: Props) {
+  const chips = variant === "chips";
   return (
-    <ul className="pa-suggest" aria-label="Suggested questions">
+    <ul className={`pa-suggest${chips ? " pa-suggest--chips" : ""}`} aria-label={chips ? "Follow-up questions" : "Suggested questions"}>
       {items.map((q) => (
-        <li key={q}><button type="button" onClick={() => onPick(q)} disabled={disabled}><span>{q}</span><ArrowUpRight aria-hidden /></button></li>
+        <li key={q}><button type="button" onClick={() => onPick(q)} disabled={disabled}><span>{q}</span>{!chips && <ArrowUpRight aria-hidden />}</button></li>
       ))}
     </ul>
   );

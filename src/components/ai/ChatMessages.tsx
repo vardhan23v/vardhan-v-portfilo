@@ -4,6 +4,8 @@ import type { ChatMessage } from "../../lib/ai/useChat";
 import { motionReduced } from "../../lib/motion";
 import { Markdown } from "./Markdown";
 import { SourceReferences } from "./SourceReferences";
+import { SuggestedQuestions } from "./SuggestedQuestions";
+import { followUps } from "../../lib/ai/followups";
 
 const NEAR_END_PX = 60;
 
@@ -52,7 +54,7 @@ function AssistantBubble({ m, isNew, onRetry }: { m: ChatMessage; isNew: boolean
   );
 }
 
-export function ChatMessages({ messages, onRetry, empty }: { messages: ChatMessage[]; onRetry: (id: string) => void; empty?: React.ReactNode }) {
+export function ChatMessages({ messages, onRetry, onPick, empty }: { messages: ChatMessage[]; onRetry: (id: string) => void; onPick?: (q: string) => void; empty?: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   const following = useRef(true);
   const seen = useRef(messages.length);
@@ -60,6 +62,7 @@ export function ChatMessages({ messages, onRetry, empty }: { messages: ChatMessa
   const [openedAt] = useState(() => Date.now());
   const [awayFromEnd, setAwayFromEnd] = useState(false);
   const last = messages[messages.length - 1];
+  const next = onPick ? followUps(messages) : [];
 
   useEffect(() => {
     const el = ref.current;
@@ -98,6 +101,7 @@ export function ChatMessages({ messages, onRetry, empty }: { messages: ChatMessa
             <AssistantBubble key={m.id} m={m} isNew={m.at >= openedAt} onRetry={onRetry} />
           ),
         )}
+        {onPick && next.length > 0 && <SuggestedQuestions variant="chips" items={next} onPick={onPick} />}
       </div>
       <button type="button" className={`pa-jump${awayFromEnd ? " is-visible" : ""}`} onClick={jumpToEnd}><ArrowDown aria-hidden />Latest</button>
     </div>

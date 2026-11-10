@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useChat } from "../../lib/ai/useChat";
+import { ASK_EVENT } from "../../lib/ai/ask";
 import { motionReduced } from "../../lib/motion";
 import { AssistantLauncher } from "./AssistantLauncher";
 import { AssistantPanel } from "./AssistantPanel";
@@ -47,6 +48,19 @@ export function PortfolioAssistant() {
   }, [closing, finishClosing]);
 
   useEffect(() => () => window.clearTimeout(closeTimer.current), []);
+
+  // "Ask AI" buttons around the site: open the panel and ask. send() ignores it mid-answer.
+  const { send } = chat;
+  useEffect(() => {
+    const onAsk = (e: Event) => {
+      const q = (e as CustomEvent<string>).detail;
+      if (typeof q !== "string" || !q.trim()) return;
+      show();
+      send(q);
+    };
+    window.addEventListener(ASK_EVENT, onAsk);
+    return () => window.removeEventListener(ASK_EVENT, onAsk);
+  }, [show, send]);
 
   return (
     <div className="pa-root" data-open={open || undefined} data-closing={closing || undefined}>

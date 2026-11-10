@@ -1155,11 +1155,13 @@ html[data-motion="reduce"] .terminal-root::after {
   flex-wrap: wrap;
 }
 
-.terminal-root .case-nav-top a {
+.terminal-root .case-nav-top button { padding: 0; border: 0; background: none; font: inherit; cursor: pointer; }
+
+.terminal-root .case-nav-top :is(a, button) {
   color: var(--cyan);
 }
 
-.terminal-root .case-nav-top a:hover {
+.terminal-root .case-nav-top :is(a, button):hover {
   text-decoration: underline;
 }
 
@@ -2885,7 +2887,7 @@ html[data-motion="reduce"] .terminal-root .pipe-rail i { transform: scaleX(1); }
 .terminal-root .tlink, .terminal-root .tlink-dim { min-height: 24px; min-width: 24px; justify-content: center; display: inline-flex; align-items: center; }
 .terminal-root .contact-channels a { min-height: 26px; display: inline-flex; align-items: center; }
 .terminal-root .shell-input { min-height: 24px; }
-.terminal-root .footer-inner a, .terminal-root .case-nav-top a, .terminal-root .case-prevnext a { min-height: 24px; display: inline-flex; align-items: center; }
+.terminal-root .footer-inner a, .terminal-root .case-nav-top :is(a, button), .terminal-root .case-prevnext a { min-height: 24px; display: inline-flex; align-items: center; }
 
 /* A comment inside a solid button reads as part of the label. */
 .terminal-root button .bracket { color: inherit; }

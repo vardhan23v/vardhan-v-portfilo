@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Search, ExternalLink, X, LayoutGrid, Rows3, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ExternalLink, Sparkles, X, LayoutGrid, Rows3, ChevronLeft, ChevronRight } from "lucide-react";
 import { GithubIcon } from "../../lib/icons";
 import { useNav } from "../../hooks/useNav";
 import { usePalette } from "../../hooks/usePalette";
@@ -9,6 +9,7 @@ import { catOf, categoryCounts, CATEGORY_LABELS, type ProjectCategory } from "..
 import { Reveal } from "../../components/ui/Reveal";
 import { useTilt } from "../../hooks/useTilt";
 import { ProjectCover } from "../../components/ui/ProjectCover";
+import { aboutProject, askAssistant } from "../../../lib/ai/ask";
 
 type Category = "all" | ProjectCategory;
 type Sort = "default" | "az" | "tech";
@@ -196,6 +197,9 @@ function ProjectModal({
               Case study<span className="sr-only"> (opens in a new tab)</span>
             </a>
           )}
+          <button type="button" className="mac-btn mac-btn--ghost" data-ask-ai onClick={() => { onClose(); askAssistant(aboutProject(project.name)); }}>
+            <Sparkles /> Ask AI
+          </button>
         </div>
         {siblings.length > 1 && (
           <div className="project-modal__nav">

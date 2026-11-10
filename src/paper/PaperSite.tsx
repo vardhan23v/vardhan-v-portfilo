@@ -6,6 +6,7 @@ import { experience } from "../classic/data/experience";
 import { skillCategories } from "../classic/data/skills";
 import { site } from "../classic/data/site";
 import { caseStudyPath, hasCaseStudy } from "../work/links";
+import { aboutProject, askAssistant } from "../lib/ai/ask";
 import "./styles/paper.css";
 
 export const paperProjects = featuredProjects;
@@ -178,6 +179,7 @@ export function PaperSite() {
                     </a>
                   )}
                   {hasCaseStudy(p.slug) && <Link to={caseStudyPath(p.slug)} state={{ from: "/paper" }}>case study →</Link>}
+                  <button type="button" data-ask-ai onClick={() => askAssistant(aboutProject(p.name))}>ask ai<span className="sr-only"> about {p.name}</span> ✦</button>
                 </div>
                 <EngineeringDetails p={p} />
               </div>

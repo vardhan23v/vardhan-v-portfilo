@@ -7,7 +7,7 @@
   /* Links: grow the row and centre the text inside it. */
   html body :is(
     .aurora-wordmark, .au-card-links a, .au-work-foot-link, .aurora-foot-links a,
-    .paper-wordmark, .paper-nav-links a, .paper-mast-meta a, .paper-work-links a, .paper-foot-links a,
+    .paper-wordmark, .paper-nav-links a, .paper-mast-meta a, .paper-work-links :is(a, button), .paper-foot-links a,
     .prog-name, .prog-links .tlink, .prog-links .tlink-dim,
     .fg-nav-name, .fg-proj-link, .fg-foot-links a,
     .lt-hire

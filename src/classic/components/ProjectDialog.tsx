@@ -3,6 +3,7 @@ import { CATEGORY_LABEL, type Project } from "../data/projects";
 import { KEY_WORK, CREDIT } from "../content";
 import { Link } from "react-router-dom";
 import { caseStudyPath, hasCaseStudy } from "../../work/links";
+import { aboutProject, askAssistant } from "../../lib/ai/ask";
 
 /** The full breakdown of one project in a native modal dialog, with previous and next. */
 export function ProjectDialog({ list, index, onIndex, onClose }: { list: Project[]; index: number | null; onIndex: (i: number) => void; onClose: () => void }) {
@@ -38,6 +39,8 @@ export function ProjectDialog({ list, index, onIndex, onClose }: { list: Project
               {p.live && <a className="link" href={p.live} target="_blank" rel="noopener noreferrer">Live app<span className="sr-only"> (opens in a new tab)</span></a>}
               <a className="link" href={p.github} target="_blank" rel="noopener noreferrer">Source<span className="sr-only"> on GitHub (opens in a new tab)</span></a>
               {hasCaseStudy(p.slug) && <Link className="link" to={caseStudyPath(p.slug)} state={{ from: "/classic" }}>Read the case study</Link>}
+              {/* A modal dialog makes the rest of the page inert, so it closes before the assistant opens. */}
+              <button type="button" className="link link-btn" data-ask-ai onClick={() => { onClose(); askAssistant(aboutProject(p.name)); }}>Ask AI<span className="sr-only"> about {p.name}</span></button>
             </p>
             <div className="pd-nav">
               <button type="button" className="btn btn--secondary" onClick={() => step(-1)}>← Previous</button>

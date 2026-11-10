@@ -3,6 +3,7 @@ import { RotateCcw, Send, Square, Trash2 } from "lucide-react";
 import { useWindowManager, type AppId } from "../hooks/useWindowManager";
 import { localIntent } from "../lib/aiIntents";
 import { useChat, type ChatMessage } from "../../lib/ai/useChat";
+import { followUps } from "../../lib/ai/followups";
 import { Markdown } from "../../components/ai/Markdown";
 import { SourceReferences } from "../../components/ai/SourceReferences";
 
@@ -38,6 +39,8 @@ export function VardhanAIApp() {
   const msgs = chat.messages;
   const c = CONTACTS.find((x) => x.id === contact)!;
   const last = msgs[msgs.length - 1];
+  const next = followUps(msgs);
+  const chips = next.length ? next : SUGGESTED;
   const typing = last?.role === "assistant" && last.status === "streaming" && !last.content;
 
   useEffect(() => {
@@ -130,7 +133,7 @@ export function VardhanAIApp() {
           {typing && <div className="msgs__row msgs__row--them"><div className="msgs__bubble msgs__typing"><i /><i /><i /></div></div>}
         </div>
         <div className="aiapp__suggest">
-          {SUGGESTED.map((s) => <button key={s} className="aiapp__chip" onClick={() => ask(s)} disabled={chat.busy}>{s}</button>)}
+          {chips.map((s) => <button key={s} className="aiapp__chip" onClick={() => ask(s)} disabled={chat.busy}>{s}</button>)}
         </div>
         <form className="msgs__row-input" onSubmit={(e) => { e.preventDefault(); ask(value); }}>
           <input className="aiapp__input" value={value} onChange={(e) => setValue(e.target.value)} placeholder={`Message ${c.name}…`} aria-label="Message" maxLength={1500} />

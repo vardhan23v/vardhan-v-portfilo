@@ -161,6 +161,14 @@ try {
       check("digits typed in the panel don't trigger edition shortcuts", (await ai.evaluate(() => location.pathname)) === before);
       check("Enter sends a message", (await ai.$$(".pa-msg--me")).length === 1);
       await ai.focus("#pa-input-field");
+      await ai.keyboard.press("Escape");
+      await ai.waitForSelector(".pa-panel", { hidden: true, timeout: 1000 }).catch(() => {});
+      // "Ask AI" on a project card opens the panel and asks about that project.
+      await ai.$eval("[data-ask-ai]", (el) => el.click());
+      await ai.waitForSelector(".pa-panel:not(.is-closing)", { timeout: 3000 }).catch(() => {});
+      const askedQ = await ai.$$eval(".pa-msg--me", (els) => els.at(-1)?.textContent ?? "");
+      check("Ask AI on a project opens the panel with a question", askedQ.startsWith("Tell me about "), askedQ);
+      await ai.focus("#pa-input-field");
     }
     await ai.keyboard.press("Escape");
     // The panel stays mounted for its exit animation; 1s also catches a close that never finishes.

@@ -2,7 +2,7 @@ import { featuredProjects, otherProjects } from "../../src/classic/data/projects
 import type { ChatTurn, SourceRef, SourceType } from "../../src/lib/ai/types.js";
 import { estimateTokens } from "./chunking.js";
 import type { EmbeddingProvider } from "./embeddings/types.js";
-import { CAREER_TITLE, CONTACT_TITLE, DIGEST_TITLE, careerOverview, contactOverview, projectDigest } from "./digest.js";
+import { CAREER_TITLE, CONTACT_TITLE, DIGEST_TITLE, careerOverview, contactOverview, factCard, judgementDigest, projectDigest, projectName } from "./digest.js";
 import type { QueryPlan } from "./planner.js";
 import type { ChunkMatch, KnowledgeStore, TermHit } from "./store.js";
 
@@ -19,6 +19,8 @@ export interface RetrievalOptions {
   /** Conversation before the current question, used to resolve follow-ups like "why is it hard?". */
   history?: ChatTurn[];
   plan?: QueryPlan;
+  /** An embedding already started for one query text (the raw question), so planning and embedding overlap. */
+  warm?: { text: string; embedding: Promise<number[] | null> };
 }
 
 /** Lowercase, strip punctuation/zero-width chars, collapse whitespace. */
@@ -45,13 +47,39 @@ export function repoName(url?: string): string {
   return url?.match(/github\.com\/[^/]+\/([^/#?]+)/i)?.[1]?.replace(/\.git$/, "") ?? "";
 }
 
-/** Projects named in the question (whole-word match on name, slug or repo name). Longest names win. */
+/** Projects named in the text (whole-word match on name, slug or repo name), in the order they first appear. */
 export function matchProjects(question: string, extraRepos: string[] = []): string[] {
   const q = ` ${norm(question)} `;
   const keys = [...PROJECT_KEYS, ...extraRepos.map((r) => ({ key: r.toLowerCase(), names: [norm(r)] }))];
-  const hits = new Set<string>();
-  for (const k of keys) if (k.names.some((n) => q.includes(` ${n} `))) hits.add(k.key);
-  return [...hits];
+  const at = new Map<string, number>();
+  for (const k of keys) {
+    const pos = k.names.map((n) => q.indexOf(` ${n} `)).filter((i) => i >= 0);
+    if (pos.length && !at.has(k.key)) at.set(k.key, Math.min(...pos));
+  }
+  return [...at].sort((a, b) => a[1] - b[1]).map(([k]) => k);
+}
+
+/**
+ * The projects the conversation is currently about, most recent first (at most 3). Answers bold the
+ * projects they discuss, so bold names in assistant turns are trusted over passing mentions.
+ */
+export function conversationFocus(history: ChatTurn[] = []): string[] {
+  const out: string[] = [];
+  for (const t of history.slice(-4).reverse()) {
+    let found: string[];
+    if (t.role === "assistant") {
+      const bold = [...t.content.matchAll(/\*\*([^*\n]{2,80})\*\*/g)].map((m) => m[1]).join(" · ");
+      found = bold ? matchProjects(bold) : matchProjects(t.content.slice(0, 240));
+    } else found = matchProjects(t.content);
+    for (const k of found) if (!out.includes(k)) out.push(k);
+    if (out.length >= 3) break;
+  }
+  return out.slice(0, 3);
+}
+
+/** True when the question leans on the conversation ("which is harder?", "tell me more", "what stack does it use?"). */
+export function isFollowUp(question: string, history: ChatTurn[] = []): boolean {
+  return history.some((t) => t.role === "assistant") && !matchProjects(question).length && FOLLOW_UP.test(normalizeQuestion(question));
 }
 
 /** Which source categories a question leans on — used to boost, never to hide evidence. */
@@ -64,19 +92,24 @@ export function preferredSources(question: string): SourceType[] {
   return out;
 }
 
-const FOLLOW_UP = /\b(it|its|that|this|those|these|them|they|former|latter|first one|second one|the project|more|else|hardest part)\b/i;
-export const JUDGEMENT = /\b(strongest|best|most (?:impressive|complex|challenging|difficult)|hardest|favou?rite|stand ?out|more (?:complex|impressive|difficult)|compare|versus|vs)\b/i;
+const FOLLOW_UP = /\b(it|its|that|this|those|these|them|they|former|latter|first one|second one|the project|more|else|hardest part|which (?:one|is|was|of|would)|harder|easier|tougher|better|why not|how so)\b|^(?:and|so|but|why)\b/i;
+export const JUDGEMENT = /\b(strongest|best|better|most (?:impressive|complex|challenging|difficult|technical)|hardest|harder|easier|tougher|favou?rite|stand ?out|more (?:complex|impressive|difficult|technical|challenging)|compare|versus|vs)\b/i;
 export const HIRING = /\b(hire|hiring|fit for|good fit|right fit|why (?:him|vardhan)|strengths?|qualified)\b/i;
 const EXPERIENCE = /\b(experience|internships?|intern|employ\w*|career|jobs?|compan(?:y|ies))\b/i;
 const CONTACT = /\b(e-?mail|contact|reach|linkedin|phone|locat\w*|based in|where (?:is|does) (?:he|vardhan) (?:from|live))\b/i;
 const EDUCATION = /\b(study|studied|studying|education|degree|college|university|school|b\.?tech|cgpa)\b/i;
 const STOPWORDS = new Set("list all any give show the and for with has have had his him was were are does did what which where when who why how can could would should about from that this those these they them built build used using use know work worked project projects tell please vardhan".split(" "));
 
-/** The current question, rewritten with the previous one when it can't stand alone. */
+/**
+ * The current question, made to stand alone: a follow-up names the projects the conversation is
+ * about, or falls back to the previous question when no project is in focus.
+ */
 export function standaloneQuestion(question: string, history: ChatTurn[] = []): string {
   const q = normalizeQuestion(question);
   const prev = [...history].reverse().find((t) => t.role === "user")?.content;
   if (!prev || matchProjects(q).length || q.split(" ").length > 14 || !FOLLOW_UP.test(q)) return q;
+  const focus = conversationFocus(history);
+  if (focus.length) return `${q} (about ${focus.map(projectName).join(" and ")})`;
   return `${normalizeQuestion(prev).slice(0, 300)} ${q}`;
 }
 
@@ -104,8 +137,8 @@ function isNoise(metadata: Record<string, unknown>) {
   return typeof metadata.path === "string" && NOISE_PATH.test(metadata.path);
 }
 
-function syntheticChunk(id: string, title: string, content: string): ChunkMatch {
-  return { chunkId: id, documentId: id, title, content, sourceType: "portfolio", chunkMetadata: { synthetic: true }, documentMetadata: {}, similarity: 1 };
+function syntheticChunk(id: string, title: string, content: string, sourceUrl?: string, project?: string): ChunkMatch {
+  return { chunkId: id, documentId: id, title, content, sourceType: "portfolio", sourceUrl, chunkMetadata: { synthetic: true, ...(project ? { card: true, project } : {}) }, documentMetadata: {}, similarity: 1 };
 }
 
 function snippet(content: string, term: string): string {
@@ -139,11 +172,16 @@ export async function retrieve(
 ): Promise<RetrievedChunk[]> {
   const asked = normalizeQuestion(question);
   const q = opts.plan?.standalone ? normalizeQuestion(opts.plan.standalone) : standaloneQuestion(asked, opts.history);
-  const projects = matchProjects(q);
+  const projects = [...new Set([...matchProjects(q), ...(opts.plan?.focus ?? [])])];
   const prefer = preferredSources(q);
   const terms = keywords(asked);
   const queries = [...new Set([q, ...searchQueries(q, projects).slice(1), ...(opts.plan?.searches ?? []).map(normalizeQuestion)])].slice(0, 5);
-  const embeddings = await deps.embedder.embedDocuments(queries);
+  const warmed = opts.warm && queries.includes(normalizeQuestion(opts.warm.text)) ? await opts.warm.embedding : null;
+  const rest = warmed ? queries.filter((x) => x !== normalizeQuestion(opts.warm!.text)) : queries;
+  const fresh = rest.length ? await deps.embedder.embedDocuments(rest) : [];
+  const byText = new Map(rest.map((x, i) => [x, fresh[i]]));
+  if (warmed) byText.set(normalizeQuestion(opts.warm!.text), warmed);
+  const embeddings = queries.map((x) => byText.get(x)!);
   const results = await Promise.all(embeddings.map((e) => deps.store.matchChunks(e, { count: opts.topK * 4, threshold: opts.threshold })));
 
   // Merge the searches, keeping each chunk's best similarity.
@@ -190,13 +228,17 @@ export async function retrieve(
     relevant.sort((a, b) => Number(leaders.has(b.chunkId)) - Number(leaders.has(a.chunkId)) || b.score - a.score);
   }
 
-  // No real evidence and nothing to look up: let the caller refuse without a model call.
-  if (!relevant.length && !opts.plan?.terms.length) return [];
+  const intent = opts.plan?.intent;
+  // No evidence, nothing to look up, no project in view and not a question the overviews answer:
+  // let the caller refuse without a model call.
+  const aboutWork = projects.length > 0 || /\b(projects?|work|built|build|apps?|portfolio|repos?|code|stack|products?)\b/i.test(q);
+  const overviewQuestion = intent === "list" || HIRING.test(q) || ((intent === "judgement" || intent === "comparison") && aboutWork);
+  if (!relevant.length && !opts.plan?.terms.length && !projects.length && !overviewQuestion) return [];
 
   // Context every answer of this kind needs, ahead of the ranked evidence.
   const fixed: ChunkMatch[] = [];
-  const intent = opts.plan?.intent;
-  if (intent === "list" || intent === "judgement" || (intent === "comparison" && projects.length < 2)) fixed.push(syntheticChunk("digest", DIGEST_TITLE, projectDigest()));
+  if (intent === "judgement" || intent === "comparison") fixed.push(syntheticChunk("digest", DIGEST_TITLE, judgementDigest()));
+  else if (intent === "list") fixed.push(syntheticChunk("digest", DIGEST_TITLE, projectDigest()));
   if (opts.plan && (EXPERIENCE.test(q) || HIRING.test(q))) fixed.push(syntheticChunk("career", CAREER_TITLE, careerOverview()));
   if (opts.plan && CONTACT.test(q)) fixed.push(syntheticChunk("contact", CONTACT_TITLE, contactOverview()));
   if (deps.store.findTerm) {
@@ -205,6 +247,11 @@ export async function retrieve(
       const hits = await deps.store.findTerm(term, TERM_LIMIT);
       fixed.push(syntheticChunk(`term:${term}`, `Text search: ${term}`, termSummary(term, hits, TERM_LIMIT)));
     }
+  }
+  // Every project in view gets its full fact card, so answers never depend on a lucky vector match.
+  for (const key of projects.slice(0, 3)) {
+    const card = factCard(key);
+    if (card) fixed.push(syntheticChunk(`card:${key}`, card.title, card.content, card.url, key));
   }
 
   const picked: RetrievedChunk[] = fixed.map((c, i) => ({ ...c, n: i + 1, score: 1 }));

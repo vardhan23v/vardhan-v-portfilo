@@ -3,9 +3,12 @@ import type { ServerConfig } from "./config.js";
 import type { EmbeddingProvider } from "./embeddings/types.js";
 import { logError, toPublicError } from "./errors.js";
 import type { LLMProvider } from "./llm/types.js";
+import { projectName } from "./digest.js";
+import { analystNotes } from "./notes.js";
 import { buildMessages, citationStream, citedNumbers, isUnsupportedAnswer } from "./prompt.js";
 import { planQuestion, type Intent } from "./planner.js";
-import { retrieve, toSourceRef } from "./retrieval.js";
+import { normalizeQuestion, retrieve, toSourceRef } from "./retrieval.js";
+import { answerGuard, unsupportedCounts } from "./verify.js";
 import type { KnowledgeStore } from "./store.js";
 import type { ChatRequest } from "./validation.js";
 
@@ -22,15 +25,25 @@ export interface ChatDeps {
 const SMALL_TALK = /^(hi|hii+|hello|hey|hola|namaste|yo|thanks|thank you|thx|ok|okay|cool|nice|great|bye|good (?:morning|afternoon|evening))(?:\s+(?:there|vardhan|vardhan ai))?[\s!.,]*$/i;
 const SMALL_TALK_REPLY = "Hi! I can tell you about Vardhan's projects, skills, experience and education. What would you like to know?";
 
-/** How hard the model should think for each kind of question. */
+/**
+ * How hard the model should think for each kind of question. Reasoning tokens count against
+ * maxTokens on gpt-oss, so every budget leaves room for the answer after the thinking.
+ */
 export function effortFor(intent: Intent, tokensLeft?: number): { reasoningEffort: "low" | "medium" | "high"; maxTokens: number } {
+  const weighs = intent === "judgement" || intent === "comparison";
   // High effort spends the free per-minute token allowance fast, so it needs known headroom.
-  if ((intent === "judgement" || intent === "comparison") && tokensLeft !== undefined && tokensLeft >= HIGH_EFFORT_MIN_TOKENS) return { reasoningEffort: "high", maxTokens: 1400 };
-  if (intent === "fact") return { reasoningEffort: "low", maxTokens: 900 };
-  return { reasoningEffort: "medium", maxTokens: 1100 };
+  if (weighs && tokensLeft !== undefined && tokensLeft >= HIGH_EFFORT_MIN_TOKENS) return { reasoningEffort: "high", maxTokens: 2200 };
+  if (weighs) return { reasoningEffort: "medium", maxTokens: 1800 };
+  if (intent === "fact") return { reasoningEffort: "low", maxTokens: 1300 };
+  return { reasoningEffort: "medium", maxTokens: 1500 };
 }
 
-const HIGH_EFFORT_MIN_TOKENS = 6000;
+/** Context budget per kind of question: weighing projects needs the overview plus evidence for each. */
+export function contextBudgetFor(intent: Intent, base: number): number {
+  return intent === "judgement" || intent === "comparison" ? Math.max(base, 3600) : base;
+}
+
+const HIGH_EFFORT_MIN_TOKENS = 9000;
 const REFUSAL_PROBE = 60;
 const STRONG_SOURCE = 0.4;
 const RETRY_NOTE = "\n\n(The sources above are relevant. Answer from them, stating plainly anything they do not cover.)";
@@ -59,13 +72,16 @@ export function streamChat(req: ChatRequest, deps: ChatDeps): ReadableStream<Uin
         }
 
         const history = req.messages.slice(0, -1);
+        // Embed the question while the planner works; retrieval reuses it when the plan keeps it.
+        const warm = { text: question, embedding: deps.embedder.embedText(normalizeQuestion(question)).catch(() => null) };
         const plan = await planQuestion(question, history, deps.planner);
         const chunks = await retrieve(question, deps, {
           history,
           plan,
+          warm,
           topK: deps.cfg.RAG_TOP_K,
           threshold: deps.cfg.RAG_SIMILARITY_THRESHOLD,
-          maxContextTokens: deps.cfg.RAG_MAX_CONTEXT_TOKENS,
+          maxContextTokens: contextBudgetFor(plan.intent, deps.cfg.RAG_MAX_CONTEXT_TOKENS),
         });
 
         if (!chunks.length) {
@@ -77,9 +93,12 @@ export function streamChat(req: ChatRequest, deps: ChatDeps): ReadableStream<Uin
           return;
         }
 
-        const messages = buildMessages(req.messages, chunks);
-        const hasStrongSource = chunks.some((c) => !c.chunkMetadata.synthetic && c.similarity >= STRONG_SOURCE);
+        // Judgement and comparison answers start from checked analyst notes when the small model has room.
+        const notes = plan.intent === "judgement" || plan.intent === "comparison" ? await analystNotes(plan.standalone, chunks, deps.planner) : null;
+        const messages = buildMessages(req.messages, chunks, { focus: plan.focus.map(projectName), notes });
+        const hasStrongSource = chunks.some((c) => c.chunkMetadata.card || (!c.chunkMetadata.synthetic && c.similarity >= STRONG_SOURCE));
         const effort = () => effortFor(plan.intent, deps.llm.tokensRemaining?.());
+        let droppedCitations = 0;
         const emit = (text: string) => {
           answer += text;
           controller.enqueue(sse({ type: "token", text }));
@@ -88,20 +107,27 @@ export function streamChat(req: ChatRequest, deps: ChatDeps): ReadableStream<Uin
         /** Streams one attempt. Text is held back only while it could still be the refusal sentence. */
         const attempt = async (msgs: typeof messages, opts: Parameters<LLMProvider["streamChat"]>[1]): Promise<"answered" | "refused" | "empty"> => {
           const citations = citationStream();
+          // Checks released text: citations must point at real sources, links at source URLs.
+          const guard = answerGuard(chunks);
+          const out = (text: string) => { const safe = guard.push(text); if (safe) emit(safe); };
           let held = "";
           let released = false;
           for await (const delta of deps.llm.streamChat(msgs, opts)) {
             const text = citations.push(delta);
             if (!text) continue;
-            if (released) { emit(text); continue; }
+            if (released) { out(text); continue; }
             held += text;
             const probe = canon(held);
             if (probe.length >= REFUSAL_PROBE && UNSUPPORTED_ANSWER.startsWith(probe.slice(0, REFUSAL_PROBE))) return "refused";
-            if (!UNSUPPORTED_ANSWER.startsWith(probe.slice(0, UNSUPPORTED_ANSWER.length))) { released = true; emit(held); }
+            if (!UNSUPPORTED_ANSWER.startsWith(probe.slice(0, UNSUPPORTED_ANSWER.length))) { released = true; out(held); }
           }
           const tail = citations.flush();
-          if (!released) held += tail; else if (tail) emit(tail);
-          if (!released && held.trim()) emit(held);
+          if (!released) held += tail; else if (tail) out(tail);
+          if (!released && held.trim()) out(held);
+          const rest = guard.flush();
+          if (rest) emit(rest);
+          droppedCitations += guard.stats.droppedCitations;
+          if (guard.stats.droppedCitations || guard.stats.unlinked) console.warn(`[chat] answer guard: ${guard.stats.droppedCitations} citations dropped, ${guard.stats.unlinked} links removed`);
           return answer.trim() ? "answered" : "empty";
         };
 
@@ -120,8 +146,13 @@ export function streamChat(req: ChatRequest, deps: ChatDeps): ReadableStream<Uin
           controller.enqueue(sse({ type: "token", text: answer }));
         }
         const supported = !isUnsupportedAnswer(answer);
+        if (supported) {
+          const odd = unsupportedCounts(answer, chunks);
+          if (odd.projects || odd.numbers) console.warn(`[chat] possibly unsupported: ${odd.projects} project names, ${odd.numbers} numbers`);
+        }
         const cited = citedNumbers(answer);
-        const refs = supported
+        // An answer that cites nothing gets every source; one whose citations were all invalid gets none.
+        const refs = supported && !(cited.size === 0 && droppedCitations)
           ? chunks.filter((c) => cited.size === 0 || cited.has(c.n)).map(toSourceRef)
           : [];
         controller.enqueue(sse({ type: "sources", sources: refs }));

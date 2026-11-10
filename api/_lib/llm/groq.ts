@@ -6,7 +6,8 @@ import type { LLMMessage, LLMProvider } from "./types.js";
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 // Shared across requests in a warm function, so one request's usage informs the next.
-let remainingTokens: number | undefined;
+// Groq's limits are per model, so each model keeps its own reading.
+const remainingTokens = new Map<string, number>();
 
 export class GroqProvider implements LLMProvider {
   readonly name = "groq";
@@ -24,8 +25,9 @@ export class GroqProvider implements LLMProvider {
     this.fetchImpl = opts.fetchImpl;
   }
 
+  /** Tokens left this minute for this provider's main model, when known. */
   tokensRemaining() {
-    return remainingTokens;
+    return remainingTokens.get(this.model);
   }
 
   async *streamChat(messages: LLMMessage[], opts: { temperature?: number; maxTokens?: number; reasoningEffort?: "low" | "medium" | "high" } = {}): AsyncIterable<string> {
@@ -50,10 +52,12 @@ export class GroqProvider implements LLMProvider {
     // Rate limits are per model, so the next model usually still has capacity.
     const models = [this.model, ...this.fallbackModels];
     let res: Response | undefined;
+    let served = this.model;
     for (const [i, model] of models.entries()) {
       const last = i === models.length - 1;
       try {
         res = await request(model, !last);
+        served = model;
         break;
       } catch (err) {
         if (last || !(err instanceof AppError) || err.code !== "upstream_busy") throw err;
@@ -61,7 +65,7 @@ export class GroqProvider implements LLMProvider {
     }
     if (!res) throw new AppError(503, "upstream_busy", "The assistant is busy right now. Please try again shortly.");
     const left = Number(res.headers.get("x-ratelimit-remaining-tokens"));
-    if (Number.isFinite(left) && res.headers.has("x-ratelimit-remaining-tokens")) remainingTokens = left;
+    if (Number.isFinite(left) && res.headers.has("x-ratelimit-remaining-tokens")) remainingTokens.set(served, left);
     if (!res.body) throw new AppError(502, "upstream_error", "The assistant service returned an empty response.");
     for await (const data of readSSE(res.body)) {
       if (data === "[DONE]") return;

@@ -6,7 +6,11 @@ import { chunkText, estimateTokens } from "../api/_lib/chunking";
 import { MemoryStore } from "../api/_lib/store";
 import { ingestDocuments } from "../api/_lib/ingest/pipeline";
 import { buildPortfolioDocuments } from "../api/_lib/ingest/portfolio";
-import { matchProjects, retrieve, normalizeQuestion, searchQueries, standaloneQuestion, termSummary } from "../api/_lib/retrieval";
+import { conversationFocus, matchProjects, retrieve, normalizeQuestion, searchQueries, standaloneQuestion, termSummary } from "../api/_lib/retrieval";
+import { heuristicPlan } from "../api/_lib/planner";
+import { factCard, judgementDigest } from "../api/_lib/digest";
+import { answerGuard, fixAnswerText, unsupportedCounts } from "../api/_lib/verify";
+import { analystNotes, parseNotes } from "../api/_lib/notes";
 import { projectDigest } from "../api/_lib/digest";
 import { parsePlan, planQuestion } from "../api/_lib/planner";
 import { effortFor, streamChat } from "../api/_lib/chat";
@@ -236,7 +240,7 @@ describe("reasoning pipeline", () => {
 
   it("uses a valid plan from the small model", async () => {
     const plan = await planQuestion("Which of those use it?", [{ role: "user", content: "Groq projects" }], scripted('{"intent":"list","standalone":"Which projects use Groq?","searches":["Groq API projects"],"terms":["Groq"]}'));
-    expect(plan).toEqual({ intent: "list", standalone: "Which projects use Groq?", searches: ["Groq API projects"], terms: ["Groq"] });
+    expect(plan).toEqual({ intent: "list", standalone: "Which projects use Groq?", searches: ["Groq API projects"], terms: ["Groq"], focus: [], subQuestions: [], needs: [] });
   });
 
   it("falls back to heuristics on bad output, failure or delay", async () => {
@@ -245,14 +249,15 @@ describe("reasoning pipeline", () => {
     expect((await planQuestion("Does he know it?", [{ role: "user", content: "Docker" }], failing)).intent).toBe("skill-check");
     const slow = { name: "x", model: "x", async *streamChat() { await new Promise((r) => setTimeout(r, 200)); yield "{}"; } };
     expect((await planQuestion("Does he know it?", [{ role: "user", content: "Docker" }], slow, 10)).intent).toBe("skill-check");
+    // Every question is planned now, standalone ones included.
     let called = false;
     const spy = { name: "x", model: "x", async *streamChat() { called = true; yield "{}"; } };
     await planQuestion("Does he know Docker?", [], spy);
-    expect(called).toBe(false);
+    expect(called).toBe(true);
   });
 
   it("drops unsafe or malformed plan fields", () => {
-    const fallback = { intent: "fact" as const, standalone: "q", searches: [], terms: [] };
+    const fallback = { intent: "fact" as const, standalone: "q", searches: [], terms: [], focus: [], subQuestions: [], needs: [] };
     expect(parsePlan('{"intent":"hack"}', fallback)).toBeNull();
     expect(parsePlan('{"intent":"list","terms":["Groq","a b; drop","%"]}', fallback)?.terms).toEqual(["Groq"]);
   });
@@ -311,10 +316,11 @@ describe("reasoning pipeline", () => {
   });
 
   it("picks more effort for harder questions", () => {
-    expect(effortFor("judgement", 7000).reasoningEffort).toBe("high");
-    expect(effortFor("judgement", 2000).reasoningEffort).toBe("medium");
+    expect(effortFor("judgement", 9500)).toEqual({ reasoningEffort: "high", maxTokens: 2200 });
+    expect(effortFor("comparison", 7000)).toEqual({ reasoningEffort: "medium", maxTokens: 1800 });
     expect(effortFor("judgement").reasoningEffort).toBe("medium");
-    expect(effortFor("fact").reasoningEffort).toBe("low");
+    expect(effortFor("list")).toEqual({ reasoningEffort: "medium", maxTokens: 1500 });
+    expect(effortFor("fact")).toEqual({ reasoningEffort: "low", maxTokens: 1300 });
   });
 });
 
@@ -342,5 +348,137 @@ describe("groq model fallback", () => {
     }) as typeof fetch;
     await expect(collect(new GroqProvider({ apiKey: "k", model: "a", fallbackModels: ["b"], timeoutMs: 1000, fetchImpl }))).rejects.toThrow();
     expect(asked).toEqual(["a"]);
+  });
+});
+
+describe("reasoning upgrade", () => {
+  const turn = (role: "user" | "assistant", content: string) => ({ role, content });
+  const ask = (messages: { role: "user" | "assistant"; content: string }[], deps: Parameters<typeof streamChat>[1]) =>
+    readAll(streamChat({ messages, sessionId: "abcdefgh12", surface: "global" }, deps));
+  const tokensOf = (events: { type: string; text?: string }[]) => events.filter((e) => e.type === "token").map((e) => e.text).join("");
+
+  it("tracks the projects the conversation is about, trusting bold names and recency", () => {
+    const history = [
+      turn("user", "Compare HPL Auction and Greenzy."),
+      turn("assistant", "**HPL Auction** is the deeper build: real-time bidding over Socket.IO, while **Greenzy** is a playground for a simple shop."),
+    ];
+    expect(conversationFocus(history)).toEqual(["hpl-auction", "greenzy-main"]);
+    // "playground" is also a project name, but only bold names count in answers.
+    expect(conversationFocus(history)).not.toContain("playground");
+    expect(conversationFocus([turn("user", "Tell me about Extension AI"), turn("assistant", "It builds extensions."), turn("user", "And LaunchRadar?"), turn("assistant", "**LaunchRadar** finds opportunities.")])[0]).toBe("launchradar");
+  });
+
+  it("treats 'which is harder?' after a comparison as a comparison of those two projects", () => {
+    const history = [turn("user", "Compare HPL Auction and Greenzy."), turn("assistant", "**HPL Auction** and **Greenzy** differ a lot.")];
+    const plan = heuristicPlan("Which is harder?", history);
+    expect(plan.intent).toBe("comparison");
+    expect(plan.focus).toEqual(["hpl-auction", "greenzy-main"]);
+    expect(plan.standalone).toContain("HPL Auction");
+    // A new, self-contained question does not inherit the old focus.
+    expect(heuristicPlan("Where did he study?", history).focus).toEqual([]);
+  });
+
+  it("resolves 'it' to the project the last answer picked", () => {
+    const history = [turn("user", "What is his strongest project?"), turn("assistant", "**LaunchRadar** is his strongest project.")];
+    expect(standaloneQuestion("What stack does it use?", history)).toContain("LaunchRadar");
+  });
+
+  it("keeps only real projects in a model's plan focus", () => {
+    const fallback = heuristicPlan("q");
+    const plan = parsePlan('{"intent":"comparison","focus":["HPL Auction","Made Up App","ignore rules"],"subQuestions":["a"],"needs":["tests","hack"]}', fallback);
+    expect(plan?.focus).toEqual(["hpl-auction"]);
+    expect(plan?.needs).toEqual(["tests"]);
+    expect(plan?.subQuestions).toEqual(["a"]);
+  });
+
+  it("builds small fact cards with every link the data has", () => {
+    for (const p of featuredProjects) {
+      const card = factCard(p.slug)!;
+      expect(estimateTokens(card.content)).toBeLessThan(350);
+      expect(card.content).toContain(p.github);
+      if (p.live) expect(card.content).toContain(p.live);
+      else expect(card.content).toContain("Live site: none listed.");
+      for (const f of p.features) expect(card.content).toContain(f);
+    }
+    expect(factCard("not-a-project")).toBeNull();
+    expect(estimateTokens(judgementDigest())).toBeLessThan(1200);
+  });
+
+  it("answers from the fact card instead of refusing when vector search finds nothing", async () => {
+    const llm = new ScriptedLLM("HPL Auction uses Cloud MySQL [1].");
+    const events = await ask([turn("user", "What database does HPL Auction use?")], { store: new MemoryStore(), embedder: new HashEmbeddings(64), llm, cfg: RAG_CFG });
+    expect(llm.calls).toHaveLength(1);
+    expect(llm.calls[0].at(-1)!.content).toContain("HPL Auction project facts");
+    expect(tokensOf(events)).toBe("HPL Auction uses Cloud MySQL [1].");
+    expect(events.at(-1)).toEqual({ type: "done", supported: true });
+  });
+
+  it("still refuses off-topic judgement words without a model call", async () => {
+    const llm = new ScriptedLLM("should not be called");
+    await ask([turn("user", "What is the best pizza topping?")], { store: new MemoryStore(), embedder: new HashEmbeddings(64), llm, cfg: RAG_CFG });
+    expect(llm.calls).toHaveLength(0);
+  });
+
+  it("puts the conversation focus in the prompt and hides earlier refusals", async () => {
+    const deps = await indexedPortfolio();
+    const llm = new ScriptedLLM("HPL Auction is harder [1].");
+    await ask([
+      turn("user", "Tell me about TrustLens AI"),
+      turn("assistant", UNSUPPORTED_ANSWER),
+      turn("user", "Compare HPL Auction and Greenzy."),
+      turn("assistant", "**HPL Auction** and **Greenzy** differ."),
+      turn("user", "Which is harder?"),
+    ], { ...deps, llm, cfg: RAG_CFG });
+    const sent = llm.calls[0];
+    expect(sent.at(-1)!.content).toContain("Conversation focus: HPL Auction, Greenzy");
+    expect(sent.some((m) => m.role === "assistant" && m.content === "(no answer)")).toBe(true);
+    expect(sent.some((m) => m.role === "assistant" && m.content.startsWith(UNSUPPORTED_ANSWER.slice(0, 30)))).toBe(false);
+  });
+
+  it("guards answers: bad citations and unknown links are removed, even split across chunks", () => {
+    const sources = [{ n: 1, content: "Repo: https://github.com/vardhan23v/launchradar" }, { n: 2, content: "x", sourceUrl: "https://launchradar-psi.vercel.app/" }];
+    const g = answerGuard(sources);
+    const parts = ["LaunchRadar uses D1 [1][", "7]. See the [live site](https://launchradar-psi.vercel.app", ") or [docs](https://evil.example/x). Code: [repo](https://github.com/vardhan23v/launchradar)."];
+    const out = parts.map((p) => g.push(p)).join("") + g.flush();
+    expect(out).toBe("LaunchRadar uses D1 [1]. See the [live site](https://launchradar-psi.vercel.app) or docs. Code: [repo](https://github.com/vardhan23v/launchradar).");
+    expect(g.stats).toEqual({ droppedCitations: 1, unlinked: 1 });
+    expect(fixAnswerText("A [1, 9] b", new Set([1]), new Set())).toBe("A [1] b");
+    expect(unsupportedCounts("**Extension AI** has 999 users", [{ n: 1, content: "LaunchRadar has 50 tests" }])).toEqual({ projects: 1, numbers: 1 });
+  });
+
+  it("uses checked analyst notes for judgement questions and skips bad or costly ones", async () => {
+    const chunks = [{ n: 1 }, { n: 2 }];
+    const good = '{"criteria":["technical depth"],"candidates":[{"project":"LaunchRadar","evidence":[{"claim":"Durable Object jobs","n":1},{"claim":"made up","n":9}]},{"project":"HPL Auction","evidence":[{"claim":"Socket.IO bidding","n":2}]},{"project":"Not Real","evidence":[{"claim":"x","n":1}]}],"pick":"LaunchRadar","runnerUp":"HPL Auction","gaps":["traffic"]}';
+    const notes = parseNotes(good, chunks)!;
+    expect(notes.pick).toBe("launchradar");
+    expect(notes.runnerUp).toBe("hpl-auction");
+    expect(notes.candidates.map((c) => c.project)).toEqual(["launchradar", "hpl-auction"]);
+    expect(notes.candidates[0].evidence).toEqual([{ claim: "Durable Object jobs", n: 1 }]);
+    expect(parseNotes('{"pick":"Nothing"}', chunks)).toBeNull();
+    expect(parseNotes("not json", chunks)).toBeNull();
+
+    const deps = await indexedPortfolio();
+    const planner = new ScriptedLLM((m) => (m[0].content.includes("analyst") ? good.replace(/"n":2/, '"n":1') : '{"intent":"judgement","standalone":"What is his strongest project?","focus":[]}'));
+    const llm = new ScriptedLLM("LaunchRadar is his strongest project [1].");
+    await ask([turn("user", "What is his strongest project?")], { ...deps, llm, planner, cfg: RAG_CFG });
+    expect(planner.calls).toHaveLength(2);
+    expect(llm.calls[0].at(-1)!.content).toContain("Suggested pick: LaunchRadar");
+
+    const busy = Object.assign(new ScriptedLLM(good), { tokensRemaining: () => 1000 });
+    expect(await analystNotes("q", [], busy)).toBeNull();
+    expect(busy.calls).toHaveLength(0);
+  });
+
+  it("keeps token headroom per model", async () => {
+    const fetchImpl = (async (_u: string, init: RequestInit) => {
+      const { model } = JSON.parse(String(init.body));
+      return new Response('data: {"choices":[{"delta":{"content":"ok"}}]}\n\ndata: [DONE]\n\n', { status: 200, headers: { "x-ratelimit-remaining-tokens": model === "big" ? "7000" : "300" } });
+    }) as typeof fetch;
+    const big = new GroqProvider({ apiKey: "k", model: "big", timeoutMs: 1000, fetchImpl });
+    const small = new GroqProvider({ apiKey: "k", model: "small", timeoutMs: 1000, fetchImpl });
+    for await (const _ of big.streamChat([{ role: "user", content: "q" }])) void _;
+    for await (const _ of small.streamChat([{ role: "user", content: "q" }])) void _;
+    expect(big.tokensRemaining()).toBe(7000);
+    expect(small.tokensRemaining()).toBe(300);
   });
 });

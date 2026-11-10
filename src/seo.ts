@@ -50,6 +50,33 @@ export const SEO_BY_PATH: Readonly<Record<string, RouteSeoEntry>> = Object.fromE
 /** Absolute canonical URL for an entry. */
 export const canonicalUrl = (entry: Pick<RouteSeoEntry, "canonicalPath">) => `${site.url}${entry.canonicalPath}`;
 
-/** Browser theme-color per route: Paper is the only light edition. */
-export const themeColorFor = (pathname: string) =>
-  pathname === "/paper" || pathname.startsWith("/paper/") ? "#f5f1ea" : pathname === "/classic" ? "#1d274e" : pathname.startsWith("/work/") ? "#0b0f1a" : pathname === "/atlas" ? "#0a0a0a" : "#05060f";
+/** Which surface a pathname shows: the edition, the shared landing, a case study, or the 404. */
+export type EditionKey = "landing" | "classic" | "aurora" | "forge" | "paper" | "terminal" | "atlas" | "mac" | "work" | "notfound";
+
+/** [page background, color-scheme, accent] per surface: html background, theme-color, splash and pending bar. */
+export const EDITION_SURFACE: Readonly<Record<EditionKey, readonly [bg: string, scheme: "light" | "dark", accent: string]>> = {
+  landing: ["#0b0f1a", "dark", "#7c6cff"],
+  terminal: ["#050807", "dark", "#36e57c"],
+  classic: ["#1d274e", "dark", "#bbaf4a"],
+  paper: ["#faf8f4", "light", "#be4b2a"],
+  aurora: ["#0a0a18", "dark", "#f0abfc"],
+  forge: ["#0c0c0c", "dark", "#7dd3fc"],
+  mac: ["#0b0f1a", "dark", "#6ea8ff"],
+  atlas: ["#0a0a0a", "dark", "#ff5b24"],
+  work: ["#0b0f1a", "dark", "#6ea8ff"],
+  notfound: ["#0b0f1a", "dark", "#7c6cff"],
+};
+
+const EDITION_PATHS = new Set(EDITIONS.map((e) => e.to));
+
+/** Surface for a pathname ("/terminal/work/x" → terminal, "/work/x" → work, unknown → notfound). */
+export function editionKey(pathname: string): EditionKey {
+  const p = pathname.replace(/\/+$/, "") || "/";
+  if (p === "/" || p === "/editions") return "landing";
+  if (/^\/work\/[^/]+$/.test(p)) return "work";
+  if (/^\/terminal\/work\/[^/]+$/.test(p)) return "terminal";
+  return EDITION_PATHS.has(p as `/${string}`) ? (p.slice(1) as EditionKey) : "notfound";
+}
+
+/** Browser theme-color per route: the surface the page actually paints. */
+export const themeColorFor = (pathname: string) => EDITION_SURFACE[editionKey(pathname)][0];

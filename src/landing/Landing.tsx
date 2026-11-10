@@ -6,15 +6,17 @@ import "@fontsource/kanit/latin-600.css";
 import "@fontsource/kanit/latin-ext-600.css";
 import "@fontsource/kanit/latin-700.css";
 import "@fontsource/kanit/latin-ext-700.css";
-import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, type Dispatch, type MouseEvent, type SetStateAction } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type AnimationEvent, type CSSProperties, type Dispatch, type MouseEvent, type SetStateAction } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { EDITIONS, type Edition } from "../editions";
+import { EDITIONS, type Edition, type Tone } from "../editions";
 import { Skin } from "./skins";
 import { useTilt } from "../hooks/useTilt";
 import { useMagnetic } from "../hooks/useMagnetic";
 import { useGithub } from "../hooks/useGithub";
 import { useIstTime } from "../hooks/useIstTime";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
+import { prefetchEdition } from "../lib/editionLoaders";
+import { motionReduced } from "../lib/motion";
 import { site } from "../classic/data/site";
 import { featuredProjects } from "../classic/data/projects";
 import { experience } from "../classic/data/experience";
@@ -36,6 +38,13 @@ const MARQUEE = [...new Set(
     .flatMap((c) => c.items.map((i) => i.name))
 )];
 
+/** Wallpaper drift clock: every tone layer starts its wallA/wallB drift at the same phase. */
+const T0 = typeof performance === "undefined" ? 0 : performance.now();
+const wallPhase = () => `${-((performance.now() - T0) / 1000).toFixed(3)}s`;
+
+/** Sections whose decorative loops pause while they are off-screen or the tab is hidden. */
+const PAUSABLE = ".landing-head, .land-marquee, .edition-grid, .land-projects";
+
 const [FIRST, LAST] = [site.name.split(" ").slice(0, -1).join(" "), site.name.split(" ").slice(-1)[0]];
 
 /* ── hooks ─────────────────────────────────────────────────── */
@@ -55,38 +64,96 @@ function useRevealOnScroll(root: React.RefObject<HTMLElement | null>) {
   }, [root]);
 }
 
-/** Masthead parallax + pointer-driven wallpaper offset, written as CSS custom properties. */
-function useWallpaperParallax(root: React.RefObject<HTMLElement | null>, head: React.RefObject<HTMLElement | null>, reduced: boolean) {
+/** Pointer parallax, written only on the two elements that read it: the wallpaper (--px/--py,
+ *  inherited by its handful of glow layers) and the stage frame (--sx/--sy, registered non-inheriting).
+ *  The masthead's scroll fade is CSS (`animation-timeline: view()`), so there is no scroll listener. */
+function useWallpaperParallax(root: React.RefObject<HTMLElement | null>, wall: React.RefObject<HTMLElement | null>, reduced: boolean) {
   useEffect(() => {
     const rootEl = root.current;
-    const headEl = head.current;
-    if (!rootEl || reduced) return;
+    const wallEl = wall.current;
+    if (!rootEl || !wallEl || reduced) return;
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    const frame = rootEl.querySelector<HTMLElement>(".stage-frame");
     let raf = 0;
-    const onScroll = () => {
-      if (!headEl) return;
-      const y = Math.min(window.scrollY, 500);
-      headEl.style.opacity = String(1 - y / 520);
-      headEl.style.transform = `translateY(${y * 0.16}px)`;
+    let x = 0;
+    let y = 0;
+    const write = () => {
+      raf = 0;
+      const px = (x / window.innerWidth - 0.5).toFixed(3);
+      const py = (y / window.innerHeight - 0.5).toFixed(3);
+      wallEl.style.setProperty("--px", px);
+      wallEl.style.setProperty("--py", py);
+      frame?.style.setProperty("--sx", px);
+      frame?.style.setProperty("--sy", py);
     };
-    const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
     const onMove = (e: PointerEvent) => {
-      if (raf || !fine) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        rootEl.style.setProperty("--px", (e.clientX / window.innerWidth - 0.5).toFixed(3));
-        rootEl.style.setProperty("--py", (e.clientY / window.innerHeight - 0.5).toFixed(3));
-      });
+      x = e.clientX;
+      y = e.clientY;
+      if (!raf) raf = requestAnimationFrame(write);
     };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("pointermove", onMove, { passive: true });
     return () => {
-      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("pointermove", onMove);
       cancelAnimationFrame(raf);
-      if (headEl) { headEl.style.opacity = ""; headEl.style.transform = ""; }
     };
-  }, [root, head, reduced]);
+  }, [root, wall, reduced]);
+}
+
+/** One observer for every decorative loop: toggles `data-off` on each section while it is off-screen
+ *  (or the tab is hidden), and CSS pauses the animations inside. Reports the hero's state, which
+ *  also freezes the stage rotation (its progress fill is one of the paused animations). */
+function useOffscreenPause(root: React.RefObject<HTMLElement | null>, onHero: (off: boolean) => void) {
+  useEffect(() => {
+    const el = root.current;
+    if (!el) return;
+    const targets = [...el.querySelectorAll<HTMLElement>(PAUSABLE)];
+    const seen = new Map<Element, boolean>(targets.map((t) => [t, true]));
+    const apply = () => {
+      const hidden = document.visibilityState === "hidden";
+      for (const t of targets) t.toggleAttribute("data-off", hidden || !seen.get(t));
+      const head = targets.find((t) => t.classList.contains("landing-head"));
+      onHero(hidden || (head ? !seen.get(head) : false));
+    };
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) seen.set(e.target, e.isIntersecting);
+      apply();
+    }, { rootMargin: "100px" });
+    targets.forEach((t) => io.observe(t));
+    document.addEventListener("visibilitychange", apply);
+    return () => {
+      io.disconnect();
+      document.removeEventListener("visibilitychange", apply);
+      targets.forEach((t) => t.removeAttribute("data-off"));
+    };
+  }, [root, onHero]);
+}
+
+/** Hover intent (fine pointers, 120ms), keyboard focus and press all start the edition's download early. */
+function usePrefetchIntent(to: string) {
+  const timer = useRef(0);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+  return {
+    onPointerEnter: (e: React.PointerEvent) => {
+      if (e.pointerType !== "mouse" || !window.matchMedia("(hover: hover)").matches) return;
+      window.clearTimeout(timer.current);
+      timer.current = window.setTimeout(() => prefetchEdition(to), 120);
+    },
+    onPointerLeave: () => window.clearTimeout(timer.current),
+    onPointerDown: () => prefetchEdition(to),
+    onFocus: () => prefetchEdition(to),
+  };
+}
+
+/** Wallpaper tone layers: the outgoing hue stays put while the new one fades in over it. */
+interface WallLayer { tone: Tone; phase: string }
+function useWallTone(tone: Tone) {
+  const [wall, setWall] = useState<{ cur: WallLayer; prev: WallLayer | null }>(() => ({ cur: { tone, phase: wallPhase() }, prev: null }));
+  if (wall.cur.tone !== tone) {
+    // Adjust state during render (no extra commit): the old layer becomes `prev` unless motion is reduced.
+    setWall({ cur: { tone, phase: wall.prev?.tone === tone ? wall.prev.phase : wallPhase() }, prev: motionReduced() ? null : wall.cur });
+  }
+  const clearPrev = useCallback(() => setWall((w) => (w.prev ? { ...w, prev: null } : w)), []);
+  return { wall, clearPrev };
 }
 
 interface Portal { ed: Edition; x: number; y: number; w: number; h: number; phase: "grow" | "hold" }
@@ -102,6 +169,7 @@ function usePortal(reduced: boolean) {
 
   const enter = useCallback((ed: Edition, fromEl?: HTMLElement | null) => {
     if (busy.current) return;
+    prefetchEdition(ed.to);
     if (reduced) { navigate(ed.to, { viewTransition: true }); return; }
     busy.current = true;
     const r = fromEl?.getBoundingClientRect();
@@ -131,7 +199,7 @@ function usePortal(reduced: boolean) {
 /* ── components ────────────────────────────────────────────── */
 
 function PortalOverlay({ p }: { p: Portal }) {
-  const style = { "--px": `${p.x}px`, "--py": `${p.y}px`, "--pw": `${p.w}px`, "--ph": `${p.h}px` } as CSSProperties;
+  const style = { "--pl": `${p.x}px`, "--pt": `${p.y}px`, "--pw": `${p.w}px`, "--ph": `${p.h}px` } as CSSProperties;
   return (
     <div className={`ed-portal ed-portal--${p.ed.tone} is-${p.phase}`} style={style} aria-hidden="true">
       <div className="ed-portal__card">
@@ -143,10 +211,11 @@ function PortalOverlay({ p }: { p: Portal }) {
   );
 }
 
-function EditionStage({ index, setIndex, reduced, onEnter }: {
+function EditionStage({ index, setIndex, reduced, offscreen, onEnter }: {
   index: number;
   setIndex: Dispatch<SetStateAction<number>>;
   reduced: boolean;
+  offscreen: boolean;
   onEnter: (e: MouseEvent<HTMLElement>, ed: Edition, el: HTMLElement) => void;
 }) {
   const [hovering, setHovering] = useState(false);
@@ -155,12 +224,13 @@ function EditionStage({ index, setIndex, reduced, onEnter }: {
   const panelId = useId();
   const tabsRef = useRef<HTMLDivElement>(null);
   const ed = EDITIONS[index];
-
-  useEffect(() => {
-    if (paused || reduced) return;
-    const t = window.setInterval(() => setIndex((i) => (i + 1) % EDITIONS.length), STAGE_INTERVAL_MS);
-    return () => window.clearInterval(t);
-  }, [paused, reduced, index, setIndex]);
+  const prefetch = usePrefetchIntent(ed.to);
+  // Auto-rotation is the active segment's fill animation: when it ends, the next slide comes up.
+  // Hover, the pause button and the off-screen observer pause that animation, so bar and slide never disagree.
+  const rotating = !reduced && !paused && !offscreen;
+  const onFillEnd = (e: AnimationEvent<HTMLElement>) => {
+    if (e.animationName === "stage-fill" && e.pseudoElement === "::after") setIndex((i) => (i + 1) % EDITIONS.length);
+  };
 
   const focusTab = (i: number) => tabsRef.current?.querySelectorAll<HTMLButtonElement>("[role=tab]")[i]?.focus();
   const onTabKey = (e: React.KeyboardEvent) => {
@@ -189,10 +259,13 @@ function EditionStage({ index, setIndex, reduced, onEnter }: {
     >
       <div className="stage-bar">
         <span className="stage-dot r" /><span className="stage-dot y" /><span className="stage-dot g" />
-        <span className="stage-url" aria-hidden="true">{site.host}{ed.to}</span>
-        <span className="stage-count" aria-hidden="true">{ed.num} / {String(EDITIONS.length).padStart(2, "0")}</span>
+        <span className="stage-url" aria-hidden="true">
+          <span className="su-host">{site.host}</span>
+          <span className="su-path" key={ed.to} style={{ "--n": Math.max(1, ed.to.length) } as CSSProperties}>{ed.to}</span>
+        </span>
+        <span className="stage-count" key={ed.to} aria-hidden="true">{ed.num} / {String(EDITIONS.length).padStart(2, "0")}</span>
       </div>
-      <div id={panelId} role="tabpanel" aria-live="polite" aria-label={`${ed.label} preview`} className="stage-screen">
+      <div id={panelId} role="tabpanel" aria-live={rotating ? "off" : "polite"} aria-label={`${ed.label} preview`} className="stage-screen">
         {EDITIONS.map((s, i) => (
           <div key={s.to} className={`stage-skin stage-${s.tone}${i === index ? " is-active" : ""}`} aria-hidden="true">
             <Skin tone={s.tone} size="stage" />
@@ -202,6 +275,7 @@ function EditionStage({ index, setIndex, reduced, onEnter }: {
           to={ed.to}
           className="stage-hit"
           aria-label={`Open the ${ed.label} edition`}
+          {...prefetch}
           onClick={(e) => onEnter(e, ed, e.currentTarget.parentElement ?? e.currentTarget)}
         >
           <span className="stage-enter" aria-hidden="true">enter {ed.label} →</span>
@@ -222,14 +296,14 @@ function EditionStage({ index, setIndex, reduced, onEnter }: {
               className={`stage-seg${i === index ? " is-active" : ""}`}
               onClick={() => setIndex(i)}
             >
-              <i key={i === index ? `${s.to}-on` : s.to} />
+              <i key={i === index ? `${s.to}-on` : s.to} onAnimationEnd={i === index ? onFillEnd : undefined} />
             </button>
           ))}
         </div>
         <button type="button" className="stage-pause" onClick={() => setUserPaused((p) => !p)} aria-pressed={userPaused} aria-label={userPaused ? "Resume preview rotation" : "Pause preview rotation"}>
           {userPaused ? "▶" : "❚❚"}
         </button>
-        <span className="stage-tone" aria-hidden="true">{ed.label} · {ed.role}</span>
+        <span className="stage-tone" key={ed.to} aria-hidden="true">{ed.label} · {ed.role}</span>
       </div>
     </div>
   );
@@ -238,9 +312,10 @@ function EditionStage({ index, setIndex, reduced, onEnter }: {
 function EditionCard({ ed, keyNum, onClick }: { ed: Edition; keyNum: string; onClick: (e: MouseEvent<HTMLElement>, ed: Edition, el: HTMLElement | null) => void }) {
   const ref = useTilt<HTMLDivElement>(5, ".edition-card");
   const previewRef = useRef<HTMLDivElement>(null);
+  const prefetch = usePrefetchIntent(ed.to);
   return (
     <div ref={ref} className="edition-tilt" role="listitem" data-reveal>
-      <Link to={ed.to} viewTransition className={`edition-card ed-${ed.tone}`} aria-label={`Open the ${ed.label} edition — ${ed.role}`} data-cursor={ed.tone} onClick={(e) => onClick(e, ed, previewRef.current)}>
+      <Link to={ed.to} viewTransition className={`edition-card ed-${ed.tone}`} aria-label={`Open the ${ed.label} edition — ${ed.role}`} data-cursor={ed.tone} {...prefetch} onClick={(e) => onClick(e, ed, previewRef.current)}>
         <kbd className="ed-key" aria-hidden="true">{keyNum}</kbd>
         <div className="ed-preview" ref={previewRef} aria-hidden="true"><Skin tone={ed.tone} size="mini" /></div>
         <div className="ed-meta">
@@ -296,13 +371,14 @@ export function Landing() {
   const ist = useIstTime(false);
   const gh = useGithub();
   const rootRef = useRef<HTMLDivElement>(null);
-  const headRef = useRef<HTMLElement>(null);
+  const wallRef = useRef<HTMLDivElement>(null);
+  const [heroOff, setHeroOff] = useState(false);
   const cardsRef = useRef<HTMLDivElement>(null);
   const { portal, enter, onLinkClick } = usePortal(reduced);
 
-  useEffect(() => { window.scrollTo(0, 0); }, []);
   useRevealOnScroll(rootRef);
-  useWallpaperParallax(rootRef, headRef, reduced);
+  useWallpaperParallax(rootRef, wallRef, reduced);
+  useOffscreenPause(rootRef, setHeroOff);
   useMagnetic(".l-cta", 0.25, 10);
 
   // 1–7 on the landing: run the portal from the matching card, then enter (works under reduced motion too).
@@ -325,11 +401,26 @@ export function Landing() {
 
   const live = featuredProjects.filter((p) => p.live).length;
   const current = EDITIONS[index];
+  const { wall, clearPrev } = useWallTone(current.tone);
+  const glows = <><i className="a" /><i className="b" /><i className="c" /></>;
 
   return (
     <div ref={rootRef} className={`landing-root${portal ? " is-leaving" : ""}`} data-cursor-accent="landing" data-tone={current.tone}>
       {portal && <PortalOverlay p={portal} />}
-      <div className="land-wall" aria-hidden="true"><i className="a" /><i className="b" /><i className="c" /><i className="grain" /></div>
+      <div className="land-wall" ref={wallRef} aria-hidden="true">
+        {(wall.prev ? [wall.prev, wall.cur] : [wall.cur]).map((l) => (
+          <div
+            key={l.tone}
+            className={`wall-tone${l === wall.cur && wall.prev ? " is-new" : ""}`}
+            data-tone={l.tone}
+            style={{ "--wall-t": l.phase } as CSSProperties}
+            onAnimationEnd={l === wall.cur ? (e) => { if (e.animationName === "wall-in" && e.target === e.currentTarget) clearPrev(); } : undefined}
+          >
+            {glows}
+          </div>
+        ))}
+        <i className="grain" />
+      </div>
 
       <header className="landing-top" data-reveal>
         <span className="lt-mark">✦ <em>{site.name}</em></span>
@@ -342,7 +433,7 @@ export function Landing() {
       </header>
 
       <main className="landing-main" id="main">
-        <section className="landing-head" ref={headRef} aria-labelledby="landing-h1">
+        <section className="landing-head" aria-labelledby="landing-h1">
           <div className="hero-grid">
             <div className="hero-copy">
               <p className="landing-dateline">
@@ -367,7 +458,7 @@ export function Landing() {
               </div>
             </div>
             <div className="hero-stage">
-              <EditionStage index={index} setIndex={setIndex} reduced={reduced} onEnter={onLinkClick} />
+              <EditionStage index={index} setIndex={setIndex} reduced={reduced} offscreen={heroOff} onEnter={onLinkClick} />
             </div>
           </div>
           <div className="landing-scroll" aria-hidden="true"><i /></div>

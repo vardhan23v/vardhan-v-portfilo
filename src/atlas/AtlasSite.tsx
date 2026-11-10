@@ -10,6 +10,7 @@ import { skillCategories } from "../classic/data/skills";
 import { site } from "../classic/data/site";
 import { mailtoHref, sendMessage } from "../lib/contact";
 import { caseStudyPath, hasCaseStudy } from "../work/links";
+import { prefetchEdition } from "../lib/editionLoaders";
 import { GRID_COLS, GRID_ROWS, H, W, backdrop, terrain } from "./terrain";
 import { useContributions, useRepos, type Activity } from "./useLive";
 import { ContourField } from "./ContourField";
@@ -21,6 +22,11 @@ const T = terrain(featuredProjects.length);
 const BG = backdrop();
 const pad = (n: number) => String(n).padStart(2, "0");
 const PLATES = featuredProjects.map((p, i) => ({ p, s: T.summits[i], n: pad(i + 1) }));
+/** Load sweep origin (summit 01) and its distance to the farthest map edge, as fractions of the map. */
+const SWEEP = (() => {
+  const x = T.summits[0].x / W, y = T.summits[0].y / H;
+  return { "--sx": `${x * 100}%`, "--sy": `${y * 100}%`, "--fx": Math.max(x, 1 - x).toFixed(3), "--fy": Math.max(y, 1 - y).toFixed(3) } as CSSProperties;
+})();
 const shotOf = (p: (typeof featuredProjects)[number]) => p.cover ?? p.screenshots?.[0];
 
 interface Row { n: string; name: string; text: string; tag: string; year?: string; url: string; live?: string }
@@ -117,14 +123,18 @@ function TitleSheet({ activity, more }: { activity: number | null | "failed"; mo
   ];
   return (
     <section className="atl-title" id="atl-top" aria-labelledby="atl-name" data-p="" data-range="exit">
-      <ol className="atl-coords atl-coords--top" aria-hidden="true">{[...GRID_COLS].map((c) => <li key={c}>{c}</li>)}</ol>
-      <ol className="atl-coords atl-coords--bottom" aria-hidden="true">{[...GRID_COLS].map((c) => <li key={c}>{c}</li>)}</ol>
-      <ol className="atl-coords atl-coords--left" aria-hidden="true">{Array.from({ length: GRID_ROWS }, (_, i) => <li key={i}>{i + 1}</li>)}</ol>
-      <ol className="atl-coords atl-coords--right" aria-hidden="true">{Array.from({ length: GRID_ROWS }, (_, i) => <li key={i}>{i + 1}</li>)}</ol>
+      <ol className="atl-coords atl-coords--top" aria-hidden="true">{[...GRID_COLS].map((c, i) => <li key={c} style={{ "--i": i } as CSSProperties}>{c}</li>)}</ol>
+      <ol className="atl-coords atl-coords--bottom" aria-hidden="true">{[...GRID_COLS].map((c, i) => <li key={c} style={{ "--i": i } as CSSProperties}>{c}</li>)}</ol>
+      <ol className="atl-coords atl-coords--left" aria-hidden="true">{Array.from({ length: GRID_ROWS }, (_, i) => <li key={i} style={{ "--i": i } as CSSProperties}>{i + 1}</li>)}</ol>
+      <ol className="atl-coords atl-coords--right" aria-hidden="true">{Array.from({ length: GRID_ROWS }, (_, i) => <li key={i} style={{ "--i": i } as CSSProperties}>{i + 1}</li>)}</ol>
       <div className="atl-map" ref={map}>
         <div className="atl-map-art">
         <Contours lines={T.lines} className="atl-map-lines" />
         <div className="atl-map-grid" aria-hidden="true" />
+        {/* load: an opaque paper disc with a growing hole surveys the map outward from summit 01 */}
+        <span className="atl-sweep-clip" aria-hidden="true">
+          <span className="atl-sweep" style={SWEEP} />
+        </span>
         <ul className="atl-peaks">
           {PLATES.map(({ p, s, n }) => (
             <li key={p.slug} style={{ "--x": `${(s.x / W) * 100}%`, "--y": `${(s.y / H) * 100}%`, "--d": Number(n) } as CSSProperties}>
@@ -193,20 +203,24 @@ function Bar({ rows }: { rows: Row[] }) {
 
   useEffect(() => {
     let raf = 0;
+    let lastPct = -1;
+    const pctEl = bar.current?.querySelector(".atl-pct");
     const onScroll = () => {
       if (raf) return;
       raf = requestAnimationFrame(() => {
         raf = 0;
-        const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+        // Read everything first, then write, so the frame lays out once.
+        const vh = innerHeight;
+        const max = Math.max(1, document.documentElement.scrollHeight - vh);
         const pct = Math.min(1, scrollY / max);
-        bar.current?.style.setProperty("--p", pct.toFixed(4));
-        const pctEl = bar.current?.querySelector(".atl-pct");
-        if (pctEl) pctEl.textContent = `${Math.round(pct * 100)}%`;
         let cur = -1;
         SECTIONS.forEach((s, i) => {
           const el = document.getElementById(s.id);
-          if (el && el.getBoundingClientRect().top < innerHeight * 0.4) cur = i;
+          if (el && el.getBoundingClientRect().top < vh * 0.4) cur = i;
         });
+        bar.current?.style.setProperty("--p", pct.toFixed(4));
+        const pc = Math.round(pct * 100);
+        if (pctEl && pc !== lastPct) { lastPct = pc; pctEl.textContent = `${pc}%`; }
         setCurrent(cur);
       });
     };
@@ -262,6 +276,7 @@ function Bar({ rows }: { rows: Row[] }) {
           onBlur={() => setTimeout(() => setOpen(false), 120)}
           onKeyDown={onKeyDown}
         />
+        <p className="sr-only" role="status" aria-live="polite">{open && q.trim() ? (results.length ? `${results.length} match${results.length === 1 ? "" : "es"}` : "No matches") : ""}</p>
         <span className="atl-pct" aria-hidden="true">0%</span>
         <kbd aria-hidden="true">/</kbd>
         {open && results.length > 0 && (
@@ -273,6 +288,7 @@ function Bar({ rows }: { rows: Row[] }) {
             ))}
           </ul>
         )}
+        {open && q.trim() && results.length === 0 && <p className="atl-results atl-results--empty" aria-hidden="true">No match on this sheet. Try a project or skill name.</p>}
       </div>
       <span className="atl-progress" aria-hidden="true" />
       <InterfaceSwitcher current="atlas" />
@@ -281,6 +297,8 @@ function Bar({ rows }: { rows: Row[] }) {
 }
 
 /* ---------- I. Projects ---------- */
+/** Start loading the case-study chunk as soon as the visitor shows intent. */
+const warmCaseStudy = () => prefetchEdition("/work/");
 function Plates() {
   return (
     <section className="atl-sec" id="atl-projects" aria-labelledby="atl-projects-h">
@@ -319,7 +337,7 @@ function Plates() {
                 <div className="atl-plate-links">
                   {p.live && <p><span>Live site</span><a href={p.live} {...ext}>{host(p.live)}<NewTab /></a></p>}
                   <p><span>Source</span><a href={p.github} {...ext}>{repoPath(p.github)}<NewTab /></a></p>
-                  {hasCaseStudy(p.slug) && <p><span>Case study</span><Link to={caseStudyPath(p.slug)} state={{ from: "/atlas" }}>Read the case study</Link></p>}
+                  {hasCaseStudy(p.slug) && <p><span>Case study</span><Link to={caseStudyPath(p.slug)} state={{ from: "/atlas" }} onPointerEnter={warmCaseStudy} onFocus={warmCaseStudy} onTouchStart={warmCaseStudy}>Read the case study</Link></p>}
                 </div>
               </div>
               </div>
@@ -333,7 +351,10 @@ function Plates() {
 
 /* ---------- II. More projects (gazetteer) ---------- */
 function More({ rows, live }: { rows: Row[]; live: "loading" | "ok" | "failed" }) {
-  const [cur, setCur] = useState(0);
+  // The row under the reading line, and which way the numeral should roll to reach it.
+  const [pos, setPos] = useState({ cur: 0, dir: "down" as "down" | "up" });
+  const setCur = (i: number) => setPos((s) => (s.cur === i ? s : { cur: i, dir: i > s.cur ? "down" : "up" }));
+  const cur = pos.cur;
   const list = useRef<HTMLOListElement>(null);
   useEffect(() => {
     const el = list.current;
@@ -349,9 +370,9 @@ function More({ rows, live }: { rows: Row[]; live: "loading" | "ok" | "failed" }
     <section className="atl-sec" id="atl-more" aria-labelledby="atl-more-h">
       <Head i={1} lead={`${rows.length} smaller peaks${live === "ok" ? ", with the newest public repositories read live from GitHub" : ""}.`} />
       <div className="atl-gaz">
-        <div className="atl-gaz-side" aria-hidden="true">
-          <p className="atl-gaz-big">{r?.n}</p>
-          <p className="atl-gaz-meta">{[r?.tag, r?.year].filter(Boolean).join(" · ")}</p>
+        <div className="atl-gaz-side" aria-hidden="true" data-dir={pos.dir}>
+          <p className="atl-gaz-big"><span className="atl-gaz-roll" key={r?.n}>{r?.n}</span></p>
+          <p className="atl-gaz-meta"><span className="atl-gaz-roll atl-gaz-roll--meta" key={`m${r?.n}`}>{[r?.tag, r?.year].filter(Boolean).join(" · ")}</span></p>
           <p className="atl-gaz-of">of {pad(featuredProjects.length + rows.length)}</p>
         </div>
         <ol className="atl-gaz-list" ref={list}>
@@ -359,7 +380,7 @@ function More({ rows, live }: { rows: Row[]; live: "loading" | "ok" | "failed" }
             <li key={row.url + row.n} id={`row-${row.n}`} data-i={i} data-p="" data-span="0.45" onMouseEnter={() => setCur(i)} className={i === cur ? "is-cur" : undefined}>
               <span className="atl-gaz-n">{row.n}</span>
               <span className="atl-tri atl-tri--hollow" aria-hidden="true" />
-              <a className="atl-gaz-name" href={row.url} {...ext} onFocus={() => setCur(i)}>{row.name}<NewTab /></a>
+              <a className="atl-gaz-name" href={row.url} {...ext} onFocus={() => setCur(i)}><span className="atl-gaz-name-t">{row.name}</span><NewTab /></a>
               <p className="atl-gaz-text">{row.text}{row.live && <> <a href={row.live} {...ext} className="atl-gaz-live">Live<NewTab /></a></>}</p>
               <span className="atl-gaz-tag">{row.tag}</span>
               <span className="atl-gaz-year">{row.year ?? ""}</span>
@@ -464,12 +485,25 @@ function ActivityBody({ a }: { a: Activity }) {
   );
 }
 
+/** Loading sheet; its sheen runs only while it is on screen. */
+function Skeleton() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([e]) => el.classList.toggle("is-on", e.isIntersecting));
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return <div ref={ref} className="atl-skel" aria-busy="true" aria-label="Loading contributions" />;
+}
+
 function ActivitySec({ act }: { act: ReturnType<typeof useContributions> }) {
   if (act.status === "failed") return null;
   return (
     <section className="atl-sec" id="atl-activity" aria-labelledby="atl-activity-h">
       <Head i={3} lead="The last year of contributions, in section and in plan." />
-      {act.status === "loading" ? <div className="atl-skel" aria-busy="true" aria-label="Loading contributions" /> : <ActivityBody a={act.data} />}
+      {act.status === "loading" ? <Skeleton /> : <ActivityBody a={act.data} />}
     </section>
   );
 }
@@ -533,8 +567,10 @@ function Contact() {
         <h2 id="contact-h" className="atl-h2 atl-h2--xl">Contact</h2>
         <p className="atl-lead">Write to me directly, or find me on these. I reply {site.replyTime}.</p>
         <svg className="atl-compass" viewBox="-60 -60 120 120" aria-hidden="true" focusable="false">
-          <circle r="54" className="c1" /><circle r="44" className="c2" />
-          {Array.from({ length: 48 }, (_, i) => { const a = (i / 48) * Math.PI * 2; const r0 = i % 4 === 0 ? 46 : 50; return <line key={i} x1={Math.cos(a) * r0} y1={Math.sin(a) * r0} x2={Math.cos(a) * 54} y2={Math.sin(a) * 54} />; })}
+          <g className="atl-bezel">
+            <circle r="54" className="c1" /><circle r="44" className="c2" />
+            {Array.from({ length: 48 }, (_, i) => { const a = (i / 48) * Math.PI * 2; const r0 = i % 4 === 0 ? 46 : 50; return <line key={i} x1={Math.cos(a) * r0} y1={Math.sin(a) * r0} x2={Math.cos(a) * 54} y2={Math.sin(a) * 54} />; })}
+          </g>
           <g className="atl-needle"><path d="M0 -40 7 0 0 6 -7 0Z" className="n" /><path d="M0 40 4 0 0 6 -4 0Z" className="s" /></g>
           <text y="-30" className="t">N</text>
         </svg>
@@ -570,9 +606,9 @@ function Contact() {
           <textarea id="atl-msg-in" rows={4} placeholder="Tell me about the role / project…" required value={message} onChange={(e) => setMessage(e.target.value)} aria-invalid={tried && !message.trim() ? true : undefined} aria-describedby={tried && !message.trim() ? "atl-msg-err" : undefined} />
           {err(tried && !message.trim(), "atl-msg-err", "Please add a few words.")}
           <div className="atl-form-foot">
-            <button type="submit" className="atl-btn" disabled={status === "sending"}>{status === "sending" ? "Sending…" : "Send message"}</button>
+            <button type="submit" className="atl-btn" disabled={status === "sending"} aria-busy={status === "sending" || undefined}>{status === "sending" ? "Sending…" : "Send message"}</button>
             <p role="status" aria-live="polite" className="atl-form-status">
-              {status === "sent" && "Sent. Thank you, I will reply soon."}
+              {status === "sent" && <><span className="atl-tri atl-tri--sent" aria-hidden="true" />Sent. Thank you, I will reply soon.</>}
               {status === "mailto" && "Your mail app opened with the message."}
               {status === "error" && <>Could not send. <a href={fallback}>Email me directly</a> instead.</>}
             </p>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { site } from "../data/site";
+import { prefetchEdition } from "../../lib/editionLoaders";
 import { usePhosphor } from "../hooks/usePhosphor";
 import { OS_VERSION, loadHistory, uptime } from "../lib/shell";
 
@@ -23,7 +24,7 @@ export function Footer() {
   return (
     <footer className="footer">
       <div className="exit" aria-hidden="true">
-        ─── EOF · connection closed · thank you for visiting ───
+        <span className="exit-rule">───</span> EOF · connection closed · thank you for visiting <span className="exit-rule">───</span>
       </div>
       <div className="container">
         <div className="footer-inner">
@@ -32,7 +33,7 @@ export function Footer() {
             react + typescript <span className="bracket">·</span> no template was harmed
           </span>
           <span>
-            <Link to="/">↺ editions</Link> <span className="bracket">·</span> <Link to="/terminal#work">~/work</Link>{" "}
+            <Link to="/" onPointerEnter={() => prefetchEdition("/")} onFocus={() => prefetchEdition("/")} onTouchStart={() => prefetchEdition("/")}>↺ editions</Link> <span className="bracket">·</span> <Link to="/terminal#work">~/work</Link>{" "}
             <span className="bracket">·</span>{" "}
             <a href={site.github} target="_blank" rel="noopener noreferrer">
               github

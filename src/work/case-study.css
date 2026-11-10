@@ -18,10 +18,31 @@
 }
 .cs > * { max-width: var(--cs-col); margin-inline: auto; }
 .cs > .cs-shots, .cs > .cs-pn, .cs > .cs-top { max-width: var(--cs-wide); }
+.cs > .cs-bar { max-width: none; margin: 0; }
+
+/* Compact bar once the title has scrolled away: project name, previous / next.
+   Solid strip, transform + opacity only; the global 2px progress line sits on top of it. */
+.cs-bar {
+  position: fixed; inset: 0 0 auto; z-index: 50; height: 52px; padding: 2px max(16px, calc((100vw - var(--cs-wide)) / 2)) 0;
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg); border-bottom: 0.5px solid var(--cs-line);
+  transform: translateY(-100%); opacity: 0;
+  transition: transform 0.32s var(--ease), opacity 0.2s ease;
+}
+.cs-bar[data-on="true"] { transform: none; opacity: 1; }
+.cs-bar-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-display); font-size: 15px; }
+.cs-bar-link { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 44px; min-height: 44px; padding: 0 10px; border-radius: 999px; font-size: 13px; color: var(--text-2); white-space: nowrap; transition: color 0.2s var(--ease), background 0.2s var(--ease); }
+.cs-bar-prev { padding: 0; }
+@media (max-width: 560px) {
+  .cs-bar-next { padding: 0; }
+  .cs-bar-nm { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
 
 .cs-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 22px 0; font-size: 14px; }
 .cs-back { display: inline-flex; align-items: center; min-height: 44px; color: var(--text-2); transition: color 0.2s var(--ease); }
-.cs-back:hover { color: var(--text); }
+.cs-arrow, .cs-back-arrow { display: inline-block; transition: transform 0.22s var(--ease); }
+.cs-arrow { font-size: 0.9em; }
+.cs-back-arrow { margin-right: 6px; }
 .cs-keys { color: var(--text-3); font-size: 12px; }
 
 .cs-head { padding: clamp(32px, 7vw, 80px) 0 32px; }
@@ -32,17 +53,41 @@
 .cs-facts div { min-width: 0; }
 .cs-facts dt { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); }
 .cs-facts dd { margin: 2px 0 0; font-size: 15px; }
+/* Status light: solid green when live (one ping after the header settles), a hollow ring otherwise. */
+.cs-dot { position: relative; display: inline-block; width: 7px; height: 7px; margin-right: 8px; border-radius: 50%; background: #28c840; vertical-align: 0.1em; }
+.cs-dot::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: #28c840; opacity: 0; }
+.cs-dot--off { background: none; border: 1.5px solid var(--text-3); }
+.cs-dot--off::after { display: none; }
 .cs-lead { margin-top: 26px; font-size: 1.15rem; text-wrap: pretty; }
 .cs-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
-.cs-btn { display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border-radius: 999px; border: 0.5px solid var(--border-2); font-size: 15px; font-weight: 500; transition: background 0.2s var(--ease), transform 0.2s var(--ease); }
-.cs-btn:hover { background: rgba(255, 255, 255, 0.07); }
+.cs-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 999px; border: 0.5px solid var(--border-2); font-size: 15px; font-weight: 500; transition: background 0.2s var(--ease), transform 0.2s var(--ease); }
 .cs-btn:active { transform: scale(0.98); }
 .cs-btn--primary { background: var(--accent); border-color: transparent; color: #061024; }
-.cs-btn--primary:hover { background: #8dbcff; }
+.cs-btn--primary:active { background: #5d97ef; }
+.cs-btn:focus-visible, .cs-pn-card:focus-visible { outline-offset: 4px; }
 
 .cs-shots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; padding: 16px 0 24px; align-items: start; }
 .cs-shot { grid-column: span 6; margin: 0; }
-.cs-shot img { display: block; width: 100%; height: auto; border-radius: 14px; border: 0.5px solid var(--border-2); background: var(--card); box-shadow: 0 30px 80px -40px rgba(0, 0, 0, 0.8); }
+.cs-shot img { display: block; width: 100%; height: auto; border-radius: 14px; border: 0.5px solid var(--border-2); background: var(--card); box-shadow: 0 30px 80px -40px rgba(0, 0, 0, 0.8); transition: border-color 0.2s var(--ease); }
+.cs-shot-open { display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit; border-radius: 14px; cursor: zoom-in; }
+.cs-shot--phone .cs-shot-open { border-radius: 22px; }
+.cs-shot-open:focus-visible { outline-offset: 4px; }
+
+/* Lightbox: one native modal <dialog>, rendered only while open. The image zooms in (not the
+   dialog, so the fixed close button never rides a transform); closing is instant. */
+.cs-lightbox { width: fit-content; max-width: min(96vw, 1440px); max-height: 92dvh; padding: 0; border: 0; background: none; color: var(--text); overflow: auto; overscroll-behavior: contain; }
+.cs-lightbox img { display: block; width: auto; height: auto; max-width: 100%; max-height: 92dvh; margin-inline: auto; border-radius: 14px; border: 0.5px solid var(--border-2); background: var(--card); }
+.cs-lightbox.is-phone img { border-radius: 22px; }
+.cs-lightbox::backdrop { background: rgb(5 8 14 / 0.85); }
+.cs-lightbox-x { position: fixed; top: 12px; right: 12px; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; border: 0.5px solid var(--border-2); background: var(--card-strong); color: var(--text); font-size: 24px; line-height: 1; cursor: pointer; }
+html:has(.cs-lightbox[open]) { overflow: hidden; }
+/* Phones: the desktop UI pans at a readable size instead of shrinking to the screen width. */
+@media (max-width: 759px) {
+  .cs-lightbox { width: 100vw; max-width: none; height: 100dvh; max-height: none; touch-action: pan-x pan-y pinch-zoom; }
+  .cs-lightbox[open] { display: flex; align-items: safe center; }
+  .cs-lightbox:not(.is-phone) img { width: 1000px; max-width: none; max-height: none; flex: none; }
+  .cs-lightbox.is-phone img { max-height: 88dvh; }
+}
 .cs-shot figcaption { margin-top: 8px; font-size: 13px; color: var(--text-3); }
 @media (min-width: 760px) {
   .cs-shot:not(:first-child) { grid-column: span 4; }
@@ -50,7 +95,7 @@
   .cs-shot--phone img { border-radius: 22px; }
 }
 @media (max-width: 759px) {
-  .cs-shot--phone { max-width: 260px; }
+  .cs-shot--phone { max-width: 260px; margin-inline: auto; }
 }
 
 .cs-body { padding-top: 24px; }
@@ -75,8 +120,8 @@
 .cs-chips li { padding: 6px 12px; border-radius: 999px; border: 0.5px solid var(--border-2); font-family: var(--font-mono); font-size: 12.5px; color: var(--text-2); }
 
 .cs-pn { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 40px !important; }
-.cs-pn-card { display: grid; gap: 4px; padding: 20px 22px; border-radius: 16px; background: var(--card); border: 0.5px solid var(--border); transition: border-color 0.2s var(--ease), transform 0.25s var(--ease); }
-.cs-pn-card:hover { border-color: var(--border-2); transform: translateY(-2px); }
+.cs-pn-card { display: grid; gap: 4px; padding: 20px 22px; border-radius: 16px; background: var(--card); border: 0.5px solid var(--border); transition: border-color 0.2s var(--ease), transform 0.25s var(--ease), box-shadow 0.25s var(--ease); }
+.cs-pn-card:active { transform: scale(0.99); transition-duration: 0.08s; }
 .cs-pn-card--next { text-align: right; }
 .cs-pn-dir { font-family: var(--font-mono); font-size: 12px; color: var(--accent); }
 .cs-pn-name { font-family: var(--font-display); font-size: 1.4rem; }
@@ -84,13 +129,49 @@
 @media (max-width: 560px) { .cs-pn { grid-template-columns: 1fr; } .cs-pn-card--next { text-align: left; } }
 
 .cs-foot { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 28px; margin-top: 36px; font-size: 14px; }
-.cs-foot a { display: inline-flex; align-items: center; min-height: 44px; color: var(--text-2); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--border-2); }
-.cs-foot a:hover { color: var(--text); }
+.cs-foot a { display: inline-flex; align-items: center; min-height: 44px; color: var(--text-2); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--border-2); transition: color 0.2s, text-decoration-color 0.2s; }
+
+/* Hovers only where a pointer can hover: a tapped card or button never stays lifted. */
+@media (hover: hover) and (pointer: fine) {
+  .cs-back:hover { color: var(--text); }
+  .cs-back:hover .cs-back-arrow { transform: translateX(-3px); }
+  .cs-btn:hover { background: rgba(255, 255, 255, 0.07); }
+  .cs-btn--primary:hover { background: #8dbcff; }
+  .cs-btn:hover .cs-arrow { transform: translate(2px, -2px); }
+  .cs-pn-card:hover { border-color: var(--border-2); transform: translateY(-2px); box-shadow: 0 18px 40px -24px rgb(0 0 0 / 0.7); }
+  .cs-pn-card:active { transform: scale(0.99); }
+  .cs-foot a:hover { color: var(--text); text-decoration-color: var(--accent); }
+  .cs-shot-open:hover img { border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+  .cs-bar-link:hover { color: var(--text); background: rgba(255, 255, 255, 0.07); }
+}
+
+/* 390px tidy-up: even CTA row and a 2x2 facts grid. */
+@media (max-width: 480px) {
+  .cs-actions { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .cs-btn { justify-content: center; }
+  .cs-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; }
+  .cs-facts div:nth-child(4) { grid-column: 1 / -1; }
+}
+/* Phones: room at the end for the floating Ask AI launcher and back-to-top. */
+@media (max-width: 760px) {
+  .cs { padding-bottom: 0; }
+  .cs-foot { padding-bottom: calc(var(--floating-clearance, 88px) + env(safe-area-inset-bottom)); }
+}
 
 /* Reveal: a short rise, only when motion is allowed; content is visible otherwise. */
 @media (prefers-reduced-motion: no-preference) {
-  html:not([data-motion="reduce"]) .cs .reveal { transition: opacity 0.5s var(--ease), transform 0.5s var(--ease); transition-delay: calc(var(--i, 0) * 70ms); }
-  html:not([data-motion="reduce"]) .cs .reveal:not(.is-visible) { opacity: 0; transform: translateY(14px); }
+  html:not([data-motion="reduce"]) .cs .reveal { transition: opacity 0.45s var(--ease), transform 0.45s var(--ease); transition-delay: calc(var(--i, 0) * 70ms); }
+  html:not([data-motion="reduce"]) .cs .reveal:not(.is-visible) { opacity: 0; transform: translateY(10px); }
+  /* The hero screenshot follows the header stagger instead of arriving first. */
+  html:not([data-motion="reduce"]) .cs-head + .cs-shots > .cs-shot:first-child.reveal { transition-duration: 0.7s; transition-delay: 320ms; }
+  html:not([data-motion="reduce"]) .cs-head + .cs-shots > .cs-shot:first-child.reveal:not(.is-visible) { transform: translateY(24px) scale(0.985); }
+  /* The top nav fades in with the page. */
+  html:not([data-motion="reduce"]) .cs-top { animation: cs-fade 0.45s var(--ease) backwards; }
+  /* The live light pings once, after the facts have settled, then rests. */
+  html:not([data-motion="reduce"]) .cs-dot:not(.cs-dot--off)::after { animation: cs-ping 1.4s cubic-bezier(0, 0, 0.2, 1) 0.9s 1; }
+  /* Lightbox opens with a short zoom; the backdrop fades. */
+  html:not([data-motion="reduce"]) .cs-lightbox[open] img { animation: cs-zoom 0.28s var(--ease); }
+  html:not([data-motion="reduce"]) .cs-lightbox[open]::backdrop { animation: cs-fade 0.22s ease; }
   /* The header settles in line by line. */
   html:not([data-motion="reduce"]) .cs-head > * { animation: cs-rise 0.6s var(--ease) backwards; }
   html:not([data-motion="reduce"]) .cs-head > :nth-child(2) { animation-delay: 70ms; }
@@ -106,14 +187,21 @@
   html:not([data-motion="reduce"]) .cs .reveal.is-visible :is(.cs-decisions, .cs-arch) > li:nth-child(n+5) { animation-delay: 280ms; }
   /* Prev/next: the direction label nudges toward where it goes. */
   .cs-pn-dir { display: inline-block; transition: transform 0.25s var(--ease); }
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .cs-pn-card:not(.cs-pn-card--next):hover .cs-pn-dir { transform: translateX(-4px); }
   .cs-pn-card--next:hover .cs-pn-dir { transform: translateX(4px); }
 }
 @keyframes cs-rise { from { opacity: 0; transform: translateY(12px); } }
+@keyframes cs-fade { from { opacity: 0; } }
+@keyframes cs-zoom { from { opacity: 0; transform: scale(0.96); } }
+@keyframes cs-ping { from { opacity: 0.5; transform: scale(1); } to { opacity: 0; transform: scale(2.4); } }
 /* Screenshots tip up into place as they scroll into view (scaled down, never up, so nothing overflows). */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     html:not([data-motion="reduce"]) .cs-shot img { animation: cs-shot-settle linear both; animation-timeline: view(); animation-range: entry 0% cover 40%; }
+    /* The hero shot enters with the header and rests fully settled (never dimmed or tilted). */
+    html:not([data-motion="reduce"]) .cs-head + .cs-shots > .cs-shot:first-child img { animation: none; }
   }
 }
 @keyframes cs-shot-settle { from { opacity: 0.55; transform: perspective(1200px) rotateX(8deg) scale(0.97); } to { opacity: 1; transform: none; } }
@@ -121,7 +209,7 @@
 
 @media print {
   .cs { background: #fff; color: #000; padding: 0; }
-  .cs-top, .cs-pn, .cs-foot, .cs-shot--phone { display: none; }
+  .cs-top, .cs-pn, .cs-foot, .cs-shot--phone, .cs-bar, .cs-lightbox, .cs-arrow, .cs-dot { display: none; }
   .cs-sec p, .cs-tagline, .cs-arch span, .cs-learned { color: #222; }
   .cs .reveal { opacity: 1 !important; transform: none !important; }
   .cs-actions a::after { content: " (" attr(href) ")"; font-size: 12px; }

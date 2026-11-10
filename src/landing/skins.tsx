@@ -1,4 +1,4 @@
-import type { ReactElement } from "react";
+import type { CSSProperties, ReactElement } from "react";
 import type { Tone } from "../editions";
 import { featuredProjects } from "../classic/data/projects";
 import { H, W, terrain } from "../atlas/terrain";
@@ -14,11 +14,34 @@ function Term({ size }: { size: SkinSize }) {
     <div className="mini-term"><div className="mini-body"><div className="l-prompt">$ vardhan build --ai</div><div className="l-ok">✓ shipped</div><div className="l-cursor" /></div></div>
   );
 }
+/** The Starry Night in miniature (palette from src/classic/DESIGN.md): swirl strokes on their own layer so the
+ *  whole layer can turn on the compositor, a static moon and cypress, and HTML star dots that twinkle. */
+const STARS = [[12, 18], [30, 10], [47, 24], [63, 9], [86, 56], [93, 14]] as const;
+function StarryNight() {
+  return (
+    <>
+      <svg className="sc-swirl" viewBox="0 0 320 160" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <path d="M-10 58 C 40 30, 92 34, 132 56 S 228 86, 330 50" stroke="#3f5a8f" />
+        <path d="M-6 104 C 52 86, 108 92, 160 108 S 262 122, 330 98" stroke="#5e7ba6" />
+        <path d="M150 34 c 0 -13 23 -16 28 -3 c 4 12 -15 20 -25 10 c -7 -7 2 -16 10 -13" stroke="#6e89a2" />
+      </svg>
+      <svg className="sc-sky" viewBox="0 0 320 160" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <circle cx="250" cy="34" r="19" fill="#bbaf4a" opacity="0.14" />
+        <circle cx="250" cy="34" r="11" fill="#bbaf4a" />
+        <circle cx="255" cy="30" r="9" fill="#1d274e" />
+        <path d="M40 160 C 36 146, 41 136, 38 124 C 35 112, 42 104, 40 92 C 38 80, 45 72, 44 60 C 43 50, 48 42, 49 32 C 52 44, 55 52, 54 64 C 53 76, 60 84, 58 96 C 56 108, 63 116, 60 128 C 58 140, 64 150, 62 160 Z" fill="#1d211f" />
+      </svg>
+      <span className="sc-stars" aria-hidden="true">
+        {STARS.map(([x, y], i) => <i key={i} style={{ left: `${x}%`, top: `${y}%`, "--s": i } as CSSProperties} />)}
+      </span>
+    </>
+  );
+}
 function Classic({ size }: { size: SkinSize }) {
   return size === "stage" ? (
-    <div className="stage-classic"><div className="sc-name">VARDHAN<span className="sc-dot">.</span>V</div><div className="sc-grid"><span /><span /><span /><span /></div></div>
+    <div className="stage-classic"><StarryNight /><div className="sc-name">VARDHAN<span className="sc-dot">.</span>V</div></div>
   ) : (
-    <div className="mini-classic"><div className="mc-name">VARDHAN<span className="mc-dot">.</span>V</div><div className="mc-role">generative-ai :: full-stack</div></div>
+    <div className="mini-classic"><StarryNight /><div className="mc-name">VARDHAN<span className="mc-dot">.</span>V</div><div className="mc-role">generative-ai :: full-stack</div></div>
   );
 }
 function Paper({ size }: { size: SkinSize }) {
@@ -76,7 +99,7 @@ function Atlas({ size }: { size: SkinSize }) {
       {ATLAS_PEAKS.map(([n, name], i) => {
         const s = t.summits[i];
         return (
-          <span key={n} className={`atlas-peak${i === 0 ? " is-first" : ""}`} style={{ left: `${(s.x / W) * 100}%`, top: `${(s.y / H) * 100}%` }}>
+          <span key={n} className={`atlas-peak${i === 0 ? " is-first" : ""}`} style={{ left: `${(s.x / W) * 100}%`, top: `${(s.y / H) * 100}%`, "--i": i } as CSSProperties}>
             <i />{n} {name}
           </span>
         );

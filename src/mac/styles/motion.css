@@ -8,6 +8,12 @@
 @keyframes wpDriftA { to { translate: 3% 2%; scale: 1.06; } }
 @keyframes wpDriftB { to { translate: -3% 3%; scale: 1.08; } }
 @keyframes wpDriftC { to { translate: 4% -3%; scale: 1.1; } }
+/* The drift rests whenever nobody can see it (a maximised window, Launchpad, the screensaver,
+   a system state, Mission Control) or after 15 s without input, so the glass above it stops re-blurring. */
+.mac-desktop:has(.mac-desktop-window.is-maximized:not(.is-min)) .mac-wallpaper__layer,
+.mac-desktop:has(.mac-launchpad, .mac-saver, .mac-sys) .mac-wallpaper__layer,
+.mac-desktop:has(.mac-desktop__area.is-expose) .mac-wallpaper__layer,
+.mac-wallpaper[data-still] .mac-wallpaper__layer { animation-play-state: paused; }
 
 /* ── Windows: open, close, minimize-to-dock, maximize glide ── */
 .mac-desktop-window { animation: winIn 0.42s var(--ease-spring) both; }
@@ -24,7 +30,7 @@
 /* the Dock tile "catches" the genie */
 .mac-dock__item.is-catching .mac-glyph { animation: dockCatch 0.6s 0.3s var(--ease-spring); }
 @keyframes dockCatch { 30% { transform: scaleX(1.25) scaleY(0.8); } 60% { transform: scaleX(0.9) scaleY(1.15); } }
-.mac-desktop-window__body { animation: bodyIn 0.5s 0.08s var(--ease-cinema) both; }
+.mac-desktop-window:not([data-shown]) .mac-desktop-window__body { animation: bodyIn 0.5s 0.08s var(--ease-cinema) both; }
 @keyframes bodyIn { from { opacity: 0; } }
 .mac-desktop-window.is-active .traffic-light { animation: lightIn 0.4s var(--ease-spring) both; }
 .mac-desktop-window.is-active .traffic-light--minimize { animation-delay: 60ms; }
@@ -35,15 +41,18 @@
 .mac-content--animated .mac-page { animation: pageIn 0.5s var(--ease-cinema) both; }
 @keyframes pageIn { from { opacity: 0; transform: translateY(8px); } }
 .ov-name { animation: nameIn 0.9s var(--ease-cinema) both; }
-@keyframes nameIn { from { opacity: 0; transform: translateY(14px); letter-spacing: 0.02em; } }
+@keyframes nameIn { from { opacity: 0; transform: translateY(14px); } }
 .ov-name em { display: inline-block; animation: emTilt 1.1s 0.2s var(--ease-spring) both; }
 @keyframes emTilt { from { opacity: 0; transform: rotate(-8deg) translateY(10px); } }
 .ov-quote { animation: pageIn 0.7s 0.35s var(--ease-cinema) both; }
 .mac-scrollprogress { transition: transform 120ms linear; }
+/* Scroll-driven where supported: the bar tracks the window's own scroller with no script. */
+@supports (animation-timeline: scroll()) {
+  .mac-scrollprogress { transition: none; transform: scaleX(0); animation: macProgress linear both; animation-timeline: scroll(nearest block); }
+  @keyframes macProgress { to { transform: scaleX(1); } }
+}
 
-/* ── Dock: launch bounce, hover lift already in shell.css ── */
-.mac-dock__item.is-bouncing { animation: dockBounce 0.9s var(--ease-cinema) 2; }
-@keyframes dockBounce { 0%, 100% { transform: translateY(0); } 35% { transform: translateY(-22px); } 65% { transform: translateY(-4px); } }
+/* ── Dock: the launch bounce lives in smooth.css (scale-aware keyframes) ── */
 .mac-dock { animation: dockIn 0.6s 0.1s var(--ease-spring) both; }
 @keyframes dockIn { from { opacity: 0; transform: translateY(30px) scale(0.96); } }
 .mac-dock__dot { transition: opacity 200ms, transform 300ms var(--ease-spring); transform: scale(0); }
@@ -74,8 +83,8 @@
 .cc-tile:active .cc-tile__icon { transform: scale(0.86); }
 .cc-tile.is-on .cc-tile__icon { animation: iconPop 0.35s var(--ease-spring); }
 @keyframes iconPop { 50% { transform: scale(1.2); } }
-.mac-menubar__clock { transition: background 120ms, letter-spacing 200ms; }
-.mac-menubar__clock:hover { letter-spacing: 0.08em; }
+.mac-menubar__clock { transition: background 120ms, transform 120ms var(--ease-out); }
+.mac-menubar__clock:active { transform: scale(0.96); }
 
 /* ── Desktop icons: drop in on mount ── */
 .mac-dicon-slot { display: contents; }
@@ -96,10 +105,14 @@
 .mac-widget { animation: widgetIn 0.45s var(--ease-cinema) both; animation-delay: calc(var(--i, 0) * 55ms); }
 @keyframes widgetIn { from { opacity: 0; transform: translateX(28px); } }
 .mac-widget__time { animation: timePulse 0.8s var(--ease-cinema) both; }
-@keyframes timePulse { from { opacity: 0; letter-spacing: 0.06em; } }
-.mac-dot { animation: dotPing 2.4s ease-out infinite; }
-@keyframes dotPing { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 45%, transparent); } 70% { box-shadow: 0 0 0 8px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
-.status-badge__dot { animation: dotPing 2.4s ease-out infinite; }
+@keyframes timePulse { from { opacity: 0; transform: scale(0.98); } }
+/* Status pings: a composited ring (transform + opacity), a few pings after it appears, then rest. */
+.status-badge__dot, .mac-dot { position: relative; animation: none; }
+.status-badge__dot::after, .mac-dot::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--ok);
+  opacity: 0; pointer-events: none; animation: dotRing 2.4s var(--ease-out) 4;
+}
+@keyframes dotRing { 0% { transform: scale(1); opacity: 0.45; } 70%, 100% { transform: scale(3.3); opacity: 0; } }
 
 /* ── Covers: hover sheen + lift ── */
 .mac-cover { transition: transform 320ms var(--ease-cinema), box-shadow 320ms; }
@@ -134,14 +147,21 @@
 .experience-item__points li:nth-child(4) { animation-delay: 120ms; }
 .experience-item__points li:nth-child(n + 5) { animation-delay: 160ms; }
 @keyframes pointIn { from { opacity: 0; transform: translateX(-8px); } }
-.ov-ledger__row { transition: background 120ms, padding-left 200ms var(--ease-cinema); }
-.ov-ledger__row:hover { padding-left: 10px; }
+.ov-ledger__row { transition: background 120ms; }
+.ov-ledger__row > :not(.ov-ledger__tech) { transition: transform 200ms var(--ease-cinema); }
+@media (hover: hover) and (pointer: fine) {
+  .ov-ledger__row:hover > :not(.ov-ledger__tech) { transform: translateX(6px); }
+}
 .ov-ledger__row:hover .ov-ledger__n { color: var(--text-primary); }
 .mac-edition { overflow: hidden; }
 .mac-edition__name { transition: transform 200ms var(--ease-cinema); }
 .mac-edition:hover .mac-edition__name { transform: translateX(4px); }
-.contact-mail { transition: color 200ms, letter-spacing 300ms var(--ease-cinema); }
-.contact-mail:hover { letter-spacing: -0.005em; }
+/* A paint-only underline that follows the wrapped address, not a letter-spacing reflow. */
+.contact-mail {
+  text-decoration: underline 1px; text-decoration-color: transparent; text-underline-offset: 0.18em;
+  transition: color 200ms, text-decoration-color 250ms var(--ease-cinema);
+}
+.contact-mail:hover, .contact-mail:focus-visible { text-decoration-color: currentColor; }
 .contact-channel > svg { transition: transform 200ms var(--ease-spring); }
 .contact-channel:hover > svg { transform: scale(1.15); color: var(--accent); }
 
@@ -178,8 +198,16 @@
 .mac-root[data-theme="light"] .mac-boot__wordmark { background-image: linear-gradient(100deg, #12151f 40%, var(--accent) 50%, #12151f 60%); }
 .mac-boot__wordmark span { color: var(--accent); -webkit-text-fill-color: var(--accent); }
 @keyframes shimmer { from { background-position: 120% 0; } to { background-position: -120% 0; } }
-.mac-boot__avatar { animation: bootIn 600ms var(--ease-cinema) both, breathe 3s 0.6s ease-in-out infinite; }
-@keyframes breathe { 50% { box-shadow: 0 0 0 14px rgba(255,255,255,0.05), 0 20px 60px -10px rgba(0,0,0,0.6); } }
+/* The breathing ring is a static shadow outside the avatar; only its opacity and scale move. */
+.mac-boot__avatar { position: relative; isolation: isolate; animation: bootIn 600ms var(--ease-cinema) both; }
+.mac-boot__avatar::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  box-shadow: 0 0 0 14px rgba(255,255,255,0.05);
+  opacity: 0; transform: scale(0.9);
+  animation: breatheRing 3s 0.6s ease-in-out infinite;
+}
+.mac-root[data-theme="light"] .mac-boot__avatar::before { box-shadow: 0 0 0 14px rgba(0,0,0,0.05); }
+@keyframes breatheRing { 50% { opacity: 1; transform: scale(1); } }
 .mac-boot__enter { animation: pageIn 0.5s 0.25s var(--ease-cinema) both; }
 .mac-boot__enter kbd { transition: transform 200ms var(--ease-spring); }
 .mac-boot__enter:hover kbd { transform: translateX(3px); }
@@ -200,6 +228,6 @@
 .rv:has(> .project-card--mini):not(.is-in) { transform: perspective(800px) rotateX(18deg) translateY(18px); }
 @keyframes macBob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }
 .mac-widgets:not(.is-closing) .mac-widget {
-  animation: widgetIn 0.45s var(--ease-cinema) both, macBob 9s ease-in-out infinite;
+  animation: widgetIn 0.45s var(--ease-cinema) both, macBob 9s ease-in-out 2;
   animation-delay: calc(var(--i, 0) * 55ms), calc(0.6s + var(--i, 0) * -2.2s);
 }

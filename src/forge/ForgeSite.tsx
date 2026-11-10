@@ -6,7 +6,8 @@ import "@fontsource/kanit/latin-500.css";
 import "@fontsource/kanit/latin-ext-500.css";
 import "@fontsource/kanit/latin-600.css";
 import "@fontsource/kanit/latin-ext-600.css";
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent } from "react";
+import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
+import { flushSync } from "react-dom";
 import { Link } from "react-router-dom";
 import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { LiquidButton, MetalButton } from "../components/ui/LiquidButton";
@@ -21,7 +22,8 @@ import { skillCategories } from "../classic/data/skills";
 import { site } from "../classic/data/site";
 import { github, aiStack } from "../classic/data/stats";
 import "./styles/forge.css";
-import { motionReduced } from "../lib/motion";
+import { motionReduced, startLocalTransition } from "../lib/motion";
+import { prefetchEdition } from "../lib/editionLoaders";
 import { aboutProject, askAssistant } from "../lib/ai/ask";
 
 function getCategory(p: Project): string {
@@ -30,7 +32,7 @@ function getCategory(p: Project): string {
 
 const FORGE_PROJECTS = featuredProjects.map((p, i) => ({
   ...p,
-  num: `0${i + 1}`,
+  num: String(i + 1).padStart(2, "0"),
   cat: getCategory(p),
 }));
 
@@ -80,6 +82,7 @@ const STACK_CONTEXT: Record<string, string> = {
   Databases: "structured storage",
   AI: "models wired into products",
   Tools: "workflow force-multipliers",
+  "Cloud & Tools": "workflow force-multipliers",
 };
 
 const SECTION_META: Record<string, [string, string]> = {
@@ -97,6 +100,7 @@ const INTERFACES: { to: string; name: string; desc: string; key: string }[] = [
   { to: "/paper", name: "Paper", desc: "light editorial", key: "¶" },
   { to: "/aurora", name: "Aurora", desc: "luminous glass", key: "✦" },
   { to: "/mac", name: "macOS", desc: "a working desktop", key: "⌥" },
+  { to: "/atlas", name: "Atlas", desc: "a contour map", key: "◎" },
 ];
 
 const STOKE_KEY = "fg.stoked";
@@ -136,13 +140,14 @@ const LEDES = [
   "Turning raw ideas into shipped, working products.",
 ];
 
-function useLede() {
+/** Rotating lede; the timer only runs while the hero is on screen and the tab is visible. */
+function useLede(active: boolean) {
   const [idx, setIdx] = useState(0);
   useEffect(() => {
-    if (motionReduced()) return;
+    if (!active || motionReduced()) return;
     const t = window.setInterval(() => setIdx((v) => (v + 1) % LEDES.length), 4200);
     return () => window.clearInterval(t);
-  }, []);
+  }, [active]);
   return idx;
 }
 
@@ -172,62 +177,137 @@ function useForgeReveals() {
   }, []);
 }
 
-function useMarqueeDrift() {
+/** `.is-onscreen` on each section, so its decorative loops (heading shimmer, contact glow) pause off screen. */
+function useForgeOnscreen() {
   useEffect(() => {
-    if (motionReduced()) return;
-    const tracks = Array.from(document.querySelectorAll<HTMLElement>(".fg-marquee-track"));
-    if (!tracks.length) return;
-    let raf = 0;
-    const onScroll = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        const y = window.scrollY;
-        tracks.forEach((t, i) => {
-          const half = (t.firstElementChild as HTMLElement | null)?.offsetWidth ?? 0;
-          if (!half) return;
-          const off = (y * 0.35) % half;
-          t.style.transform = i % 2 === 0 ? `translate3d(${off}px, 0, 0)` : `translate3d(${-off}px, 0, 0)`;
-        });
-      });
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (raf) cancelAnimationFrame(raf);
-    };
+    const els = Array.from(document.querySelectorAll(".fg-section"));
+    if (!els.length) return;
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) e.target.classList.toggle("is-onscreen", e.isIntersecting);
+    });
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
   }, []);
 }
 
-function useForgeScrollFX() {
+const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+
+/**
+ * Every scroll effect in one passive listener and one rAF: read (scrollY plus geometry cached on
+ * resize), then write. Nav heat bar (--sp), hero parallax and fade (wide screens only), marquee
+ * drift (only while the marquee is visible) and the experience timeline (--tl, --tl-y).
+ * Under reduced motion only --sp is written: the heat bar is information, not decoration.
+ */
+function useForgeScroll() {
   useEffect(() => {
-    if (motionReduced()) return;
+    const reduced = motionReduced();
+    const nav = document.querySelector<HTMLElement>(".fg-nav");
     const hero = document.querySelector<HTMLElement>(".fg-hero");
     const tl = document.querySelector<HTMLElement>(".fg-timeline");
+    const marquee = document.querySelector<HTMLElement>(".fg-marquee");
+    const tracks = Array.from(document.querySelectorAll<HTMLElement>(".fg-marquee-track"));
+    const wide = window.matchMedia("(min-width: 1025px)");
+
+    let docMax = 1;
+    let vh = window.innerHeight;
+    let heroH = 1;
+    let tlTop = 0;
+    let tlH = 1;
+    const halves = tracks.map(() => 0);
+    let marqueeOn = false;
+    let lastHeroY = -1;
+    let lastTl = -1;
+    let dirty = true;
     let raf = 0;
-    const update = () => {
+
+    const measure = () => {
+      vh = window.innerHeight;
+      docMax = Math.max(1, document.documentElement.scrollHeight - vh);
+      if (hero) heroH = Math.max(1, hero.offsetHeight);
+      if (tl) {
+        tlTop = tl.getBoundingClientRect().top + window.scrollY;
+        tlH = Math.max(1, tl.offsetHeight);
+      }
+      tracks.forEach((t, i) => {
+        halves[i] = (t.firstElementChild as HTMLElement | null)?.offsetWidth ?? 0;
+      });
+      lastHeroY = -1;
+      lastTl = -1;
+    };
+
+    const frame = () => {
       raf = 0;
+      // read
+      if (dirty) {
+        measure();
+        dirty = false;
+      }
       const y = window.scrollY;
-      if (hero) {
-        hero.style.transform = `translateY(${y * 0.1}px)`;
-        hero.style.opacity = String(Math.max(0, 1 - y / 620));
+      // write
+      nav?.style.setProperty("--sp", clamp01(y / docMax).toFixed(4));
+      if (reduced) return;
+      if (hero && wide.matches) {
+        const hy = Math.min(y, heroH + 100);
+        if (hy !== lastHeroY) {
+          lastHeroY = hy;
+          hero.style.transform = `translate3d(0, ${(hy * 0.1).toFixed(1)}px, 0)`;
+          hero.style.opacity = clamp01(1 - (hy - heroH * 0.35) / (heroH * 0.5)).toFixed(3);
+        }
+      }
+      if (marqueeOn) {
+        tracks.forEach((t, i) => {
+          const half = halves[i];
+          if (!half) return;
+          const off = (y * 0.35) % half;
+          // Even rows drift right from -half, odd rows left from 0: both stay covered edge to edge.
+          t.style.transform = i % 2 === 0 ? `translate3d(${(off - half).toFixed(1)}px, 0, 0)` : `translate3d(${(-off).toFixed(1)}px, 0, 0)`;
+        });
       }
       if (tl) {
-        const r = tl.getBoundingClientRect();
-        const p = Math.min(1, Math.max(0, (window.innerHeight * 0.72 - r.top) / Math.max(1, r.height)));
-        tl.style.setProperty("--tl", String(p));
+        const p = clamp01((vh * 0.72 - (tlTop - y)) / tlH);
+        if (p !== lastTl) {
+          lastTl = p;
+          tl.style.setProperty("--tl", p.toFixed(4));
+          tl.style.setProperty("--tl-y", `${(p * Math.max(0, tlH - 20)).toFixed(1)}px`);
+        }
       }
     };
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(update);
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(frame);
     };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+    const invalidate = () => {
+      dirty = true;
+      schedule();
+    };
+
+    const onWide = () => {
+      if (!wide.matches && hero) {
+        hero.style.transform = "";
+        hero.style.opacity = "";
+      }
+      invalidate();
+    };
+
+    const ro = new ResizeObserver(invalidate);
+    ro.observe(document.body);
+    if (hero) ro.observe(hero);
+    tracks.forEach((t) => ro.observe(t));
+    const io = new IntersectionObserver((entries) => {
+      marqueeOn = entries[0]?.isIntersecting ?? false;
+      if (marqueeOn) schedule();
+    });
+    if (marquee && !reduced) io.observe(marquee);
+
+    schedule();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", invalidate, { passive: true });
+    wide.addEventListener("change", onWide);
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", invalidate);
+      wide.removeEventListener("change", onWide);
+      ro.disconnect();
+      io.disconnect();
       if (raf) cancelAnimationFrame(raf);
     };
   }, []);
@@ -280,23 +360,25 @@ function useForgeTimelineReveal() {
 function ForgeNav() {
   const [open, setOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
+  const menuRef = useRef<HTMLButtonElement>(null);
+  // The mobile panel closes on Escape (focus returns to the toggle) and on a tap outside the nav.
   useEffect(() => {
-    let raf = 0;
-    const onScroll = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-        navRef.current?.style.setProperty("--sp", String(Math.min(1, window.scrollY / max)));
-      });
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setOpen(false);
+      menuRef.current?.focus();
     };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
+    const onDown = (e: PointerEvent) => {
+      if (!navRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onDown, { passive: true });
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onDown);
     };
-  }, []);
+  }, [open]);
   const links: [string, string][] = [
     ["#work", "Projects"],
     ["#stack", "Stack"],
@@ -308,9 +390,10 @@ function ForgeNav() {
     (e.currentTarget as HTMLAnchorElement).blur();
     setOpen(false);
   };
+  const warmHome = () => prefetchEdition("/");
   return (
     <nav className="fg-nav" aria-label="Main" ref={navRef}>
-      <Link to="/" className="fg-nav-name">
+      <Link to="/" className="fg-nav-name" onPointerEnter={warmHome} onFocus={warmHome} onTouchStart={warmHome}>
         Sree Vardhan <span className="fg-dot">V.</span>
       </Link>
       <div className={`fg-nav-links${open ? " is-open" : ""}`}>
@@ -326,6 +409,7 @@ function ForgeNav() {
       <div className="fg-nav-right">
         <InterfaceSwitcher current="forge" />
         <button
+          ref={menuRef}
           type="button"
           className={`fg-menu${open ? " is-open" : ""}`}
           aria-expanded={open}
@@ -339,12 +423,12 @@ function ForgeNav() {
         </button>
       </div>
       <div className={`fg-nav-panel${open ? " is-open" : ""}`} id="fg-nav-panel">
-        {links.map(([href, label]) => (
-          <a key={href} href={href} onClick={go}>
+        {links.map(([href, label], n) => (
+          <a key={href} href={href} onClick={go} style={{ "--n": n } as CSSProperties}>
             {label}
           </a>
         ))}
-        <a href={site.github} target="_blank" rel="noopener noreferrer" onClick={go}>
+        <a href={site.github} target="_blank" rel="noopener noreferrer" onClick={go} style={{ "--n": links.length } as CSSProperties}>
           GitHub <span aria-hidden="true">↗</span>
         </a>
       </div>
@@ -352,17 +436,25 @@ function ForgeNav() {
   );
 }
 
-function useUptime() {
+/** Uptime as its own leaf: derived from a stored start time, ticking only while `active`, so it stays right after a pause. */
+function Uptime({ active }: { active: boolean }) {
+  const t0 = useRef(0);
   const [secs, setSecs] = useState(0);
   useEffect(() => {
-    if (motionReduced()) return;
-    const t0 = performance.now();
-    const id = window.setInterval(() => setSecs(Math.floor((performance.now() - t0) / 1000)), 1000);
+    if (!t0.current) t0.current = performance.now();
+    if (!active || motionReduced()) return;
+    const tick = () => setSecs(Math.floor((performance.now() - t0.current) / 1000));
+    tick();
+    const id = window.setInterval(tick, 1000);
     return () => window.clearInterval(id);
-  }, []);
+  }, [active]);
   const m = String(Math.floor(secs / 60)).padStart(2, "0");
   const s = String(secs % 60).padStart(2, "0");
-  return `${m}:${s}`;
+  return (
+    <span className="fg-pipe-uptime">
+      <i className="fg-pipe-dot" /> uptime {m}:{s}
+    </span>
+  );
 }
 
 const BUILD_LOG = [
@@ -373,31 +465,32 @@ const BUILD_LOG = [
   "▸ deploying → vercel ... ✓ live",
 ];
 
-function BuildLog({ override }: { override?: number | null }) {
+/** Typing build log; pauses (keeping its place) while the hero is off screen or the tab is hidden. */
+function BuildLog({ override, active }: { override?: number | null; active: boolean }) {
   const [line, setLine] = useState(0);
   const [chars, setChars] = useState(BUILD_LOG[0].length);
+  const pos = useRef({ i: 0, c: 0 });
 
   useEffect(() => {
-    if (motionReduced() || override != null) return;
-    let i = 0;
-    let c = 0;
+    if (motionReduced() || override != null || !active) return;
     let t = 0;
     const typeNext = () => {
-      const target = BUILD_LOG[i];
-      if (c <= target.length) {
-        setLine(i);
-        setChars(c);
-        c += 1 + Math.floor(Math.random() * 2);
+      const p = pos.current;
+      const target = BUILD_LOG[p.i];
+      if (p.c <= target.length) {
+        setLine(p.i);
+        setChars(p.c);
+        p.c += 1 + Math.floor(Math.random() * 2);
         t = window.setTimeout(typeNext, 34 + Math.random() * 46);
       } else {
-        i = (i + 1) % BUILD_LOG.length;
-        c = 0;
+        p.i = (p.i + 1) % BUILD_LOG.length;
+        p.c = 0;
         t = window.setTimeout(typeNext, 1500);
       }
     };
     t = window.setTimeout(typeNext, 800);
     return () => window.clearTimeout(t);
-  }, [override]);
+  }, [override, active]);
 
   const text = override != null ? BUILD_LOG[override] : BUILD_LOG[line].slice(0, chars);
   return (
@@ -423,9 +516,38 @@ function StaggerHeading({ text, className = "" }: { text: string; className?: st
   );
 }
 
-function Hero({ stoked, onStoke }: { stoked: boolean; onStoke: () => void }) {
-  const ledeIdx = useLede();
-  const uptime = useUptime();
+/**
+ * True while the hero is on screen and the tab is visible. Also marks `.forge-root[data-hero-off]`
+ * so the hero's CSS loops (float, pulses, caret, shimmer) pause when it scrolls away.
+ */
+function useHeroActive(ref: RefObject<HTMLElement | null>) {
+  const [onScreen, setOnScreen] = useState(true);
+  const [visible, setVisible] = useState(() => typeof document === "undefined" || !document.hidden);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const root = el.closest<HTMLElement>(".forge-root");
+    const io = new IntersectionObserver((entries) => {
+      const on = entries[0]?.isIntersecting ?? true;
+      setOnScreen(on);
+      root?.toggleAttribute("data-hero-off", !on);
+    });
+    io.observe(el);
+    const onVis = () => setVisible(!document.hidden);
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      io.disconnect();
+      document.removeEventListener("visibilitychange", onVis);
+      root?.removeAttribute("data-hero-off");
+    };
+  }, [ref]);
+  return onScreen && visible;
+}
+
+function Hero({ stoked, onStoke }: { stoked: boolean; onStoke: (from: HTMLElement) => void }) {
+  const heroRef = useRef<HTMLElement>(null);
+  const active = useHeroActive(heroRef);
+  const ledeIdx = useLede(active);
   const [trace, setTrace] = useState<number | null>(null);
   const [step, setStep] = useState<number | null>(null);
   const [builds, setBuilds] = useState(0);
@@ -453,15 +575,16 @@ function Hero({ stoked, onStoke }: { stoked: boolean; onStoke: () => void }) {
     window.setTimeout(tick, fast ? 0 : 520);
   };
   const pipeRef = useTilt<HTMLDivElement>(5, ".fg-pipe");
+  // Stage colours follow the tokens, so stoked mode recolours the pipeline too.
   const pipeline: [string, string, string][] = [
-    ["Frontend", "React · Tailwind UI", "#7DD3FC"],
-    ["API", "Node.js · REST · Cloudinary", "#93C5FD"],
-    ["Database", "Cloud MySQL · Prisma", "#A78BFA"],
-    ["LLM", aiStack.slice(0, 4).join(" · "), "#C4B5FD"],
+    ["Frontend", "React · Tailwind UI", "var(--fg-cyan)"],
+    ["API", "Node.js · REST · Cloudinary", "var(--fg-blue)"],
+    ["Database", "Cloud MySQL · Prisma", "var(--fg-violet)"],
+    ["LLM", aiStack.slice(0, 4).join(" · "), "var(--fg-purple)"],
     ["Product", "Railway · Vercel · live", "#BBCCD7"],
   ];
   return (
-    <header className="fg-hero">
+    <header className="fg-hero" ref={heroRef}>
       <EmberField stoked={stoked} />
       <div className="fg-hero-copy">
         <p className="fg-eyebrow fg-enter" style={{ "--d": "0s" } as CSSProperties}>
@@ -500,7 +623,12 @@ function Hero({ stoked, onStoke }: { stoked: boolean; onStoke: () => void }) {
           <span>generative ai</span>
           <span>full-stack engineering</span>
           <span>agentic systems</span>
-          <button type="button" className={`fg-stoke${stoked ? " is-on" : ""}`} onClick={onStoke} aria-pressed={stoked}>
+          <button
+            type="button"
+            className={`fg-stoke${stoked ? " is-on" : ""}`}
+            onClick={(e) => onStoke(e.currentTarget)}
+            aria-pressed={stoked}
+          >
             <i aria-hidden="true" /> {stoked ? "forge stoked" : "stoke the forge"}
           </button>
         </div>
@@ -540,10 +668,8 @@ function Hero({ stoked, onStoke }: { stoked: boolean; onStoke: () => void }) {
             ))}
           </div>
           <div className="fg-pipe-foot">
-            <BuildLog override={step} />
-            <span className="fg-pipe-uptime">
-              <i className="fg-pipe-dot" /> uptime {uptime}
-            </span>
+            <BuildLog override={step} active={active} />
+            <Uptime active={active} />
           </div>
         </div>
       </div>
@@ -636,8 +762,10 @@ function Marquee() {
   return (
     <section className="fg-marquee fg-reveal" aria-label="Things I have built">
       <span className="fg-marquee-label">things I&rsquo;ve built</span>
-      {row(even, "l")}
-      {row(odd, "r")}
+      <div className="fg-marquee-rows">
+        {row(even, "l")}
+        {row(odd, "r")}
+      </div>
     </section>
   );
 }
@@ -657,7 +785,18 @@ function About() {
           {ABOUT_META.map(([k, v]) => (
             <div className="fg-meta-cell" key={k}>
               <dt>{k}</dt>
-              <dd>{v}</dd>
+              <dd>
+                {v.split("/").map((part, pi) => (
+                  <Fragment key={pi}>
+                    {pi > 0 && (
+                      <>
+                        /<wbr />
+                      </>
+                    )}
+                    {part}
+                  </Fragment>
+                ))}
+              </dd>
             </div>
           ))}
         </dl>
@@ -723,28 +862,88 @@ function Experience() {
   );
 }
 
-function ProjectCard({ p, i }: { p: (typeof FORGE_PROJECTS)[number]; i: number }) {
-  const onMove = (e: MouseEvent<HTMLDivElement>) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    e.currentTarget.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
-    e.currentTarget.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
+/**
+ * Card glow that follows a mouse pointer: an 840px blob moved with transform (no gradient repaint).
+ * The card rect is cached on enter and re-read once after a scroll, so the glow stays under a
+ * stationary cursor while the sticky card moves.
+ */
+function useCardGlow() {
+  const glowRef = useRef<HTMLElement>(null);
+  const st = useRef({ raf: 0, x: 0, y: 0, rect: null as DOMRect | null, stale: true, card: null as HTMLElement | null, onScroll: null as null | (() => void) });
+
+  const write = () => {
+    const s = st.current;
+    s.raf = 0;
+    if (!s.card || !glowRef.current) return;
+    if (s.stale || !s.rect) {
+      s.rect = s.card.getBoundingClientRect();
+      s.stale = false;
+    }
+    glowRef.current.style.transform = `translate3d(${(s.x - s.rect.left - 420).toFixed(1)}px, ${(s.y - s.rect.top - 420).toFixed(1)}px, 0)`;
   };
+  const schedule = () => {
+    if (!st.current.raf) st.current.raf = requestAnimationFrame(write);
+  };
+  const stop = () => {
+    const s = st.current;
+    if (s.onScroll) window.removeEventListener("scroll", s.onScroll);
+    s.onScroll = null;
+    if (s.raf) cancelAnimationFrame(s.raf);
+    s.raf = 0;
+    s.card = null;
+  };
+  useEffect(() => stop, []);
+
+  const enabled = (e: ReactPointerEvent<HTMLElement>) => e.pointerType === "mouse" && !motionReduced();
+  const handlers = {
+    onPointerEnter: (e: ReactPointerEvent<HTMLElement>) => {
+      if (!enabled(e)) return;
+      const s = st.current;
+      s.card = e.currentTarget;
+      s.stale = true;
+      s.x = e.clientX;
+      s.y = e.clientY;
+      if (!s.onScroll) {
+        s.onScroll = () => {
+          st.current.stale = true;
+          schedule();
+        };
+        window.addEventListener("scroll", s.onScroll, { passive: true });
+      }
+      schedule();
+    },
+    onPointerMove: (e: ReactPointerEvent<HTMLElement>) => {
+      if (!enabled(e)) return;
+      const s = st.current;
+      if (!s.card) s.card = e.currentTarget;
+      s.x = e.clientX;
+      s.y = e.clientY;
+      schedule();
+    },
+    onPointerLeave: stop,
+  };
+  return [glowRef, handlers] as const;
+}
+
+function ProjectCard({ p, i }: { p: (typeof FORGE_PROJECTS)[number]; i: number }) {
+  const [glowRef, glowHandlers] = useCardGlow();
   const ai = p.tech.filter((t) => AI_TECH.test(t));
   const features = p.features.slice(0, 4);
   const featured = p.highlight === true;
   const [flipped, setFlipped] = useState(false);
   const [turns, setTurns] = useState(0);
+  const warmCase = () => prefetchEdition(caseStudyPath(p.slug));
   const flip = (to: boolean) => {
     setFlipped(to);
     setTurns((t) => t + 1);
   };
   return (
-    <div className="fg-proj-wrap" style={{ "--i": i } as CSSProperties} data-slug={p.slug}>
+    <div className="fg-proj-wrap" style={{ "--i": i, "--pa1": p.accent[0] } as CSSProperties} data-slug={p.slug}>
       <article
         className={`fg-proj-card${featured ? " fg-proj-featured" : ""}${flipped ? " is-flipped" : ""}${turns ? ` fg-turn-${turns % 2}` : ""}`}
-        style={{ "--pa1": p.accent[0] } as CSSProperties}
-        onMouseMove={onMove}
+        {...glowHandlers}
       >
+        <i className="fg-proj-glow" aria-hidden="true" ref={glowRef} />
         <div className="fg-proj-back" aria-hidden={!flipped} inert={!flipped}>
           <div className="fg-proj-top">
             <span className="fg-proj-num">{p.num} · spec sheet</span>
@@ -839,9 +1038,20 @@ function ProjectCard({ p, i }: { p: (typeof FORGE_PROJECTS)[number]; i: number }
               Live Demo <span aria-hidden="true">↗</span>
             </a>
           )}
-          {hasCaseStudy(p.slug) && <Link to={caseStudyPath(p.slug)} state={{ from: "/forge" }} className="fg-proj-link">Case study →</Link>}
+          {hasCaseStudy(p.slug) && (
+            <Link
+              to={caseStudyPath(p.slug)}
+              state={{ from: "/forge" }}
+              className="fg-proj-link"
+              onPointerEnter={warmCase}
+              onFocus={warmCase}
+              onTouchStart={warmCase}
+            >
+              Case study →
+            </Link>
+          )}
           <button type="button" className="fg-proj-link" data-ask-ai onClick={() => askAssistant(aboutProject(p.name))}>
-            Ask AI<span className="sr-only"> about {p.name}</span> <span aria-hidden="true">✦</span>
+            Ask AI<span className="sr-only"> about {p.name}</span> <span aria-hidden="true" className="ask-spark">✦</span>
           </button>
         </div>
         <span className="fg-proj-emoji" aria-hidden="true">{p.emoji}</span>
@@ -894,6 +1104,53 @@ function Work() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+  // Molten ink under the active filter: measured once per change (and on resize / font load),
+  // moved with transform. Hidden until the first measurement so it never flies in from 0,0.
+  const groupRef = useRef<HTMLDivElement>(null);
+  const inkRef = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    const group = groupRef.current;
+    const ink = inkRef.current;
+    if (!group || !ink) return;
+    const place = () => {
+      const btn = group.querySelector<HTMLElement>(".fg-filter.is-active");
+      if (!btn) return;
+      const first = group.dataset.ink !== "ready";
+      if (first) ink.style.transition = "none";
+      ink.style.transform = `translate(${btn.offsetLeft}px, ${btn.offsetTop}px)`;
+      ink.style.width = `${btn.offsetWidth}px`;
+      ink.style.height = `${btn.offsetHeight}px`;
+      if (first) {
+        void ink.offsetWidth;
+        ink.style.transition = "";
+        group.dataset.ink = "ready";
+      }
+    };
+    place();
+    const ro = new ResizeObserver(place);
+    ro.observe(group);
+    let live = true;
+    document.fonts?.ready.then(() => live && place());
+    return () => {
+      live = false;
+      ro.disconnect();
+    };
+  }, [filter]);
+
+  // After a filter change, bring a reader who was inside the stack back to its first card.
+  const firstFilter = useRef(true);
+  useEffect(() => {
+    if (firstFilter.current) {
+      firstFilter.current = false;
+      return;
+    }
+    const work = document.getElementById("work");
+    if (work && work.getBoundingClientRect().top < 0) {
+      work.scrollIntoView({ block: "start", behavior: motionReduced() ? "auto" : "smooth" });
+    }
+  }, [filter]);
+
   return (
     <section className="fg-section fg-work" id="work">
       <div className="fg-work-head fg-reveal">
@@ -907,7 +1164,8 @@ function Work() {
           <kbd>j</kbd>
           <kbd>k</kbd> cards <kbd>f</kbd> filter <kbd>specs</kbd> flips a card
         </p>
-        <div className="fg-work-filters" role="group" aria-label="Filter projects">
+        <div className="fg-work-filters" role="group" aria-label="Filter projects" ref={groupRef}>
+          <span className="fg-filter-ink" aria-hidden="true" ref={inkRef} />
           {WORK_FILTERS.map((f) => (
             <button
               key={f.key}
@@ -970,7 +1228,14 @@ function Interfaces() {
         </p>
         <div className="fg-interfaces-grid">
           {INTERFACES.map((it) => (
-            <Link to={it.to} className="fg-interface-card" key={it.to}>
+            <Link
+              to={it.to}
+              className="fg-interface-card"
+              key={it.to}
+              onPointerEnter={() => prefetchEdition(it.to)}
+              onFocus={() => prefetchEdition(it.to)}
+              onTouchStart={() => prefetchEdition(it.to)}
+            >
               <span className="fg-interface-key" aria-hidden="true">
                 {it.key}
               </span>
@@ -1005,19 +1270,62 @@ function ForgeFooter() {
   );
 }
 
+/**
+ * One spark burst on a .fg-btn for touch taps and keyboard activation (mouse hover keeps its own
+ * loop). The class is removed after the last spark, so a burst is never cut short.
+ */
+function useSparkBursts() {
+  useEffect(() => {
+    if (motionReduced()) return;
+    const timers = new Map<HTMLElement, number>();
+    const burst = (el: HTMLElement) => {
+      window.clearTimeout(timers.get(el));
+      el.classList.remove("is-sparking");
+      void el.offsetWidth;
+      el.classList.add("is-sparking");
+      timers.set(
+        el,
+        window.setTimeout(() => {
+          el.classList.remove("is-sparking");
+          timers.delete(el);
+        }, 1450)
+      );
+    };
+    const btnFrom = (t: EventTarget | null) => (t instanceof Element ? t.closest<HTMLElement>(".forge-root .fg-btn") : null);
+    const onDown = (e: PointerEvent) => {
+      if (e.pointerType === "mouse") return;
+      const b = btnFrom(e.target);
+      if (b) burst(b);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Enter" || e.repeat) return;
+      const b = btnFrom(e.target);
+      if (b) burst(b);
+    };
+    document.addEventListener("pointerdown", onDown, { passive: true });
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey);
+      timers.forEach((t, el) => {
+        window.clearTimeout(t);
+        el.classList.remove("is-sparking");
+      });
+    };
+  }, []);
+}
+
 export function ForgeSite() {
   useForgeReveals();
-  useMagnetic(".fg-btn, .fg-filter", 0.24, 7);
-  useMarqueeDrift();
-  useForgeScrollFX();
+  useForgeOnscreen();
+  // Buttons only: filter chips stay locked to the sliding ink.
+  useMagnetic(".fg-btn", 0.24, 7);
+  useForgeScroll();
   useForgeSpy();
   useForgeTimelineReveal();
+  useSparkBursts();
   const [stoked, setStoked] = useState(readStoked);
-  const bgRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+  const blobRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     try {
@@ -1027,38 +1335,60 @@ export function ForgeSite() {
     }
   }, [stoked]);
 
-  // The background grid glows where the pointer is.
+  // Stoking: the new palette spreads out from the toggle as a circular heat wave (an in-page
+  // View Transition scoped by html[data-vt="stoke"]). Reduced motion or no API: an instant swap.
+  const onStoke = (from: HTMLElement) => {
+    const toggle = () => setStoked((s) => !s);
+    const root = document.documentElement;
+    if (motionReduced() || !("startViewTransition" in document)) {
+      toggle();
+      return;
+    }
+    const r = from.getBoundingClientRect();
+    root.style.setProperty("--sx", `${Math.round(r.left + r.width / 2)}px`);
+    root.style.setProperty("--sy", `${Math.round(r.top + r.height / 2)}px`);
+    root.dataset.vt = "stoke";
+    startLocalTransition(() => flushSync(toggle));
+    window.setTimeout(() => {
+      if (root.dataset.vt === "stoke") delete root.dataset.vt;
+    }, 900);
+  };
+
+  // A soft glow follows the pointer over the background grid, moved with transform only.
   useEffect(() => {
     if (window.matchMedia("(pointer: coarse)").matches || motionReduced()) return;
     let raf = 0;
     let x = 0;
     let y = 0;
-    const onMove = (e: globalThis.MouseEvent) => {
+    const onMove = (e: globalThis.PointerEvent) => {
+      if (e.pointerType !== "mouse") return;
       x = e.clientX;
       y = e.clientY;
       if (raf) return;
       raf = requestAnimationFrame(() => {
         raf = 0;
-        bgRef.current?.style.setProperty("--gx", `${x}px`);
-        bgRef.current?.style.setProperty("--gy", `${y}px`);
+        const blob = blobRef.current;
+        if (!blob) return;
+        blob.style.transform = `translate3d(${x - 380}px, ${y - 380}px, 0)`;
+        blob.style.opacity = "1";
       });
     };
-    window.addEventListener("mousemove", onMove, { passive: true });
+    window.addEventListener("pointermove", onMove, { passive: true });
     return () => {
-      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("pointermove", onMove);
       if (raf) cancelAnimationFrame(raf);
     };
   }, []);
 
   return (
     <div className="forge-root" id="fg-top" data-cursor-accent="forge" data-stoked={stoked ? "1" : undefined}>
-      <div className="fg-bg" aria-hidden="true" ref={bgRef}>
+      <div className="fg-bg" aria-hidden="true">
         <div className="fg-grid" />
-        <div className="fg-glow-cursor" />
+        <i className="fg-glow-blob" aria-hidden="true" ref={blobRef} />
       </div>
       <main className="forge-main">
         <ForgeNav />
-        <Hero stoked={stoked} onStoke={() => setStoked((s) => !s)} />
+        <Hero stoked={stoked} onStoke={onStoke} />
         <StatsStrip />
         <Marquee />
         <Work />

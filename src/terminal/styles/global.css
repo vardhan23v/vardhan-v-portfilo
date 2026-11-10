@@ -1,58 +1,3 @@
-/* moved from src/styles/motion.css */
-@keyframes scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100%); }
-}
-
-/* ============================================================
-   6) TERMINAL — crt + typewriter
-   ============================================================ */
-.terminal-root .boot-line {
-  animation: term-type 0.45s steps(28) both;
-}
-@keyframes term-type {
-  from { clip-path: inset(0 100% 0 0); }
-  to { clip-path: inset(0 0 0 0); }
-}
-.terminal-root .shell-prompt {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-.terminal-root .term-window,
-.terminal-root .work-detail {
-  position: relative;
-  overflow: hidden;
-}
-.terminal-root .term-window::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.08) 50%);
-  background-size: 100% 3px;
-  opacity: 0.18;
-  pointer-events: none;
-  z-index: 2;
-}
-.terminal-root .term-window::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 120px;
-  background: linear-gradient(180deg, transparent, rgba(54,229,124,0.06), transparent);
-  top: -120px;
-  animation: scanline 6s linear infinite;
-  pointer-events: none;
-  z-index: 3;
-}
-.terminal-root .shell-input {
-  caret-color: #36e57c;
-  animation: caret-glow 1.6s ease-in-out infinite alternate;
-}
-@keyframes caret-glow {
-  from { text-shadow: 0 0 0 rgba(54,229,124,0); }
-  to { text-shadow: 0 0 8px rgba(54,229,124,0.7); }
-}
-
 /* ============================================================
    PORTFOLIO OS — retro terminal / hacker design system
    ============================================================ */
@@ -105,6 +50,8 @@
 html:has(.terminal-root) {
   scroll-behavior: smooth;
   scroll-padding-top: 28px;
+  /* keep focused / scrolled-to things clear of the fixed 34px status bar (--bar-h lives on .terminal-root) */
+  scroll-padding-bottom: 46px;
 }
 
 html[data-motion="reduce"]:has(.terminal-root) {
@@ -637,6 +584,66 @@ html[data-motion="reduce"] .terminal-root::after {
   position: relative;
 }
 
+/* one "screen" layer: the CRT power-off collapses it toward a single line */
+.terminal-root .boot-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  pointer-events: none; /* taps fall through to .boot-tap */
+}
+
+.terminal-root .boot-flash {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  z-index: 2;
+  height: 2px;
+  margin-top: -1px;
+  background: var(--green-2);
+  box-shadow: 0 0 22px 4px rgba(var(--green-rgb), 0.55);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.terminal-root .boot-lines code > div {
+  animation: ln-in 0.16s ease-out both;
+}
+
+/* CRT power-off: screen → phosphor line → dark (≈0.42s, inside Boot's FADE = 450ms) */
+html:not([data-motion="reduce"]) .terminal-root .boot.done {
+  opacity: 1;
+  visibility: visible;
+  transition: none;
+  animation: boot-fade 0.2s ease-in 0.22s forwards;
+}
+html:not([data-motion="reduce"]) .terminal-root .boot.done .boot-screen {
+  transform-origin: 50% 50%;
+  animation: crt-off 0.3s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+html:not([data-motion="reduce"]) .terminal-root .boot.done .boot-skip {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+html:not([data-motion="reduce"]) .terminal-root .boot.done .boot-flash {
+  animation: boot-flash 0.32s cubic-bezier(0.7, 0, 0.3, 1) 0.1s forwards;
+}
+@keyframes boot-fade {
+  to { opacity: 0; visibility: hidden; }
+}
+@keyframes crt-off {
+  60% { transform: scaleY(0.02); opacity: 1; }
+  100% { transform: scale(0, 0.02); opacity: 0; }
+}
+@keyframes boot-flash {
+  30% { opacity: 1; transform: scaleX(1); }
+  100% { opacity: 0; transform: scaleX(0); }
+}
+
 /* ---------- Hero ---------- */
 
 .terminal-root .hero {
@@ -682,6 +689,15 @@ html[data-motion="reduce"] .terminal-root::after {
   animation-delay: 0.12s;
 }
 
+/* the entrance rule above outranks .hero-banner, so list both animations here (banner is child 2) */
+.terminal-root .hero-grid > div:first-child > .hero-banner {
+  animation: thero-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both, banner-flicker 6s steps(1) 1.5s infinite;
+}
+/* MatrixRain's observer marks the hero off-screen: the flicker loop pauses with the rain */
+.terminal-root .hero[data-off] .hero-banner {
+  animation-play-state: paused;
+}
+
 @keyframes thero-in {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: none; }
@@ -720,6 +736,41 @@ html[data-motion="reduce"] .terminal-root::after {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   margin-top: 12px;
+  text-wrap: balance;
+}
+
+/* break only at "::" (and at the · separators in the status line), never inside a role */
+.terminal-root :is(.hero-tag, .hero-status) .nb {
+  white-space: nowrap;
+}
+
+.terminal-root :is(.hero-status, .case-lead, .prog-desc, .man-p) {
+  text-wrap: pretty;
+}
+
+.terminal-root :is(.shell-title, .case-title, .exit) {
+  text-wrap: balance;
+}
+
+/* typed text: a hidden ghost reserves the final box, the live layer types into it (no CLS).
+   No text-wrap: pretty/balance on .hero-intro — the partial text would wrap differently. */
+.terminal-root .type-stack {
+  display: inline-grid;
+  vertical-align: top;
+}
+.terminal-root .hero-intro .type-stack {
+  display: grid;
+}
+.terminal-root .type-stack > [aria-hidden] {
+  grid-area: 1 / 1;
+}
+.terminal-root .type-ghost {
+  visibility: hidden;
+  user-select: none;
+}
+/* the caret takes no inline space, so it can never push the live text onto an extra line */
+.terminal-root .type-live .type-caret {
+  margin-right: -10px;
 }
 
 .terminal-root .hero-intro {
@@ -780,7 +831,12 @@ html[data-motion="reduce"] .terminal-root::after {
   padding: 7px 13px;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
+}
+
+.terminal-root .hero-quick:active {
+  transform: translateY(1px);
+  background: rgba(var(--green-rgb), 0.08);
 }
 
 .terminal-root .hero-quick:focus-visible,
@@ -809,6 +865,16 @@ html[data-motion="reduce"] .terminal-root::after {
 
 .terminal-root .hero-status .ok {
   color: var(--green);
+}
+
+@media (max-width: 480px) {
+  /* three CTAs fit one row at 390; the flex row still wraps at 360 and below */
+  .terminal-root .hero-cta {
+    gap: 8px;
+  }
+  .terminal-root .hero-cta .btn {
+    padding-inline: 12px;
+  }
 }
 
 @media (max-width: 900px) {
@@ -845,6 +911,17 @@ html[data-motion="reduce"] .terminal-root::after {
   display: block;
   white-space: pre-wrap;
   animation: ln-in 0.22s ease-out both;
+  /* output prints line by line: --d is a capped step set by Hero's submit (max 16 × 18ms) */
+  animation-delay: calc(var(--d, 0) * 18ms);
+}
+
+/* desktop: a fixed box, so output scrolls inside it instead of growing the window (no CLS) */
+@media (min-width: 901px) {
+  html:not([data-motion="reduce"]) .terminal-root .shell-lines {
+    height: clamp(280px, 41vh, 380px); /* ≈ the settled height after the auto-neofetch at 1440×900 */
+    min-height: 0;
+    max-height: none;
+  }
 }
 
 @keyframes ln-in {
@@ -931,6 +1008,61 @@ html[data-motion="reduce"] .terminal-root::after {
 
 .terminal-root .shell-input::placeholder {
   color: var(--ink-3);
+}
+
+/* ---- block cursor: moves by transform (1ch steps), blinks by opacity ---- */
+.terminal-root .shell-field {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
+.terminal-root .shell-entry:not([data-native]) .shell-input {
+  caret-color: transparent;
+}
+
+.terminal-root .shell-input:placeholder-shown {
+  text-indent: 1.4ch; /* the placeholder starts past the block */
+}
+
+.terminal-root .shell-caret {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 1ch;
+  height: 1.3em;
+  margin-top: -0.65em;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.3em;
+  white-space: pre;
+  overflow: hidden;
+  color: var(--on-accent);
+  background: var(--green);
+  transform: translateX(calc(var(--col, 0) * 1ch));
+  pointer-events: none;
+}
+
+.terminal-root .shell-entry:focus-within .shell-caret {
+  animation: caret-blink 0.9s steps(1) infinite;
+}
+
+/* unfocused: a hollow block, as a real terminal shows lost focus */
+.terminal-root .shell-entry:not(:focus-within) .shell-caret {
+  background: transparent;
+  color: transparent;
+  box-shadow: inset 0 0 0 1px var(--green);
+}
+
+/* selection, IME composition, overflowing text or snake: the browser caret tells the truth */
+.terminal-root .shell-entry[data-native] .shell-caret {
+  display: none;
+}
+
+@media (forced-colors: active) {
+  .terminal-root .shell-caret { display: none; }
+  .terminal-root .shell-entry .shell-input { caret-color: auto; }
 }
 
 .terminal-root .shell-foot {
@@ -1074,6 +1206,11 @@ html[data-motion="reduce"] .terminal-root::after {
     grid-template-columns: 1fr 1fr;
     gap: 8px 14px;
   }
+}
+
+.terminal-root .other-more {
+  margin-top: 14px;
+  white-space: pre;
 }
 
 .terminal-root .other-item {
@@ -1267,7 +1404,9 @@ html[data-motion="reduce"] .terminal-root::after {
 }
 
 .terminal-root .arch-row .note {
-  display: block;
+  /* glyphs in column 1, text in column 2: wrapped lines hang under the text, not the tree */
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
   color: var(--ink-3);
   font-size: 12px;
 }
@@ -1279,6 +1418,12 @@ html[data-motion="reduce"] .terminal-root::after {
   color: var(--green-dim);
   font-size: 11px;
   line-height: 1;
+}
+
+@media (max-width: 640px) {
+  .terminal-root .arch-arrow {
+    display: none; /* the ├── / │ glyphs already show the flow */
+  }
 }
 
 .terminal-root .decision {
@@ -1381,29 +1526,42 @@ html[data-motion="reduce"] .terminal-root::after {
   padding: 14px 16px;
   font-size: 13px;
   color: var(--ink-2);
-  transition: all 0.15s ease;
+  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.2s ease, transform 0.12s ease;
 }
 
-.terminal-root .case-prevnext a:hover {
+.terminal-root .case-prevnext a:hover,
+.terminal-root .case-prevnext a:focus-visible {
   border-color: var(--green);
   color: var(--green);
+  background: rgba(var(--green-rgb), 0.04);
+}
+
+.terminal-root .case-prevnext a:active {
+  transform: translateY(1px);
 }
 
 .terminal-root .case-prevnext .dir {
   display: block;
   font-size: 11px;
   color: var(--ink-3);
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+@media (hover: hover) and (pointer: fine) {
+  .terminal-root .case-prevnext a:hover .dir { transform: translateX(-4px); }
+  .terminal-root .case-prevnext a.next-a:hover .dir { transform: translateX(4px); }
+}
+.terminal-root .case-prevnext a:focus-visible .dir { transform: translateX(-4px); }
+.terminal-root .case-prevnext a.next-a:focus-visible .dir { transform: translateX(4px); }
 
 .terminal-root .case-prevnext .pn-name {
   display: block;
-  margin-top: 4px;
   font-size: 14px;
+  overflow-wrap: anywhere;
 }
 
 .terminal-root .case-prevnext .pn-tag {
   display: block;
-  margin-top: 4px;
   font-size: 11.5px;
   color: var(--ink-3);
 }
@@ -1424,6 +1582,24 @@ html[data-motion="reduce"] .terminal-root::after {
 @media (max-width: 640px) {
   .terminal-root .case-prevnext {
     grid-template-columns: 1fr;
+  }
+  /* the case nav becomes a short list of commands instead of a ragged row of "·" */
+  .terminal-root .case-nav-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  .terminal-root .case-nav-top > .bracket {
+    display: none;
+  }
+  .terminal-root .case-nav-top > :is(a, button):not(:first-child)::before {
+    content: "$" / ""; /* generated prompt stays out of the accessible name */
+    margin-right: 1ch; /* (a trailing space would be trimmed inside the inline-flex link) */
+    color: var(--ink-3);
+  }
+  .terminal-root .case-nav-top > span:not(.bracket)::before {
+    content: "# " / "";
+    color: var(--ink-3);
   }
   .terminal-root .case-keys {
     display: none;
@@ -2229,6 +2405,12 @@ html[data-motion="reduce"] .terminal-root::after {
   letter-spacing: 0.1em;
 }
 
+@media (max-width: 640px) {
+  .terminal-root .exit-rule {
+    display: none;
+  }
+}
+
 /* ---------- Reveal ---------- */
 
 .terminal-root .reveal {
@@ -2310,11 +2492,11 @@ html[data-motion="reduce"] .terminal-root *::after {
   font-size: 11.5px;
   line-height: 1;
   color: var(--ink-2);
-  background: rgba(var(--bg-rgb), 0.94);
+  /* near-opaque: a backdrop blur behind .97 alpha was invisible but cost a filter pass per scrolled frame */
+  background: rgba(var(--bg-rgb), 0.97);
   border-top: 1px solid var(--line);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
   animation: sl-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both;
+  view-transition-name: term-statusline;
 }
 
 @keyframes sl-in {
@@ -2441,12 +2623,14 @@ html[data-motion="reduce"] .terminal-root *::after {
 .terminal-root .sl-fill i {
   display: block;
   height: 3px;
-  width: 0;
-  max-width: 100%;
+  width: 100%;
   background: linear-gradient(90deg, var(--green-dim), var(--green));
   box-shadow: 0 0 10px rgba(var(--green-rgb), 0.5);
   border-radius: 2px;
-  transition: width 0.15s linear;
+  /* --p (0–1) is written by StatusLine's scroll rAF: compositor-only, no layout */
+  transform-origin: left center;
+  transform: scaleX(var(--p, 0));
+  transition: transform 0.12s linear;
 }
 
 .terminal-root .sl-switcher {
@@ -2570,13 +2754,33 @@ html[data-motion="reduce"] .terminal-root *::after {
   padding: 14px 18px 18px;
   border-top: 1px solid var(--line);
   background: rgba(var(--bg-rgb), 0.97);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
 }
 
 .terminal-root .sl-sheet.is-open {
   display: flex;
   animation: sheet-up 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* phones/tablets: the sheet stays mounted and transitions out as well as in (inert while closed) */
+@media (max-width: 900px) {
+  .terminal-root .sl-sheet {
+    display: flex;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(14px);
+    transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.18s ease, visibility 0s linear 0.26s;
+  }
+  .terminal-root .sl-sheet.is-open {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+    transition-delay: 0s;
+    animation: none;
+  }
+  .terminal-root .sl-sheet.is-open nav a {
+    animation: ln-in 0.22s ease-out both;
+    animation-delay: calc(min(var(--i, 0), 8) * 28ms);
+  }
 }
 
 @keyframes sheet-up {
@@ -2640,6 +2844,21 @@ html[data-motion="reduce"] .terminal-root *::after {
   background: rgba(0, 0, 0, 0.45);
   border: 0;
   cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease, visibility 0s linear 0.2s;
+}
+
+.terminal-root .sl-scrim.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+html[data-motion="reduce"] .terminal-root :is(.sl-sheet, .sl-scrim) {
+  transition-delay: 0s !important;
 }
 
 @media (max-width: 1100px) {
@@ -2851,6 +3070,14 @@ html:has(.terminal-root) .sc-top {
   animation-delay: calc(var(--i, 0) * 0.09s);
 }
 
+/* the ALSO_BUILT list caps its stagger; cards opened by `ls -a` use their own short count (--j) */
+.terminal-root .reveal.is-visible .other-item {
+  animation-delay: calc(min(var(--i, 0), 8) * 0.06s);
+}
+.terminal-root .reveal.is-visible .other-item.is-more {
+  animation-delay: calc(min(var(--j, 0), 10) * 40ms);
+}
+
 .terminal-root .reveal.is-visible .pipe-node {
   animation: pipe-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both, pipe-flash 0.9s ease-out calc(var(--i, 0) * 0.09s) both;
 }
@@ -2880,7 +3107,8 @@ html[data-motion="reduce"] .terminal-root .reveal.is-visible .exp-item,
 html[data-motion="reduce"] .terminal-root .reveal.is-visible .prog,
 html[data-motion="reduce"] .terminal-root .reveal.is-visible .other-item,
 html[data-motion="reduce"] .terminal-root .case-title,
-html[data-motion="reduce"] .terminal-root .case-in {
+html[data-motion="reduce"] .terminal-root .case-in,
+html[data-motion="reduce"] .terminal-root .case-in .man-h {
     animation: none;
   }
 /* elements that only an animation reveals rest in their finished state when motion is off */
@@ -2892,6 +3120,9 @@ html[data-motion="reduce"] .terminal-root .pipe-rail i { transform: scaleX(1); }
 .terminal-root .contact-channels a { min-height: 26px; display: inline-flex; align-items: center; }
 .terminal-root .shell-input { min-height: 24px; }
 .terminal-root .footer-inner a, .terminal-root .case-nav-top :is(a, button), .terminal-root .case-prevnext a { min-height: 24px; display: inline-flex; align-items: center; }
+/* …but the prev/next cards stay stacked cards (direction, slug, tagline), not three squeezed columns */
+.terminal-root .case-prevnext a { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px; }
+.terminal-root .case-prevnext a.next-a { align-items: flex-end; }
 
 /* A comment inside a solid button reads as part of the label. */
 .terminal-root button .bracket { color: inherit; }
@@ -2904,9 +3135,29 @@ html[data-motion="reduce"] .terminal-root .pipe-rail i { transform: scaleX(1); }
 .terminal-root .case-pre:not(.case-in) { opacity: 0; }
 .terminal-root .case-in { animation: case-print 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(min(var(--i, 0), 6) * 0.08s); }
 @keyframes case-print {
-  0% { opacity: 0; transform: translateY(8px); filter: brightness(1.8); }
+  0% { opacity: 0; transform: translateY(8px); }
   40% { opacity: 1; }
-  100% { opacity: 1; transform: none; filter: none; }
+  100% { opacity: 1; transform: none; }
 }
+/* the print flash lives on the one-line heading, not as a filter on the whole block */
+.terminal-root .case-in .man-h { animation: cmd-flash 0.6s ease-out both; animation-delay: inherit; }
 html:not([data-motion="reduce"]) .terminal-root .case-title { animation: case-type 0.8s steps(18, end) 0.1s both; }
 @keyframes case-type { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+
+/* ---------- in-terminal page swaps (View Transitions) ---------- */
+/* the status bar is pinned: it does not fade or slide with the page */
+html[data-edition="terminal"]::view-transition-group(term-statusline) { animation-duration: 0s; }
+html[data-edition="terminal"]::view-transition-old(term-statusline),
+html[data-edition="terminal"]::view-transition-new(term-statusline) { animation: none; }
+html[data-edition="terminal"]::view-transition-old(term-statusline) { display: none; }
+
+/* undirected swaps inside the edition (cd .., case links): a short stepped "redraw", no blur.
+   prev/next pass vtDir and keep the shared directional slide. */
+html[data-edition="terminal"]:not([data-motion="reduce"]):not(.vt-local):not(.mac-theme-vt):not([data-vt-dir="fwd"]):not([data-vt-dir="back"])::view-transition-old(root) {
+  animation: term-vt-out 0.16s steps(4, end) both;
+}
+html[data-edition="terminal"]:not([data-motion="reduce"]):not(.vt-local):not(.mac-theme-vt):not([data-vt-dir="fwd"]):not([data-vt-dir="back"])::view-transition-new(root) {
+  animation: term-vt-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+}
+@keyframes term-vt-out { to { opacity: 0; transform: translateY(-6px); } }
+@keyframes term-vt-in { from { opacity: 0; transform: translateY(8px); } }

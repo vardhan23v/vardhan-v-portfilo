@@ -93,32 +93,45 @@ export function ContourField({ fallback }: { fallback: ReactNode }) {
       return;
     }
     const still = motionReduced();
+    // Phones fill far more pixels per CSS px; 1.25 keeps the 1px lines crisp at ~30% fewer fragments.
+    const coarse = matchMedia("(pointer: coarse)").matches;
     let raf = 0;
+    let lastY = NaN;
     const draw = () => {
       raf = 0;
       if (document.hidden) return;
-      const dpr = Math.min(1.5, window.devicePixelRatio || 1);
-      const w = Math.round(innerWidth * dpr), h = Math.round(innerHeight * dpr);
-      if (canvas.width !== w || canvas.height !== h) {
+      const dpr = Math.min(coarse ? 1.25 : 1.5, window.devicePixelRatio || 1);
+      // The canvas is 100lvh tall, so its own height stays put while a phone's URL bar moves.
+      const cssH = canvas.clientHeight || innerHeight;
+      const w = Math.round(innerWidth * dpr), h = Math.round(cssH * dpr);
+      const resized = canvas.width !== w || canvas.height !== h;
+      if (resized) {
         canvas.width = w;
         canvas.height = h;
       }
-      const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
       const y = still ? 0 : scrollY;
-      field.draw(w, h, y / innerHeight, y / max);
+      if (!resized && Math.abs(y - lastY) < 0.5) return; // momentum tails: nothing visible changes
+      lastY = y;
+      // The warp is tied to distance scrolled (about one unit per 24 screens), not to the page
+      // height, so late content arriving does not jump the whole field.
+      field.draw(w, h, y / cssH, y / (cssH * 24));
     };
     const queue = () => {
       if (!raf) raf = requestAnimationFrame(draw);
     };
+    const onVisible = () => {
+      lastY = NaN; // the backing store may have been dropped while hidden; redraw on return
+      queue();
+    };
     draw();
     if (!still) addEventListener("scroll", queue, { passive: true });
     addEventListener("resize", queue);
-    document.addEventListener("visibilitychange", queue);
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
       cancelAnimationFrame(raf);
       removeEventListener("scroll", queue);
       removeEventListener("resize", queue);
-      document.removeEventListener("visibilitychange", queue);
+      document.removeEventListener("visibilitychange", onVisible);
       field.dispose();
     };
   }, []);

@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { useShell } from "../../hooks/useShell";
 import { useIstTime } from "../../hooks/useIstTime";
 import { site } from "../../data/site";
+import { motionReduced } from "../../../lib/motion";
 
 const IDLE_MS = 120_000;
 
@@ -33,7 +34,8 @@ export function Screensaver() {
 
   // reposition the clock every 20s while active
   useEffect(() => {
-    if (!on) return;
+    // With reduced motion the clock stays put instead of jumping every 20s.
+    if (!on || motionReduced() || document.querySelector(".mac-root")?.getAttribute("data-mac-motion") === "off") return;
     const i = window.setInterval(() => setSeed((s) => s + 1), 20_000);
     return () => window.clearInterval(i);
   }, [on]);
@@ -52,7 +54,8 @@ export function Screensaver() {
       onPointerDown={() => setOverlay("none")}
       onKeyDown={() => setOverlay("none")}
     >
-      <div className="mac-saver__clock" style={{ left: `${px}%`, top: `${py}%` }}>
+      {/* Drifts on the compositor: a transform transition, not left/top. */}
+      <div className="mac-saver__clock" style={{ "--sx": `${px}vw`, "--sy": `${py}vh` } as CSSProperties}>
         <span className="mac-saver__time">{h}<i>:</i>{m}</span>
         <span className="mac-saver__name">{site.name}</span>
         <span className="mac-saver__hint mac-caps">tap anywhere to wake</span>

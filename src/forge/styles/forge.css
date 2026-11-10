@@ -33,11 +33,14 @@
   background: rgba(125, 211, 252, 0.28);
 }
 
+/* The outline follows each control's own radius (pills stay pills); only bare text links get a soft corner. */
 .forge-root a:focus-visible,
 .forge-root button:focus-visible {
   outline: 2px solid var(--fg-cyan);
   outline-offset: 3px;
-  border-radius: 6px;
+}
+.forge-root :is(.fg-nav-links a, .fg-foot-links a, .fg-proj-link, .fg-spec a, .fg-nav-panel a):focus-visible {
+  border-radius: 4px;
 }
 
 .fg-bg {
@@ -99,7 +102,7 @@
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 clamp(20px, 4vw, 40px);
-  overflow-x: clip;
+  /* no overflow clip here: .forge-root clips horizontally, and the nav glass bleeds to the viewport edges */
 }
 
 /* ---------- shared entrance / reveal ---------- */
@@ -299,10 +302,21 @@
   gap: 18px;
   padding: 14px 0;
   border-bottom: 1px solid transparent;
+  background: none;
+  font-weight: 400;
+}
+
+/* Full-bleed glass: the bar spans the viewport while the content keeps the 1200px column. */
+.fg-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0 calc(50% - 50vw);
+  z-index: -1;
   background: rgba(12, 12, 12, 0.72);
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
-  font-weight: 400;
+  border-bottom: 1px solid var(--fg-line);
+  pointer-events: none;
 }
 
 .fg-nav-name {
@@ -315,7 +329,7 @@
 .fg-nav-links {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: clamp(14px, 1.7vw, 28px);
 }
 
 .fg-nav-links a {
@@ -369,6 +383,7 @@
   padding: 10px 8px;
   background: none;
   border: 0;
+  border-radius: 10px;
   cursor: pointer;
 }
 
@@ -481,20 +496,23 @@
   text-transform: uppercase;
   text-decoration: none;
   color: var(--fg-text);
-  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, filter 0.2s ease;
-}
-
-.fg-btn:hover {
-  border-color: rgba(215, 226, 234, 0.4);
-  background: rgba(215, 226, 234, 0.05);
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, filter 0.2s ease,
+    scale 0.16s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .fg-btn span {
   transition: transform 0.25s ease;
 }
 
-.fg-btn:hover span {
-  transform: translate(3px, -2px);
+@media (hover: hover) and (pointer: fine) {
+  .fg-btn:hover {
+    border-color: rgba(215, 226, 234, 0.4);
+    background: rgba(215, 226, 234, 0.05);
+  }
+
+  .fg-btn:hover span {
+    transform: translate(3px, -2px);
+  }
 }
 
 /* liquid glass hero CTA (shared-ui theme) */
@@ -516,6 +534,19 @@
   background: linear-gradient(180deg, rgba(20, 20, 24, 0.9), rgba(13, 13, 15, 0.94));
   box-shadow: 0 30px 80px -32px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   overflow: hidden;
+  position: relative;
+}
+
+/* "passed" ring: an inset glow inside the panel that only fades, so it floats and tilts with it */
+.fg-pipe::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1.5px rgba(134, 239, 172, 0.6), inset 0 0 32px rgba(134, 239, 172, 0.12);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .fg-pipe-head {
@@ -641,6 +672,7 @@
 }
 
 .fg-pipe-idx {
+  display: inline-block;
   font-size: 10px;
   color: var(--fg-faint);
 }
@@ -743,8 +775,13 @@
   border-top: 1px solid var(--fg-line);
   border-bottom: 1px solid var(--fg-line);
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+
+/* the edge fade lives on the rows, so the label stays crisp */
+.fg-marquee-rows {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
 }
 
 .fg-marquee-label {
@@ -833,7 +870,7 @@
 .fg-meta {
   margin-top: 52px;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 14px;
   width: 100%;
 }
@@ -847,10 +884,12 @@
   transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.fg-meta-cell:hover {
-  border-color: var(--fg-line-2);
-  background: rgba(255, 255, 255, 0.035);
-  transform: translateY(-3px);
+@media (hover: hover) and (pointer: fine) {
+  .fg-meta-cell:hover {
+    border-color: var(--fg-line-2);
+    background: rgba(255, 255, 255, 0.035);
+    transform: translateY(-3px);
+  }
 }
 
 .fg-meta-cell dt {
@@ -866,7 +905,15 @@
   font-size: 13.5px;
   line-height: 1.4;
   color: var(--fg-text);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+.fg-prose p,
+.fg-subhead,
+.fg-proj-desc,
+.fg-proj-problem {
+  text-wrap: pretty;
 }
 
 /* ---------- stack ---------- */
@@ -1097,19 +1144,21 @@
 /* ---------- selected work ---------- */
 
 .fg-work {
-  padding-bottom: 140px;
+  padding-bottom: 96px;
 }
 
 .fg-work-stack {
   margin-top: 48px;
-  padding-bottom: 26vh;
+  padding-bottom: 12vh;
 }
 
+/* Sticky stack, capped: past five cards the deeper ones stick in the same place, so only the
+   last five edges show and the active card keeps most of the viewport. */
 .fg-proj-wrap {
   position: sticky;
-  top: calc(84px + var(--i) * 44px);
+  top: calc(84px + min(var(--i), 5) * 16px);
   margin-bottom: -22vh;
-  transform: scale(calc(1 - var(--i) * 0.014));
+  transform: scale(calc(1 - min(var(--i), 5) * 0.012));
   transform-origin: 50% 0;
   will-change: transform;
 }
@@ -1163,54 +1212,77 @@
   z-index: 1;
 }
 
-.fg-proj-card:hover .fg-proj-emoji {
-  transform: translateY(-50%) translateY(-6px) scale(1.06);
-  opacity: 0.09;
-}
-
-.fg-proj-card::before {
-  content: "";
+/* Pointer glow: an 840px blob moved with transform by useCardGlow (no gradient repaint). It sits
+   above the card background (the card isolates) and below the content. */
+.forge-root .fg-proj-card > .fg-proj-glow {
   position: absolute;
-  inset: 0;
-  border-radius: var(--fg-radius);
-  background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 30%),
-    color-mix(in srgb, var(--pa1) 13%, transparent), transparent 62%);
+  left: 0;
+  top: 0;
+  z-index: -1;
+  width: 840px;
+  height: 840px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--pa1) 16%, transparent), transparent);
   opacity: 0;
+  transform: translate3d(-9999px, 0, 0);
   transition: opacity 0.3s ease;
   pointer-events: none;
 }
 
-.fg-proj-card:hover {
-  background: #101014;
-  border-color: color-mix(in srgb, var(--pa1) 42%, transparent);
-  transform: translateY(-3px);
-  box-shadow: 0 30px 70px -34px rgba(0, 0, 0, 0.95),
-    0 0 0 1px color-mix(in srgb, var(--pa1) 34%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-
-.fg-proj-card:hover::before {
-  opacity: 1;
-}
-
+/* Sheen: a transform sweep (no left animation), hover devices only, so a tap leaves no ghost stripe. */
 .fg-proj-card::after {
   content: "";
   position: absolute;
   top: 0;
   bottom: 0;
-  left: -60%;
+  left: 0;
   width: 42%;
   background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.06), transparent);
-  transform: skewX(-20deg);
+  transform: translateX(-180%) skewX(-20deg);
+  opacity: 0;
   pointer-events: none;
 }
 
-.fg-proj-card:hover::after {
-  animation: fg-sheen 0.9s ease-out;
+@keyframes fg-sheen {
+  from { transform: translateX(-180%) skewX(-20deg); opacity: 1; }
+  to { transform: translateX(340%) skewX(-20deg); opacity: 1; }
 }
 
-@keyframes fg-sheen {
-  from { left: -60%; }
-  to { left: 130%; }
+/* Hover shadow is a static layer behind the card that only fades. */
+.fg-proj-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: var(--fg-radius);
+  box-shadow: 0 30px 70px -34px rgba(0, 0, 0, 0.95), 0 0 44px -14px color-mix(in srgb, var(--pa1) 32%, transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .fg-proj-card:hover .fg-proj-emoji {
+    transform: translateY(-50%) translateY(-6px) scale(1.06);
+    opacity: 0.09;
+  }
+
+  .fg-proj-card:hover {
+    background: #101014;
+    border-color: color-mix(in srgb, var(--pa1) 42%, transparent);
+  }
+
+  .forge-root .fg-proj-card:hover > .fg-proj-glow {
+    opacity: 1;
+  }
+
+  .fg-proj-wrap:hover::after {
+    opacity: 1;
+  }
+
+  html:not([data-motion="reduce"]) .fg-proj-card:hover::after {
+    animation: fg-sheen 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  }
 }
 
 .fg-proj-top {
@@ -1371,12 +1443,14 @@ button.fg-proj-link { padding: 0; border: 0; background: none; cursor: pointer; 
   transition: transform 0.25s ease;
 }
 
-.fg-proj-card:hover .fg-proj-link span {
-  transform: translate(3px, -3px);
-}
+@media (hover: hover) and (pointer: fine) {
+  .fg-proj-card:hover .fg-proj-link span {
+    transform: translate(3px, -3px);
+  }
 
-.fg-proj-link:hover {
-  color: var(--fg-cyan);
+  .fg-proj-link:hover {
+    color: var(--fg-cyan);
+  }
 }
 
 /* ---------- contact ---------- */
@@ -1387,7 +1461,11 @@ button.fg-proj-link { padding: 0; border: 0; background: none; cursor: pointer; 
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 40px 0 100px;
+  padding: 40px 0;
+}
+
+#interfaces.fg-section {
+  padding-top: 72px;
 }
 
 .fg-contact::before {
@@ -1424,7 +1502,7 @@ button.fg-proj-link { padding: 0; border: 0; background: none; cursor: pointer; 
   width: 100%;
   max-width: 900px;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
 }
 
@@ -1439,7 +1517,8 @@ button.fg-proj-link { padding: 0; border: 0; background: none; cursor: pointer; 
   border-radius: var(--fg-radius);
   background: var(--fg-card);
   text-decoration: none;
-  transition: border-color 0.25s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease;
+  transition: border-color 0.25s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease,
+    scale 0.16s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .fg-interface-key {
@@ -1471,19 +1550,21 @@ button.fg-proj-link { padding: 0; border: 0; background: none; cursor: pointer; 
   transition: transform 0.25s ease, color 0.25s ease;
 }
 
-.fg-interface-card:hover {
-  border-color: rgba(125, 211, 252, 0.45);
-  transform: translateY(-3px);
-  box-shadow: 0 18px 40px -22px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(125, 211, 252, 0.22);
-}
+@media (hover: hover) and (pointer: fine) {
+  .fg-interface-card:hover {
+    border-color: rgba(125, 211, 252, 0.45);
+    transform: translateY(-3px);
+    box-shadow: 0 18px 40px -22px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(125, 211, 252, 0.22);
+  }
 
-.fg-interface-card:hover .fg-interface-key {
-  color: var(--fg-cyan);
-}
+  .fg-interface-card:hover .fg-interface-key {
+    color: var(--fg-cyan);
+  }
 
-.fg-interface-card:hover .fg-interface-arrow {
-  transform: translate(3px, -3px);
-  color: var(--fg-cyan);
+  .fg-interface-card:hover .fg-interface-arrow {
+    transform: translate(3px, -3px);
+    color: var(--fg-cyan);
+  }
 }
 
 /* ---------- footer ---------- */
@@ -1496,9 +1577,11 @@ button.fg-proj-link { padding: 0; border: 0; background: none; cursor: pointer; 
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  max-width: 1280px;
+  /* aligned to the 1200px content column, inside the same gutters as main */
+  width: calc(100% - 2 * clamp(20px, 4vw, 40px));
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 26px clamp(20px, 4vw, 40px);;
+  padding: 26px 0;
   border-top: 1px solid var(--fg-line);
   font-size: 14px;
   font-weight: 400;
@@ -1581,18 +1664,19 @@ button.fg-proj-link { padding: 0; border: 0; background: none; cursor: pointer; 
     display: flex;
   }
 
+  /* Solid full-bleed panel: a nested backdrop-filter only sampled inside the nav, so hero text showed through. */
   .fg-nav-panel {
     position: absolute;
     top: 100%;
-    left: 0;
-    right: 0;
+    left: calc(50% - 50vw);
+    right: calc(50% - 50vw);
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 12px 0 16px;
-    background: rgba(12, 12, 12, 0.94);
-    -webkit-backdrop-filter: blur(20px);
-    backdrop-filter: blur(20px);
+    gap: 0;
+    padding: 12px clamp(20px, 4vw, 40px) 16px;
+    background: #0c0c0c;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     border-bottom: 1px solid var(--fg-line);
     opacity: 0;
     transform: translateY(-6px);
@@ -1607,7 +1691,10 @@ button.fg-proj-link { padding: 0; border: 0; background: none; cursor: pointer; 
   }
 
   .fg-nav-panel a {
-    padding: 10px 2px;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 2px;
     font-family: var(--fg-mono);
     font-size: 12px;
     letter-spacing: 0.14em;
@@ -1618,6 +1705,35 @@ button.fg-proj-link { padding: 0; border: 0; background: none; cursor: pointer; 
 
   .fg-nav-panel a:hover {
     color: var(--fg-text);
+  }
+
+  /* links drop in one after another; no delay on close */
+  html:not([data-motion="reduce"]) .fg-nav-panel a {
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 0.28s ease, transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), color 0.2s ease;
+    transition-delay: calc(var(--n, 0) * 35ms);
+  }
+
+  html:not([data-motion="reduce"]) .fg-nav-panel.is-open a,
+  html:not([data-motion="reduce"]) .fg-nav-panel a:focus-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  html:not([data-motion="reduce"]) .fg-nav-panel:not(.is-open) a {
+    transition-delay: 0s;
+  }
+
+  /* the stack ladder tightens on small screens */
+  .fg-proj-wrap {
+    top: calc(72px + min(var(--i), 3) * 10px);
+    transform: scale(calc(1 - min(var(--i), 3) * 0.01));
+  }
+
+  /* room for the floating Ask AI launcher and back-to-top */
+  .fg-foot {
+    padding-bottom: calc(var(--floating-clearance, 88px) + env(safe-area-inset-bottom));
   }
 }
 
@@ -1638,8 +1754,17 @@ button.fg-proj-link { padding: 0; border: 0; background: none; cursor: pointer; 
     grid-template-columns: 1fr;
   }
 
+  /* Phones: cards are taller than the space under a sticky top, so they simply stack and read in full. */
   .fg-proj-wrap {
+    position: relative;
+    top: auto;
     margin-bottom: 0;
+    transform: none;
+    will-change: auto;
+  }
+
+  .fg-proj-wrap + .fg-proj-wrap {
+    margin-top: 20px;
   }
 
   .fg-proj-card {
@@ -1837,11 +1962,14 @@ html[data-motion="reduce"] {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease,
+    scale 0.16s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.fg-filter:hover {
-  color: var(--fg-text);
-  border-color: rgba(215, 226, 234, 0.4);
+@media (hover: hover) and (pointer: fine) {
+  .fg-filter:hover {
+    color: var(--fg-text);
+    border-color: rgba(215, 226, 234, 0.4);
+  }
 }
 .fg-filter.is-active {
   color: #0b0b0d;
@@ -1882,14 +2010,22 @@ html[data-motion="reduce"] .fg-h-word { transform: none; opacity: 1; animation: 
 .fg-nav::after {
   content: "";
   position: absolute;
-  left: 0;
+  left: calc(50% - 50vw);
   bottom: -1px;
   height: 2px;
-  width: calc(100% * var(--sp, 0));
+  width: 100vw;
   background: linear-gradient(90deg, var(--fg-cyan), var(--fg-violet) 70%, #f472b6);
   box-shadow: 0 0 12px color-mix(in srgb, var(--fg-cyan) 70%, transparent);
-  transition: width 0.12s linear;
+  transform: scaleX(var(--sp, 0));
+  transform-origin: left center;
+  transition: transform 0.12s linear;
   pointer-events: none;
+}
+
+/* The nav column is 1200px at most, which cannot hold the links plus a numbered switcher:
+   drop the switcher's numbers here so it ends inside the content edge at every width. */
+.forge-root .fg-nav-right .iswitcher-num {
+  display: none;
 }
 
 /* 2. run build */
@@ -1911,12 +2047,15 @@ html[data-motion="reduce"] .fg-h-word { transform: none; opacity: 1; animation: 
   letter-spacing: inherit;
   text-transform: inherit;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease,
+    scale 0.16s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.fg-pipe-run:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--fg-cyan) 14%, transparent);
-  border-color: color-mix(in srgb, var(--fg-cyan) 50%, transparent);
-  box-shadow: 0 0 16px color-mix(in srgb, var(--fg-cyan) 25%, transparent);
+@media (hover: hover) and (pointer: fine) {
+  .fg-pipe-run:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--fg-cyan) 14%, transparent);
+    border-color: color-mix(in srgb, var(--fg-cyan) 50%, transparent);
+    box-shadow: 0 0 16px color-mix(in srgb, var(--fg-cyan) 25%, transparent);
+  }
 }
 .fg-pipe-run:disabled {
   color: var(--fg-muted);
@@ -1948,12 +2087,20 @@ html:not([data-motion="reduce"]) .fg-pipe-row.is-running::before {
 .fg-pipe.is-passed .fg-pipe-status {
   color: #86efac;
 }
-html:not([data-motion="reduce"]) .fg-pipe.is-passed {
-  animation: fg-pass-flash 0.9s ease;
+/* the float keeps running: the pass flash is an opacity fade on the panel's own inset ring */
+html:not([data-motion="reduce"]) .fg-pipe.is-passed::after {
+  animation: fg-pass-ring 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
-@keyframes fg-pass-flash {
-  0% { box-shadow: 0 30px 80px -32px rgba(0, 0, 0, 0.9), 0 0 0 0 rgba(134, 239, 172, 0.5); }
-  100% { box-shadow: 0 30px 80px -32px rgba(0, 0, 0, 0.9), 0 0 0 18px rgba(134, 239, 172, 0); }
+@keyframes fg-pass-ring {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+/* each "ok" pops once as it lands (is-done is only added during a build) */
+html:not([data-motion="reduce"]) .fg-pipe-row.is-done .fg-pipe-idx {
+  animation: fg-ok-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes fg-ok-pop {
+  from { transform: scale(0.6); opacity: 0.4; }
 }
 
 /* 3. sparks on buttons */
@@ -1978,8 +2125,14 @@ html:not([data-motion="reduce"]) .fg-pipe.is-passed {
   box-shadow: 0 0 6px var(--fg-cyan);
   opacity: 0;
 }
-html:not([data-motion="reduce"]) .fg-btn:hover .fg-sparks b {
-  animation: fg-spark 0.9s var(--d) ease-out infinite;
+/* Mouse hover loops the sparks; touch taps and Enter play one burst (.is-sparking, see useSparkBursts). */
+@media (hover: hover) and (pointer: fine) {
+  html:not([data-motion="reduce"]) .fg-btn:hover .fg-sparks b {
+    animation: fg-spark 0.9s var(--d) ease-out infinite;
+  }
+}
+html:not([data-motion="reduce"]) .fg-btn.is-sparking .fg-sparks b {
+  animation: fg-spark 0.9s var(--d) ease-out 1 both;
 }
 @keyframes fg-spark {
   0% { opacity: 0; transform: rotate(var(--a)) translateX(10px) translateY(0); }
@@ -1987,17 +2140,27 @@ html:not([data-motion="reduce"]) .fg-btn:hover .fg-sparks b {
   100% { opacity: 0; transform: rotate(var(--a)) translateX(34px) translateY(-14px); }
 }
 
-/* 4. cursor glow on the background grid */
-.fg-glow-cursor {
+/* 4. cursor glow on the background grid: one 760px blob moved with transform (no full-screen repaint) */
+.fg-glow-blob {
   position: absolute;
-  inset: 0;
-  background: radial-gradient(380px circle at var(--gx, -1000px) var(--gy, -1000px), color-mix(in srgb, var(--fg-cyan) 9%, transparent), transparent 70%);
+  left: 0;
+  top: 0;
+  width: 760px;
+  height: 760px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--fg-cyan) 9%, transparent), transparent);
+  opacity: 0;
+  transform: translate3d(-9999px, 0, 0);
+  will-change: transform;
   pointer-events: none;
 }
 @media (pointer: coarse) {
-  .fg-glow-cursor {
+  .fg-glow-blob {
     display: none;
   }
+}
+html[data-motion="reduce"] .fg-glow-blob {
+  display: none;
 }
 
 /* 5. stack chips ignite */
@@ -2019,11 +2182,12 @@ html:not([data-motion="reduce"]) .fg-stack.fg-in .fg-stack-items span {
   content: "";
   position: absolute;
   left: 21px;
-  top: calc(10px + (100% - 20px) * var(--tl, 1));
+  top: 10px;
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  transform: translate(-3px, -3px);
+  /* --tl-y (px) is written by useForgeScroll; moving by transform avoids a layout per frame */
+  transform: translate(-3px, calc(var(--tl-y, 0px) - 3px));
   background: var(--fg-cyan);
   box-shadow: 0 0 12px var(--fg-cyan), 0 0 28px color-mix(in srgb, var(--fg-cyan) 60%, transparent);
   pointer-events: none;
@@ -2089,12 +2253,15 @@ html[data-motion="reduce"] .fg-proj-back {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease,
+    scale 0.16s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.fg-proj-flip:hover {
-  color: var(--fg-cyan);
-  border-color: color-mix(in srgb, var(--fg-cyan) 50%, transparent);
-  box-shadow: 0 0 14px color-mix(in srgb, var(--fg-cyan) 20%, transparent);
+@media (hover: hover) and (pointer: fine) {
+  .fg-proj-flip:hover {
+    color: var(--fg-cyan);
+    border-color: color-mix(in srgb, var(--fg-cyan) 50%, transparent);
+    box-shadow: 0 0 14px color-mix(in srgb, var(--fg-cyan) 20%, transparent);
+  }
 }
 .fg-proj-title-sm {
   font-size: clamp(1.4rem, 2.4vw, 2rem);
@@ -2185,7 +2352,8 @@ html[data-motion="reduce"] .fg-proj-back {
   text-transform: uppercase;
   color: var(--fg-muted);
   cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease,
+    scale 0.16s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .fg-stoke i {
   width: 7px;
@@ -2194,10 +2362,15 @@ html[data-motion="reduce"] .fg-proj-back {
   background: var(--fg-faint);
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
-.fg-stoke:hover,
 .fg-stoke.is-on {
   border-color: color-mix(in srgb, var(--fg-cyan) 45%, transparent);
   color: var(--fg-text);
+}
+@media (hover: hover) and (pointer: fine) {
+  .fg-stoke:hover {
+    border-color: color-mix(in srgb, var(--fg-cyan) 45%, transparent);
+    color: var(--fg-text);
+  }
 }
 .fg-stoke.is-on i {
   background: var(--fg-cyan);
@@ -2234,15 +2407,6 @@ html:not([data-motion="reduce"]) .fg-stoke.is-on i {
   from { transform: translateY(0); }
   to { transform: translateY(48px); }
 }
-.forge-root .fg-pipe-pulse {
-  animation: forge-pulse 2.2s ease-in-out infinite;
-}
-@keyframes forge-pulse {
-  0% { transform: translateX(-18%) scaleX(0.6); opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { transform: translateX(118%) scaleX(1); opacity: 0; }
-}
 .forge-root .fg-hero-heading {
   /* One list, so the slow gradient shimmer keeps running after the reveal. */
   animation:
@@ -2263,6 +2427,7 @@ html:not([data-motion="reduce"]) .fg-stoke.is-on i {
   transform: skewX(-14deg) translateX(-120%);
   opacity: 0;
   pointer-events: none;
+  animation: none; /* the earlier background-position sweep was invisible here: dead work */
 }
 .forge-root .fg-glint:hover::after {
   animation: card-shine 0.9s ease forwards;
@@ -2271,24 +2436,13 @@ html:not([data-motion="reduce"]) .fg-stoke.is-on i {
 .forge-root .fg-proj-card {
   position: relative;
   overflow: hidden;
-  transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s ease, border-color 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), border-color 0.3s ease, background 0.25s ease;
 }
-.forge-root .fg-proj-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(420px circle at var(--mx,50%) var(--my,50%), rgba(125,211,252,0.14), transparent 65%);
-  opacity: 0;
-  transition: opacity 0.3s;
-  pointer-events: none;
-}
-.forge-root .fg-proj-card:hover::before { opacity: 1; }
-.forge-root .fg-proj-card:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 24px 48px rgba(0,0,0,0.45), 0 0 0 1px rgba(125,211,252,0.18);
-}
-.forge-root .fg-marquee-track {
-  animation-duration: 32s !important;
+/* A lift only: no scale on a sticky stacked card. */
+@media (hover: hover) and (pointer: fine) {
+  .forge-root .fg-proj-card:hover {
+    transform: translateY(-4px);
+  }
 }
 .forge-root .fg-tl-item {
   transition: transform 0.5s ease, opacity 0.5s ease;
@@ -2335,3 +2489,110 @@ html:not([data-motion="reduce"]) .fg-about.fg-in .fg-meta-cell { animation-delay
 html:not([data-motion="reduce"]) .fg-about.fg-in .fg-meta-cell:nth-child(2) { animation-delay: 300ms; }
 html:not([data-motion="reduce"]) .fg-about.fg-in .fg-meta-cell:nth-child(3) { animation-delay: 360ms; }
 html:not([data-motion="reduce"]) .fg-about.fg-in .fg-meta-cell:nth-child(n+4) { animation-delay: 420ms; }
+
+/* ============================================================
+   UI polish (2026-11-10): filter ink, pressed states, CTA shapes,
+   stoke heat wave, off-screen pauses
+   ============================================================ */
+
+/* Molten ink under the active work filter (placed by Work's layout effect). The chip keeps its own
+   fill until the ink is measured; its dark label switches only once the ink is mostly under it. */
+.fg-work-filters {
+  position: relative;
+}
+.fg-filter-ink {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  border-radius: 999px;
+  background: var(--fg-cyan);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--fg-cyan) 35%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1), width 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fg-work-filters[data-ink="ready"] .fg-filter-ink {
+  opacity: 1;
+}
+.fg-filter {
+  position: relative;
+  z-index: 1;
+}
+.fg-work-filters[data-ink="ready"] .fg-filter.is-active {
+  background: transparent;
+  border-color: transparent;
+  transition: color 0.15s ease 0.26s, border-color 0.2s ease, background 0.2s ease,
+    scale 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Pressed states: the individual `scale` property composes with useMagnetic's inline transform. */
+.forge-root :is(.fg-btn, .fg-filter, .fg-pipe-run, .fg-stoke, .fg-proj-flip):active:not(:disabled) {
+  scale: 0.96;
+  transition-duration: 0.08s;
+}
+.forge-root .fg-interface-card:active {
+  scale: 0.985;
+}
+
+/* CTA shapes: the shared liquid and metal buttons become Forge pills. */
+.forge-root .fg-lb-hero,
+.forge-root .fg-lb-hero :is(.lb-glass-layer, .lb-glass-bevel) {
+  border-radius: 999px;
+}
+.forge-root .fg-lb-hero {
+  --lb-ring: var(--fg-cyan);
+  height: 48px;
+  padding: 0 26px;
+}
+.forge-root .fg-ctas-center :is(.lb-m-outer, .lb-m-inner, .lb-m-btn, .lb-m-shine, .lb-m-shine-bar, .lb-m-hover-glow) {
+  border-radius: 999px;
+}
+/* 41.5px face + 1px margins + 1.25px ring = the 46px .fg-btn row */
+.forge-root .fg-lb-contact {
+  --lb-ring: var(--fg-cyan);
+  height: 41.5px;
+}
+
+/* Stoking: the new palette washes out from the toggle (in-page View Transition, see onStoke). */
+html.vt-local[data-vt="stoke"]:not([data-motion="reduce"])::view-transition-old(root) {
+  animation: none;
+}
+html.vt-local[data-vt="stoke"]:not([data-motion="reduce"])::view-transition-new(root) {
+  animation: fg-heat 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes fg-heat {
+  from { clip-path: circle(0 at var(--sx, 50%) var(--sy, 50%)); }
+  to { clip-path: circle(150vmax at var(--sx, 50%) var(--sy, 50%)); }
+}
+
+/* Hero loops pause while the hero is off screen (data-hero-off, set by useHeroActive). */
+.forge-root[data-hero-off] :is(.fg-pipe, .fg-pipe-dot, .fg-pipe-caret, .fg-stoke i),
+.forge-root[data-hero-off] .fg-pipe-pulse::before,
+.forge-root[data-hero-off] .fg-pipe-pulse::after,
+.forge-root[data-hero-off] .fg-pipe-row::before {
+  animation-play-state: paused;
+}
+.forge-root[data-hero-off] .fg-hero-heading {
+  animation-play-state: running, paused;
+}
+/* Section heading shimmers and the contact glow pause off screen (.is-onscreen, see useForgeOnscreen);
+   the one-shot word rise keeps running. */
+.fg-section:not(.is-onscreen) .fg-in .fg-h-word {
+  animation-play-state: running, paused;
+}
+.fg-section:not(.is-onscreen) .fg-contact .hero-heading,
+.fg-section:not(.is-onscreen) .fg-contact::before {
+  animation-play-state: paused;
+}
+
+/* Reduced motion: pipeline rows rest visible (their entrance never runs). */
+html[data-motion="reduce"] .fg-pipe-row:not(.is-dimmed) {
+  opacity: 1;
+}
+
+/* Reduced motion: the timeline tip rests at the end of the full rail. */
+html[data-motion="reduce"] .fg-timeline::after {
+  top: calc(100% - 10px);
+  transform: translate(-3px, -3px);
+}

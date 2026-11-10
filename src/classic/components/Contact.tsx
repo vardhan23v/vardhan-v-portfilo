@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { site } from "../data/site";
 import { mailtoHref, sendMessage } from "../../lib/contact";
 import { CopyEmail } from "./CopyEmail";
@@ -11,14 +11,22 @@ export function Contact() {
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [tried, setTried] = useState(false);
+  // Counts invalid submits, so every failed press (not just the first) takes focus to the first problem.
+  const [misses, setMisses] = useState(0);
+  const formRef = useRef<HTMLFormElement>(null);
   const fallback = mailtoHref({ name: name || "visitor", email, message });
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const valid = name.trim().length > 0 && emailOk && message.trim().length > 0;
 
+  useEffect(() => {
+    if (misses > 0) formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+  }, [misses]);
+
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     setTried(true);
-    if (!valid || status === "sending") return;
+    if (!valid) { setMisses((n) => n + 1); return; }
+    if (status === "sending") return;
     setStatus("sending");
     const r = await sendMessage({ name, email, message, source: "classic" });
     if (r.ok) { setStatus("sent"); setName(""); setEmail(""); setMessage(""); setTried(false); return; }
@@ -43,7 +51,7 @@ export function Contact() {
               <a href={site.resume} download="sree-vardhan-v-resume.pdf">Résumé (PDF)</a>
             </p>
           </div>
-          <form className="contact-form" onSubmit={submit} noValidate>
+          <form className="contact-form" ref={formRef} onSubmit={submit} noValidate>
             <div className="field">
               <label htmlFor="c-name">Your name</label>
               <input id="c-name" name="name" type="text" autoComplete="name" required value={name} onChange={(e) => setName(e.target.value)} aria-invalid={tried && !name.trim() ? true : undefined} aria-describedby={tried && !name.trim() ? "c-name-err" : undefined} />
@@ -60,13 +68,13 @@ export function Contact() {
               {tried && !message.trim() && <p className="field-err" id="c-message-err">Please add a few words about it.</p>}
             </div>
             <div className="contact-actions">
-              <button type="submit" className="btn" disabled={status === "sending"}>
+              <button type="submit" className="btn" disabled={status === "sending"} aria-busy={status === "sending" ? true : undefined}>
                 {status === "sending" ? "Sending…" : "Send message"}
               </button>
               <p className="contact-status" role="status" aria-live="polite">
                 {status === "sent" && (
                   <span className="sent">
-                    <svg className="sent-check" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M4 10.5 8.2 14.5 16 6" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                    <svg className="sent-check" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M4 10.5 8.2 14.5 16 6" pathLength={1} fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                     Sent. Thank you, I will reply soon.
                   </span>
                 )}

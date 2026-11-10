@@ -23,6 +23,8 @@
 .mac-desktop-window:not(.is-active) .mac-desktop-window__body { opacity: 0.92; }
 .mac-desktop-window__body { transition: opacity 200ms; }
 .mac-desktop-window.is-dragging { cursor: grabbing; }
+/* Minimised windows stay mounted (scroll, history and drafts survive) but cost nothing while hidden. */
+.mac-desktop-window.is-min-hidden:not(.is-dragging):not(.is-resizing) { visibility: hidden; content-visibility: hidden; pointer-events: none; transition: none; }
 .mac-desktop-window.is-dragging .mac-desktop-window__header { cursor: grabbing; }
 
 /* Show Desktop: windows glide off the nearest edge and glide back. */
@@ -67,15 +69,15 @@
   --s: 1; --press: 1;
   transform: translateY(calc((var(--s) - 1) * -14px)) scale(calc(var(--s) * var(--press)));
   margin: 0 calc((var(--s) - 1) * 24px);
-  transition: transform 90ms linear, margin 90ms linear;
-  will-change: transform, margin;
+  transition: transform 60ms linear, margin 60ms linear;
+  will-change: transform;
 }
 .mac-dock.is-settling .mac-dock__item { transition: transform 300ms var(--ease-spring), margin 300ms var(--ease-spring); }
 .mac-dock__item:hover, .mac-dock__item:has(+ .mac-dock__item:hover), .mac-dock__item:hover + .mac-dock__item {
   transform: translateY(calc((var(--s) - 1) * -14px)) scale(calc(var(--s) * var(--press)));
 }
 .mac-dock__item:active { --press: 0.9; }
-.mac-dock__item.is-bouncing { animation: dockBounce 0.9s var(--ease-cinema) 2; }
+.mac-dock__item.is-bouncing { animation: dockBounce 720ms var(--ease-cinema) 1; }
 @keyframes dockBounce {
   0%, 100% { transform: translateY(calc((var(--s) - 1) * -14px)) scale(var(--s)); }
   35% { transform: translateY(calc((var(--s) - 1) * -14px - 22px)) scale(var(--s)); }
@@ -88,6 +90,9 @@
 /* Reordering */
 .mac-dock__item.is-dragging { transition: none; z-index: 3; cursor: grabbing; }
 .mac-dock__item.is-dragging .mac-dock__tip { opacity: 0; }
+/* Keyboard focus names the tile, as hover does. */
+.mac-dock__item:focus-visible { outline-offset: 3px; border-radius: 14px; }
+.mac-dock__item:focus-visible .mac-dock__tip { opacity: 1; }
 .mac-dock.is-reordering .mac-dock__item:not(.is-dragging) { --s: 1; }
 @media (max-width: 640px) {
   .mac-dock__item { transform: none !important; margin: 0 !important; }
@@ -95,6 +100,16 @@
   .mac-dock-wrap { max-width: calc(100vw - 16px); }
   .mac-dock { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
   .mac-dock::-webkit-scrollbar { display: none; }
+  /* Tiles settle centred, and glass fades at the edges say there is more to swipe. */
+  .mac-dock { scroll-snap-type: x proximity; scroll-padding-inline: 8px; overscroll-behavior-x: contain; }
+  .mac-dock__item { scroll-snap-align: center; }
+  .mac-dock-wrap::before, .mac-dock-wrap::after {
+    content: ""; position: absolute; top: 1px; bottom: 1px; width: 18px; z-index: 1;
+    pointer-events: none; opacity: 0; transition: opacity 160ms var(--ease-cinema);
+  }
+  .mac-dock-wrap::before { left: 1px; border-radius: 20px 0 0 20px; background: linear-gradient(90deg, var(--glass-bg-strong), transparent); }
+  .mac-dock-wrap::after { right: 1px; border-radius: 0 20px 20px 0; background: linear-gradient(270deg, var(--glass-bg-strong), transparent); }
+  .mac-dock-wrap[data-more~="start"]::before, .mac-dock-wrap[data-more~="end"]::after { opacity: 1; }
 }
 
 /* ── Context menu ─────────────────────────────────────────── */

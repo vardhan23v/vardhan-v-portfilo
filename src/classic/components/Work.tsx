@@ -9,12 +9,19 @@ import { Builds } from "./Builds";
 import { Link } from "react-router-dom";
 import { caseStudyPath, hasCaseStudy } from "../../work/links";
 import { aboutProject, askAssistant } from "../../lib/ai/ask";
+import { prefetchEdition } from "../../lib/editionLoaders";
 
 const featured = FEATURED_SLUGS.map((s) => featuredProjects.find((p) => p.slug === s)).filter((p): p is Project => Boolean(p));
 const rest = featuredProjects.filter((p) => !featured.includes(p));
 const CATEGORIES = (["ai", "full-stack", "tool"] as ProjectCategory[]).filter((c) => rest.some((p) => p.category === c));
 const INITIAL = 4;
 const ALL = [...featured, ...rest];
+
+/** Screenshots fade in once decoded (classic.css); cached images are marked at once, failures too. */
+const markLoaded = (img: HTMLImageElement | null) => { if (img?.complete) img.dataset.loaded = ""; };
+const onShot = (e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.dataset.loaded = ""; };
+/** Start downloading the case study's code as soon as the reader shows interest. */
+const prefetchCase = (slug: string) => () => prefetchEdition(caseStudyPath(slug));
 
 const stack = (p: Project, n: number) => p.tech.slice(0, n).join(" · ");
 const Chips = ({ p, n }: { p: Project; n: number }) => (
@@ -27,8 +34,8 @@ function Links({ p, onOpen }: { p: Project; onOpen?: () => void }) {
       {onOpen && <button type="button" className="link link-btn" onClick={onOpen}>Details<span className="sr-only"> about {p.name}</span></button>}
       {p.live && <a className="link" href={p.live} target="_blank" rel="noopener noreferrer">Live app<span className="sr-only"> for {p.name} (opens in a new tab)</span></a>}
       <a className="link" href={p.github} target="_blank" rel="noopener noreferrer">Source<span className="sr-only"> for {p.name} on GitHub (opens in a new tab)</span></a>
-      {hasCaseStudy(p.slug) && <Link className="link" to={caseStudyPath(p.slug)} state={{ from: "/classic" }}>Case study<span className="sr-only"> of {p.name}</span></Link>}
-      <button type="button" className="link link-btn" data-ask-ai onClick={() => askAssistant(aboutProject(p.name))}>Ask AI<span className="sr-only"> about {p.name}</span></button>
+      {hasCaseStudy(p.slug) && <Link className="link" to={caseStudyPath(p.slug)} state={{ from: "/classic" }} onMouseEnter={prefetchCase(p.slug)} onFocus={prefetchCase(p.slug)} onTouchStart={prefetchCase(p.slug)}>Case study<span className="sr-only"> of {p.name}</span></Link>}
+      <button type="button" className="link link-btn" data-ask-ai onClick={() => askAssistant(aboutProject(p.name))}>Ask AI<span className="sr-only"> about {p.name}</span> <span aria-hidden="true" className="ask-spark">✦</span></button>
     </p>
   );
 }
@@ -36,7 +43,7 @@ function Links({ p, onOpen }: { p: Project; onOpen?: () => void }) {
 function Featured({ p, flagship, onOpen }: { p: Project; flagship?: boolean; onOpen: () => void }) {
   const shot = framesOf(p)[0];
   const live = embeddable(p);
-  const img = shot ? <img src={shot} alt={`${p.name}, screenshot of the app`} width={1440} height={900} loading="lazy" decoding="async" /> : null;
+  const img = shot ? <img src={shot} alt={`${p.name}, screenshot of the app`} width={1440} height={900} loading="lazy" decoding="async" ref={markLoaded} onLoad={onShot} onError={onShot} /> : null;
   return (
     <article className={`feature${flagship ? " feature--flagship" : ""}`} id={`work-${p.slug}`}>
       {img && (
@@ -63,8 +70,8 @@ function Featured({ p, flagship, onOpen }: { p: Project; flagship?: boolean; onO
 function Compact({ p, k, onOpen }: { p: Project; k: number; onOpen: () => void }) {
   const shot = framesOf(p)[0];
   return (
-    <article className={`compact${shot ? "" : " compact--text"}`} data-cat={p.category} id={`work-${p.slug}`} style={{ "--k": k } as React.CSSProperties}>
-      {shot && <img className="compact-thumb" src={shot} alt="" width={1440} height={900} loading="lazy" decoding="async" />}
+    <article className={`compact${shot ? "" : " compact--text"}`} data-cat={p.category} id={`work-${p.slug}`} style={{ "--k": k, "--vtn": `cl-${p.slug}` } as React.CSSProperties}>
+      {shot && <img className="compact-thumb" src={shot} alt="" width={1440} height={900} loading="lazy" decoding="async" ref={markLoaded} onLoad={onShot} onError={onShot} />}
       <div className="compact-body">
         <h4 className="compact-name">{p.name}<span className="compact-arrow" aria-hidden="true">→</span> <span className="compact-cat">{CATEGORY_LABEL[p.category]}</span></h4>
         <p className="compact-tag">{p.tagline}</p>
@@ -121,12 +128,12 @@ export function Work() {
             <input id="project-search" className="search-input" type="search" placeholder="Search by name or tech, e.g. React" value={query} onChange={(e) => setQuery(e.target.value)} />
           </div>
           <p className="sr-only" role="status">{`Showing ${shown.length} of ${filtered.length} ${cat === "all" ? "" : CATEGORY_LABEL[cat] + " "}projects`}</p>
-          <div className="compacts" id={listId} aria-labelledby="more-h3" key={cat}>
+          <div className="compacts" id={listId} aria-labelledby="more-h3">
             {shown.map((p, i) => <Compact p={p} key={p.slug} onOpen={() => openSlug(p.slug)} k={expanded && cat === "all" ? Math.max(0, i - INITIAL) : i} />)}
           </div>
-          {filtered.length === 0 && <p className="empty">No project matches “{query}”. <button type="button" className="link link-btn" onClick={() => { setQuery(""); setCat("all"); }}>Clear search</button></p>}
+          {filtered.length === 0 && <p className="empty" style={{ "--vtn": "cl-empty" } as React.CSSProperties}>No project matches “{query}”. <button type="button" className="link link-btn" onClick={() => { setQuery(""); setCat("all"); }}>Clear search</button></p>}
           {cat === "all" && !query && (hidden > 0 || expanded) && (
-            <button type="button" className="btn btn--secondary more-toggle" aria-expanded={expanded} aria-controls={listId} onClick={() => smooth(() => setExpanded((v) => !v))}>
+            <button type="button" className="btn btn--secondary more-toggle" style={{ "--vtn": "cl-more-toggle" } as React.CSSProperties} aria-expanded={expanded} aria-controls={listId} onClick={() => smooth(() => setExpanded((v) => !v))}>
               {expanded ? "Show fewer projects" : `Show ${hidden} more project${hidden === 1 ? "" : "s"}`}
             </button>
           )}

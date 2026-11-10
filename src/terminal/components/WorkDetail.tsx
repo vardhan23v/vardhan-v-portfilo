@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import { prefetchEdition } from "../../lib/editionLoaders";
 import { caseStudies } from "../data/work";
 import { aboutProject, askAssistant } from "../../lib/ai/ask";
 import { motionReduced } from "../../lib/motion";
@@ -28,8 +29,8 @@ export function WorkDetail() {
       if (e.altKey || e.ctrlKey || e.metaKey) return;
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
-      if (e.key === "[") navigate(`/terminal/work/${prev.slug}`, { viewTransition: true });
-      else if (e.key === "]") navigate(`/terminal/work/${next.slug}`, { viewTransition: true });
+      if (e.key === "[") navigate(`/terminal/work/${prev.slug}`, { viewTransition: true, state: { vtDir: "back" } });
+      else if (e.key === "]") navigate(`/terminal/work/${next.slug}`, { viewTransition: true, state: { vtDir: "fwd" } });
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -68,7 +69,7 @@ export function WorkDetail() {
     <section className="case" aria-labelledby="case-title">
       <div className="container">
         <div className="case-nav-top">
-          <Link to="/terminal#work">$ cd ..</Link>
+          <Link to="/terminal#work" viewTransition>$ cd ..</Link>
           <span className="bracket">·</span>
           <span>reading {p.number}/{String(total).padStart(2, "0")}</span>
           <span className="bracket">·</span>
@@ -76,13 +77,22 @@ export function WorkDetail() {
             git clone ../{p.slug}
           </a>
           <span className="bracket">·</span>
-          <Link to={`/work/${p.slug}`} state={{ from: "/terminal" }}>open ./share-page</Link>
+          <Link
+            to={`/work/${p.slug}`}
+            state={{ from: "/terminal" }}
+            onPointerEnter={() => prefetchEdition(`/work/${p.slug}`)}
+            onFocus={() => prefetchEdition(`/work/${p.slug}`)}
+            onTouchStart={() => prefetchEdition(`/work/${p.slug}`)}
+          >
+            open ./share-page
+          </Link>
           <span className="bracket">·</span>
           <button type="button" data-ask-ai onClick={() => askAssistant(aboutProject(p.name))}>ask --ai<span className="sr-only"> about {p.name}</span></button>
           <span className="bracket case-keys" aria-hidden="true">[ / ] prev · next</span>
         </div>
 
-        <h1 className="case-title" id="case-title">
+        {/* keyed per case so the title types again on case-to-case navigation (the nav stays mounted, keeping focus) */}
+        <h1 className="case-title" id="case-title" key={p.slug}>
           {(p.name.replace(/\s/g, "_") + ".md").toUpperCase()}
         </h1>
 
@@ -166,7 +176,7 @@ export function WorkDetail() {
                       {a.note && (
                         <span className="note">
                           <span className="arch-branch" aria-hidden="true">{last ? "    " : "│   "}└ </span>
-                          {a.note}
+                          <span className="note-text">{a.note}</span>
                         </span>
                       )}
                       {!last && <span className="arch-arrow" aria-hidden="true">↓</span>}
@@ -223,12 +233,12 @@ export function WorkDetail() {
         </div>
 
         <nav className="case-prevnext" aria-label="Adjacent case studies">
-          <Link to={`/terminal/work/${prev.slug}`}>
+          <Link to={`/terminal/work/${prev.slug}`} viewTransition state={{ vtDir: "back" }}>
             <span className="dir">← [ prev · {prev.number}</span>
             <span className="pn-name">./<span className="ext">{prev.slug}</span></span>
             <span className="pn-tag">{prev.tagline}</span>
           </Link>
-          <Link to={`/terminal/work/${next.slug}`} className="next-a">
+          <Link to={`/terminal/work/${next.slug}`} className="next-a" viewTransition state={{ vtDir: "fwd" }}>
             <span className="dir">next · {next.number} ] →</span>
             <span className="pn-name">./<span className="ext">{next.slug}</span></span>
             <span className="pn-tag">{next.tagline}</span>

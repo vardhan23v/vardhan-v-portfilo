@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Icon } from "../lib/icons";
 
 /** Copies the address to the clipboard and says so for two seconds. Falls back to mailto. */
 export function CopyEmail({ email }: { email: string }) {
@@ -14,7 +15,9 @@ export function CopyEmail({ email }: { email: string }) {
   };
   return (
     <button type="button" className={`copy${copied ? " is-copied" : ""}`} onClick={copy} aria-label={copied ? "Email address copied" : `Copy ${email}`}>
-      <span aria-hidden="true">{copied ? "Copied" : "Copy"}</span>
+      {/* Both labels share one grid cell, so the button is sized to the wider one and the swap rolls in place. */}
+      <span className="copy-roll" aria-hidden="true"><span>Copy</span><span><Icon.check width={12} height={12} /> Copied</span></span>
+      <span className="copy-star" aria-hidden="true" />
       <span className="sr-only" role="status">{copied ? "Copied to clipboard" : ""}</span>
     </button>
   );

@@ -5,6 +5,7 @@ import "@fontsource/space-grotesk/latin-ext-600.css";
 import "@fontsource/space-grotesk/latin-700.css";
 import "@fontsource/space-grotesk/latin-ext-700.css";
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import { flushSync } from "react-dom";
 import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { useTilt } from "../hooks/useTilt";
 import { useIstTime } from "../hooks/useIstTime";
@@ -18,12 +19,67 @@ import { github, stats, aiStack } from "../classic/data/stats";
 import { Icon } from "../classic/lib/icons";
 import { ExpandableTabs, type ExpandableTabItem } from "../components/ui/expandable-tabs";
 import "./styles/aurora.css";
-import { motionReduced } from "../lib/motion";
+import { motionReduced, startLocalTransition } from "../lib/motion";
+import { prefetchEdition } from "../lib/editionLoaders";
 import { aboutProject, askAssistant } from "../lib/ai/ask";
 import { mailtoHref, sendMessage } from "../lib/contact";
 
 export const auroraProjects = featuredProjects;
 const YEAR = new Date().getFullYear();
+const TYPER_WORDS = auroraProjects.map((p) => p.name);
+
+/** Start loading a route's code when a link to it is hovered, focused or touched. */
+function prefetchProps(to: string) {
+  const go = () => prefetchEdition(to);
+  return { onPointerEnter: go, onFocus: go, onTouchStart: go };
+}
+
+/*
+ * Off-screen pause: one shared IntersectionObserver marks containers with data-au-live="on"/"off".
+ * The CSS pauses only the named decorative loops inside an "off" container (never the scroll-driven reveals),
+ * and an optional callback lets JS loops (the typewriter) stop too.
+ */
+const liveCallbacks = new WeakMap<Element, (on: boolean) => void>();
+let liveIO: IntersectionObserver | null = null;
+function liveObserver() {
+  liveIO ??= new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        (e.target as HTMLElement).dataset.auLive = e.isIntersecting ? "on" : "off";
+        liveCallbacks.get(e.target)?.(e.isIntersecting);
+      }
+    },
+    { rootMargin: "120px 0px" }
+  );
+  return liveIO;
+}
+function useAuLive<T extends HTMLElement>(onChange?: (on: boolean) => void) {
+  const ref = useRef<T | null>(null);
+  const cb = useRef(onChange);
+  useEffect(() => {
+    cb.current = onChange;
+  });
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = liveObserver();
+    liveCallbacks.set(el, (on) => cb.current?.(on));
+    io.observe(el);
+    return () => {
+      io.unobserve(el);
+      liveCallbacks.delete(el);
+    };
+  }, []);
+  return ref;
+}
+
+/** Card centre minus viewport centre, so the quick view can grow from where it was opened. */
+function originOf(from?: Element | null) {
+  const card = from?.closest("article");
+  if (!card) return { dx: 0, dy: 0 };
+  const r = card.getBoundingClientRect();
+  return { dx: Math.round(r.left + r.width / 2 - window.innerWidth / 2), dy: Math.round(r.top + r.height / 2 - window.innerHeight / 2) };
+}
 
 type Filter = "all" | "ai" | "full-stack" | "tools";
 type Sort = "default" | "az" | "tech";
@@ -141,41 +197,50 @@ function useRepoStats(github: string) {
   return stats;
 }
 
-/** Types each word out, holds, deletes, moves on. Static first word when motion is reduced. */
-function Typer({ words }: { words: string[] }) {
+/**
+ * Types each word out, holds, deletes, moves on. Static first word when motion is reduced.
+ * Pauses while `active` is false (hero off-screen) or the tab is hidden, and resumes where it stopped.
+ */
+function Typer({ words, active }: { words: readonly string[]; active: boolean }) {
   const [text, setText] = useState(motionReduced() ? words[0] : "");
+  const pos = useRef({ w: 0, i: 0, deleting: false, started: false });
+  const [tabVisible, setTabVisible] = useState(() => typeof document === "undefined" || !document.hidden);
   useEffect(() => {
-    if (motionReduced()) return;
-    let w = 0;
-    let i = 0;
-    let deleting = false;
+    const onVis = () => setTabVisible(!document.hidden);
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, []);
+  useEffect(() => {
+    if (motionReduced() || !active || !tabVisible) return;
+    const s = pos.current;
     let t = 0;
     const step = () => {
-      const word = words[w];
-      if (!deleting) {
-        i++;
-        setText(word.slice(0, i));
-        if (i === word.length) {
-          deleting = true;
+      const word = words[s.w % words.length];
+      if (!s.deleting) {
+        s.i++;
+        setText(word.slice(0, s.i));
+        if (s.i >= word.length) {
+          s.deleting = true;
           t = window.setTimeout(step, 1700);
           return;
         }
         t = window.setTimeout(step, 46);
       } else {
-        i--;
-        setText(word.slice(0, i));
-        if (i === 0) {
-          deleting = false;
-          w = (w + 1) % words.length;
+        s.i--;
+        setText(word.slice(0, s.i));
+        if (s.i <= 0) {
+          s.deleting = false;
+          s.w = (s.w + 1) % words.length;
           t = window.setTimeout(step, 320);
           return;
         }
         t = window.setTimeout(step, 24);
       }
     };
-    t = window.setTimeout(step, 900);
+    t = window.setTimeout(step, s.started ? 320 : 900);
+    s.started = true;
     return () => clearTimeout(t);
-  }, [words]);
+  }, [words, active, tabVisible]);
   return (
     <span className="au-typer">
       {text}
@@ -282,7 +347,11 @@ function ProjectModal({
   index,
   total,
   dir,
+  entry,
+  origin,
+  closing,
   onClose,
+  onClosed,
   onStep,
   onToast,
 }: {
@@ -290,12 +359,20 @@ function ProjectModal({
   index: number;
   total: number;
   dir: 1 | -1;
-  onClose: () => void;
+  entry: "open" | "step";
+  origin: { dx: number; dy: number };
+  closing: boolean;
+  onClose: (immediate?: boolean) => void;
+  onClosed: () => void;
   onStep: (d: 1 | -1) => void;
   onToast: (msg: string) => void;
 }) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const closingRef = useRef(closing);
+  useEffect(() => {
+    closingRef.current = closing;
+  }, [closing]);
   const gh = useRepoStats(p.github);
   // Focus moves into the dialog on open and returns to whatever opened it on close.
   useEffect(() => {
@@ -307,6 +384,8 @@ function ProjectModal({
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
+      // While the exit plays the dialog is inert: no stepping, no second close.
+      if (closingRef.current) return;
       if (e.key === "Escape") onClose();
       else if (e.key === "ArrowRight") onStep(1);
       else if (e.key === "ArrowLeft") onStep(-1);
@@ -339,17 +418,27 @@ function ProjectModal({
 
   return (
     <div
-      className="au-modal-backdrop"
+      className={`au-modal-backdrop${closing ? " is-closing" : ""}`}
       role="dialog"
       aria-modal="true"
       aria-label={`${p.name} details`}
       ref={overlayRef}
+      inert={closing}
       onClick={(e) => {
         if (e.target === overlayRef.current) onClose();
       }}
+      onAnimationEnd={(e) => {
+        if (e.target === e.currentTarget && e.animationName === "auModalOut") onClosed();
+      }}
     >
-      <div className="au-modal" key={p.slug} data-dir={dir}>
-        <button type="button" className="au-modal-close" onClick={onClose} aria-label="Close" ref={closeRef}>
+      <div
+        className="au-modal"
+        key={p.slug}
+        data-dir={dir}
+        data-entry={entry}
+        style={{ "--dx": `${origin.dx}px`, "--dy": `${origin.dy}px` } as React.CSSProperties}
+      >
+        <button type="button" className="au-modal-close" onClick={() => onClose()} aria-label="Close" ref={closeRef}>
           <Icon.close width={16} height={16} />
         </button>
         <div className="au-modal-nav">
@@ -414,14 +503,14 @@ function ProjectModal({
               Live Demo <span aria-hidden="true">↗</span>
             </a>
           )}
-          {hasCaseStudy(p.slug) && <Link to={caseStudyPath(p.slug)} state={{ from: "/aurora" }} className="aurora-btn au-modal-btn">Case study →</Link>}
-          <button type="button" className="aurora-btn au-modal-btn" data-ask-ai onClick={() => { onClose(); askAssistant(aboutProject(p.name)); }}>
-            Ask AI <span aria-hidden="true">✦</span>
+          {hasCaseStudy(p.slug) && <Link to={caseStudyPath(p.slug)} state={{ from: "/aurora" }} className="aurora-btn au-modal-btn" {...prefetchProps(caseStudyPath(p.slug))}>Case study →</Link>}
+          <button type="button" className="aurora-btn au-modal-btn" data-ask-ai onClick={() => { onClose(true); askAssistant(aboutProject(p.name)); }}>
+            Ask AI <span aria-hidden="true" className="ask-spark">✦</span>
           </button>
           <button type="button" className="aurora-btn au-modal-btn" onClick={copyLink}>
             Copy link <span aria-hidden="true">⧉</span>
           </button>
-          <button type="button" className="aurora-btn au-modal-btn au-modal-ghost" onClick={onClose}>
+          <button type="button" className="aurora-btn au-modal-btn au-modal-ghost" onClick={() => onClose()}>
             Close <span aria-hidden="true">✕</span>
           </button>
         </div>
@@ -430,20 +519,21 @@ function ProjectModal({
   );
 }
 
-function FeaturedProject({ p, onOpen }: { p: Project; onOpen: () => void }) {
+function FeaturedProject({ p, onOpen }: { p: Project; onOpen: (from: Element) => void }) {
   const ref = useTilt<HTMLDivElement>(4, ".au-ft");
+  const visualRef = useAuLive<HTMLDivElement>();
   return (
-    <div ref={ref} className="au-ft-tilt">
+    <div ref={ref} className="au-ft-tilt" style={{ "--vtn": `au-p-${p.slug}` } as React.CSSProperties}>
       <article
         className="au-ft"
         style={{ "--pa1": p.accent[0] } as React.CSSProperties}
-        onClick={onOpen}
+        onClick={(e) => onOpen(e.currentTarget)}
         onMouseMove={spotlight}
       >
         <span className="au-spot" aria-hidden="true" />
         <div className="au-ft-copy">
           <span className="au-rank">Project 01 · flagship — click to explore</span>
-          <h3 className="au-ft-name"><button type="button" className="au-open" onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-label={`Open ${p.name} quick view`}>{p.name}</button></h3>
+          <h3 className="au-ft-name"><button type="button" className="au-open" onClick={(e) => { e.stopPropagation(); onOpen(e.currentTarget); }} aria-label={`Open ${p.name} quick view`}>{p.name}</button></h3>
           <p className="au-ft-tagline">{p.tagline}</p>
           <div className="au-card-tech">
             {p.tech.slice(0, 7).map((t) => (
@@ -459,13 +549,13 @@ function FeaturedProject({ p, onOpen }: { p: Project; onOpen: () => void }) {
                 Live Demo <span aria-hidden="true">↗</span>
               </a>
             )}
-            {hasCaseStudy(p.slug) && <Link to={caseStudyPath(p.slug)} state={{ from: "/aurora" }}>Case study →</Link>}
+            {hasCaseStudy(p.slug) && <Link to={caseStudyPath(p.slug)} state={{ from: "/aurora" }} {...prefetchProps(caseStudyPath(p.slug))}>Case study →</Link>}
           </div>
           <div onClick={(e) => e.stopPropagation()}>
             <AuroraDetails p={p} />
           </div>
         </div>
-        <div className="au-ft-visual" aria-hidden="true">
+        <div className="au-ft-visual" aria-hidden="true" ref={visualRef}>
           <div className="au-ft-bloom" style={{ "--pa1": p.accent[0] } as React.CSSProperties} />
           <div className="au-ft-beam au-ft-beam-a" />
           <div className="au-ft-beam au-ft-beam-b" />
@@ -481,19 +571,20 @@ function FeaturedProject({ p, onOpen }: { p: Project; onOpen: () => void }) {
   );
 }
 
-function AuroraCard({ p, n, i, onOpen }: { p: Project; n: string; i: number; onOpen: () => void }) {
-  const ref = useTilt<HTMLDivElement>(5, ".au-card");
+function AuroraCard({ p, n, i, view, onOpen }: { p: Project; n: string; i: number; view: ViewMode; onOpen: (from: Element) => void }) {
+  // Full-width list rows lift without tilting: a swinging 1200px row reads as wobbly.
+  const ref = useTilt<HTMLDivElement>(view === "list" ? 0 : 5, ".au-card");
   return (
-    <div ref={ref} className="au-tilt" style={{ "--i": i } as React.CSSProperties}>
+    <div ref={ref} className="au-tilt" style={{ "--i": i, "--vtn": `au-p-${p.slug}` } as React.CSSProperties}>
       <article
         className="au-card"
         style={{ "--pa1": p.accent[0] } as React.CSSProperties}
-        onClick={onOpen}
+        onClick={(e) => onOpen(e.currentTarget)}
         onMouseMove={spotlight}
       >
         <span className="au-spot" aria-hidden="true" />
         <span className="au-rank">{n} · {catOf(p)}</span>
-        <h3 className="au-card-name"><button type="button" className="au-open" onClick={(e) => { e.stopPropagation(); onOpen(); }} aria-label={`Open ${p.name} quick view`}>{p.name}</button></h3>
+        <h3 className="au-card-name"><button type="button" className="au-open" onClick={(e) => { e.stopPropagation(); onOpen(e.currentTarget); }} aria-label={`Open ${p.name} quick view`}>{p.name}</button></h3>
         <p className="au-card-tagline">{p.tagline}</p>
         <div className="au-card-tech">
           {p.tech.slice(0, 5).map((t) => (
@@ -509,7 +600,7 @@ function AuroraCard({ p, n, i, onOpen }: { p: Project; n: string; i: number; onO
               Live Demo <span aria-hidden="true">↗</span>
             </a>
           )}
-          {hasCaseStudy(p.slug) && <Link to={caseStudyPath(p.slug)} state={{ from: "/aurora" }}>Case study →</Link>}
+          {hasCaseStudy(p.slug) && <Link to={caseStudyPath(p.slug)} state={{ from: "/aurora" }} {...prefetchProps(caseStudyPath(p.slug))}>Case study →</Link>}
         </div>
         <span className="au-card-cta" aria-hidden="true">
           quick view →
@@ -656,20 +747,54 @@ export function AuroraSite() {
   const [scrolled, setScrolled] = useState(false);
   const [expandedExp, setExpandedExp] = useState<number | null>(0);
   const [activeProject, setActiveProject] = useState<Project | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ msg: string; leaving: boolean } | null>(null);
+  const toastTimers = useRef<number[]>([]);
   const glowRef = useRef<HTMLDivElement>(null);
   const [hue, setHue] = useState<HueId>(readHue);
   const [activeSection, setActiveSection] = useState<string>("home");
   const [modalDir, setModalDir] = useState<1 | -1>(1);
+  const [modalEntry, setModalEntry] = useState<"open" | "step">("open");
+  const [modalOrigin, setModalOrigin] = useState({ dx: 0, dy: 0 });
+  const [closing, setClosing] = useState(false);
   const [rolling, setRolling] = useState(false);
+  // Once the first fold-in has played (or the visitor starts filtering), cards stop replaying it on later mounts.
+  const [settled, setSettled] = useState(false);
+  const [heroLive, setHeroLive] = useState(true);
+  const heroRef = useAuLive<HTMLElement>(setHeroLive);
+  const marqueeRef = useAuLive<HTMLDivElement>();
+  const expListRef = useAuLive<HTMLDivElement>();
   const navRef = useRef<HTMLElement>(null);
   const ist = useIstTime(false);
   const followers = github.followers;
 
+  // A new toast cancels the previous one's timers, so it is never cut short; it eases out before unmounting.
   const showToast = useCallback((msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 3200);
+    toastTimers.current.forEach((t) => clearTimeout(t));
+    setToast({ msg, leaving: false });
+    toastTimers.current = [
+      window.setTimeout(() => setToast((t) => (t ? { ...t, leaving: true } : t)), 2900),
+      window.setTimeout(() => setToast(null), 3200),
+    ];
   }, []);
+  useEffect(() => {
+    const timers = toastTimers;
+    return () => timers.current.forEach((t) => clearTimeout(t));
+  }, []);
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setSettled(true), 1800);
+    return () => clearTimeout(t);
+  }, []);
+
+  /** In-page view transition for discrete gallery changes: cards glide to their new places. */
+  const vt = (fn: () => void) => {
+    startLocalTransition(() =>
+      flushSync(() => {
+        setSettled(true);
+        fn();
+      })
+    );
+  };
 
   useEffect(() => {
     const obs = new IntersectionObserver(
@@ -722,13 +847,19 @@ export function AuroraSite() {
 
   useEffect(() => {
     let raf = 0;
+    let wasScrolled: boolean | null = null;
     const onScroll = () => {
-      setScrolled(window.scrollY > 24);
       if (raf) return;
       raf = requestAnimationFrame(() => {
         raf = 0;
+        const y = window.scrollY;
         const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-        navRef.current?.style.setProperty("--sp", String(Math.min(1, window.scrollY / max)));
+        navRef.current?.style.setProperty("--sp", String(Math.min(1, y / max)));
+        const next = y > 24;
+        if (next !== wasScrolled) {
+          wasScrolled = next;
+          setScrolled(next);
+        }
       });
     };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -850,12 +981,13 @@ export function AuroraSite() {
     return [...s].sort().slice(0, 28);
   }, []);
 
-  const clearFilters = () => {
-    setFilter("all");
-    setQuery("");
-    setSkillFilter(null);
-    setSort("default");
-  };
+  const clearFilters = () =>
+    vt(() => {
+      setFilter("all");
+      setQuery("");
+      setSkillFilter(null);
+      setSort("default");
+    });
 
   const hasActiveFilters = filter !== "all" || !!query.trim() || !!skillFilter || sort !== "default";
 
@@ -869,9 +1001,40 @@ export function AuroraSite() {
         return list[(i + d + list.length) % list.length] ?? cur;
       });
       setModalDir(d);
+      setModalEntry("step");
     },
     [filtered]
   );
+
+  /** Opens the quick view, growing it from the card it came from (centred for keyboard, random and deep links). */
+  const openProject = (p: Project, from?: Element | null) => {
+    setClosing(false);
+    setModalOrigin(originOf(from));
+    setModalEntry("open");
+    setModalDir(1);
+    setActiveProject(p);
+  };
+
+  const finishClose = useCallback(() => {
+    setClosing(false);
+    setActiveProject(null);
+  }, []);
+
+  const closeProject = useCallback((immediate?: boolean) => {
+    if (immediate || motionReduced()) {
+      finishClose();
+      return;
+    }
+    setClosing(true);
+    if (window.location.hash.startsWith("#p=")) history.replaceState(history.state, "", window.location.pathname + window.location.search);
+  }, [finishClose]);
+
+  // Fallback in case the exit animation's end event never arrives (hidden tab, interrupted animation).
+  useEffect(() => {
+    if (!closing) return;
+    const t = window.setTimeout(finishClose, 260);
+    return () => clearTimeout(t);
+  }, [closing, finishClose]);
 
   const randomProject = () => {
     if (rolling) return;
@@ -881,8 +1044,7 @@ export function AuroraSite() {
     setTimeout(
       () => {
         setRolling(false);
-        setModalDir(1);
-        setActiveProject(pick);
+        openProject(pick);
       },
       motionReduced() ? 0 : 520
     );
@@ -905,7 +1067,11 @@ export function AuroraSite() {
           index={modalIndex}
           total={modalList.length}
           dir={modalDir}
-          onClose={() => setActiveProject(null)}
+          entry={modalEntry}
+          origin={modalOrigin}
+          closing={closing}
+          onClose={closeProject}
+          onClosed={finishClose}
           onStep={stepProject}
           onToast={showToast}
         />
@@ -930,15 +1096,15 @@ export function AuroraSite() {
       </nav>
 
       {toast && (
-        <div className="au-toast" role="status" aria-live="polite">
+        <div className={`au-toast${toast.leaving ? " is-leaving" : ""}`} role="status" aria-live="polite">
           <span className="au-toast-dot" aria-hidden="true" />
-          {toast}
+          {toast.msg}
         </div>
       )}
 
       <div className="aurora-inner">
         <nav className={`aurora-nav${scrolled ? " is-scrolled" : ""}`} aria-label="Main" ref={navRef}>
-          <Link to="/" className="aurora-wordmark">
+          <Link to="/" className="aurora-wordmark" {...prefetchProps("/")}>
             {site.name}
             <span className="dot">.</span>
           </Link>
@@ -953,7 +1119,7 @@ export function AuroraSite() {
         </nav>
 
         <main id="main">
-        <header className="aurora-hero" id="home">
+        <header className="aurora-hero" id="home" ref={heroRef}>
           <div className="au-hero-copy">
             <p className="aurora-name">
               Sree Vardhan <span className="aurora-grad">V.</span>
@@ -1017,7 +1183,7 @@ export function AuroraSite() {
           <div className="au-hero-visual au-reveal" aria-hidden="true">
             <div className="au-sys-head">
               <span>
-                building <Typer words={auroraProjects.map((p) => p.name)} />
+                building <Typer words={TYPER_WORDS} active={heroLive} />
               </span>
               <span className="au-sys-live">
                 <i className="au-sys-dot" /> system online
@@ -1050,7 +1216,7 @@ export function AuroraSite() {
           </div>
         </header>
 
-        <div className="au-marquee au-reveal" aria-hidden="true">
+        <div className="au-marquee au-reveal" aria-hidden="true" ref={marqueeRef}>
           <div className="au-marquee-track">
             <span className="au-marquee-group">{stackStrip.join("  ·  ")}  ·  </span>
             <span className="au-marquee-group">{stackStrip.join("  ·  ")}  ·  </span>
@@ -1078,15 +1244,21 @@ export function AuroraSite() {
 
           <div className="au-toolbar au-reveal">
             <div className="au-search">
-              <Icon.code width={14} height={14} aria-hidden="true" />
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <circle cx="7" cy="7" r="5.25" stroke="currentColor" strokeWidth="1.75" />
+                <path d="M11 11l3.25 3.25" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+              </svg>
               <input
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => {
+                  setSettled(true);
+                  setQuery(e.target.value);
+                }}
                 placeholder="Search projects, tech, or tags…"
                 aria-label="Search projects"
               />
               {query && (
-                <button type="button" className="au-search-clear" onClick={() => setQuery("")} aria-label="Clear search">
+                <button type="button" className="au-search-clear" onClick={() => vt(() => setQuery(""))} aria-label="Clear search">
                   ✕
                 </button>
               )}
@@ -1094,7 +1266,7 @@ export function AuroraSite() {
             <div className="au-toolbar-right">
               <label className="au-sort">
                 <span>sort</span>
-                <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="Sort projects">
+                <select value={sort} onChange={(e) => { const v = e.target.value as Sort; vt(() => setSort(v)); }} aria-label="Sort projects">
                   {SORTS.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.label}
@@ -1117,7 +1289,7 @@ export function AuroraSite() {
                   className={`au-view-btn${view === "grid" ? " is-active" : ""}`}
                   aria-pressed={view === "grid"}
                   aria-label="Grid view"
-                  onClick={() => setView("grid")}
+                  onClick={() => vt(() => setView("grid"))}
                 >
                   ⊞
                 </button>
@@ -1126,7 +1298,7 @@ export function AuroraSite() {
                   className={`au-view-btn${view === "list" ? " is-active" : ""}`}
                   aria-pressed={view === "list"}
                   aria-label="List view"
-                  onClick={() => setView("list")}
+                  onClick={() => vt(() => setView("list"))}
                 >
                   ☰
                 </button>
@@ -1141,7 +1313,7 @@ export function AuroraSite() {
                 type="button"
                 className={`au-filter${filter === f.id ? " is-active" : ""}`}
                 aria-pressed={filter === f.id}
-                onClick={() => setFilter(f.id)}
+                onClick={() => vt(() => setFilter(f.id))}
                 style={{ "--i": i } as React.CSSProperties}
               >
                 {f.label}
@@ -1149,7 +1321,7 @@ export function AuroraSite() {
               </button>
             ))}
             {skillFilter && (
-              <button type="button" className="au-filter is-active au-filter-skill" onClick={() => setSkillFilter(null)}>
+              <button type="button" className="au-filter is-active au-filter-skill" onClick={() => vt(() => setSkillFilter(null))}>
                 {skillFilter} <span aria-hidden="true">✕</span>
               </button>
             )}
@@ -1160,7 +1332,7 @@ export function AuroraSite() {
             )}
           </div>
 
-          <div className={`au-projects au-reveal au-projects-${view}`}>
+          <div className={`au-projects au-reveal au-projects-${view}`} data-settled={settled ? "" : undefined}>
             {filtered.length === 0 ? (
               <div className="au-empty">
                 <span className="au-empty-emoji" aria-hidden="true">
@@ -1177,16 +1349,17 @@ export function AuroraSite() {
               </div>
             ) : (
               <>
-                {featured && <FeaturedProject key={`ft-${filter}-${query}-${skillFilter}-${sort}`} p={featured} onOpen={() => setActiveProject(featured)} />}
+                {featured && <FeaturedProject key={featured.slug} p={featured} onOpen={(from) => openProject(featured, from)} />}
                 {rest.length > 0 && (
-                  <div className={`aurora-grid${view === "list" ? " is-list" : ""}`} key={`${filter}-${query}-${skillFilter}-${sort}-${view}`}>
+                  <div className={`aurora-grid${view === "list" ? " is-list" : ""}`}>
                     {rest.map((p) => (
                       <AuroraCard
                         key={p.slug}
                         p={p}
                         n={String(auroraProjects.indexOf(p) + 1).padStart(2, "0")}
                         i={rest.indexOf(p)}
-                        onOpen={() => setActiveProject(p)}
+                        view={view}
+                        onOpen={(from) => openProject(p, from)}
                       />
                     ))}
                   </div>
@@ -1226,6 +1399,7 @@ export function AuroraSite() {
                   style={{ "--i": i } as React.CSSProperties}
                   aria-pressed={skillFilter === t}
                   onClick={() => {
+                    setSettled(true);
                     setSkillFilter((prev) => (prev === t ? null : t));
                     const el = document.getElementById("work");
                     if (prevSkillFilter() !== t) el?.scrollIntoView({ behavior: motionReduced() ? "auto" : "smooth", block: "start" });
@@ -1269,7 +1443,7 @@ export function AuroraSite() {
             </div>
             <span className="tag">the log · {experience.length} roles</span>
           </div>
-          <div className="au-exp-list au-reveal">
+          <div className="au-exp-list au-reveal" ref={expListRef}>
             {experience.map((e, idx) => {
               const open = expandedExp === idx;
               return (
@@ -1280,8 +1454,8 @@ export function AuroraSite() {
                     <div className="au-exp-company">{e.company}</div>
                     <div className={`au-exp-points${open ? " is-open" : ""}`}>
                       <ul>
-                        {e.points.map((pt) => (
-                          <li key={pt}>{pt}</li>
+                        {e.points.map((pt, j) => (
+                          <li key={pt} style={{ "--j": j } as React.CSSProperties}>{pt}</li>
                         ))}
                       </ul>
                     </div>
@@ -1294,7 +1468,7 @@ export function AuroraSite() {
                       aria-expanded={open}
                       onClick={() => setExpandedExp(open ? null : idx)}
                     >
-                      {open ? "hide" : "details"} <span aria-hidden="true">{open ? "−" : "+"}</span>
+                      {open ? "hide" : "details"} <span aria-hidden="true">+</span>
                     </button>
                   </div>
                 </div>
@@ -1432,7 +1606,7 @@ export function AuroraSite() {
         <footer className="aurora-foot au-reveal">
           <span>© {YEAR} {site.name} — Aurora edition · IST {ist}</span>
           <span className="aurora-foot-links">
-            <Link to="/">editions</Link>
+            <Link to="/" {...prefetchProps("/")}>editions</Link>
             <a href={site.github} target="_blank" rel="noopener noreferrer">
               GitHub
             </a>

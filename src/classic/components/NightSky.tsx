@@ -199,15 +199,23 @@ export function HeroPainting() {
             {SPIRAL_B.map((d, k) => <path key={k} d={d} className={`stroke stroke--${(k + 3) % 5}`} strokeWidth={k === 0 ? 5 : 3} />)}
           </g>
         </>)}
-        {layer("paint-stars", -90, <>
-          {HERO_STARS.map(([x, y, s], i) => (
-            <g key={i} className="hstar" style={{ "--i": i } as React.CSSProperties}>
-              <circle cx={x} cy={y} r={30 * s} className="halo halo--outer" />
-              <circle cx={x} cy={y} r={17 * s} className="halo" />
-              <circle cx={x} cy={y} r={5 * s} className="hstar-core" />
-            </g>
+        {/* One depth, four svgs: the cores stay still, and the halos pulse as three whole layers out of phase
+            (opacity on an HTML-level box composites; animating SVG children repainted the page every frame). */}
+        <div className="depth depth--sky" style={{ "--z": -90 } as React.CSSProperties}>
+          <svg className="paint paint-stars" viewBox={`0 0 ${PW} ${PH}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+            {HERO_STARS.map(([x, y, s], i) => <circle key={i} cx={x} cy={y} r={5 * s} className="hstar-core" />)}
+          </svg>
+          {[0, 1, 2].map((g) => (
+            <svg key={g} className={`paint paint-halos paint-halos--${g}`} viewBox={`0 0 ${PW} ${PH}`} preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+              {HERO_STARS.map(([x, y, s], i) => (i % 3 === g ? (
+                <g key={i} className="hstar">
+                  <circle cx={x} cy={y} r={30 * s} className="halo halo--outer" />
+                  <circle cx={x} cy={y} r={17 * s} className="halo" />
+                </g>
+              ) : null))}
+            </svg>
           ))}
-        </>)}
+        </div>
       {layer("paint-moon", -120, <>
         <defs>
           <radialGradient id="moon-glow"><stop offset="0" stopColor="#cfcfbb" stopOpacity="0.6" /><stop offset="0.25" stopColor="#bbaf4a" stopOpacity="0.45" /><stop offset="0.55" stopColor="#bba327" stopOpacity="0.18" /><stop offset="1" stopColor="#bba327" stopOpacity="0" /></radialGradient>

@@ -37,7 +37,22 @@ export function Wallpaper() {
     let raf = 0;
     let nx = 0;
     let ny = 0;
+    // After 15 s without input the drift rests (motion.css pauses it on [data-still]),
+    // so the glass surfaces above it stop re-blurring every frame. Any input wakes it.
+    let idle = 0;
+    let armedAt = 0;
+    const wake = () => {
+      const now = performance.now();
+      const still = el.hasAttribute("data-still");
+      if (!still && now - armedAt < 1000) return; // re-arm at most once a second
+      armedAt = now;
+      if (still) el.removeAttribute("data-still");
+      window.clearTimeout(idle);
+      idle = window.setTimeout(() => el.setAttribute("data-still", ""), 15_000);
+    };
+    wake();
     const onMove = (e: PointerEvent) => {
+      wake();
       nx = e.clientX / window.innerWidth - 0.5;
       ny = e.clientY / window.innerHeight - 0.5;
       if (raf) return;
@@ -47,10 +62,15 @@ export function Wallpaper() {
         el.style.setProperty("--py", ny.toFixed(3));
       });
     };
+    const wakeEvents = ["wheel", "keydown", "touchstart", "pointerdown"] as const;
     window.addEventListener("pointermove", onMove, { passive: true });
+    wakeEvents.forEach((t) => window.addEventListener(t, wake, { passive: true }));
     return () => {
       window.removeEventListener("pointermove", onMove);
+      wakeEvents.forEach((t) => window.removeEventListener(t, wake));
       cancelAnimationFrame(raf);
+      window.clearTimeout(idle);
+      el.removeAttribute("data-still");
     };
   }, [prefs.reduceMotion]);
 

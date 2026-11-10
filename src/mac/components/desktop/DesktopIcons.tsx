@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useWindowManager, type AppId } from "../../hooks/useWindowManager";
+import { setLaunchOrigin } from "../../lib/launchOrigin";
 import { usePointerDrag } from "../../hooks/usePointerDrag";
 import { useShell, SHELL_KEYS } from "../../hooks/useShell";
 import { site } from "../../data/site";
@@ -58,7 +59,7 @@ function DesktopIcon({
   def: IconDef;
   pos: { x: number; y: number };
   onMove: (id: string, x: number, y: number) => void;
-  onOpen: (def: IconDef) => void;
+  onOpen: (def: IconDef, from?: Element | null) => void;
 }) {
   const start = useRef(pos);
   const { dragging, handlers } = usePointerDrag<HTMLButtonElement>({
@@ -75,11 +76,11 @@ function DesktopIcon({
       type="button"
       className={`mac-dicon${dragging ? " is-dragging" : ""}`}
       style={{ "--x": `${pos.x}px`, "--y": `${pos.y}px` } as CSSProperties}
-      onDoubleClick={() => onOpen(def)}
+      onDoubleClick={(e) => onOpen(def, e.currentTarget)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          onOpen(def);
+          onOpen(def, e.currentTarget);
         }
       }}
       aria-label={`${def.label} (double-click to open)`}
@@ -147,8 +148,11 @@ export function DesktopIcons() {
   }, []);
 
   const onOpen = useCallback(
-    (def: IconDef) => {
-      if (def.kind === "app" && def.app) openWindow(def.app);
+    (def: IconDef, from?: Element | null) => {
+      if (def.kind === "app" && def.app) {
+        setLaunchOrigin(def.app, from?.querySelector(".mac-glyph") ?? from);
+        openWindow(def.app);
+      }
       else if (def.href) window.open(def.href, "_blank", "noopener");
     },
     [openWindow]

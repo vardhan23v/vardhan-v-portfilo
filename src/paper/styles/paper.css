@@ -24,6 +24,17 @@
   overflow-x: clip;
 }
 
+/* Ink scrollbar instead of the global violet one. Literal values: the tokens live on .paper-root, not html. */
+html:has(.paper-root) {
+  scrollbar-color: rgba(26, 24, 21, 0.22) transparent;
+}
+html:has(.paper-root)::-webkit-scrollbar-thumb {
+  background: rgba(26, 24, 21, 0.22);
+}
+html:has(.paper-root)::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, #be4b2a 55%, transparent);
+}
+
 .paper-root ::selection {
   background: var(--accent);
   color: #fff;
@@ -133,6 +144,58 @@
   transform: scaleX(1);
 }
 
+/* ---------- running head (appears once the masthead scrolls away) ---------- */
+
+.paper-runhead {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 15;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 max(32px, calc((100vw - 896px) / 2));
+  background: rgba(250, 248, 244, 0.96);
+  border-bottom: 1px solid var(--rule);
+  transform: translateY(-100%);
+  opacity: 0;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.paper-runhead[data-shown="true"] {
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.paper-runhead-mark {
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.paper-runhead-mark .dot {
+  color: var(--accent);
+}
+
+.paper-runhead-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+  animation: pp-runlabel 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes pp-runlabel {
+  from { opacity: 0; transform: translateY(5px); }
+}
+
 /* ---------- sections ---------- */
 
 .paper-main {
@@ -146,9 +209,11 @@
 .paper-section {
   padding: 88px 0;
   border-top: 1px solid var(--rule);
+  scroll-margin-top: 56px;
 }
 
 .paper-overline {
+  text-wrap: balance;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -205,6 +270,42 @@
   font-size: clamp(52px, 8.4vw, 96px);
   line-height: 1.02;
   letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+/* The name is set line by line from a baseline mask; the headline itself does not also fade-rise. */
+.paper-masthead > .paper-mast-headline {
+  animation: none;
+}
+
+.pp-line {
+  display: block;
+  overflow: clip;
+  overflow-clip-margin: 0.12em;
+  padding: 0 0.08em 0.06em 0;
+  margin-bottom: -0.06em;
+}
+
+.pp-line > span {
+  display: inline-block;
+  animation: pp-set 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.pp-line:nth-child(2) > span {
+  animation-delay: 0.1s;
+}
+
+@keyframes pp-set {
+  from { transform: translateY(105%); }
+  to { transform: none; }
+}
+
+.paper-masthead > .paper-overline::after {
+  animation: ruledraw 0.8s 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.pp-nowrap {
+  white-space: nowrap;
 }
 
 .paper-mast-headline .it {
@@ -213,6 +314,7 @@
 }
 
 .paper-mast-sub {
+  text-wrap: pretty;
   margin-top: 28px;
   max-width: 540px;
   font-size: 17px;
@@ -230,15 +332,57 @@
   color: var(--ink-3);
 }
 
-.paper-mast-meta a {
+/* Text links: a hairline underline that hugs the text at rest, and an ink stroke drawn on hover / focus. */
+.paper-mast-meta a,
+.paper-work-links :is(a, button) {
+  position: relative;
   color: var(--ink-2);
-  border-bottom: 1px solid var(--rule);
-  transition: color 0.2s ease, border-color 0.2s ease;
+  text-decoration: underline 1px var(--rule);
+  text-underline-offset: 4px;
+  text-decoration-skip-ink: auto;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
 }
 
-.paper-mast-meta a:hover {
+.paper-mast-meta a::after,
+.paper-work-links :is(a, button)::after,
+.paper-foot-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(50% + 0.8em);
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.paper-mast-meta a:focus-visible,
+.paper-work-links :is(a, button):focus-visible {
   color: var(--accent);
-  border-color: var(--accent);
+  text-decoration-color: transparent;
+}
+
+.paper-mast-meta a:focus-visible::after,
+.paper-work-links :is(a, button):focus-visible::after,
+.paper-foot-links a:focus-visible::after {
+  transform: scaleX(1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .paper-mast-meta a:hover,
+  .paper-work-links :is(a, button):hover {
+    color: var(--accent);
+    text-decoration-color: transparent;
+  }
+
+  .paper-mast-meta a:hover::after,
+  .paper-work-links :is(a, button):hover::after,
+  .paper-foot-links a:hover::after {
+    transform: scaleX(1);
+  }
 }
 
 .paper-mast-actions {
@@ -262,23 +406,70 @@
     transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.paper-btn:hover {
-  transform: translateY(-1px);
-}
-
 .paper-root .paper-btn-primary {
   background: var(--ink);
   color: var(--paper);
 }
 
-.paper-root .paper-btn-primary:hover {
+.paper-root .paper-btn-primary:focus-visible {
   background: var(--accent);
   border-color: var(--accent);
   color: var(--paper);
 }
 
-.paper-btn-ghost:hover {
-  background: var(--paper-2);
+.paper-btn-ghost:focus-visible {
+  background: color-mix(in srgb, var(--accent) 7%, var(--paper));
+  border-color: var(--accent);
+  color: var(--accent-2);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .paper-btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .paper-root .paper-btn-primary:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--paper);
+  }
+
+  .paper-btn-ghost:hover {
+    background: color-mix(in srgb, var(--accent) 7%, var(--paper));
+    border-color: var(--accent);
+    color: var(--accent-2);
+  }
+}
+
+.paper-btn:focus-visible {
+  transform: translateY(-1px);
+}
+
+.paper-root .paper-btn:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.08s;
+}
+
+/* Arrow glyphs nudge in their own direction on hover and focus. */
+.pp-arr {
+  display: inline-block;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Inline-flex links drop the space before the arrow, so put it back (1ch is one space in mono). */
+.paper-work-links .pp-arr { margin-left: 1ch; }
+.paper-foot-links .pp-arr { margin-left: 0.28em; }
+
+:is(a, button):focus-visible .pp-arr--down { transform: translateY(2px); }
+:is(a, button):focus-visible .pp-arr--fwd { transform: translateX(3px); }
+:is(a, button):focus-visible .pp-arr--out { transform: translate(2px, -2px); }
+:is(a, button):focus-visible .pp-arr--up { transform: translateY(-2px); }
+
+@media (hover: hover) and (pointer: fine) {
+  a:hover .pp-arr--down { transform: translateY(2px); }
+  a:hover .pp-arr--fwd { transform: translateX(3px); }
+  a:hover .pp-arr--out { transform: translate(2px, -2px); }
+  a:hover .pp-arr--up { transform: translateY(-2px); }
 }
 
 /* ---------- work rows ---------- */
@@ -289,21 +480,14 @@
   gap: 22px;
   padding: 30px 0;
   border-top: 1px solid var(--rule);
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.paper-work-item:hover {
-  transform: translateX(6px);
-}
-
-.paper-work-item:last-child {
-  border-bottom: 1px solid var(--rule);
 }
 
 .paper-work-num {
   font-family: var(--serif);
   font-size: 20px;
   color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.4s ease;
 }
 
 .paper-work-name {
@@ -312,6 +496,7 @@
   font-size: 30px;
   font-weight: 550;
   letter-spacing: -0.015em;
+  text-wrap: balance;
   transition: color 0.3s ease;
 }
 
@@ -328,11 +513,34 @@
   transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.paper-work-item:hover .paper-work-name {
-  color: var(--ink);
+/* Hover lives on fine pointers only; on touch the row being read is marked instead (.is-current). */
+@media (hover: hover) and (pointer: fine) {
+  .paper-work-item:hover {
+    translate: 6px 0;
+  }
+
+  .paper-work-item--alt:hover {
+    translate: -6px 0;
+  }
+
+  .paper-work-item:hover .paper-work-name {
+    color: var(--ink);
+  }
+
+  .paper-work-item:hover .paper-work-name::after {
+    transform: scaleX(1);
+  }
+
+  .paper-work-item:hover .paper-work-tech span {
+    border-color: color-mix(in srgb, var(--accent) 30%, var(--rule));
+  }
 }
 
-.paper-work-item:hover .paper-work-name::after {
+.paper-work-item.is-current .paper-work-num {
+  color: var(--accent);
+}
+
+.paper-work-item.is-current .paper-work-name::after {
   transform: scaleX(1);
 }
 
@@ -342,6 +550,7 @@
   font-size: 15.5px;
   line-height: 1.65;
   max-width: 620px;
+  text-wrap: pretty;
 }
 
 .paper-work-tech {
@@ -358,12 +567,7 @@
   border: 1px solid var(--rule);
   padding: 4px 9px;
   border-radius: 999px;
-  transition: color 0.2s ease, border-color 0.2s ease;
-}
-
-.paper-work-tech span:hover {
-  color: var(--accent);
-  border-color: var(--accent);
+  transition: border-color 0.3s ease;
 }
 
 .paper-work-links {
@@ -377,16 +581,6 @@
 }
 
 .paper-work-links button { padding: 0; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; }
-
-.paper-work-links :is(a, button) {
-  border-bottom: 1px solid var(--rule);
-  transition: color 0.2s ease, border-color 0.2s ease;
-}
-
-.paper-work-links :is(a, button):hover {
-  color: var(--accent);
-  border-color: var(--accent);
-}
 
 .paper-work-item--alt {
   grid-template-columns: 1fr 64px;
@@ -418,25 +612,87 @@
   transition: color 0.2s ease;
 }
 
-.paper-eng-btn:hover {
+.paper-eng-btn[aria-expanded="true"] {
+  color: var(--ink-2);
+}
+
+.paper-eng-btn:focus-visible {
   color: var(--accent);
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .paper-eng-btn:hover {
+    color: var(--accent);
+  }
+}
+
+.paper-eng-arr {
+  display: inline-block;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.paper-eng-btn[aria-expanded="true"] .paper-eng-arr {
+  transform: rotate(90deg);
+}
+
+.paper-eng-btn:active .paper-eng-arr {
+  transform: translateX(2px);
+}
+
+.paper-eng-btn[aria-expanded="true"]:active .paper-eng-arr {
+  transform: rotate(90deg) translateX(2px);
+}
+
 .paper-eng-body {
-  margin-top: 16px;
+  position: relative;
+  margin-top: 0;
   padding-left: 18px;
-  border-left: 1px solid var(--rule);
   display: grid;
   grid-template-rows: 0fr;
   opacity: 0;
   max-width: 620px;
-  transition: grid-template-rows 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+  transition: grid-template-rows 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    margin-top 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
 }
 
 .paper-eng-body.is-open {
   grid-template-rows: 1fr;
+  margin-top: 16px;
   opacity: 1;
 }
+
+/* Ink margin rule that draws down as the panel opens. */
+.paper-eng-body::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--rule);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.paper-eng-body.is-open::before {
+  transform: none;
+}
+
+/* Contents settle in sequence on open; closing is immediate. */
+.paper-eng-inner > div {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.paper-eng-body.is-open .paper-eng-inner > div {
+  opacity: 1;
+  transform: none;
+}
+
+.paper-eng-body.is-open .paper-eng-inner > div:nth-child(2) { transition-delay: 0.06s; }
+.paper-eng-body.is-open .paper-eng-inner > div:nth-child(3) { transition-delay: 0.12s; }
 
 .paper-eng-inner {
   overflow: hidden;
@@ -462,6 +718,11 @@
   padding-left: 18px;
 }
 
+.paper-eng-inner p,
+.paper-eng-inner li {
+  text-wrap: pretty;
+}
+
 .paper-eng-body li + li {
   margin-top: 4px;
 }
@@ -475,16 +736,50 @@
   padding: 20px 0;
   border-top: 1px solid var(--rule);
   align-items: baseline;
+  position: relative;
 }
 
-.paper-exp-item:hover {
-  translate: 10px 0;
+.paper-exp-item > div:first-child {
+  transition: translate 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Hover marks the margin with an ink tick while the role slides in; the rule and date stay put. */
+.paper-exp-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: calc(20px + 0.95em);
+  width: 10px;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.paper-exp-period {
+  transition: color 0.3s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .paper-exp-item:hover > div:first-child {
+    translate: 18px 0;
+  }
+
+  .paper-exp-item:hover::before {
+    transform: scaleX(1);
+  }
+
+  .paper-exp-item:hover .paper-exp-period {
+    color: var(--ink-2);
+  }
 }
 
 .paper-exp-role {
   font-family: var(--serif);
   font-size: 20px;
   font-weight: 550;
+  text-wrap: balance;
 }
 
 .paper-exp-company {
@@ -498,6 +793,7 @@
   font-size: 12px;
   color: var(--ink-3);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ---------- about + skills ---------- */
@@ -509,6 +805,10 @@
   color: var(--ink-2);
 }
 
+.paper-prose p {
+  text-wrap: pretty;
+}
+
 .paper-prose p + p {
   margin-top: 18px;
 }
@@ -516,7 +816,7 @@
 .paper-skills {
   margin-top: 34px;
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 .paper-skill-line {
@@ -524,6 +824,7 @@
   grid-template-columns: 130px 1fr;
   gap: 18px;
   font-size: 14.5px;
+  line-height: 1.6;
 }
 
 .paper-skill-label {
@@ -532,11 +833,12 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-3);
-  padding-top: 2px;
+  padding-top: 4px;
 }
 
 .paper-skill-items {
   color: var(--ink-2);
+  text-wrap: pretty;
 }
 
 /* ---------- contact ---------- */
@@ -548,11 +850,43 @@
   letter-spacing: -0.02em;
   line-height: 1.1;
   max-width: 560px;
+  text-wrap: balance;
 }
 
 .paper-contact-head .it {
+  position: relative;
+  display: inline-block;
   font-style: italic;
   color: var(--accent);
+}
+
+/* A hand-inked stroke under the emphasised word, drawn once when the headline is revealed. */
+.pp-stroke {
+  position: absolute;
+  left: 0;
+  bottom: -0.08em;
+  width: 100%;
+  height: 0.22em;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.pp-stroke path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.paper-contact-head.pp-in .pp-stroke path {
+  animation: pp-ink 0.9s 0.45s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+@keyframes pp-ink {
+  to { stroke-dashoffset: 0; }
 }
 
 /* ---------- footer ---------- */
@@ -567,25 +901,42 @@
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  border-top: 1px solid var(--rule);
+  /* The rule sits on the column (inside the 32px gutters), not across the padding. */
+  background: linear-gradient(var(--rule), var(--rule)) 32px 0 / calc(100% - 64px) 1px no-repeat;
   padding-top: 26px;
   font-size: 12.5px;
   color: var(--ink-3);
 }
 
+/* Closing printer's mark. */
+.paper-foot::after {
+  content: "❦" / "";
+  flex-basis: 100%;
+  text-align: center;
+  color: var(--accent);
+  font-family: var(--serif);
+  opacity: 0.7;
+}
+
 .paper-foot-links {
   display: flex;
+  flex-wrap: wrap;
   gap: 20px;
 }
 
 .paper-foot-links a {
-  border-bottom: 1px solid transparent;
-  transition: color 0.2s ease, border-color 0.2s ease;
+  position: relative;
+  transition: color 0.2s ease;
 }
 
-.paper-foot-links a:hover {
+.paper-foot-links a:focus-visible {
   color: var(--ink);
-  border-color: var(--rule);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .paper-foot-links a:hover {
+    color: var(--ink);
+  }
 }
 
 @keyframes paperin {
@@ -607,16 +958,12 @@
   transform: none;
 }
 
-/* Rows that slide on hover keep the reveal timing for opacity and transform. */
-.paper-root .paper-exp-item[data-pp-reveal] {
+/* Work rows slide on hover through `translate`, which the reveal's `transform: none` cannot override,
+   and without the reveal's delay. */
+.paper-root .paper-work-item[data-pp-reveal] {
   transition: opacity 0.6s var(--d, 0s) cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.6s var(--d, 0s) cubic-bezier(0.22, 1, 0.36, 1),
     translate 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.paper-root .paper-work-item:hover {
-  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.6s var(--d, 0s) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @media (max-width: 720px) {
@@ -625,7 +972,16 @@
   .paper-work-item { grid-template-columns: 1fr; gap: 10px; }
   .paper-work-num { font-size: 15px; }
   .paper-exp-item { grid-template-columns: 1fr; }
-  .paper-skill-line { grid-template-columns: 1fr; gap: 4px; }
+  .paper-skills { gap: 18px; }
+  .paper-skill-line { grid-template-columns: 1fr; gap: 2px; }
+  /* Alternate rows: number back on top, set as a running folio with a short rule. */
+  .paper-work-item--alt { grid-template-columns: 1fr; }
+  .paper-work-item--alt .paper-work-num--right { order: 0; text-align: left; }
+  .paper-work-item--alt > div:last-child { order: 0; }
+  .paper-work-num { display: flex; align-items: center; gap: 10px; }
+  .paper-work-num::after { content: ""; flex: 0 0 28px; height: 1px; background: var(--rule); }
+  .paper-runhead { height: 40px; padding: 0 20px; }
+  .paper-runhead-mark { font-size: 14px; }
   .paper-nav {
     padding: 18px 20px;
     row-gap: 10px;
@@ -640,6 +996,13 @@
   }
   .paper-nav-links::-webkit-scrollbar {
     display: none;
+  }
+}
+
+/* Phones: clear the floating Ask AI launcher and back-to-top button below the footer. */
+@media (max-width: 760px) {
+  .paper-foot {
+    padding-bottom: calc(var(--floating-clearance, 88px) + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -659,6 +1022,20 @@ html[data-motion="reduce"] .paper-root *::after {
 html[data-motion="reduce"] {
     scroll-behavior: auto;
   }
+/* Reduced motion rests every new element in its finished state. */
+html[data-motion="reduce"] .paper-root .pp-stroke path {
+  stroke-dashoffset: 0;
+}
+html[data-motion="reduce"] .paper-root .pp-arr {
+  transform: none !important;
+}
+html[data-motion="reduce"] .paper-root .paper-work-item:hover,
+html[data-motion="reduce"] .paper-root .paper-exp-item:hover > div:first-child {
+  translate: none;
+}
+html[data-motion="reduce"] .paper-root .paper-eng-inner > div {
+  transition-delay: 0s !important;
+}
 /* ---------- Interface switcher ---------- */
 
 .paper-root .iswitcher {

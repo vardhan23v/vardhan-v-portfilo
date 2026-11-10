@@ -15,7 +15,8 @@ import { bannerRows } from "./banner";
 export const OS_VERSION = "3.0.0";
 export const HOST = "folio";
 
-export type Line = { key: number; text: string; cls: string };
+/** `d` is an optional print-in stagger step (set by the Hero shell, not by commands). */
+export type Line = { key: number; text: string; cls: string; d?: number };
 let keySeq = 0;
 export const nextKey = () => ++keySeq;
 export const L = (text: string, cls = ""): Line => ({ key: nextKey(), text, cls });
@@ -36,6 +37,8 @@ export type ShellEffect =
 export interface ShellCtx {
   history: string[];
   remote: boolean;
+  /** Approximate width of the output box in characters; narrow boxes get a logo-less neofetch. */
+  cols?: number;
 }
 
 export interface ShellResult {
@@ -487,22 +490,41 @@ function runCmd(cmdRaw: string, arg: string, ctx: ShellCtx): ShellResult {
       push(site.resume, "green");
       effects.push({ type: "download", url: site.resume, name: "sree-vardhan-v-resume.pdf" });
       break;
-    case "neofetch":
-      push(
-        `        ██╗   ██╗
-        ██║   ██║    vardhan@${ctx.remote ? "remote" : HOST}
-        ██║   ██║    ───────────────────────────
-        ╚██████╔╝    OS:       portfolio_os ${OS_VERSION} x64
-         ╚═════╝     Kernel:   react-19
-                     Shell:    bash 5.2
-                     Uptime:   ${uptime()}
-                     DE:       CRT 60Hz ${getPhosphor()} phosphor${getCrt() ? "" : " (overlays off)"}
-                     Location: ${site.location}
-                     Role:     ${site.role.toLowerCase()}`,
-        "green"
-      );
+    case "neofetch": {
+      // value column starts after the logo (21) + label (10); long values wrap
+      // onto a continuation line padded back to that column (hanging indent)
+      const logo = [
+        "        ██╗   ██╗",
+        "        ██║   ██║",
+        "        ██║   ██║",
+        "        ╚██████╔╝",
+        "         ╚═════╝",
+      ];
+      const role = site.role.toLowerCase();
+      const cut = role.search(/ [-·] /);
+      const roleParts = role.length > 34 && cut > 0 ? [role.slice(0, cut + 2), role.slice(cut + 3)] : [role];
+      const info: [string, string][] = [
+        ["", `vardhan@${ctx.remote ? "remote" : HOST}`],
+        ["", "───────────────────────────"],
+        ["OS:", `portfolio_os ${OS_VERSION} x64`],
+        ["Kernel:", "react-19"],
+        ["Shell:", "bash 5.2"],
+        ["Uptime:", uptime()],
+        ["DE:", `CRT 60Hz ${getPhosphor()} phosphor${getCrt() ? "" : " (overlays off)"}`],
+        ["Location:", site.location],
+        ["Role:", roleParts[0]],
+        ...roleParts.slice(1).map((r): [string, string] => ["", r]),
+      ];
+      const narrow = (ctx.cols ?? 80) < 56;
+      const LOGO_W = 21;
+      const body = info.map(([k, v], i) => (k ? `${k.padEnd(10)}${v}` : i < 2 ? v : `${" ".repeat(10)}${v}`));
+      const card = narrow
+        ? [...logo, "", ...body]
+        : [logo[0], ...body.map((t, i) => `${(logo[i + 1] ?? "").padEnd(LOGO_W)}${t}`)];
+      push(card.join("\n"), "green");
       push("type 'help' to explore the rest.", "dim");
       break;
+    }
     case "cat":
       catFile(arg);
       break;

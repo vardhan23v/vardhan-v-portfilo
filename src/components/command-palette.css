@@ -1,34 +1,74 @@
+/* ⌘K palette. Rendered outside the edition roots, so it is themed per edition through
+   html[data-edition] (set by Root in src/App.tsx) and the --cp-* tokens below; today's navy
+   glass is the fallback (Landing, case studies, 404). macOS never shows it (Spotlight). */
+
+html[data-edition="paper"] {
+  --cp-bg: rgba(250, 248, 244, 0.96);
+  --cp-ink: #1b1a17;
+  --cp-ink-2: #4a463f;
+  --cp-ink-3: #6b655c; /* 5.6:1 on --cp-bg */
+  --cp-line: rgba(27, 26, 23, 0.12);
+  --cp-accent: #be4b2a;
+  --cp-scrim: rgba(40, 32, 24, 0.28);
+  --cp-radius: 4px;
+  --cp-shadow: 0 18px 50px -24px rgba(40, 32, 24, 0.35);
+  --cp-blur: none;
+}
+html[data-edition="terminal"] {
+  --cp-bg: rgba(5, 8, 7, 0.94);
+  --cp-accent: #36e57c;
+  --cp-radius: 6px;
+  --cp-font: var(--font-mono);
+  --cp-line: rgba(54, 229, 124, 0.18);
+}
+html[data-edition="forge"] {
+  --cp-accent: #7dd3fc;
+  --cp-radius: 6px;
+}
+html[data-edition="atlas"] {
+  --cp-bg: #0d0d0c;
+  --cp-ink: #ece8df;
+  --cp-line: rgba(236, 232, 223, 0.3);
+  --cp-accent: #ff5b24;
+  --cp-radius: 0;
+}
+html[data-edition="aurora"] {
+  --cp-accent: #a78bfa;
+}
+html[data-edition="classic"] {
+  --cp-bg: rgba(29, 39, 78, 0.94);
+  --cp-accent: #bbaf4a;
+  --cp-line: rgba(207, 207, 187, 0.16);
+}
+
 .cp-backdrop {
   position: fixed;
   inset: 0;
   z-index: 9995;
-  background: rgba(5, 5, 12, 0.55);
+  background: var(--cp-scrim, rgba(5, 5, 12, 0.55));
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   display: flex;
   align-items: flex-start;
   justify-content: center;
   padding: 12vh 20px 20px;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-}
-
-.cp-backdrop {
+  /* no base opacity:0: under reduced motion the animation is removed and it must rest visible */
   animation: cp-fade 0.15s ease both;
 }
 
 @keyframes cp-fade {
   from { opacity: 0; }
-  to { opacity: 1; }
 }
 
 .cp-panel {
   width: 100%;
   max-width: 560px;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.8);
+  border-radius: var(--cp-radius, 14px);
+  border: 1px solid var(--cp-line, var(--border));
+  background: var(--cp-bg, var(--card));
+  color: var(--cp-ink, var(--text));
+  font-family: var(--cp-font, inherit);
+  box-shadow: var(--cp-shadow, 0 30px 80px -30px rgba(0, 0, 0, 0.8));
   overflow: hidden;
   animation: cp-pop 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -38,24 +78,41 @@
   to { opacity: 1; transform: none; }
 }
 
+/* exit: the palette used to vanish in 0 ms */
+.cp-backdrop[data-state="closing"] {
+  animation: cp-fade-out 0.14s ease both;
+  pointer-events: none;
+}
+.cp-backdrop[data-state="closing"] .cp-panel {
+  animation: cp-pop-out 0.14s cubic-bezier(0.4, 0, 1, 1) both;
+}
+@keyframes cp-fade-out {
+  to { opacity: 0; }
+}
+@keyframes cp-pop-out {
+  to { opacity: 0; transform: translateY(-6px) scale(0.98); }
+}
+
 .cp-input {
   width: 100%;
   box-sizing: border-box;
   padding: 16px 18px;
   background: transparent;
   border: none;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--cp-line, var(--border));
   outline: none;
-  color: var(--text);
+  color: var(--cp-ink, var(--text));
+  caret-color: var(--cp-accent, var(--accent));
   font: inherit;
   font-size: 15px;
 }
 
 .cp-input::placeholder {
-  color: var(--text-3);
+  color: var(--cp-ink-3, var(--text-3));
 }
 
 .cp-list {
+  position: relative;
   max-height: 320px;
   overflow-y: auto;
   padding: 8px;
@@ -63,20 +120,46 @@
   gap: 2px;
 }
 
+/* one highlight that glides to the active row (CommandPalette.tsx positions it per index) */
+.cp-glide {
+  position: absolute;
+  top: 0;
+  left: 8px;
+  right: 8px;
+  height: 0;
+  border-radius: min(9px, var(--cp-radius, 9px));
+  background: color-mix(in srgb, var(--cp-accent, var(--accent)) 14%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), height 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cp-glide::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 7px;
+  bottom: 7px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--cp-accent, var(--accent));
+}
+
 .cp-item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
   width: 100%;
   padding: 10px 12px;
   border: none;
-  border-radius: 9px;
+  border-radius: min(9px, var(--cp-radius, 9px));
   background: none;
-  color: var(--text-2);
+  color: var(--cp-ink-2, var(--text-2));
   font: inherit;
   font-size: 14px;
   text-align: left;
   cursor: pointer;
+  transition: color 0.12s ease;
 }
 
 .cp-item .cp-hint {
@@ -84,39 +167,62 @@
   font-family: var(--font-mono);
   font-size: 10.5px;
   letter-spacing: 0.08em;
-  color: var(--text-3);
+  color: var(--cp-ink-3, var(--text-3));
 }
 
 .cp-item.is-active {
-  background: color-mix(in srgb, var(--accent) 14%, transparent);
-  color: var(--text);
+  color: var(--cp-ink, var(--text));
 }
 
 .cp-item.is-active .cp-hint {
-  color: var(--accent);
+  color: var(--cp-accent, var(--accent));
+}
+
+.cp-item:focus-visible {
+  outline: 2px solid var(--cp-accent, var(--accent));
+  outline-offset: -2px;
+}
+
+/* rows rise in on open only (not on every keystroke) */
+.cp-list[data-entering] .cp-item {
+  animation: cp-row-in 0.16s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(min(var(--i, 0), 8) * 14ms);
+}
+@keyframes cp-row-in {
+  from { opacity: 0; transform: translateY(4px); }
 }
 
 .cp-empty {
-  padding: 18px;
-  color: var(--text-3);
-  font-size: 13px;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 22px 18px;
+  color: var(--cp-ink-3, var(--text-3));
   text-align: center;
+}
+.cp-empty-glyph {
+  font-size: 28px;
+  line-height: 1;
+  opacity: 0.8;
+}
+.cp-empty-text {
+  font-family: var(--font-mono);
+  font-size: 12px;
 }
 
 .cp-footer {
   display: flex;
   gap: 16px;
   padding: 10px 16px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--cp-line, var(--border));
   font-family: var(--font-mono);
   font-size: 10.5px;
   letter-spacing: 0.06em;
-  color: var(--text-3);
+  color: var(--cp-ink-3, var(--text-3));
 }
 
-/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts */
-html[data-motion="reduce"] .cp-backdrop,
-html[data-motion="reduce"] .cp-panel {
-    animation-duration: 0.001s !important;
-    animation-iteration-count: 1 !important;
-  }
+/* motion gate (reduce) — driven by html[data-motion], see src/lib/motion.ts.
+   The global rule removes every animation, so everything rests in its finished, visible state. */
+html[data-motion="reduce"] .cp-glide {
+  transition: none;
+}

@@ -154,3 +154,20 @@ Size scale (`aurora.css` line in brackets):
 - Background glows keep their own `auglow1-3` drift (the late `float-gentle` override is gone).
 - Pointer glow moves via `translate`, written once per frame from a ref (no React state).
 - Grid cards enter with `auCardIn` (3D fold); hero panel tips away on scroll exit; headings draw an underline on a view() timeline.
+
+### UI polish (2026-11-10)
+- `<button class="aurora-btn">` now sets `color: var(--ink)`, `font-family: inherit` and `cursor: pointer` (copy email, modal actions and "Clear filters" were rendering black). Added a pressed state (`scale(0.98)`) and a busy `:disabled` state (0.65 opacity, no sweep); the form's send glyph spins while sending.
+- Gallery: cards keep their keys (FeaturedProject by slug, no key on the grid), so search no longer remounts and replays the fold. Filter, sort, view, skill-chip and clear changes run through `startLocalTransition`; during it each card wrapper takes `view-transition-name: var(--vtn)` with class `au-p`, so cards glide to their new places, joiners pop and leavers fade. `data-settled` on `.au-projects` stops `auCardIn`/`auin` replaying on later mounts.
+- Off-screen pause: a shared IntersectionObserver marks `.aurora-hero`, `.au-marquee`, `.au-ft-visual` and `.au-exp-list` with `data-au-live`; only the named infinite loops inside an "off" container pause (scroll-driven reveals are never targeted). The typewriter pauses off-screen and in hidden tabs and resumes where it stopped.
+- The hero rail signal slides with `transform` (was `top`, one layout per frame); the nav progress line uses `scaleX(var(--sp))` (was `width`), and `scrolled` only updates when it flips, inside the rAF.
+- List view is a fixed-track grid (rank 136px, name, tagline, chips, links 280px); rows lift 3px without tilt or scale. ≤1024px drops the chips column, ≤700px stacks.
+- Grid rhythm: link rows align across a row (`margin-top: auto`), and an odd last card spans the row with a two-column interior at ≥801px.
+- Experience: meta and dot anchor to the role line, bullets stagger in, the toggle's + rotates into ×. At ≤560px period and toggle form a header line above the role.
+- Toolbar: every control is 44px; real magnifier glyph; visible `:focus-within` ring on the sort select; a sliding thumb for the grid/list toggle (`@supports selector(:has(*))`).
+- Glows drift a little further on a `scroll(root)` timeline (`translate`, composes with the time loops; reverses on the way up).
+- Quick view grows from the card it was opened from (`--dx/--dy`, 22% of the offset), its content rises in a short stagger, and it eases out on close (inert while closing; unmount on `auModalOut` or a 260ms fallback). Arrow-key steps keep `auSlideL/R`.
+- Toast eases out and a new toast cancels the previous timers; its dot rings once. Form labels tint on focus, errors rise in, invalid fields glow red (no shake).
+- Phones: no wrapped "system online"/clock, featured tag no longer overlaps the glyph, keyboard hints hidden on coarse pointers, "quick view" cue always shown on touch, footer clears the floating launcher (`--floating-clearance`).
+- Details: subhead clears the heading underline, `dd` indent removed, hue swatches are 14px dots in 24px targets (active keeps a glow), contact pills align left, tabular numerals on stats, `text-wrap: pretty/balance`.
+- Links to `/` and case studies call `prefetchEdition` on hover, focus and touch.
+- Removed permanent `will-change` from toolbar, lab, education cards, cert chips and form, and the dead `backdrop-filter` transition on cards.

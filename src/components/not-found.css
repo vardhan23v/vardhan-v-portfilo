@@ -1,13 +1,31 @@
-.nf { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(165deg, hsl(225 45% 8%), hsl(262 40% 12%) 55%, hsl(196 40% 9%)); color: var(--text); }
-.nf-card { width: min(560px, 100%); padding: 32px; border-radius: 22px; background: var(--card); border: 0.5px solid var(--border-2); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+/* The 404 shares the front door's atmosphere: dark-glass card over drifting glows. */
+.nf { position: relative; overflow: hidden; isolation: isolate; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(165deg, hsl(225 45% 8%), hsl(262 40% 12%) 55%, hsl(196 40% 9%)); color: var(--text); }
+.nf::before { content: ""; position: absolute; inset: -15%; z-index: -1; pointer-events: none;
+  background: radial-gradient(50% 45% at 25% 20%, hsl(262 70% 48% / 0.38), transparent 70%), radial-gradient(45% 40% at 80% 75%, hsl(196 75% 52% / 0.3), transparent 70%); }
+html:not([data-motion="reduce"]) .nf::before { animation: nf-drift 40s ease-in-out infinite alternate; }
+@keyframes nf-drift { to { translate: 3% 2%; scale: 1.06; } }
+.nf-card { position: relative; isolation: isolate; width: min(560px, 100%); padding: 32px; border-radius: 22px; background: rgba(18, 24, 40, 0.72); border: 0.5px solid var(--border-2); }
+/* Ghost numeral: decorative pseudo-element (ignored by screen readers), above the card fill, below the text. */
+.nf-card::before { content: "404"; position: absolute; right: 12px; top: 0; translate: 0 -58%; z-index: -1; pointer-events: none;
+  font: italic 400 clamp(5rem, 18vw, 10rem) / 1 var(--font-display); letter-spacing: -0.05em; color: transparent; -webkit-text-stroke: 1px rgba(110, 168, 255, 0.24); }
+@media (max-width: 420px) { .nf-card::before { font-size: 4.5rem; translate: 0 -64%; } }
 .nf-kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
 .nf-title { margin-top: 10px; font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); font-weight: 400; letter-spacing: -0.03em; line-height: 1.05; }
 .nf-title em { font-style: italic; color: var(--accent); }
 .nf-sub { margin-top: 12px; color: var(--text-2); }
 .nf-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
-.nf-link { padding: 8px 14px; border-radius: 999px; border: 0.5px solid var(--border-2); font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em; }
-.nf-link:hover { background: rgba(255,255,255,0.08); }
+.nf-link { display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; border-radius: 999px; border: 0.5px solid var(--border-2); font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em;
+  transition: border-color 0.18s, background 0.18s, translate 0.22s var(--spring), scale 0.2s var(--spring); }
+/* Each edition pill carries its edition's colour as a dot (Classic uses its Starry Night gold). */
+.nf-link::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--tc, var(--accent)); }
+.nf-link--term { --tc: #36e57c; } .nf-link--classic { --tc: #c2b75d; } .nf-link--paper { --tc: #f0d9a8; } .nf-link--aurora { --tc: #ff7ac6; }
+.nf-link--forge { --tc: #ffab5e; } .nf-link--mac { --tc: #6ea8ff; } .nf-link--atlas { --tc: #ff5b24; }
+.nf-link:is(:hover, :focus-visible) { border-color: var(--tc, var(--border-2)); background: rgba(255, 255, 255, 0.08); translate: 0 -2px; }
+.nf-link:active { scale: 0.96; transition-duration: 0.18s, 0.18s, 0.22s, 0.09s; }
 .nf-link--primary { background: var(--accent); color: #061024; border-color: transparent; }
+.nf-link--primary::before { display: none; }
+.nf-link--primary:is(:hover, :focus-visible) { background: #8dbaff; border-color: transparent; }
+html[data-motion="reduce"] .nf-link { translate: none !important; scale: none !important; }
 
 /* Entrance: the card rises with a little depth, then the edition links follow one by one. */
 @keyframes nf-card-in { from { opacity: 0; transform: perspective(1000px) translateY(22px) rotateX(10deg); } }

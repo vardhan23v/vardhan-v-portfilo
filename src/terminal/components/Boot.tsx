@@ -24,7 +24,7 @@ export function Boot({ onDone }: { onDone: () => void }) {
   const finishing = useRef(false);
   const skipRef = useRef<HTMLButtonElement | null>(null);
 
-  // Fade out, then hand control back (the CSS transition needs the class to actually apply).
+  // CRT power-off (CSS on .boot.done, ~0.42s), then hand control back.
   const finish = () => {
     if (finishing.current) return;
     finishing.current = true;
@@ -64,20 +64,24 @@ export function Boot({ onDone }: { onDone: () => void }) {
         [ skip — press enter ]
       </button>
       <button type="button" className="boot-tap" onClick={finish} aria-label="Skip boot sequence" tabIndex={-1} />
-      <pre className="boot-lines" aria-live="off">
-        <code>
-          {LINES.slice(0, shown).map((l, i) => (
-            <div key={i} className={l.tone}>
-              {l.text}
-            </div>
-          ))}
-          <div className="sys">_</div>
-        </code>
-      </pre>
-      <div className="boot-progress" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Boot progress">
-        <i style={{ width: `${pct}%` }} />
-        <span>loading portfolio_os … {pct}%</span>
+      {/* one "screen" so the CRT power-off collapses everything toward a single line */}
+      <div className="boot-screen">
+        <pre className="boot-lines" aria-live="off">
+          <code>
+            {LINES.slice(0, shown).map((l, i) => (
+              <div key={i} className={l.tone}>
+                {l.text}
+              </div>
+            ))}
+            <div className="sys">_</div>
+          </code>
+        </pre>
+        <div className="boot-progress" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Boot progress">
+          <i style={{ width: `${pct}%` }} />
+          <span>loading portfolio_os … {pct}%</span>
+        </div>
       </div>
+      <i className="boot-flash" aria-hidden="true" />
     </div>
   );
 }

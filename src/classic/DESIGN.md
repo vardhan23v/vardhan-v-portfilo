@@ -39,9 +39,9 @@ Contrast ratios below were computed with the WCAG 2 formula against `--bg` / `--
 
 Notes on what actually wins:
 - The header comment at `classic.css:3` gives the floors (body text 6:1+, muted 4.7:1+); the figures at `classic.css:9-10` match the computed values above.
-- Halos end as `--ink` strokes at 0.7 opacity with `--sage` outer rings at 0.5 (`classic.css:941-944`), overriding the star/ochre versions at `classic.css:715-716` and `:771-772`.
+- Halos end as `--ink` strokes at 0.7 opacity with `--sage` outer rings at 0.5 (the review-fixes block), overriding the star/ochre versions earlier in the file. With motion on, the hero rings sit at 0.9 and their three `.paint-halos` layers pulse 0.611 to 1 (UI polish block), which gives the same 0.55 to 0.9 as before.
 - Primary buttons use the accent fill from `.btn:not(.btn--secondary):not(.btn--ghost)` (`classic.css:734`) and switch to `--accent-strong` (`#cfcfbb`, 9.2:1 with `--accent-ink`) on hover through a matching `:hover` rule right after it; hero buttons also get a light sweep (`classic.css:493`, `:500`).
-- The project dialog `.pd` repeats token values as hex literals (`classic.css:606-627`).
+- The project dialog `.pd` uses the Classic tokens; it stays a DOM child of `.classic-root` (`Work.tsx`), so the custom properties reach it in the top layer.
 - Page chrome: scrollbar `rgba(110,137,162,.55)` on `#1d274e` (`classic.css:946-947`).
 
 ## Typography
@@ -90,7 +90,7 @@ Notes on what actually wins:
 
 - Root, skip link and section order: `src/classic/ClassicSite.tsx:45`.
 - Fixed star backdrop `NightSky`: 92 seeded stars in two depth layers, up to 8 twinkle, some warm with halos, one shooting star (`src/classic/components/NightSky.tsx:22-77`). Masked to 22% across the reading column (`classic.css:268-272`).
-- Painted hero `HeroPainting`, a CSS 3D diorama: SVG layers at `--z` depths (wave -30, spiral B -45, spiral A -60, stars -90, moon -120, hills 20, cypress 40) with a turbulence brush filter (`NightSky.tsx:107-211`); stage perspective 1200px (`classic.css:789-794`).
+- Painted hero `HeroPainting`, a CSS 3D diorama: SVG layers at `--z` depths (wave -30, spiral B -45, spiral A -60, stars -90 as one depth holding four svgs: the still cores plus three halo layers, moon -120, hills 20, cypress 40) with a turbulence brush filter (`NightSky.tsx:107-211`); stage perspective 1200px (`classic.css:789-794`).
 - WebGL sky `Sky3D` / `StarSky3D`: lazy plain three.js points at depth -140 (`NightSky.tsx:134-151`, `src/classic/components/StarSky3D.tsx:98`).
 - Night shift wash and swirl rail (reading progress): `ClassicSite.tsx:52`, `src/classic/components/SwirlRail.tsx:12`, `classic.css:859-868`.
 - Navbar with sliding active underline, section progress hairline and mobile sheet: `src/classic/components/Navbar.tsx:13`.
@@ -108,7 +108,7 @@ Notes on what actually wins:
 
 - One curve, `cubic-bezier(0.22, 1, 0.36, 1)` (`--ease-out`, `--ease-cinema`), and durations `--t-press` 120ms, `--t-ui` 180ms, `--t-med` 320ms, `--t-slow` 560ms (`classic.css:57-62`).
 - Load: the name rises out of a mask, 820ms from 80ms; the other hero lines rise 560ms with `--d` delays 40-460ms (`classic.css:437-438`, `Hero.tsx:14-32`). The painting fades in over 1100ms (`classic.css:759`).
-- Ambient: brush wave 22s, spiral A 26s, spiral B 19s, moon breathe 9s, halos 5s (`classic.css:754-758`); twinkle 8s base, 7-10s per star from script (`classic.css:280`, `NightSky.tsx:63`); shooting star every 16s after 4s (`classic.css:297`); hero status pulse 2.6s (`classic.css:497`).
+- Ambient: brush wave 22s, spiral A 26s, spiral B 19s, moon breathe 9s, halo layers 5s in three phases (`classic.css:754-758`); twinkle 8s base, 7-10s per star from script (`classic.css:280`, `NightSky.tsx:63`); shooting star every 16s after 4s (`classic.css:297`); hero status pulse 2.6s (`classic.css:497`).
 - Observer reveals, both directions: opacity 0, 14px rise and 6px blur, cleared over 560ms with a 60ms sibling stagger (`classic.css:750-751`, `useEffects.ts:36-75`). Section heads, features and roles also fold up from `rotateX(14deg)` (`classic.css:823-826`). Stat numbers flip in over 700ms (`classic.css:828-830`); the count-up runs 900ms (`Count.tsx:23`).
 - Scroll-driven, both directions, where `animation-timeline` is supported: blocks fold in on entry and soften on exit (`classic.css:905-917`), section rules draw (`:919-920`), titles brighten (`:923`), screenshots drift inside their frames (`:927`), skill chips stagger (`:930-936`), the experience rail draws (`:454`), star layers drift -50px / -140px (`:288-295`), the hero stage drops 120px over the first 900px (`:760-762`), the night wash moves (`:892`) and the swirl rail draws (`:888-889`). `useEffects.ts` leaves these blocks out of the observer when `view()` is supported (`useEffects.ts:11`, `:36`).
 - Pointer: the hero stage tilts up to 3deg/4deg and the copy shifts a few pixels (`classic.css:790-803`); cards and screenshots tilt on hover (`classic.css:814-819`); a radial glow follows the pointer through `--mx/--my` (`useEffects.ts:80-96`). The nav slides away while reading down past 200px and returns on scroll up (`Navbar.tsx:42-46`, `classic.css:871-874`). Filter, show-more and skill toggles use a View Transition (`src/classic/lib/vt.ts:5`).
@@ -133,7 +133,7 @@ Notes on what actually wins:
 ## Rules for changes
 
 - Use the tokens on `.classic-root` (`classic.css:11-38`). A new colour must be sampled from The Starry Night; if it carries text and falls short of 4.5:1 on `--surface-2`, lift its lightness and keep the hue, as the existing tokens do. `--danger` is the only exception.
-- If you change a token value, also update the hex literals in the `.pd` dialog block (`classic.css:606-627`), the SVG gradient stops in `NightSky.tsx:50-51`, `:187` and `SwirlRail.tsx:18-21`, and the three.js colours in `StarSky3D.tsx:15-19`.
+- If you change a token value, also update the SVG gradient stops in `NightSky.tsx:50-51`, `:187` and `SwirlRail.tsx:18-21`, and the three.js colours in `StarSky3D.tsx:15-19`.
 - Facts come only from `src/classic/data/` and `src/classic/content.ts`. Put Classic-only wording in `content.ts`; do not edit the shared data files for Classic copy, since other editions read them. Copy hard-coded in components (`Hero.tsx:20`, `About.tsx:15-28`, `Stats.tsx:8-11`, `Experience.tsx:14`) must stay true to that data.
 - `classic.css` is a stack of appended passes; later rules win. Read to the end of the file before editing a selector, and change the rule that actually wins rather than adding another override.
 - Gate every new animation with both `@media (prefers-reduced-motion: no-preference)` and `html:not([data-motion="reduce"])`; in script, check `motionReduced()`. Hidden pre-states belong under `.classic-root.js` and must never be painted on screen.
@@ -147,5 +147,18 @@ Notes on what actually wins:
 ### Motion polish (2026-11-10)
 - `.stat`, `.more` and `.builds` use the observer reveal (no longer in `SCROLL_DRIVEN`), so the stat flip plays.
 - `.build` rows fold with the page like `.compact`; the process connector draws on a `view-timeline`.
-- Process numbers bob (`cl-bob`) only while their step has `data-in`; About facts fold in; footer columns stagger.
+- Process numbers bob (`cl-bob`) while their step is on screen; off screen (`data-off`) they hold their frame. About facts fold in; footer columns stagger.
 - Rows that carry an entrance animation lift on hover with `translate`, never `transform`.
+
+### UI polish (2026-11-10)
+- Hero halos moved out of `paint-stars` into three `.paint-halos` svgs (same depth, viewBox and mask); the whole svg animates opacity (`cl-halo-layer`), so an idle hero no longer repaints the page. The old `halo` keyframes are gone.
+- `useEffects.ts` observes `.hero` and `.process-step` and sets `data-off` while they are off screen; the hero loops (wave, spirals, moon, halo layers, status pulse) and the process bob pause there. The pointer frame reads the card rect before writing, and writes `--px/--py` only while the hero is on screen.
+- Filters, Show more and skill `+N more` run a scoped View Transition (`lib/vt.ts` on top of `startLocalTransition`): `data-vt="cl-local"` on `<html>` un-names the root and names only `.compact`, `.build`, `.chip-more`, `.more-toggle`, `.empty` (from their `--vtn`) plus the nav, for that transition only. Cards morph (`cl-card-in` / `cl-card-out`); `row-in` and `build-in` are dropped where View Transitions exist. `.compacts` is no longer remounted per category.
+- Project dialog: page scroll locked while open, overscroll contained, each project starts at the top, tokens instead of hex, an icon close button with hover and press states. Opens and closes with `@starting-style` and `allow-discrete` transitions (backdrop too), keeps the last project on screen while it fades, and Previous / Next slide the content (`.pd-body`, `pd-step`) while focus stays on the button and a polite live line announces the project.
+- Mobile menu: the bar sits above the sheet while open (z-index 70), so Close stays visible and joins the focus trap; the sheet fades in and out, links rise in turn (`cl-sheet-link`), the current section is accent and `aria-current`. The Menu button has a fixed 84px width.
+- Hero load uses a backwards fill with `translate`, so the glance card tilts again. The primary CTA plays one starlight glint after load and a one-way pass on hover; the résumé ghost link has no glow and its underline firms up instead.
+- Screenshots fade in once decoded over a still moonlit well (`data-loaded`, set on load, error, or when cached).
+- Contact: the first invalid field takes focus on every failed submit; errors ease in; a turning star while sending (`aria-busy`); the sent check draws itself; the input focus ring is the accent at 55%.
+- Copy email rolls its label to a checked "Copied" and a small star rises; filter chips get a centre-drawn underline (a border, for forced colours) and a press scale.
+- Project rows keep their category stripe on hover, show a keyboard frame via `:has(:focus-visible)`, and their links dim on press. Below 760px the footer legal line and the menu sheet leave `--floating-clearance` for the Ask AI launcher and back-to-top button.
+

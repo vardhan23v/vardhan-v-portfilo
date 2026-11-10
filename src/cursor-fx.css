@@ -10,6 +10,7 @@
   z-index: 9999;
   pointer-events: none;
   contain: layout style;
+  transition: opacity 0.2s ease;
   --cur-accent: #7c6cff;
   --cur-hue: 0deg;
   --cur-ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -57,9 +58,19 @@
   opacity: 0;
 }
 
-.cur-fx.cur-hidden {
+/* hidden ([data-cursor-off], macOS), away (pointer left the window) and over a text field
+   (the native I-beam is the cursor there): fade both ways via the base transition */
+.cur-fx.cur-hidden,
+.cur-fx.cur-away,
+.cur-fx.cur-text {
   opacity: 0;
-  transition: opacity 0.2s ease;
+}
+
+/* nothing keeps turning or blinking while the overlay is invisible */
+.cur-fx.cur-hidden *,
+.cur-fx.cur-away *,
+.cur-fx.cur-text * {
+  animation-play-state: paused !important;
 }
 
 /* =========================================================
@@ -264,14 +275,16 @@
   opacity: 0.65;
 }
 
-/* the turning lives on the paths' group so hover can scale the svg itself */
-.cur-fx[data-cur="classic"] .cur-swirl path {
-  transform-origin: 0 0;
+/* The turning rotates the <svg> box with the individual `rotate` property: it composes with the
+   hover `transform: scale(1.5)` and runs on the compositor (rotating the <path>s forced a layout
+   every frame). Both strokes turn together; SWIRL_B is drawn half a turn out of phase. */
+.cur-fx[data-cur="classic"] .cur-swirl {
   animation: cur-swirl-turn 9s linear infinite;
 }
 
 @keyframes cur-swirl-turn {
-  to { transform: rotate(360deg); }
+  from { rotate: 0deg; }
+  to { rotate: 360deg; }
 }
 
 .cur-fx[data-cur="classic"] .cur-halo {

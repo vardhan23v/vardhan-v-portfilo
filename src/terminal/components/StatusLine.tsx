@@ -17,6 +17,73 @@ const WINDOWS = [
   { n: 5, label: "mail", id: "contact", href: "/terminal#contact" },
 ];
 
+/** The 1s clock re-renders only itself, not the whole bar. */
+function Clock() {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <time className="sl-clock" dateTime={now.toISOString()}>
+      {now.toTimeString().slice(0, 8)}
+    </time>
+  );
+}
+
+/**
+ * `ln N · NN%`: the only part of the bar that changes while scrolling. The progress
+ * fill is written straight to a CSS variable (compositor-only scaleX), and the text
+ * re-renders only when its rounded values change.
+ */
+function ScrollPos({ cwd, fill, pathname }: { cwd: string; fill: React.RefObject<HTMLElement | null>; pathname: string }) {
+  const [pos, setPos] = useState({ pct: 0, line: 1 });
+
+  useEffect(() => {
+    let raf = 0;
+    let max = 0;
+    const measure = () => {
+      max = document.documentElement.scrollHeight - window.innerHeight;
+    };
+    const update = () => {
+      raf = 0;
+      const y = window.scrollY;
+      const ratio = max > 0 ? Math.min(1, Math.max(0, y / max)) : 1;
+      fill.current?.style.setProperty("--p", ratio.toFixed(4));
+      const pct = Math.round(ratio * 100);
+      const line = 1 + Math.floor(y / 24);
+      setPos((p) => (p.pct === pct && p.line === line ? p : { pct, line }));
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    const onResize = () => {
+      measure();
+      onScroll();
+    };
+    // cache the scroll range; re-measure only when the page or the viewport changes size
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(onResize);
+    ro?.observe(document.body);
+    measure();
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+      cancelAnimationFrame(raf);
+    };
+  }, [pathname, fill]);
+
+  const label = pos.pct <= 0 ? "Top" : pos.pct >= 100 ? "Bot" : `${pos.pct}%`;
+  return (
+    <span className="sl-pos" aria-label={`Reading ${cwd}, ${label}`}>
+      ln {pos.line} · {label}
+    </span>
+  );
+}
+
 const isTyping = (t: EventTarget | null) => {
   const el = t as HTMLElement | null;
   return !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable);
@@ -105,40 +172,12 @@ export function StatusLine() {
   };
   const phosphor = usePhosphor();
   const crt = useCrt();
-  const [pct, setPct] = useState(0);
-  const [line, setLine] = useState(1);
   const [insert, setInsert] = useState(false);
   const [open, setOpen] = useState(false);
-  const [now, setNow] = useState(() => new Date());
+  const fillRef = useRef<HTMLElement | null>(null);
   const onCase = pathname.startsWith("/terminal/work/");
 
-  useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(t);
-  }, []);
-
   useEffect(() => setOpen(false), [pathname]);
-
-  useEffect(() => {
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      setPct(max > 0 ? Math.min(100, Math.round((window.scrollY / max) * 100)) : 100);
-      setLine(1 + Math.floor(window.scrollY / 24));
-    };
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(update);
-    };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      cancelAnimationFrame(raf);
-    };
-  }, [pathname]);
 
   useEffect(() => {
     const onFocus = (e: FocusEvent) => setInsert(isTyping(e.target));
@@ -181,8 +220,6 @@ export function StatusLine() {
   }, []);
 
   const cwd = onCase ? `~/work/${pathname.split("/").pop()}` : section ? `~/${section}` : "~";
-  const pos = pct <= 0 ? "Top" : pct >= 100 ? "Bot" : `${pct}%`;
-  const clock = now.toTimeString().slice(0, 8);
 
   return (
     <>
@@ -239,7 +276,7 @@ export function StatusLine() {
           </span>
         ) : (
           <span className="sl-fill" aria-hidden="true">
-            <i style={{ width: `${pct}%` }} />
+            <i ref={fillRef} />
           </span>
         )}
 
@@ -265,12 +302,8 @@ export function StatusLine() {
         >
           crt
         </button>
-        <span className="sl-pos" aria-label={`Reading ${cwd}, ${pos}`}>
-          ln {line} · {pos}
-        </span>
-        <time className="sl-clock" dateTime={now.toISOString()}>
-          {clock}
-        </time>
+        <ScrollPos cwd={cwd} fill={fillRef} pathname={pathname} />
+        <Clock />
 
         <button
           className={`sl-burger ${open ? "is-x" : ""}`}
@@ -284,10 +317,10 @@ export function StatusLine() {
         </button>
       </div>
 
-      <div id="sl-sheet" className={`sl-sheet ${open ? "is-open" : ""}`} aria-hidden={!open}>
+      <div id="sl-sheet" className={`sl-sheet ${open ? "is-open" : ""}`} aria-hidden={!open} inert={!open}>
         <nav aria-label="Mobile">
           {WINDOWS.map((w) => (
-            <Link key={w.n} to={w.href} onClick={() => setOpen(false)}>
+            <Link key={w.n} to={w.href} onClick={() => setOpen(false)} style={{ "--i": w.n } as React.CSSProperties}>
               <b>{w.n}:</b> cd {w.label}/
             </Link>
           ))}
@@ -300,7 +333,15 @@ export function StatusLine() {
           <a href={`mailto:${site.email}`}>{site.email}</a>
         </div>
       </div>
-      {open && <button type="button" className="sl-scrim" aria-label="Close menu" tabIndex={-1} onClick={() => setOpen(false)} />}
+      {/* always mounted so it can fade out as well as in; hidden + inert-ish when closed */}
+      <button
+        type="button"
+        className={`sl-scrim ${open ? "is-open" : ""}`}
+        aria-label="Close menu"
+        aria-hidden={!open}
+        tabIndex={-1}
+        onClick={() => setOpen(false)}
+      />
     </>
   );
 }

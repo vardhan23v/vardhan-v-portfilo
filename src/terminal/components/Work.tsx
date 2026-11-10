@@ -1,9 +1,31 @@
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { motionReduced } from "../../lib/motion";
 import { caseStudies, otherWork } from "../data/work";
 import { Reveal } from "../hooks/useReveal";
 import { TypeCmd } from "./TypeCmd";
 
+/** ALSO_BUILT shows this many cards until `ls -a` expands the rest. */
+const LIMIT = 8;
+
 export function Work() {
+  const [all, setAll] = useState(false);
+  const moreBtn = useRef<HTMLButtonElement | null>(null);
+  const firstMore = useRef<HTMLAnchorElement | null>(null);
+  const hidden = otherWork.length - LIMIT;
+  const shown = all ? otherWork : otherWork.slice(0, LIMIT);
+
+  const toggle = () => {
+    if (!all) {
+      setAll(true);
+      // keyboard / screen-reader users land on the first newly listed project
+      requestAnimationFrame(() => firstMore.current?.focus());
+      return;
+    }
+    setAll(false);
+    requestAnimationFrame(() => moreBtn.current?.scrollIntoView({ block: "nearest", behavior: motionReduced() ? "auto" : "smooth" }));
+  };
+
   return (
     <section className="section" id="work" aria-labelledby="work-title">
       <div className="container">
@@ -35,7 +57,7 @@ export function Work() {
                         {p.number}
                       </div>
                       <div>
-                        <Link to={`/terminal/work/${p.slug}`} className="prog-name">
+                        <Link to={`/terminal/work/${p.slug}`} className="prog-name" viewTransition>
                           {p.name}
                           <span className="suffix">/</span>
                           <span className="arrow" aria-hidden="true">
@@ -70,7 +92,7 @@ export function Work() {
                           >
                             src
                           </a>
-                          <Link className="tlink-dim" to={`/terminal/work/${p.slug}`}>
+                          <Link className="tlink-dim" to={`/terminal/work/${p.slug}`} viewTransition>
                             case-study
                           </Link>
                         </div>
@@ -90,16 +112,17 @@ export function Work() {
                   ALSO_BUILT <span className="dim">// {otherWork.length} more projects &amp; tools</span>
                 </h3>
               </div>
-              <ul className="other-grid">
-                {otherWork.map((o, i) => (
+              <ul className="other-grid" id="also-built">
+                {shown.map((o, i) => (
                   <li key={o.name}>
                   <a
-                    className="other-item"
+                    className={`other-item${i >= LIMIT ? " is-more" : ""}`}
                     href={o.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     data-spot
-                    style={{ "--i": i } as React.CSSProperties}
+                    ref={i === LIMIT ? firstMore : undefined}
+                    style={{ "--i": i, "--j": Math.max(0, i - LIMIT) } as React.CSSProperties}
                   >
                     <span className="other-idx" aria-hidden="true">[{String(i).padStart(2, "0")}]</span>
                     <span className="other-main">
@@ -118,6 +141,18 @@ export function Work() {
                   </li>
                 ))}
               </ul>
+              {hidden > 0 && (
+                <button
+                  type="button"
+                  ref={moreBtn}
+                  className="btn btn-sm other-more"
+                  aria-expanded={all}
+                  aria-controls="also-built"
+                  onClick={toggle}
+                >
+                  {all ? "ls | head -8" : `ls -a  # ${hidden} more`}
+                </button>
+              )}
             </div>
           </Reveal>
         </div>

@@ -55,6 +55,9 @@ export function Dock() {
   const tiles = useRef(new Map<DockId, HTMLButtonElement>());
   const rects = useRef(new Map<DockId, DOMRect>());
   const magRaf = useRef(0);
+  /** Tile centres at rest (no swell, no settle), so magnification never reads layout per frame. */
+  const rest = useRef<{ el: HTMLButtonElement; cx: number }[] | null>(null);
+  const moreRef = useRef("");
   const settleTimer = useRef(0);
   const suppressClick = useRef(false);
   const drag = useRef<{ id: DockId; startX: number; baseLeft: number; restLeft: number; lx: number; moved: boolean; raf: number } | null>(null);
@@ -77,7 +80,7 @@ export function Dock() {
 
   const bounce = (id: string) => {
     setBouncing(id);
-    window.setTimeout(() => setBouncing((b) => (b === id ? null : b)), 1800);
+    window.setTimeout(() => setBouncing((b) => (b === id ? null : b)), 760);
   };
 
   useEffect(() => {
@@ -88,17 +91,41 @@ export function Dock() {
     }
   }, [order]);
 
+  /**
+   * Cache rest centres, only at known-rest moments: not hovered, not settling.
+   * Offsets ignore transforms (the Dock's own entrance, a running bounce), and at rest every margin is 0.
+   * The wrap is centred and grows symmetrically, so these stay a valid reference while the Dock swells.
+   */
+  const measureRest = useCallback(() => {
+    const nav = navRef.current;
+    const wrap = nav?.parentElement;
+    rest.current = null;
+    if (!nav || !wrap || nav.matches(":hover") || nav.classList.contains("is-settling")) return;
+    const wrapLeft = wrap.getBoundingClientRect().left;
+    const out: { el: HTMLButtonElement; cx: number }[] = [];
+    for (const el of tiles.current.values()) {
+      const left = el.offsetParent === nav ? wrapLeft + nav.offsetLeft + nav.clientLeft + el.offsetLeft - nav.scrollLeft : wrapLeft + el.offsetLeft;
+      out.push({ el, cx: left + el.offsetWidth / 2 });
+    }
+    rest.current = out;
+  }, []);
+
   // ── Magnification: every tile scales with its distance to the pointer (cosine falloff) ──
   const applyMag = useCallback((px: number | null) => {
     const nav = navRef.current;
     if (!nav) return;
     const off = px === null || coarse() || motionOff();
-    const measured: { el: HTMLButtonElement; cx: number }[] = [];
-    for (const el of tiles.current.values()) {
-      const r = el.getBoundingClientRect();
-      measured.push({ el, cx: r.left + r.width / 2 });
+    let measured = rest.current;
+    if (!measured && !off) {
+      // No rest cache yet (e.g. the pointer came back mid-settle): measure live for this frame only.
+      measured = [];
+      for (const el of tiles.current.values()) {
+        const r = el.getBoundingClientRect();
+        measured.push({ el, cx: r.left + r.width / 2 });
+      }
     }
-    for (const { el, cx } of measured) {
+    const list = measured ?? [...tiles.current.values()].map((el) => ({ el, cx: 0 }));
+    for (const { el, cx } of list) {
       let s = 1;
       if (!off) {
         const d = Math.abs((px as number) - cx);
@@ -131,10 +158,28 @@ export function Dock() {
     nav?.classList.add("is-settling");
     applyMag(null);
     window.clearTimeout(settleTimer.current);
-    settleTimer.current = window.setTimeout(() => nav?.classList.remove("is-settling"), 320);
-  }, [applyMag]);
+    settleTimer.current = window.setTimeout(() => {
+      nav?.classList.remove("is-settling");
+      measureRest();
+    }, 320);
+  }, [applyMag, measureRest]);
 
   useEffect(() => () => window.clearTimeout(settleTimer.current), []);
+
+  // Re-cache rest centres whenever the window resizes (debounced).
+  useEffect(() => {
+    let t = 0;
+    const onResize = () => {
+      rest.current = null;
+      window.clearTimeout(t);
+      t = window.setTimeout(measureRest, 150);
+    };
+    window.addEventListener("resize", onResize, { passive: true });
+    return () => {
+      window.removeEventListener("resize", onResize);
+      window.clearTimeout(t);
+    };
+  }, [measureRest]);
 
   // ── Reorder: FLIP the neighbours whenever the order changes ──
   useLayoutEffect(() => {
@@ -247,7 +292,8 @@ export function Dock() {
     }
     const win = windows.find((w) => w.id === id);
     setOverlay("none");
-    if (!win || win.minimized) bounce(id);
+    // Launching bounces; restoring a minimised window does not (the genie already says it).
+    if (!win) bounce(id);
     openWindow(id);
   };
 
@@ -275,6 +321,45 @@ export function Dock() {
 
   // Apps that are open but have no fixed tile show up like macOS's running apps, before the separator.
   const running = windows.map((w) => w.id as DockId).filter((id) => !order.includes(id));
+  const runningKey = running.join();
+
+  // Tiles appear, disappear or reorder: the cached rest centres are stale.
+  useLayoutEffect(() => {
+    measureRest();
+  }, [order, runningKey, prefs.dockAutoHide, measureRest]);
+
+  // Phones: the Dock scrolls sideways. Edge fades show there is more, and the active app scrolls into view.
+  useEffect(() => {
+    const nav = navRef.current;
+    const wrap = nav?.parentElement;
+    if (!nav || !wrap) return;
+    const update = () => {
+      const l = nav.scrollLeft;
+      const max = nav.scrollWidth - nav.clientWidth;
+      const more = [l > 2 && "start", l < max - 2 && "end"].filter(Boolean).join(" ");
+      if (more === moreRef.current) return;
+      moreRef.current = more;
+      if (more) wrap.dataset.more = more;
+      else delete wrap.dataset.more;
+    };
+    update();
+    nav.addEventListener("scroll", update, { passive: true });
+    const ro = typeof ResizeObserver === "function" ? new ResizeObserver(update) : null;
+    ro?.observe(nav);
+    return () => {
+      nav.removeEventListener("scroll", update);
+      ro?.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!activeId || window.innerWidth > 640) return;
+    const el = tiles.current.get(activeId as DockId);
+    const nav = navRef.current;
+    if (!el || !nav || nav.scrollWidth <= nav.clientWidth) return;
+    const left = el.offsetLeft - (nav.clientWidth - el.offsetWidth) / 2;
+    nav.scrollTo({ left, behavior: motionOff() ? "auto" : "smooth" });
+  }, [activeId, motionOff]);
   const tileFor = (id: DockId, draggable: boolean) => {
     const isLaunchpad = id === "launchpad";
     const label = LABELS[id] ?? windows.find((w) => w.id === id)?.title ?? id;
@@ -295,6 +380,17 @@ export function Dock() {
         onPointerUp={(e) => onTilePointerUp(e, id)}
         onPointerCancel={(e) => onTilePointerUp(e, id)}
         onContextMenu={(e) => onTileContextMenu(e, id)}
+        onFocus={(e) => {
+          // Keyboard focus swells the Dock around the tile, as the pointer does.
+          if (!e.currentTarget.matches(":focus-visible")) return;
+          const tile = e.currentTarget;
+          const cached = rest.current?.find((t) => t.el === tile);
+          if (cached) applyMag(cached.cx);
+          else {
+            const r = tile.getBoundingClientRect();
+            applyMag(r.left + r.width / 2);
+          }
+        }}
         aria-label={`Open ${label}`}
         title={label}
       >
@@ -317,6 +413,9 @@ export function Dock() {
           ref={navRef}
           onPointerMove={onNavPointerMove}
           onPointerLeave={settle}
+          onBlur={(e) => {
+            if (!navRef.current?.contains(e.relatedTarget as Node | null)) settle();
+          }}
         >
           {order.map((id) => (
             <Fragment key={id}>

@@ -6,6 +6,7 @@ import { featuredProjects, otherProjects, type Project } from "../data/projects"
 import { catOf, CATEGORY_LABELS } from "../lib/projects";
 import { useNav } from "../hooks/useNav";
 import { useWindowManager } from "../hooks/useWindowManager";
+import { setLaunchOrigin } from "../lib/launchOrigin";
 import { ProjectCover } from "../components/ui/ProjectCover";
 import { site } from "../data/site";
 import { useShell } from "../hooks/useShell";
@@ -55,7 +56,8 @@ export function FinderApp() {
     return () => window.removeEventListener("keydown", onKey);
   }, [sel, quick, place]);
 
-  const open = (p: Project) => {
+  const open = (p: Project, from?: Element | null) => {
+    setLaunchOrigin("projects", from?.querySelector(".mac-cover") ?? from);
     openWindow("projects");
     setTimeout(() => setOpenProject(p), 80);
   };
@@ -129,7 +131,7 @@ export function FinderApp() {
                     role="listitem"
                     className={`finder__item${sel?.slug === p.slug ? " is-selected" : ""}`}
                     onClick={() => setSelected(p.slug)}
-                    onDoubleClick={() => open(p)}
+                    onDoubleClick={(e) => open(p, e.currentTarget)}
                     title={`Double-click to open ${p.name}`}
                   >
                     <ProjectCover project={p} size="sm" ratio="4/3" />
@@ -145,7 +147,7 @@ export function FinderApp() {
                     key={p.slug}
                     className={`finder__row${sel?.slug === p.slug ? " is-selected" : ""}`}
                     onClick={() => setSelected(p.slug)}
-                    onDoubleClick={() => open(p)}
+                    onDoubleClick={(e) => open(p, e.currentTarget)}
                   >
                     <ProjectCover project={p} size="sm" ratio="1/1" />
                     <span>{p.name}</span>

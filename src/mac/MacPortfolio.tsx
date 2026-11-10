@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import { ThemeProvider, useTheme } from "./hooks/useTheme";
 import { NavProvider } from "./hooks/useNav";
 import { PaletteProvider } from "./hooks/usePalette";
@@ -18,6 +18,8 @@ function MacInner() {
   const { theme } = useTheme();
   const { prefs } = usePreferences();
   const { booted, setBooted } = useShell();
+  // The desktop mounts as the login card starts to fade, so the card dissolves into it.
+  const [revealing, setRevealing] = useState(false);
   return (
     <div
       className="mac-root"
@@ -31,15 +33,14 @@ function MacInner() {
         <NavProvider>
           <ToastProvider>
             <ContextMenuProvider>
-              {booted ? (
+              {(booted || revealing) && (
                 <>
                   <Desktop />
                   <CommandPalette />
                   <HelpOverlay />
                 </>
-              ) : (
-                <BootScreen onDone={() => setBooted(true)} />
               )}
+              {!booted && <BootScreen onLeave={() => setRevealing(true)} onDone={() => setBooted(true)} />}
             </ContextMenuProvider>
           </ToastProvider>
         </NavProvider>

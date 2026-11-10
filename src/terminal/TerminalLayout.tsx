@@ -1,7 +1,7 @@
 import "@fontsource/vt323/latin-400.css";
 import "@fontsource/vt323/latin-ext-400.css";
 import { useEffect, useState } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate, useNavigationType } from "react-router-dom";
 import { Boot } from "./components/Boot";
 import { Footer } from "./components/Footer";
 import { StatusLine } from "./components/StatusLine";
@@ -13,18 +13,19 @@ import "./styles/global.css";
 
 function ScrollManager() {
   const { pathname, hash } = useLocation();
+  const nav = useNavigationType();
 
   useEffect(() => {
+    if (nav === "POP") return; // Back/Forward: RouteScroll restores the saved position
     const behavior: ScrollBehavior = motionReduced() ? "auto" : "smooth";
+    // Top-of-page resets and Back restores are owned by RouteScroll in App.tsx; only in-page hashes here.
     if (hash && pathname === "/terminal") {
       const id = hash.slice(1);
       requestAnimationFrame(() => {
         document.getElementById(id)?.scrollIntoView({ behavior, block: "start" });
       });
-    } else {
-      window.scrollTo({ top: 0, behavior: "auto" });
     }
-  }, [pathname, hash]);
+  }, [pathname, hash, nav]);
 
   return null;
 }

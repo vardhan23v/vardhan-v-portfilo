@@ -59,14 +59,15 @@ Browser theme colour for `/atlas` is `#0a0a0a` (`src/seo.ts:55`). The shared bac
 
 ## Motion
 
-- **Load:** contours fade in, summits drop in one by one, card and legend fade (`atlas.css:370`).
+- **Load:** a survey sweep reveals the contours and grid outward from summit 01, the frame and gutter ticks draw in, summits drop in one by one after the sweep, card and legend fade (see the title-sheet entrance in `atlas.css`).
 - **Background:** a fixed WebGL fragment shader draws the contour field; scrolling slides and slowly warps it. It renders only on scroll or resize (no idle loop), caps DPR at 1.5, pauses in hidden tabs, and falls back to static SVG contours without WebGL.
 - **Scroll engine:** every `[data-p]` element gets `--p` from 0 to 1 for its range (`enter`, `cover`, `sticky`, `exit`), both ways, measured only near the viewport and re-measured after late content, font load, page load and tab return. Effects (`atlas.css:384`):
   - heads: ruler draws, contour band rises, title and lead reveal through a clip;
-  - plate 01: on a 230vh sticky stage the card grows from 0.42 to full size, then steps left as its caption slides in (≥960px);
+  - plate 01 only (`data-range="sticky"`): on a 230vh sticky stage the card grows from 0.42 to full size, then steps left as its caption slides in (≥960px); below 960px it enters like the other wide plates;
+  - wide plates (04, 07, 10, and 01 on phones): the card rises and settles from 0.94 scale, then caption and grid reference reveal;
   - other plates: survey lines draw across a card corner, image settles, caption reveals;
   - gazetteer and route rows: rule draws, mark scales in, text reveals;
-  - skills columns drift together; an orange front sweeps the ridge open and the peak tag appears as it passes; the compass needle swings 140° to north; the title sheet lifts away in layers.
+  - skills columns drift together; an orange front sweeps the ridge open and the peak tag appears as it passes; the compass needle swings 140° to north, passes it and settles while the bezel counter-turns; the route's dashed trail draws down through the waypoints; the title sheet lifts away in layers.
 - Text never fades (it reveals with clips), so it is never shown at reduced contrast.
 - **Reduced motion** (OS setting or `html[data-motion="reduce"]`): `--p` is pinned to 1, exit offsets to 0, plate 01 loses its sticky track, nothing animates, and the backdrop renders one still frame.
 
@@ -82,7 +83,7 @@ Browser theme colour for `/atlas` is `#0a0a0a` (`src/seo.ts:55`). The shared bac
 - Search is a combobox with a listbox, arrow keys and Enter; `/` focuses it.
 - Summits are real links with "summit at E2" in screen-reader text; summit names that would collide with the card or legend hide visually (`.is-quiet`) but stay in the link.
 - The contribution chart has a visually hidden monthly table; live sheets announce loading with `aria-busy`.
-- Controls are at least 24 × 24px (switcher 28px, gazetteer names 28px, phone summits 32px wide). axe reports 0 issues at 1440 and 390px.
+- Controls are at least 24 × 24px (switcher 28px, 24px wide at 640px and below so all seven fit, gazetteer names 28px, phone summits 32px wide). axe reports 0 issues at 1440 and 390px.
 
 ## Rules for changes
 
@@ -98,3 +99,14 @@ Browser theme colour for `/atlas` is `#0a0a0a` (`src/seo.ts:55`). The shared bac
 
 ### Motion polish (2026-11-10)
 - Plate cards and the send button lift on hover with `translate` (fine pointers). Reduced motion follows `html[data-motion]` only.
+
+### UI polish (2026-11-10)
+- Fixed: the 230vh sticky stage is keyed on `[data-range="sticky"]` (plate 01 only), not on `.atl-plate--0`, so plates 04/07/10 no longer pin for about 1,100px of dead scroll (page 23,376 → 18,811px at 1440). The scroll engine only uses the sticky formula for a track taller than 1.5 screens, so plate 01 below 960px enters smoothly instead of snapping.
+- Wide plates get their own entrance (rise + settle, caption and grid ref reveal).
+- Title sheet: survey-sweep load (an opaque paper disc with a growing hole, one transform, shown only inside the motion gate), frame and coordinate ticks draw in; contours no longer fade.
+- Gazetteer: the sticky numeral and meta roll up or down to the current row; the current triangle grows; names get an orange rule that draws per line.
+- Search: results unfold, the active row gets an orange tick and a 4px step; a "no match" note, and a persistent visually hidden status announces the match count.
+- Route: one dashed trail links the waypoints and draws with scroll.
+- Contact: needle overshoots north and settles (ease-out-back), bezel counter-turns, compass shown on phones (96px); links and legend rows draw an orange survey rule on hover, focus-visible and press; inputs keep the instant orange focus rule and a second line draws to thicken it; the send button shows a scanning line while busy; "Sent" lands with a triangle.
+- Phones: the bar fits all seven switcher items (name truncates first); activity axis shows every other month; footer clears the floating launcher (`--floating-clearance`) and ends with a ruler on the 12 column ticks.
+- Performance: each scroll frame reads then writes (bar and engine), the % label is only rewritten when it changes; the skeleton sheen is transform-only and runs only on screen; plate hover uses an opacity shade instead of a filter; title layers carry `will-change: transform` (not plate 01, whose scale must re-raster); the WebGL backdrop uses DPR 1.25 on coarse pointers, sizes from its own 100lvh height, ties the warp to scroll distance (not page height) and skips sub-pixel redraws.

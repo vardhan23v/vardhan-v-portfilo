@@ -198,7 +198,7 @@ function ProjectModal({
             </a>
           )}
           <button type="button" className="mac-btn mac-btn--ghost" data-ask-ai onClick={() => { onClose(); askAssistant(aboutProject(project.name)); }}>
-            <Sparkles /> Ask AI
+            <Sparkles className="ask-spark" aria-hidden="true" /> Ask AI
           </button>
         </div>
         {siblings.length > 1 && (

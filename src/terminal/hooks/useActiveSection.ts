@@ -24,7 +24,8 @@ export function useActiveSection(): string {
           }
           // topmost intersecting section wins; nothing intersecting → hero
           const top = [...visible.entries()].sort((a, b) => a[1] - b[1])[0];
-          setActive(top ? top[0] : window.scrollY < 200 ? "" : active);
+          // between sections keep the last one (functional update: no stale closure)
+          setActive((cur) => (top ? top[0] : window.scrollY < 200 ? "" : cur));
         },
         { rootMargin: "-35% 0px -50% 0px", threshold: 0 }
       );

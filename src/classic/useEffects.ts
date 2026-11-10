@@ -74,19 +74,32 @@ export function useClassicEffects(rootRef: RefObject<HTMLElement | null>) {
       io.observe(el);
     }
 
+    // Ambient loops (hero swirls, halos, status pulse, process bob) hold their frame while their block is off
+    // screen: `data-off` is set only by this observer, so if it never fires everything runs as before.
+    const ambient = Array.from(root.querySelectorAll<HTMLElement>(".hero, .process-step"));
+    const onScreen = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) e.target.removeAttribute("data-off");
+        else e.target.setAttribute("data-off", "");
+      }
+    }, { rootMargin: "10% 0px" });
+    for (const el of ambient) onScreen.observe(el);
+
     let raf = 0;
     let last: PointerEvent | null = null;
     const hero = root.querySelector<HTMLElement>(".hero");
     const paint = () => {
       raf = 0;
-      // The hero diorama leans toward the pointer (-1..1 from the viewport centre).
-      if (hero && last) {
+      if (!last) return;
+      // Read first, then write, so a pointer frame never forces a style and layout flush.
+      const t = (last.target as HTMLElement | null)?.closest?.<HTMLElement>(".shot-frame, .feature-shot, .compact, .xp-main, .skill-row");
+      const r = t?.getBoundingClientRect();
+      // The hero diorama leans toward the pointer (-1..1 from the viewport centre), only while it is on screen.
+      if (hero && !hero.hasAttribute("data-off")) {
         hero.style.setProperty("--px", ((last.clientX / window.innerWidth) * 2 - 1).toFixed(3));
         hero.style.setProperty("--py", ((last.clientY / window.innerHeight) * 2 - 1).toFixed(3));
       }
-      const t = (last?.target as HTMLElement | null)?.closest?.<HTMLElement>(".shot-frame, .feature-shot, .compact, .xp-main, .skill-row");
-      if (!t || !last) return;
-      const r = t.getBoundingClientRect();
+      if (!t || !r) return;
       t.style.setProperty("--mx", `${(((last.clientX - r.left) / r.width) * 100).toFixed(1)}%`);
       t.style.setProperty("--my", `${(((last.clientY - r.top) / r.height) * 100).toFixed(1)}%`);
       // -1..1 from the centre, for the featured screenshots' gentle tilt (CSS applies it on hover only).
@@ -119,6 +132,8 @@ export function useClassicEffects(rootRef: RefObject<HTMLElement | null>) {
 
     return () => {
       io.disconnect();
+      onScreen.disconnect();
+      for (const el of ambient) el.removeAttribute("data-off");
       timers.forEach((t) => window.clearTimeout(t));
       timers.clear();
       window.removeEventListener("scroll", onScroll);

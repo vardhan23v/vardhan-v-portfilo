@@ -1,29 +1,18 @@
-import { useEffect, lazy, Suspense } from "react";
-import { Navigate, Outlet, Route, RouterProvider, createBrowserRouter, createRoutesFromElements, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useLayoutEffect, useRef, Suspense, type CSSProperties } from "react";
+import { Navigate, Outlet, Route, RouterProvider, createBrowserRouter, createRoutesFromElements, useLocation, useNavigate, useNavigationType } from "react-router-dom";
 import { CursorFX } from "./CursorFX";
 import { ScrollChrome } from "./components/ScrollChrome";
 import { CommandPalette } from "./components/CommandPalette";
 import { KonamiFX } from "./components/KonamiFX";
 import "./styles/motion.css";
 import { editionRoutes } from "./editions";
-import { NOT_FOUND_SEO, SEO_BY_PATH, canonicalUrl, themeColorFor } from "./seo";
+import { EDITION_SURFACE, NOT_FOUND_SEO, SEO_BY_PATH, canonicalUrl, editionKey } from "./seo";
 import { NotFound } from "./components/NotFound";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { ErrorBoundary, RouteError } from "./components/ErrorBoundary";
 import { PortfolioAssistant } from "./components/ai/PortfolioAssistant";
-
-const Landing = lazy(() => import("./landing/Landing").then((m) => ({ default: m.Landing })));
-const ClassicSite = lazy(() => import("./classic/ClassicSite").then((m) => ({ default: m.ClassicSite })));
-const PaperSite = lazy(() => import("./paper/PaperSite").then((m) => ({ default: m.PaperSite })));
-const AuroraSite = lazy(() => import("./aurora/AuroraSite").then((m) => ({ default: m.AuroraSite })));
-const ForgeSite = lazy(() => import("./forge/ForgeSite").then((m) => ({ default: m.ForgeSite })));
-const AtlasSite = lazy(() => import("./atlas/AtlasSite").then((m) => ({ default: m.AtlasSite })));
-const MacPortfolio = lazy(() => import("./mac/MacPortfolio").then((m) => ({ default: m.MacPortfolio })));
-const TerminalLayout = lazy(() => import("./terminal/TerminalLayout").then((m) => ({ default: m.TerminalLayout })));
-const TerminalHome = lazy(() => import("./terminal/TerminalHome").then((m) => ({ default: m.TerminalHome })));
-const WorkDetail = lazy(() => import("./terminal/components/WorkDetail").then((m) => ({ default: m.WorkDetail })));
-const CaseStudy = lazy(() => import("./work/CaseStudy").then((m) => ({ default: m.CaseStudy })));
+import { idlePrefetchBlocked, prefetchEdition, routeLazy } from "./lib/editionLoaders";
 
 const interfaceRoutes = editionRoutes;
 
@@ -44,7 +33,6 @@ function RouteSeo() {
     const url = canonicalUrl({ canonicalPath: SEO_BY_PATH[pathname]?.canonicalPath ?? pathname });
     document.title = seo.title;
     setMeta('meta[name="description"]', seo.description);
-    setMeta('meta[name="theme-color"]', themeColorFor(pathname));
     setMeta('meta[property="og:title"]', seo.title);
     setMeta('meta[property="og:description"]', seo.description);
     setMeta('meta[property="og:url"]', url);
@@ -61,11 +49,148 @@ function RouteSeo() {
   return null;
 }
 
-function ScrollToTop() {
-  const { pathname } = useLocation();
+/* ---------- scroll: instant reset on a new page, restore on Back/Forward ---------- */
+
+const SCROLL_KEY = "route-scroll";
+const savedScroll: Map<string, number> = (() => {
+  try {
+    const raw = sessionStorage.getItem(SCROLL_KEY);
+    return new Map<string, number>(raw ? JSON.parse(raw) : []);
+  } catch {
+    return new Map<string, number>();
+  }
+})();
+
+/**
+ * Runs in the commit (layout effect), i.e. inside react-router's View Transition update callback,
+ * so the new edition is captured at its final scroll position: no smooth scroll racing up through
+ * the page while it fades in. Back/Forward restore where the visitor was (retrying for a few
+ * frames while a lazy page grows); in-page hash links keep their smooth scroll.
+ */
+function RouteScroll() {
+  const loc = useLocation();
+  const nav = useNavigationType();
+  const keyRef = useRef(loc.key);
+  const prevPath = useRef<string | null>(null);
+
   useEffect(() => {
-    window.scrollTo(0, 0);
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    let raf = 0;
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(() => { raf = 0; savedScroll.set(keyRef.current, window.scrollY); });
+    };
+    const persist = () => {
+      try { sessionStorage.setItem(SCROLL_KEY, JSON.stringify([...savedScroll].slice(-50))); } catch { /* storage unavailable */ }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("pagehide", persist);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("pagehide", persist);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    keyRef.current = loc.key;
+    const samePage = prevPath.current === loc.pathname;
+    const first = prevPath.current === null;
+    prevPath.current = loc.pathname;
+    if (loc.hash && nav !== "POP") {
+      if (samePage) return; // in-page anchor: let it glide
+      let id = loc.hash.slice(1);
+      try { id = decodeURIComponent(id); } catch { /* keep it raw */ }
+      const el = document.getElementById(id);
+      if (el) { el.scrollIntoView({ behavior: "instant", block: "start" }); return; }
+    }
+    if (samePage && nav !== "POP") return; // search-param-only change on the same page
+    const target = nav === "POP" ? (savedScroll.get(loc.key) ?? 0) : 0;
+    if (first && target === 0) return; // fresh load: the browser already starts at the top
+    window.scrollTo({ top: target, left: 0, behavior: "instant" });
+    if (target <= 0 || Math.abs(window.scrollY - target) < 2) return;
+    // The restored page may still be growing (lazy sections, images): keep trying briefly,
+    // and give up the moment the visitor scrolls themselves.
+    let raf = 0;
+    const until = performance.now() + 900;
+    const cancel = () => { cancelAnimationFrame(raf); raf = 0; off(); };
+    const off = () => ["wheel", "touchstart", "keydown", "pointerdown"].forEach((t) => window.removeEventListener(t, cancel));
+    ["wheel", "touchstart", "keydown", "pointerdown"].forEach((t) => window.addEventListener(t, cancel, { passive: true, once: true }));
+    const retry = () => {
+      window.scrollTo({ top: target, left: 0, behavior: "instant" });
+      if (Math.abs(window.scrollY - target) < 2 || performance.now() > until) { raf = 0; off(); return; }
+      raf = requestAnimationFrame(retry);
+    };
+    raf = requestAnimationFrame(retry);
+    return cancel;
+  }, [loc.key, loc.pathname, loc.hash, nav]);
+
+  return null;
+}
+
+/* ---------- per-edition surface + transition direction ---------- */
+
+/** html[data-edition], background, color-scheme, --edition-bg and theme-color for a pathname. */
+function applySurface(pathname: string) {
+  const key = editionKey(pathname);
+  const [bg, scheme] = EDITION_SURFACE[key];
+  const html = document.documentElement;
+  html.dataset.edition = key;
+  html.style.backgroundColor = bg;
+  html.style.colorScheme = scheme;
+  html.style.setProperty("--edition-bg", bg);
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", bg);
+}
+
+// Before the first paint of the app (the hydrate splash), so the first frame is already tinted.
+if (typeof document !== "undefined") applySurface(window.location.pathname);
+
+/** Index in the switcher's 1–7 order, or null for anything that is not an edition's own page. */
+const editionIndex = (pathname: string) => {
+  const i = interfaceRoutes.indexOf(pathname.replace(/\/+$/, "") || "/");
+  return i < 0 ? null : i;
+};
+
+/**
+ * Writes the surface and the View Transition direction in the commit, before react-router's
+ * update callback resolves, so the new snapshot and its pseudo-elements see them. A navigation
+ * can name its direction (`state: { vtDir: "fwd" | "back" }`, e.g. case-study prev/next);
+ * otherwise only an edition-to-edition switch is directional.
+ */
+function RouteChrome() {
+  const { pathname, state } = useLocation();
+  const navType = useNavigationType();
+  const prev = useRef<string | null>(null);
+
+  useLayoutEffect(() => {
+    applySurface(pathname);
+    // A history entry's saved vtDir described how it was first reached; on Back/Forward it would
+    // point the wrong way, so POP only uses the edition order.
+    const asked = navType === "POP" ? undefined : (state as { vtDir?: unknown } | null)?.vtDir;
+    let dir: "fwd" | "back" | "none" = "none";
+    if (asked === "fwd" || asked === "back") dir = asked;
+    else if (prev.current !== null) {
+      const a = editionIndex(prev.current), b = editionIndex(pathname);
+      if (a !== null && b !== null && a !== b) dir = b > a ? "fwd" : "back";
+    }
+    document.documentElement.dataset.vtDir = dir;
+    prev.current = pathname;
+  }, [pathname, state, navType]);
+
+  // Once the page is idle, fetch the editions either side of this one (1–7 order) so the
+  // switcher and number keys find them ready. Skipped on Data Saver and 2G-class links.
+  useEffect(() => {
+    const i = editionIndex(pathname);
+    if (i === null || idlePrefetchBlocked()) return;
+    const run = () => [interfaceRoutes[i - 1], interfaceRoutes[i + 1]].forEach((p) => p && prefetchEdition(p));
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
+    if (w.requestIdleCallback) {
+      const id = w.requestIdleCallback(run, { timeout: 4000 });
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const t = window.setTimeout(run, 2500);
+    return () => window.clearTimeout(t);
   }, [pathname]);
+
   return null;
 }
 
@@ -92,17 +217,12 @@ function InterfaceShortcuts() {
   return null;
 }
 
+/** A silent surface in the edition's colour with the shared 2px pending bar (no "Loading..." text flash). */
 function LoadingFallback() {
+  const accent = EDITION_SURFACE[editionKey(window.location.pathname)][2];
   return (
-    <div style={{
-      height: "100dvh",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      color: "var(--text-3)", // global token from src/styles/base.css (the mac-only tokens aren't loaded here)
-      fontSize: "0.85rem",
-    }}>
-      Loading...
+    <div className="route-splash" role="status" style={{ "--splash-accent": accent } as CSSProperties}>
+      <span className="sr-only">Loading</span>
     </div>
   );
 }
@@ -124,7 +244,7 @@ function SkipLink() {
   return <a className="skip-global" href="#main" onClick={toMain}>Skip to content</a>;
 }
 
-/** Root layout: global chrome + a Suspense boundary around the lazy edition routes. */
+/** Root layout: global chrome + a Suspense boundary for lazy content nested inside an edition (routes load via route.lazy). */
 function Root() {
   return (
     <>
@@ -137,7 +257,8 @@ function Root() {
       <Analytics />
       <SpeedInsights />
       <RouteSeo />
-      <ScrollToTop />
+      <RouteChrome />
+      <RouteScroll />
       <Suspense fallback={<LoadingFallback />}>
         <ErrorBoundary>
           <Outlet />
@@ -156,21 +277,23 @@ function Root() {
  */
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route element={<Root />} errorElement={<RouteError />}>
-      <Route path="/" element={<Landing />} />
-      <Route path="/editions" element={<Landing />} />
-      <Route path="/classic" element={<ClassicSite />} />
-      <Route path="/paper" element={<PaperSite />} />
-      <Route path="/aurora" element={<AuroraSite />} />
-      <Route path="/forge" element={<ForgeSite />} />
-      <Route path="/mac" element={<MacPortfolio />} />
-      <Route path="/atlas" element={<AtlasSite />} />
-      <Route path="/terminal" element={<TerminalLayout />}>
-        <Route index element={<TerminalHome />} />
-        <Route path="work/:slug" element={<WorkDetail />} />
+    <Route element={<Root />} errorElement={<RouteError />} hydrateFallbackElement={<LoadingFallback />}>
+      {/* route.lazy: the router fetches the module before it commits, so a View Transition never
+          starts on a chunk that is still downloading (src/lib/editionLoaders.ts shares the fetch with prefetching). */}
+      <Route path="/" lazy={routeLazy.landing} />
+      <Route path="/editions" lazy={routeLazy.landing} />
+      <Route path="/classic" lazy={routeLazy.classic} />
+      <Route path="/paper" lazy={routeLazy.paper} />
+      <Route path="/aurora" lazy={routeLazy.aurora} />
+      <Route path="/forge" lazy={routeLazy.forge} />
+      <Route path="/mac" lazy={routeLazy.mac} />
+      <Route path="/atlas" lazy={routeLazy.atlas} />
+      <Route path="/terminal" lazy={routeLazy.termLayout}>
+        <Route index lazy={routeLazy.termHome} />
+        <Route path="work/:slug" lazy={routeLazy.termWork} />
       </Route>
       <Route path="/work" element={<Navigate to="/" replace />} />
-      <Route path="/work/:slug" element={<CaseStudy />} />
+      <Route path="/work/:slug" lazy={routeLazy.caseStudy} />
       <Route path="*" element={<NotFound />} />
     </Route>
   )

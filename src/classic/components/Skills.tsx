@@ -25,7 +25,7 @@ export function Skills() {
           <p className="section-sub">Grouped the way the projects above use them. The small number shows how many projects use it.</p>
         </div>
         <dl className="skills-list">
-          {skillCategories.map((c) => (
+          {skillCategories.map((c, ci) => (
             <div className="skill-row" key={c.label}>
               <dt>
                 <svg className="skill-glyph" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d={GLYPH[c.label] ?? GLYPH.Languages} /></svg>
@@ -39,7 +39,7 @@ export function Skills() {
                   ))}
                 </span>
                 {c.items.length > FIRST && (
-                  <button type="button" className="chip chip-more" aria-expanded={!!open[c.label]} onClick={() => smooth(() => setOpen((o) => ({ ...o, [c.label]: !o[c.label] })))}>
+                  <button type="button" className="chip chip-more" style={{ "--vtn": `cl-chip-more-${ci}` } as React.CSSProperties} aria-expanded={!!open[c.label]} onClick={() => smooth(() => setOpen((o) => ({ ...o, [c.label]: !o[c.label] })))}>
                     {open[c.label] ? "Show less" : `+${c.items.length - FIRST} more`}
                   </button>
                 )}

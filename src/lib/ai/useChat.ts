@@ -52,18 +52,36 @@ export function useChat(surface: ChatSurface) {
     abortRef.current = ctrl;
     setBusy(true);
     const patch = (p: Partial<ChatMessage>) => setMessages((ms) => ms.map((m) => (m.id === assistantId ? { ...m, ...p } : m)));
+    // Tokens can arrive every few ms; render at most one per frame. The final patch always carries
+    // the full text, so nothing is lost when a pending frame is cancelled.
+    const raf = typeof requestAnimationFrame === "function" ? requestAnimationFrame : (cb: FrameRequestCallback) => setTimeout(() => cb(0), 16) as unknown as number;
+    const caf = typeof cancelAnimationFrame === "function" ? cancelAnimationFrame : (id: number) => clearTimeout(id);
+    let pending: string | null = null;
+    let frame = 0;
+    const settle = () => {
+      if (frame) caf(frame);
+      frame = 0;
+      const text = pending;
+      pending = null;
+      return text;
+    };
     try {
       const r = await streamAnswer({
         messages: history,
         sessionId: sessionRef.current,
         surface,
         signal: ctrl.signal,
-        onToken: (_d, full) => patch({ content: full }),
+        onToken: (_d, full) => {
+          pending = full;
+          frame ||= raf(() => { frame = 0; const text = pending; pending = null; if (text != null) patch({ content: text }); });
+        },
       });
+      settle();
       patch({ content: r.text, sources: r.sources, supported: r.supported, status: "done" });
     } catch (err) {
       const e = err instanceof ChatError ? err : new ChatError("unknown", "Something went wrong.");
-      patch({ status: "error", error: e.message });
+      const text = settle();
+      patch({ ...(text != null ? { content: text } : {}), status: "error", error: e.message });
     } finally {
       if (abortRef.current === ctrl) abortRef.current = null;
       setBusy(false);

@@ -172,3 +172,17 @@ Reduced motion is driven only by `html[data-motion]` (`src/lib/motion.ts`), neve
 - Hero heading runs `text-reveal` and `fg-head-shimmer` in one animation list.
 - Stats skip the count-up under reduced motion; the ember canvas pauses off screen.
 - Pipeline panel floats with `float-y` (fine pointers); stack cards fold in; interface cards fan in; About children stagger.
+
+### UI polish (2026-11-10)
+- One scroll driver (`useForgeScroll`): a single passive listener and rAF, read then write, geometry cached by ResizeObserver. It writes the nav heat bar `--sp` (now `transform: scaleX`), the hero parallax and fade (≥1025px only, fade based on the hero's own height, writes stop past the hero), the marquee drift (only while the marquee is visible; the left-to-right row starts at `-half`, so there is no empty gap) and the timeline `--tl` / `--tl-y` (the tip moves by transform). Under reduced motion only `--sp` is written.
+- Off-screen work: `.forge-root[data-hero-off]` pauses the hero loops; the lede, build log and uptime (`<Uptime>` leaf, derived from a stored start) stop while the hero is off screen or the tab is hidden. `.fg-section.is-onscreen` gates the heading shimmer and the contact glow.
+- EmberField: one loop for the component's life, pre-rendered sprites instead of `shadowBlur`, frame-rate independent. Stoking keeps the field, eases the count over ~40 frames and throws a 12-ember burst from the toggle.
+- Stoke heat wave: an in-page View Transition (`startLocalTransition`, scoped by `html[data-vt="stoke"]`) clips the new palette out from the toggle. Pipeline stage colours are `var(--fg-cyan|blue|violet|purple)`.
+- Pipeline: the stray `forge-pulse` animation is gone (the flow band and dot run straight again); "passed" is an inset ring on `.fg-pipe::after` that only fades, so the float never jumps; each "ok" pops once.
+- Pointer glows: `.fg-glow-blob` (background) and `.fg-proj-glow` (cards, tinted with `--pa1`) move by transform; `--gx/--gy` and `--mx/--my` are no longer written.
+- Cards: the sticky ladder is capped (`min(var(--i), 5)`, 16px steps; 3 / 10px at ≤760px); phones (≤520px) stack cards plainly. Hover is a 4px lift with no scale, a transform sheen and a fading shadow layer, all behind `(hover: hover) and (pointer: fine)`.
+- Work filters: a molten ink pill slides under the active chip; a filter change re-anchors to `#work` when the reader was inside the stack. Magnetic hover is on `.fg-btn` only.
+- Focus and press: focus outlines follow each control's own radius (text links 4px); controls press with the `scale` property. Spark loops are hover-only; touch taps and Enter play one burst (`.is-sparking`).
+- Nav: full-bleed glass and heat bar, the switcher drops its numbers to fit, solid mobile panel with 44px rows, staggered links, Escape and outside-tap close. Footer sits on the 1200px column and clears the floating buttons on phones.
+- Layout: About facts no longer break mid-word (`auto-fit` columns, `<wbr>` after the slash); `text-wrap: pretty` on prose; Interfaces lists Atlas (six cards, 3 × 2); Contact / Interfaces spacing tightened. Hero Liquid CTA and the gold Contact button are pills that match `.fg-btn`.
+- Fixes: project numbers read 01–12 (were 010–012); the "Cloud & Tools" stack card has its caption; pipeline rows are visible under reduced motion.

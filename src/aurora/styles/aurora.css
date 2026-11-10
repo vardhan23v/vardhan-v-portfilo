@@ -315,6 +315,9 @@
   font-weight: 600;
   border: 1px solid var(--glass-border);
   background: var(--glass);
+  color: var(--ink);
+  font-family: inherit;
+  cursor: pointer;
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s ease,
@@ -360,6 +363,21 @@
 
 .aurora-btn:hover span {
   transform: translate(3px, -1px);
+}
+
+/* pressed and busy states (the form's "sending…") */
+.aurora-btn:active {
+  transform: translateY(0) scale(0.98);
+  transition-duration: 0.08s;
+}
+.aurora-btn:disabled {
+  opacity: 0.65;
+  cursor: progress;
+  transform: none;
+}
+.aurora-btn:disabled::after,
+.aurora-btn:disabled::before {
+  display: none;
 }
 
 /* hero visual — build system panel */
@@ -2465,10 +2483,10 @@ html[data-motion="reduce"] .au-mouse-glow { display: none; }
   to { transform: scaleY(1); }
 }
 @keyframes auSignal {
-  0% { top: -6%; opacity: 0; }
+  0% { transform: translateY(-100%); opacity: 0; }
   12% { opacity: 0.95; }
   88% { opacity: 0.95; }
-  100% { top: 100%; opacity: 0; }
+  100% { transform: translateY(0); opacity: 0; }
 }
 @keyframes auPing {
   0%, 100% { transform: scale(1); box-shadow: 0 0 12px color-mix(in srgb, var(--marker, var(--violet)) 70%, transparent); }
@@ -2517,15 +2535,21 @@ html:not([data-motion="reduce"]) .au-sys-row {
 html:not([data-motion="reduce"]) .au-sys-chip {
   animation: auPop 0.5s 1.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
+/* The signal strip is as tall as the rail with its bright band at the bottom; it slides with transform
+   (compositor only), and the rail clips it vertically. */
+.au-sys-rail {
+  clip-path: inset(0 -6px);
+}
 .au-sys-rail::after {
   content: "";
   position: absolute;
   left: -2px;
-  top: -6%;
+  top: 0;
+  bottom: 0;
   width: 5px;
-  height: 28px;
   border-radius: 3px;
-  background: linear-gradient(180deg, transparent, #fff, transparent);
+  background: linear-gradient(180deg, transparent calc(100% - 28px), #fff calc(100% - 14px), transparent);
+  transform: translateY(-100%);
   opacity: 0;
 }
 html:not([data-motion="reduce"]) .au-sys-rail::after {
@@ -2665,11 +2689,13 @@ html:not([data-motion="reduce"]) .au-exp-row.is-open .au-exp-dot::after {
 
 /* 1. nav light line doubles as scroll progress */
 .aurora-nav::after {
-  right: auto;
-  width: calc((100% - 40px) * var(--sp, 0));
-  min-width: 0;
+  left: 20px;
+  right: 20px;
+  width: auto;
+  transform: scaleX(var(--sp, 0));
+  transform-origin: 0 50%;
   opacity: 0.9;
-  transition: width 0.12s linear;
+  transition: transform 0.12s linear;
 }
 
 /* 2. section dots */
@@ -2811,10 +2837,10 @@ html:not([data-motion="reduce"]) .au-typer-caret {
 .au-modal-head {
   padding-top: 52px;
 }
-html:not([data-motion="reduce"]) .au-modal[data-dir="1"] {
+html:not([data-motion="reduce"]) .au-modal[data-entry="step"][data-dir="1"] {
   animation: auSlideL 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-html:not([data-motion="reduce"]) .au-modal[data-dir="-1"] {
+html:not([data-motion="reduce"]) .au-modal[data-entry="step"][data-dir="-1"] {
   animation: auSlideR 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 @keyframes auSlideL {
@@ -2849,24 +2875,30 @@ html:not([data-motion="reduce"]) .au-modal[data-dir="-1"] {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
 }
+/* a 14px dot inside a full 24px target; the active one gets a ring and keeps its glow */
 .au-hue-swatch {
-  width: 14px;
-  height: 14px;
-  padding: 0;
+  width: 24px;
+  height: 24px;
+  padding: 3.5px;
   border-radius: 50%;
-  border: 2px solid transparent;
+  border: 1.5px solid transparent;
   background: var(--sw);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--sw) 55%, transparent);
+  background-clip: content-box;
+  box-shadow: none;
   cursor: pointer;
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, box-shadow 0.25s ease;
 }
-.au-hue-swatch:hover {
-  transform: scale(1.2);
+@media (hover: hover) and (pointer: fine) {
+  .au-hue-swatch:hover {
+    transform: scale(1.12);
+  }
 }
 .au-hue-swatch.is-active {
-  border-color: #fff;
-  transform: scale(1.25);
+  border-color: rgba(255, 255, 255, 0.85);
+  transform: none;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--sw) 45%, transparent);
 }
 
 /* 9. sparks on copy */
@@ -2943,7 +2975,7 @@ html:not([data-motion="reduce"]) .au-random.is-rolling span {
 /* The glows keep their own slow drift (auglow1-3 above). */
 .aurora-root .au-card,
 .aurora-root .au-ft {
-  transition: transform 0.45s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s ease, backdrop-filter 0.3s ease;
+  transition: transform 0.45s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s ease;
   position: relative;
   overflow: hidden;
 }
@@ -3005,13 +3037,6 @@ html:not([data-motion="reduce"]) .au-random.is-rolling span {
 .aurora-root .au-marquee:hover .au-marquee-track {
   animation-play-state: paused;
 }
-.aurora-root .au-toolbar,
-.aurora-root .au-lab,
-.aurora-root .au-edu-card,
-.aurora-root .au-cert-chip,
-.aurora-root .au-form {
-  will-change: transform;
-}
 .aurora-root .au-lab-pill {
   position: relative;
   overflow: hidden;
@@ -3070,3 +3095,445 @@ html:not([data-motion="reduce"]) .au-random.is-rolling span {
 }
 @keyframes auLineDraw { from { transform: scaleX(0); opacity: 0; } }
 @keyframes auTiltAway { to { opacity: 0.35; transform: perspective(1200px) rotateX(18deg) translateY(-24px) scale(0.96); } }
+
+/* ============================================================
+   UI POLISH (2026-11-10) — later rules here override the blocks above.
+   ============================================================ */
+
+/* ---------- gallery: cards glide on filter / sort / view changes ----------
+   AuroraSite wraps discrete changes in startLocalTransition (adds html.vt-local). Names exist only
+   for the length of that transition, so cards are not permanent isolation groups. */
+html.vt-local .aurora-root :is(.au-tilt, .au-ft-tilt) {
+  view-transition-name: var(--vtn);
+  view-transition-class: au-p;
+}
+::view-transition-group(*.au-p) {
+  animation-duration: 0.42s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+::view-transition-new(*.au-p):only-child {
+  animation: auPop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+::view-transition-old(*.au-p):only-child {
+  animation: auVtOut 0.18s ease both;
+}
+@keyframes auVtOut {
+  to { opacity: 0; transform: scale(0.96); }
+}
+/* After the first fold-in (or the first filter), cards that join later do not replay it. */
+.au-projects[data-settled] .aurora-grid .au-tilt,
+.au-projects[data-settled] .au-ft-tilt {
+  animation: none;
+}
+
+/* ---------- off-screen pause: only the named decorative loops, never the scroll-driven reveals ---------- */
+.aurora-root [data-au-live="off"] :is(.aurora-grad, .glow-dot, .au-av-dot, .au-sys-dot, .au-sys-mark, .au-marquee-track, .au-ft-bloom, .au-ft-beam-a, .au-ft-beam-b, .au-ft-glyph, .au-ft-vname, .au-typer-caret),
+.aurora-root [data-au-live="off"] :is(.au-sys-rail, .au-sys-row, .au-exp-dot)::after {
+  animation-play-state: paused;
+}
+
+/* ---------- grid rhythm: link rows line up across a row; an odd last card spans the row ---------- */
+.au-card .au-card-tech {
+  margin-bottom: 22px;
+}
+.au-card .au-card-links {
+  margin-top: auto;
+}
+.aurora-grid:not(.is-list) > .au-tilt:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+@media (min-width: 801px) {
+  .aurora-grid:not(.is-list) > .au-tilt:last-child:nth-child(odd) .au-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    column-gap: 40px;
+    align-items: start;
+  }
+  .aurora-grid:not(.is-list) > .au-tilt:last-child:nth-child(odd) .au-rank { grid-column: 1; grid-row: 1; }
+  .aurora-grid:not(.is-list) > .au-tilt:last-child:nth-child(odd) .au-card-name { grid-column: 1; grid-row: 2; }
+  .aurora-grid:not(.is-list) > .au-tilt:last-child:nth-child(odd) .au-card-tagline { grid-column: 1; grid-row: 3; }
+  .aurora-grid:not(.is-list) > .au-tilt:last-child:nth-child(odd) .au-card-tech {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: end;
+    margin: 0;
+  }
+  .aurora-grid:not(.is-list) > .au-tilt:last-child:nth-child(odd) .au-card-links {
+    grid-column: 2;
+    grid-row: 3;
+    align-self: end;
+    margin-top: 0;
+  }
+}
+
+/* ---------- list view: aligned, table-like rows ---------- */
+.aurora-grid.is-list {
+  gap: 10px;
+}
+.aurora-grid.is-list .au-card {
+  display: grid;
+  /* fixed tracks (no content-sized columns) so every row's cells start at the same x */
+  grid-template-columns: 136px minmax(0, 1.25fr) minmax(0, 1.5fr) minmax(0, 1fr) 280px;
+  align-items: center;
+  column-gap: 24px;
+  padding: 18px 24px;
+}
+.aurora-grid.is-list :is(.au-rank, .au-card-name) {
+  white-space: nowrap;
+}
+.aurora-grid.is-list :is(.au-card-name, .au-card-tagline, .au-card-tech, .au-card-links) {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.aurora-grid.is-list .au-card-tagline {
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  text-wrap: pretty;
+}
+.aurora-grid.is-list .au-card-tech {
+  flex-wrap: nowrap;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, #000 80%, transparent);
+  mask-image: linear-gradient(90deg, #000 80%, transparent);
+}
+.aurora-grid.is-list .au-card-tech span {
+  flex-shrink: 0;
+}
+.aurora-grid.is-list .au-card-links {
+  width: auto;
+  border-top: 0;
+  padding-top: 0;
+  gap: 16px;
+  justify-content: flex-end;
+}
+.aurora-grid.is-list .au-card-cta {
+  display: none;
+}
+/* rows lift without tilt or scale (AuroraCard also passes tilt strength 0 in list view) */
+.aurora-root .aurora-grid.is-list .au-card:hover {
+  transform: translateY(-3px);
+}
+@media (max-width: 1024px) {
+  .aurora-grid.is-list .au-card {
+    grid-template-columns: 120px minmax(0, 1.3fr) minmax(0, 1.6fr) 280px;
+  }
+  .aurora-grid.is-list .au-card-tech {
+    display: none;
+  }
+}
+@media (max-width: 700px) {
+  .aurora-grid.is-list .au-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 22px;
+  }
+  .aurora-grid.is-list :is(.au-rank, .au-card-name) {
+    white-space: normal;
+  }
+  .aurora-grid.is-list .au-card-name { margin-top: 10px; }
+  .aurora-grid.is-list .au-card-tagline { margin-top: 8px; }
+  .aurora-grid.is-list .au-card-tech {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .aurora-grid.is-list .au-card-links {
+    width: 100%;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--glass-border);
+    justify-content: flex-start;
+  }
+}
+
+/* ---------- experience: anchored meta, staggered bullets, + turns into × ---------- */
+.au-exp-row {
+  align-items: flex-start;
+}
+.au-exp-meta {
+  padding-top: 2px;
+}
+.au-exp-dot {
+  top: 39px;
+}
+.au-exp-row:first-child .au-exp-dot {
+  top: 23px;
+}
+html:not([data-motion="reduce"]) .au-exp-points.is-open li {
+  animation: auin 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(0.08s + var(--j, 0) * 0.04s);
+}
+.au-exp-toggle span {
+  display: inline-block;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.au-exp-toggle[aria-expanded="true"] span {
+  transform: rotate(45deg);
+}
+
+/* ---------- toolbar: one 44px height, visible sort focus, sliding view thumb ---------- */
+.au-search {
+  height: 44px;
+  padding: 0 16px;
+}
+.au-sort {
+  height: 44px;
+  padding: 0 10px 0 16px;
+  transition: border-color 0.2s ease, box-shadow 0.25s ease;
+}
+.au-sort:focus-within {
+  border-color: rgba(167, 139, 250, 0.55);
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.18);
+}
+.au-random {
+  height: 44px;
+  padding: 0 16px;
+}
+.au-view {
+  height: 44px;
+  align-items: center;
+}
+.au-view-btn {
+  height: 34px;
+}
+@supports selector(:has(*)) {
+  .au-view {
+    position: relative;
+    isolation: isolate;
+  }
+  .au-view::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    width: 36px;
+    height: 34px;
+    border-radius: 999px;
+    background: rgba(167, 139, 250, 0.18);
+    border: 1px solid rgba(167, 139, 250, 0.36);
+    z-index: -1;
+    transition: transform 0.34s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .au-view:has(.au-view-btn:last-child.is-active)::before {
+    transform: translateX(40px);
+  }
+  .au-view-btn.is-active {
+    background: transparent;
+    border-color: transparent;
+  }
+}
+
+/* ---------- phones (390px) ---------- */
+.au-sys-live,
+.au-sys-clock {
+  white-space: nowrap;
+}
+@media (max-width: 800px) {
+  .au-ft-visual {
+    min-height: 220px;
+    padding-top: 48px;
+  }
+}
+@media (max-width: 760px) {
+  .aurora-foot {
+    padding-bottom: calc(var(--floating-clearance, 88px) + env(safe-area-inset-bottom));
+  }
+}
+@media (max-width: 560px) {
+  .au-exp-row {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .au-exp-meta {
+    order: -1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .au-exp-period {
+    width: auto;
+  }
+  .au-exp-dot {
+    top: 40px;
+  }
+  .au-exp-row:first-child .au-exp-dot {
+    top: 24px;
+  }
+  .au-sys-head {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+  .au-sys-foot {
+    flex-wrap: wrap;
+    row-gap: 6px;
+    letter-spacing: 0.02em;
+  }
+  .au-toolbar-right {
+    width: 100%;
+    flex-wrap: nowrap;
+  }
+  .au-sort {
+    flex: 1;
+    min-width: 0;
+  }
+  .au-sort select {
+    flex: 1;
+    min-width: 0;
+    text-overflow: ellipsis;
+  }
+}
+@media (hover: none) and (pointer: coarse) {
+  .au-hero-hints > span:nth-child(-n + 2) {
+    display: none;
+  }
+}
+/* touch has no hover: the quick-view cue is always shown */
+@media (hover: none) {
+  .au-card-cta {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (hover: none) and (max-width: 700px) {
+  .aurora-grid.is-list .au-card-cta {
+    display: block;
+    position: static;
+    margin-top: 12px;
+  }
+}
+
+/* ---------- the aurora fields rearrange slowly as you scroll (compositor-only, reverses on the way up) ---------- */
+@supports (animation-timeline: scroll()) {
+  html:not([data-motion="reduce"]) .aurora-root .au-glow-purple {
+    animation: auglow1 62s ease-in-out infinite alternate, auDepthA linear both;
+    animation-timeline: auto, scroll(root);
+  }
+  html:not([data-motion="reduce"]) .aurora-root .au-glow-blue {
+    animation: auglow2 74s ease-in-out infinite alternate, auDepthB linear both;
+    animation-timeline: auto, scroll(root);
+  }
+  html:not([data-motion="reduce"]) .aurora-root .au-glow-cyan {
+    animation: auglow3 68s ease-in-out infinite alternate, auDepthC linear both;
+    animation-timeline: auto, scroll(root);
+  }
+}
+@keyframes auDepthA { to { translate: -40px 200px; } }
+@keyframes auDepthB { to { translate: 60px -220px; } }
+@keyframes auDepthC { to { translate: -30px -160px; } }
+
+/* ---------- type and alignment details ---------- */
+.aurora-head .aurora-subhead {
+  margin-top: 24px;
+}
+.au-about-head .tag {
+  margin-top: 24px;
+}
+.au-meta-row dd {
+  margin: 5px 0 0;
+}
+.au-contact-direct .au-contact-links {
+  justify-content: flex-start;
+}
+.au-stat-value,
+.au-sys-stats strong,
+.au-modal-nav span,
+.au-filter-count {
+  font-variant-numeric: tabular-nums;
+}
+.aurora-subhead,
+.au-ft-tagline,
+.au-card-tagline,
+.au-contact p,
+.au-prose p {
+  text-wrap: pretty;
+}
+.aurora-head h2,
+.au-contact h2,
+.au-modal-title,
+.au-empty h3 {
+  text-wrap: balance;
+}
+
+/* ---------- quick view: grows from the card, content rises in, eases out on close ---------- */
+html:not([data-motion="reduce"]) .au-modal[data-entry="open"] {
+  animation: auModalFrom 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes auModalFrom {
+  from {
+    opacity: 0;
+    transform: translate(calc(var(--dx, 0px) * 0.22), calc(var(--dy, 0px) * 0.22)) scale(0.94);
+  }
+}
+html:not([data-motion="reduce"]) .au-modal[data-entry="open"] :is(.au-modal-head > div, .au-modal-body > div, .au-modal-actions) {
+  animation: auModalRise 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.au-modal[data-entry="open"] .au-modal-head > div { animation-delay: 0.06s; }
+.au-modal[data-entry="open"] .au-modal-body > div:nth-child(1) { animation-delay: 0.1s; }
+.au-modal[data-entry="open"] .au-modal-body > div:nth-child(2) { animation-delay: 0.14s; }
+.au-modal[data-entry="open"] .au-modal-body > div:nth-child(3) { animation-delay: 0.18s; }
+.au-modal[data-entry="open"] .au-modal-actions { animation-delay: 0.22s; }
+@keyframes auModalRise {
+  from { opacity: 0; transform: translateY(8px); }
+}
+html:not([data-motion="reduce"]) .au-modal-backdrop.is-closing {
+  animation: auModalOut 0.2s ease forwards;
+  pointer-events: none;
+}
+html:not([data-motion="reduce"]) .au-modal-backdrop.is-closing .au-modal {
+  animation: auModalCardOut 0.2s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+@keyframes auModalOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes auModalCardOut {
+  to { opacity: 0; transform: translateY(8px) scale(0.98); }
+}
+
+/* ---------- toast leaves instead of vanishing; contact form feedback ---------- */
+html:not([data-motion="reduce"]) .au-toast.is-leaving {
+  animation: auToastOut 0.26s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+@keyframes auToastOut {
+  to { opacity: 0; transform: translateX(-50%) translateY(12px); }
+}
+.au-toast-dot {
+  position: relative;
+}
+html:not([data-motion="reduce"]) .au-toast-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--mint);
+  opacity: 0;
+  animation: auRingDot 0.9s ease-out 0.1s 1 both;
+}
+.aurora-root .au-form-field span {
+  transition: color 0.2s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.aurora-root .au-form-field:focus-within span {
+  color: #c9c2ff;
+  transform: translateX(2px);
+}
+.aurora-root .au-form-field :is(input, textarea) {
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.25s ease;
+}
+.aurora-root .au-form :is(input, textarea)[aria-invalid="true"] {
+  border-color: rgba(252, 165, 165, 0.5);
+  box-shadow: 0 0 0 3px rgba(252, 165, 165, 0.12);
+}
+html:not([data-motion="reduce"]) .aurora-root .au-form-field em {
+  animation: auin 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+html:not([data-motion="reduce"]) .aurora-root .au-form-actions .aurora-btn-solid:disabled span {
+  animation: auSpin 0.9s linear infinite;
+}
+@keyframes auSpin {
+  to { transform: rotate(360deg); }
+}

@@ -10,8 +10,8 @@ export function Process() {
           <p className="section-sub">Five stages every project above went through, from the question to the deploy.</p>
         </div>
         <ol className="process-list">
-          {process.map((s) => (
-            <li className="process-step" key={s.step}>
+          {process.map((s, i) => (
+            <li className="process-step" key={s.step} style={{ "--bob": i } as React.CSSProperties}>
               <span className="process-n" aria-hidden="true">{s.step}</span>
               <h3 className="process-label">{s.label}</h3>
               <p className="process-text">{s.text}</p>

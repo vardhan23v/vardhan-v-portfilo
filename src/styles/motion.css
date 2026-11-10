@@ -64,52 +64,104 @@ html[data-motion="reduce"] *::after {
 /* ============================================================
    Cross-cutting: reveal on scroll softer + stagger
    ============================================================ */
-.fg-reveal, .au-reveal, .land-stats, .classic-root .reveal {
+.fg-reveal, .au-reveal, .classic-root .reveal {
   will-change: opacity, transform;
 }
 
-/* Interface switcher subtle breathe */
-.iswitcher {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.iswitcher:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-}
-
-/* command palette open spring */
-.cp-root[aria-hidden="false"] {
-  animation: cp-in 0.32s cubic-bezier(0.22,1,0.36,1) both;
-}
-@keyframes cp-in {
-  from { opacity: 0; transform: translateY(8px) scale(0.98); }
-  to { opacity: 1; transform: none; }
-}
+/* The interface switcher's hover feedback lives in interface-switcher.css (a gliding highlight);
+   the pill itself no longer lifts, which would re-blur its backdrop-filter on every hover. */
 
 /* ============================================================
-   View Transitions — cross-edition crossfade + rise
-   (react-router `viewTransition` navigations; no-op elsewhere)
+   View Transitions — page-level edition switch
+   (react-router `viewTransition` navigations). Root (src/App.tsx) writes
+   html[data-vt-dir] = fwd | back | none before the new page is captured:
+   fwd/back slide a few px along the switcher's 1–7 order, none keeps the rise.
+   In-page transitions (startLocalTransition → html.vt-local) and the macOS theme
+   reveal (html.mac-theme-vt) are excluded and keep their own, quieter motion.
+   Transform + opacity only: no full-viewport filter passes.
    ============================================================ */
 /* motion gate (no-preference) — driven by html[data-motion], see src/lib/motion.ts */
-html:not([data-motion="reduce"])::view-transition-old(root) {
-    animation: vt-out 0.28s cubic-bezier(0.4, 0, 1, 1) both;
-  }
-html:not([data-motion="reduce"])::view-transition-new(root) {
-    animation: vt-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-/* Reduced: skip the UA default crossfade too — the transition just snaps. */
+html:not([data-motion="reduce"]):not(.vt-local):not(.mac-theme-vt)::view-transition-old(root) {
+  animation: vt-out 0.28s cubic-bezier(0.4, 0, 1, 1) both;
+}
+html:not([data-motion="reduce"]):not(.vt-local):not(.mac-theme-vt)::view-transition-new(root) {
+  animation: vt-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) 40ms both;
+}
+html:not([data-motion="reduce"]):not(.vt-local):not(.mac-theme-vt)[data-vt-dir="fwd"]::view-transition-old(root) {
+  animation: vt-out-l 0.3s cubic-bezier(0.4, 0, 1, 1) both;
+}
+html:not([data-motion="reduce"]):not(.vt-local):not(.mac-theme-vt)[data-vt-dir="fwd"]::view-transition-new(root) {
+  animation: vt-in-r 0.44s cubic-bezier(0.22, 1, 0.36, 1) 40ms both;
+}
+html:not([data-motion="reduce"]):not(.vt-local):not(.mac-theme-vt)[data-vt-dir="back"]::view-transition-old(root) {
+  animation: vt-out-r 0.3s cubic-bezier(0.4, 0, 1, 1) both;
+}
+html:not([data-motion="reduce"]):not(.vt-local):not(.mac-theme-vt)[data-vt-dir="back"]::view-transition-new(root) {
+  animation: vt-in-l 0.44s cubic-bezier(0.22, 1, 0.36, 1) 40ms both;
+}
+/* In-page transitions (filters, view toggles, chat morphs): the UA's plain crossfade, short. */
+html.vt-local:not([data-motion="reduce"])::view-transition-old(root),
+html.vt-local:not([data-motion="reduce"])::view-transition-new(root) {
+  animation-duration: 0.22s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* Reduced: skip the UA default crossfade too — every transition just snaps. */
 html[data-motion="reduce"]::view-transition-old(root),
-html[data-motion="reduce"]::view-transition-new(root) {
+html[data-motion="reduce"]::view-transition-new(root),
+html[data-motion="reduce"]::view-transition-group(*),
+html[data-motion="reduce"]::view-transition-old(*),
+html[data-motion="reduce"]::view-transition-new(*) {
   animation: none !important;
 }
 
-@keyframes vt-out {
-  to { opacity: 0; transform: translateY(-10px) scale(0.995); filter: blur(2px); }
+@keyframes vt-out { to { opacity: 0; transform: translateY(-10px); } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(14px); } }
+@keyframes vt-out-l { to { opacity: 0; transform: translateX(-24px); } }
+@keyframes vt-in-r { from { opacity: 0; transform: translateX(32px); } }
+@keyframes vt-out-r { to { opacity: 0; transform: translateX(24px); } }
+@keyframes vt-in-l { from { opacity: 0; transform: translateX(-32px); } }
+
+/* Global chrome is the same object on both sides of a switch: lift it out of the root
+   snapshot so it stays put instead of sliding with the page. Not during the macOS theme
+   reveal, where everything should go through the circular wipe together. */
+html:not(.mac-theme-vt) .pa-launcher { view-transition-name: pa-launcher; }
+html:not(.mac-theme-vt) .sc-top { view-transition-name: sc-top; }
+html:not(.mac-theme-vt) .sc-progress { view-transition-name: sc-progress; }
+html:not(.mac-theme-vt) .cur-fx { view-transition-name: cur-fx; }
+/* The cursor's new image is live, so it keeps tracking through the switch (and never shows twice).
+   Its group is full-viewport (inset: 0): never animate it. */
+::view-transition-group(cur-fx),
+::view-transition-new(cur-fx) { animation: none; }
+::view-transition-old(cur-fx) { display: none; }
+html:not([data-motion="reduce"])::view-transition-group(sc-progress) {
+  animation-duration: 0.42s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
-@keyframes vt-in {
-  from { opacity: 0; transform: translateY(14px) scale(0.995); filter: blur(3px); }
-  to { opacity: 1; transform: none; filter: none; }
+html:not([data-motion="reduce"])::view-transition-group(pa-launcher),
+html:not([data-motion="reduce"])::view-transition-group(sc-top) {
+  animation-duration: 0.3s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+/* First load / cold route: a silent surface in the edition's colour (html background is set
+   per route) with the same 2px bar as the navigation pending indicator. */
+.route-splash { min-height: 100vh; min-height: 100dvh; }
+.route-splash::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 10001;
+  pointer-events: none;
+  background: var(--splash-accent, #7c6cff);
+  transform-origin: 0 50%;
+  transform: scaleX(0.3);
+  opacity: 0;
+  animation: sc-pending 1.1s cubic-bezier(0.4, 0, 0.2, 1) 0.25s infinite;
+}
+html[data-motion="reduce"] .route-splash::after { opacity: 1; transform: scaleX(0.3); }
 
 /* global polish — smoother font rendering + selection */
 ::selection {

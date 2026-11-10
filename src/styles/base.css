@@ -20,9 +20,15 @@
   --wp-h1: 225; --wp-h2: 262; --wp-h3: 196;
 }
 html { scroll-padding-top: 72px; }
+/* Space the floating launcher + back-to-top need at the end of a page on phones. */
+:root { --floating-clearance: 88px; }
 /* motion gate (no-preference) — driven by html[data-motion], see src/lib/motion.ts */
-html:not([data-motion="reduce"]) { scroll-behavior: smooth; } 
-body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+/* In-page anchors glide; route changes reset scroll instantly (RouteScroll in src/App.tsx passes behavior: "instant"). */
+html:not([data-motion="reduce"]) { scroll-behavior: smooth; }
+/* Root (src/App.tsx) writes the current edition's surface to html (background, color-scheme,
+   --edition-bg), so overscroll bands, the page under a short edition and a View Transition's
+   uncovered edge all show the edition's own colour instead of the landing navy. */
+body { margin: 0; background: var(--edition-bg, var(--bg)); color: var(--text); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 *, *::before, *::after { box-sizing: border-box; }
 a { color: inherit; text-decoration: none; }
 h1, h2, h3, p { margin: 0; }

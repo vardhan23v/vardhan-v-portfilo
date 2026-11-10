@@ -4,7 +4,8 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const b = await launch();
 const p = await b.newPage();
 p.on("dialog", (d) => d.accept());
-await p.goto("http://localhost:4173/terminal", { waitUntil: "networkidle0" });
+const BASE = process.env.BASE_URL || process.argv[2] || "http://localhost:4173";
+await p.goto(`${BASE.replace(/\/$/, "")}/terminal`, { waitUntil: "networkidle0" });
 await p.waitForSelector(".shell-input", { timeout: 8000 });
 await p.waitForFunction(() => !document.querySelector(".boot"), { timeout: 8000 });
 await p.evaluate(() => { window.open = () => null; });
@@ -45,10 +46,11 @@ const check = (name, cond) => {
 
 await run("help", "available commands");
 let t = await text();
-check("help lists neofetch", t.includes("neofetch / fetch"));
-check("help lists cat <file>", t.includes("cat <file>"));
+// help prints grouped `name  summary` rows (aliases live in the summary)
+check("help lists neofetch", t.includes("neofetch") && t.includes("alias: fetch"));
+check("help lists cat <file>", /\bcat\s+read a file/.test(t));
 check("help lists backtick hint", t.includes("focus this terminal"));
-check("help lists tab/history hint", t.includes("command history"));
+check("help lists tab/history hint", t.includes("completion / history / clear"));
 
 await run("neofetch", "vardhan@folio");
 t = await text();
@@ -61,7 +63,8 @@ await run("social", "linkedin");
 t = await text();
 check("social github", t.includes("github.com/vardhan23v"));
 check("social linkedin", t.includes("linkedin.com/in/vardhan-v23"));
-check("social opens tabs", t.includes("opening github + linkedin"));
+// social prints the links only (no pop-up tabs); it points at ~/contact instead
+check("social points at contact", t.includes("click the links in ~/contact"));
 
 await run("cat skills.tree", "ai / llm");
 t = await text();
@@ -138,12 +141,13 @@ await clear();
 await p.keyboard.press("ArrowUp");
 await sleep(40);
 check("arrowUp recalls experience.log", (await val()).includes("experience.log"));
-for (let i = 0; i < 14; i++) {
+// walk back until the older entry shows up (history is de-duplicated, so count-free)
+for (let i = 0; i < 30 && !(await val()).includes("skills.tree"); i++) {
   await p.keyboard.press("ArrowUp");
   await sleep(15);
 }
 check("arrowUp deep recall skills.tree", (await val()).includes("skills.tree"));
-for (let i = 0; i < 15; i++) {
+for (let i = 0; i < 31; i++) {
   await p.keyboard.press("ArrowDown");
   await sleep(15);
 }

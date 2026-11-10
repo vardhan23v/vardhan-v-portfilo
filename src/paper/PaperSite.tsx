@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { Link } from "react-router-dom";
 import { featuredProjects, type Project } from "../classic/data/projects";
@@ -7,6 +7,7 @@ import { skillCategories } from "../classic/data/skills";
 import { site } from "../classic/data/site";
 import { caseStudyPath, hasCaseStudy } from "../work/links";
 import { aboutProject, askAssistant } from "../lib/ai/ask";
+import { prefetchEdition } from "../lib/editionLoaders";
 import "./styles/paper.css";
 
 export const paperProjects = featuredProjects;
@@ -25,7 +26,7 @@ export function EngineeringDetails({ p }: { p: Project }) {
         onClick={() => setOpen(!open)}
       >
         <span>engineering details</span>
-        <span aria-hidden="true">{open ? "−" : "→"}</span>
+        <span className="paper-eng-arr" aria-hidden="true">→</span>
       </button>
       <div className={`paper-eng-body${open ? " is-open" : ""}`} id={ctrl}>
           <div className="paper-eng-inner">
@@ -51,9 +52,62 @@ export function EngineeringDetails({ p }: { p: Project }) {
   );
 }
 
+const SECTION_IDS = ["work", "experience", "about", "contact"] as const;
+/** Section overline text, shared by each section's h2 and the running head. */
+const SECTION_LABELS: Record<(typeof SECTION_IDS)[number], string> = {
+  work: "Selected work",
+  experience: "Experience",
+  about: "About",
+  contact: "Contact",
+};
+
+/** Start downloading a route's chunk when the pointer, focus or a touch heads for its link. */
+const prefetchOn = (path: string) => {
+  const go = () => prefetchEdition(path);
+  return { onMouseEnter: go, onFocus: go, onTouchStart: go };
+};
+
 export function PaperSite() {
+  const mastRef = useRef<HTMLElement>(null);
+  const [runShown, setRunShown] = useState(false);
+  const [active, setActive] = useState<(typeof SECTION_IDS)[number]>("work");
+
+  // Running head: shown once the masthead has scrolled away.
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const mast = mastRef.current;
+    if (!mast) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setRunShown(!entry.isIntersecting && entry.boundingClientRect.top < 0),
+      { threshold: 0 }
+    );
+    io.observe(mast);
+    return () => io.disconnect();
+  }, []);
+
+  // On touch screens (no hover), mark the work row being read: a thin band near the middle of the viewport.
+  useEffect(() => {
+    if (!window.matchMedia("(hover: none)").matches) return;
+    const rows = [...document.querySelectorAll<HTMLElement>(".paper-work-item")];
+    if (!rows.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const el = entry.target;
+          if (entry.isIntersecting) {
+            rows.forEach((r) => r !== el && r.classList.remove("is-current"));
+            el.classList.add("is-current");
+          } else {
+            el.classList.remove("is-current");
+          }
+        }
+      },
+      { rootMargin: "-42% 0px -52% 0px", threshold: 0 }
+    );
+    rows.forEach((r) => io.observe(r));
+    return () => {
+      io.disconnect();
+      rows.forEach((r) => r.classList.remove("is-current"));
+    };
   }, []);
 
   useEffect(() => {
@@ -75,7 +129,7 @@ export function PaperSite() {
   }, []);
 
   useEffect(() => {
-    const ids = ["work", "experience", "about", "contact"];
+    const ids = SECTION_IDS;
     const links = [...document.querySelectorAll<HTMLAnchorElement>(".paper-nav-links a")];
     const io = new IntersectionObserver(
       (entries) => {
@@ -85,6 +139,7 @@ export function PaperSite() {
           if (!link) return;
           links.forEach((l) => l.classList.remove("is-active"));
           link.classList.add("is-active");
+          setActive(entry.target.id as (typeof SECTION_IDS)[number]);
         }
       },
       { rootMargin: "-35% 0px -55% 0px", threshold: 0 }
@@ -102,7 +157,7 @@ export function PaperSite() {
         Skip to content
       </a>
       <nav className="paper-nav" aria-label="Main">
-        <Link to="/" className="paper-wordmark">
+        <Link to="/" className="paper-wordmark" {...prefetchOn("/")}>
           {site.name}
           <span className="dot">.</span>
         </Link>
@@ -115,13 +170,30 @@ export function PaperSite() {
         <InterfaceSwitcher current="paper" />
       </nav>
 
+      <div className="paper-runhead" aria-hidden="true" data-shown={runShown}>
+        <span className="paper-runhead-mark">
+          {site.name}
+          <span className="dot">.</span>
+        </span>
+        <span className="paper-runhead-label" key={active}>
+          § {SECTION_LABELS[active]}
+        </span>
+      </div>
+
       <main className="paper-main" id="paper-main">
-        <header className="paper-masthead">
-          <p className="paper-overline">Generative AI developer · full-stack engineer</p>
+        <header className="paper-masthead" ref={mastRef}>
+          <p className="paper-overline">
+            <span>
+              Generative AI developer · <span className="pp-nowrap">full-stack engineer</span>
+            </span>
+          </p>
           <h1 className="paper-mast-headline">
-            Sree
-            <br />
-            <span className="it">Vardhan V.</span>
+            <span className="pp-line">
+              <span>Sree</span>
+            </span>{" "}
+            <span className="pp-line">
+              <span className="it">Vardhan V.</span>
+            </span>
           </h1>
           <p className="paper-mast-sub">
             {site.title}. I turn interfaces, APIs and LLM backends into working
@@ -130,7 +202,7 @@ export function PaperSite() {
           </p>
           <div className="paper-mast-actions">
             <a className="paper-btn paper-btn-primary" href={site.resume} download="sree-vardhan-v-resume.pdf">
-              Download résumé ↓
+              Download résumé <span className="pp-arr pp-arr--down" aria-hidden="true">↓</span>
             </a>
             <a className="paper-btn paper-btn-ghost" href={`mailto:${site.email}`}>
               Say hello
@@ -149,7 +221,7 @@ export function PaperSite() {
 
         <section className="paper-section" id="work" aria-labelledby="paper-work-title">
           <h2 className="paper-overline" id="paper-work-title" data-pp-reveal>
-            Selected work
+            {SECTION_LABELS.work}
           </h2>
           {paperProjects.map((p, i) => (
             <article
@@ -171,15 +243,15 @@ export function PaperSite() {
                 </div>
                 <div className="paper-work-links">
                   <a href={p.github} target="_blank" rel="noopener noreferrer">
-                    github ↗
+                    github <span className="pp-arr pp-arr--out" aria-hidden="true">↗</span>
                   </a>
                   {p.live && (
                     <a href={p.live} target="_blank" rel="noopener noreferrer">
-                      live demo ↗
+                      live demo <span className="pp-arr pp-arr--out" aria-hidden="true">↗</span>
                     </a>
                   )}
-                  {hasCaseStudy(p.slug) && <Link to={caseStudyPath(p.slug)} state={{ from: "/paper" }}>case study →</Link>}
-                  <button type="button" data-ask-ai onClick={() => askAssistant(aboutProject(p.name))}>ask ai<span className="sr-only"> about {p.name}</span> ✦</button>
+                  {hasCaseStudy(p.slug) && <Link to={caseStudyPath(p.slug)} state={{ from: "/paper" }} {...prefetchOn(caseStudyPath(p.slug))}>case study <span className="pp-arr pp-arr--fwd" aria-hidden="true">→</span></Link>}
+                  <button type="button" data-ask-ai onClick={() => askAssistant(aboutProject(p.name))}>ask ai<span className="sr-only"> about {p.name}</span> <span aria-hidden="true" className="ask-spark">✦</span></button>
                 </div>
                 <EngineeringDetails p={p} />
               </div>
@@ -189,7 +261,7 @@ export function PaperSite() {
 
         <section className="paper-section" id="experience" aria-labelledby="paper-exp-title">
           <h2 className="paper-overline" id="paper-exp-title" data-pp-reveal>
-            Experience
+            {SECTION_LABELS.experience}
           </h2>
           {experience.map((e, i) => (
             <div className="paper-exp-item" data-pp-reveal key={e.company} style={{ "--d": `${Math.min(i * 0.07, 0.35)}s` } as React.CSSProperties}>
@@ -204,7 +276,7 @@ export function PaperSite() {
 
         <section className="paper-section" id="about" aria-labelledby="paper-about-title">
           <h2 className="paper-overline" id="paper-about-title" data-pp-reveal>
-            About
+            {SECTION_LABELS.about}
           </h2>
           <div className="paper-prose">
             <p data-pp-reveal>
@@ -235,11 +307,16 @@ export function PaperSite() {
 
         <section className="paper-section" id="contact" aria-labelledby="paper-contact-title">
           <h2 className="paper-overline" id="paper-contact-title" data-pp-reveal>
-            Contact
+            {SECTION_LABELS.contact}
           </h2>
           <h3 className="paper-contact-head" data-pp-reveal>
             Let&rsquo;s build something{" "}
-            <span className="it">interesting.</span>
+            <span className="it">
+              interesting.
+              <svg className="pp-stroke" viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                <path d="M2 8 C 40 3, 100 3, 152 6" pathLength="1" />
+              </svg>
+            </span>
           </h3>
           <div className="paper-mast-actions" data-pp-reveal>
             <a className="paper-btn paper-btn-primary" href={`mailto:${site.email}`}>
@@ -260,12 +337,12 @@ export function PaperSite() {
       <footer className="paper-foot">
         <span>© {YEAR} {site.name}</span>
         <span className="paper-foot-links">
-          <Link to="/">editions</Link>
+          <Link to="/" {...prefetchOn("/")}>editions</Link>
           <a href={site.github} target="_blank" rel="noopener noreferrer">
             GitHub
           </a>
           <a href={`mailto:${site.email}`}>Email</a>
-          <a href="#paper-main">back to top ↑</a>
+          <a href="#paper-main">back to top <span className="pp-arr pp-arr--up" aria-hidden="true">↑</span></a>
         </span>
       </footer>
     </div>

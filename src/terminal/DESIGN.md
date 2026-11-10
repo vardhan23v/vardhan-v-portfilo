@@ -47,7 +47,7 @@ Contrast, computed with the WCAG 2 relative-luminance formula against each palet
 
 - Green: `--ink` 17.12:1, `--ink-2` 9.63:1, `--ink-3` 5.35:1 (4.86:1 on `--bg-3`), `--green` 12.12:1, `--green-dim` 4.61:1, `--amber` 11.29:1, `--cyan` 10.46:1, `--red` 6.80:1. `--on-accent` on `--green` is 11.42:1. The comment at `global.css:75` records both figures.
 - Amber / cyan / white: `--ink-3` is 4.97:1, 5.12:1 and 5.10:1 on `--bg` (at least 4.6:1 on `--bg-3`). `--green-dim` is 5.39:1, 5.25:1 and 5.99:1 on `--bg` (amber and cyan were lifted from `#a5701f` and `#1f7f9c` so dim text stays above 4.5:1 on `--bg-3`).
-- The hard-coded legacy block at the top of the file still uses `#36e57c` / `rgba(54,229,124,…)` for the `.shell-input` caret glow (`global.css:47-54`), so that glow stays green under every phosphor.
+- The hard-coded legacy block (and its always-running `.shell-input` caret glow) was removed on 2026-11-10; every colour now comes from the phosphor tokens.
 
 ## Typography
 
@@ -205,7 +205,7 @@ JetBrains Mono sizes:
 
 ## Rules for changes
 
-- Colour through tokens only: `--ink*`, `--green*`, `--amber`, `--cyan`, `--red`, `--line*`, and `rgba(var(--green-rgb), a)` / `rgba(var(--bg-rgb), a)` for translucency. Hard-coded hex breaks the phosphor themes (the legacy `.shell-input` glow at `global.css:47-54` is an example).
+- Colour through tokens only: `--ink*`, `--green*`, `--amber`, `--cyan`, `--red`, `--line*`, and `rgba(var(--green-rgb), a)` / `rgba(var(--bg-rgb), a)` for translucency. Hard-coded hex breaks the phosphor themes.
 - Treat `--green` as "the phosphor accent". Any new phosphor must define the full set: `--bg`, `--bg-2`, `--bg-3`, `--line`, `--line-2`, `--bg-rgb`, `--green`, `--green-rgb`, `--green-2`, `--green-dim`, `--amber`, `--on-accent`, `--ink`, `--ink-2`, `--ink-3`. Also add it to `PHOSPHORS` in `src/terminal/lib/phosphor.ts`.
 - Put text on a `--green` surface in `--on-accent`, never in black or white.
 - Scope every selector under `.terminal-root`. This file is loaded with the edition's chunk, and unscoped rules would leak to other editions.
@@ -219,3 +219,21 @@ JetBrains Mono sizes:
 ### Motion polish (2026-11-10)
 - Case page: man sections, screenshots and commits print in as they scroll into view (`case-pre` → `case-in`); the title types once.
 - Work `.prog` rows stagger with `--i`.
+
+### UI polish (2026-11-10)
+- Removed the dead legacy block at the top of `global.css` (`.boot-line`, `.shell-prompt`, `.term-window`, `.work-detail`, and the infinite text-shadow `caret-glow` that relaid the page out every frame).
+- Shell prompt has a real block cursor (`.shell-field` / `.shell-caret`): moves by `translateX(col × 1ch)`, blinks with `caret-blink 0.9s`, restarts solid on each edit (re-keyed), turns hollow when unfocused. The native caret takes over (`data-native`) for selections, IME composition, overflowing text and snake; forced-colors mode always uses the native caret.
+- Typed hero intro reserves its final box with a hidden ghost layer (`.type-stack` / `.type-ghost` / `.type-live`, text exposed once via `.visually-hidden`), and on desktop `.shell-lines` has a fixed height, so neither the intro nor the auto-neofetch pushes the page (phone CLS ≈ 0.58 → ≈ 0.02). No `text-wrap` on `.hero-intro`.
+- `useTyped` types on rAF by elapsed time and stops when done (no intervals left running).
+- Shell output prints line by line (`--d` × 18ms, capped at 16); quick-command chips type into the prompt (16ms a character) before running, without raising the phone keyboard; the auto-neofetch waits until the shell window is 40% on screen. Chips have a pressed state.
+- `scroll-padding-bottom` on the document and a nudge after output keep the focused prompt clear of the fixed status bar.
+- Boot closes with a CRT power-off: `.boot-screen` collapses to a line, a `.boot-flash` phosphor line fades, the overlay fades (≈0.42s, inside FADE). Boot lines enter with `ln-in`.
+- `banner-flicker` actually runs again (listed with `thero-in` on the more specific selector) and pauses while the hero is off-screen (`.hero[data-off]`, set by MatrixRain's observer).
+- ALSO_BUILT shows 8 cards with an `ls -a  # N more` / `ls | head -8` toggle (aria-expanded, focus moves to the first new card); the list stagger is capped.
+- Case pages: prev/next cards are real stacked cards again (direction, slug, tagline) with hover/focus nudge and press; they pass `vtDir` for the shared directional transition. The title re-types per case (keyed `h1`, the nav keeps focus). `case-print` lost its brightness filter; the flash moved to the `.man-h` heading (`cmd-flash`). Architecture notes hang under their text; the ↓ arrows hide on phones; the case nav stacks as `$ command` / `# status` lines on phones.
+- In-edition View Transitions: the status bar is pinned (`view-transition-name: term-statusline`), and undirected swaps use a short stepped `term-vt-out` / `term-vt-in` with no blur.
+- Status bar: no backdrop blur (bg .97), the progress fill is `scaleX(var(--p))` written from the scroll rAF, the scroll range is cached (ResizeObserver), and the `ln · %` readout and the clock are their own small components, so scrolling and the 1s tick no longer re-render the whole bar.
+- Phone menu sheet and scrim transition out as well as in (sheet `inert` while closed, links stagger in).
+- Line-break polish: hero tag breaks only at `::`, status line only at `·`, `text-wrap: balance/pretty` on titles and paragraphs, EOF rules hide on phones, tighter CTA padding at ≤480px; neofetch wraps the role under the value column and drops the logo column in a narrow shell.
+- `useActiveSection` no longer reads a stale value between sections.
+

@@ -55,6 +55,8 @@ const LIVE_VARS: Partial<Record<Cur, [string, string]>> = {
 
 const POOL = 12;
 const INTERACTIVE = "a[href], button, summary, select, label[for], [role='button'], [role='link'], [role='tab'], .iswitcher-item";
+/** Text fields: the native I-beam is the cursor there, so the overlay fades out. */
+const TEXT = "input:not([type=button]):not([type=submit]):not([type=reset]):not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]), textarea, select, [contenteditable=''], [contenteditable='true'], [role='textbox']";
 
 type Particle = {
   el: HTMLElement;
@@ -295,11 +297,40 @@ export function CursorFX() {
       }
     };
 
+    // Pointer left the window: fade out and rest; on return, snap the trailing pieces to the
+    // pointer so nothing sweeps across the screen from the exit point.
+    let away = false;
+    const onOut = (e: MouseEvent) => {
+      if (e.relatedTarget) return;
+      away = true;
+      fx.classList.add("cur-away");
+      stop();
+    };
+
     const onMove = (e: MouseEvent) => {
       x = e.clientX;
       y = e.clientY;
+      if (away) {
+        away = false;
+        fx.classList.remove("cur-away");
+        dx = rx = px = x; dy = ry = py = y;
+        svx = svy = speed = 0;
+        lastEmitX = x; lastEmitY = y;
+      }
       if (cur === "atlas" || gridRef) readGrid();
       start();
+    };
+
+    // Morph between edition looks (Landing card previews, after a switch) instead of snapping.
+    // WAAPI on the two wrappers' individual scale/opacity: no reflow, no class, no shared timer;
+    // the implicit end keyframe hands back to each edition's own resting values.
+    const swaps = new Map<HTMLElement, Animation>();
+    const morph = () => {
+      if (reduced || off || away || typeof dot.animate !== "function") return;
+      for (const el of [dot, ring]) {
+        swaps.get(el)?.cancel();
+        swaps.set(el, el.animate([{ opacity: 0, scale: "0.5", offset: 0 }], { duration: 260, easing: "cubic-bezier(.22,1,.36,1)", fill: "backwards" }));
+      }
     };
 
     const onOver = (e: MouseEvent) => {
@@ -325,10 +356,12 @@ export function CursorFX() {
         cellX = 0;
         lastEmitX = x; lastEmitY = y;
         readLive();
+        if (!offEl && cur !== "mac") { off = false; morph(); }
       } else if (rootChanged) {
         readLive();
       }
 
+      fx.classList.toggle("cur-text", !!t.closest(TEXT));
       off = !!offEl || cur === "mac";
       fx.classList.toggle("cur-hidden", off);
       // over a Landing card the overlay previews that edition at rest
@@ -377,6 +410,7 @@ export function CursorFX() {
 
     window.addEventListener("mousemove", onMove, { passive: true });
     document.addEventListener("mouseover", onOver, { passive: true });
+    document.addEventListener("mouseout", onOut, { passive: true });
     document.addEventListener("mousedown", onDown, { passive: true });
     document.addEventListener("visibilitychange", onVisibility);
 
@@ -386,6 +420,8 @@ export function CursorFX() {
       rootMo.disconnect();
       window.removeEventListener("mousemove", onMove);
       document.removeEventListener("mouseover", onOver);
+      document.removeEventListener("mouseout", onOut);
+      swaps.forEach((a) => a.cancel());
       document.removeEventListener("mousedown", onDown);
       document.removeEventListener("visibilitychange", onVisibility);
       window.clearTimeout(pulseTimer);

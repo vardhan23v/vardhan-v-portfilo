@@ -11,6 +11,7 @@ import {
   type FocusEvent,
 } from "react";
 import { useWindowManager, snapBounds, MENU_H, DOCK_H, type AppId } from "../../hooks/useWindowManager";
+import { takeLaunchOrigin } from "../../lib/launchOrigin";
 import { useShell } from "../../hooks/useShell";
 import { useContextMenu } from "../../hooks/useContextMenu";
 import { AppGlyph } from "../ui/AppGlyph";
@@ -130,15 +131,21 @@ export function WindowFrame({ id, title, children, expose }: Props) {
   const motionOff = () =>
     motionReduced() || frameRef.current?.closest(".mac-root")?.getAttribute("data-mac-motion") === "off";
 
-  // ── Open: zoom out of the app's Dock tile (or gently from the centre) ──
+  // ── Open: zoom out of the icon that launched it, else its Dock tile (or gently from the centre) ──
   useLayoutEffect(() => {
     const frame = frameRef.current;
     if (!frame) return;
     lastRect.current = frame.getBoundingClientRect();
     lastFrameEl.current = frame;
-    if (motionOff() || typeof frame.animate !== "function") return;
+    const origin = takeLaunchOrigin(id);
+    // The entrance (bodyIn) plays once per window, never again on restore or after an overlay.
+    const shown = () => frame.setAttribute("data-shown", "");
+    if (motionOff() || typeof frame.animate !== "function") {
+      shown();
+      return;
+    }
     const r = lastRect.current;
-    const tile = dockTile(id);
+    const tile = origin?.rect ?? dockTile(id);
     const from = tile
       ? { x: tile.left + tile.width / 2 - (r.left + r.width / 2), y: tile.top + tile.height / 2 - (r.top + r.height / 2), s: Math.max(0.05, tile.width / r.width) }
       : { x: 0, y: 0, s: 0.92 };
@@ -148,11 +155,12 @@ export function WindowFrame({ id, title, children, expose }: Props) {
         { transform: `translate(${from.x}px, ${from.y}px) scale(${from.s})`, opacity: tile ? 0.2 : 0 },
         { transform: "none", opacity: 1 },
       ],
-      { duration: tile ? 320 : 240, easing: EASE, fill: "backwards" }
+      { duration: tile ? 320 : 240, delay: origin?.delay ?? 0, easing: EASE, fill: "backwards" }
     );
     openAnim.current = a;
     a.onfinish = () => {
       openAnim.current = null;
+      shown();
       frame.style.transformOrigin = "";
       // The settled, un-animated rect seeds the first zoom/tile FLIP.
       if (!frame.dataset.gesture) lastRect.current = frame.getBoundingClientRect();
@@ -160,6 +168,7 @@ export function WindowFrame({ id, title, children, expose }: Props) {
     return () => {
       a.cancel();
       openAnim.current = null;
+      shown();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -229,6 +238,16 @@ export function WindowFrame({ id, title, children, expose }: Props) {
         const anim = genie(frame, tile);
         const finish = () => {
           document.querySelector(`.mac-dock__item[data-app="${id}"]`)?.classList.remove("is-catching");
+          // The frame stays mounted while minimised: rest it untransformed and hidden until React
+          // applies .is-min-hidden, so the restore genie can play on this same node.
+          if (frame.isConnected) {
+            frame.style.visibility = "hidden";
+            anim?.cancel();
+            frame.style.clipPath = "";
+            frame.style.transform = "";
+            frame.style.transformOrigin = "";
+          }
+          setLeaving(null);
           done();
         };
         if (anim) anim.onfinish = finish;
@@ -257,7 +276,8 @@ export function WindowFrame({ id, title, children, expose }: Props) {
       setLeaving(null);
       const frame = frameRef.current;
       if (frame) {
-        // The frame remounted while minimized: seed the FLIP refs against the new node.
+        // The frame stayed mounted but hidden: reseed the FLIP refs from its restored rect.
+        frame.style.visibility = "";
         lastFrameEl.current = frame;
         lastRect.current = frame.getBoundingClientRect();
       }
@@ -278,6 +298,13 @@ export function WindowFrame({ id, title, children, expose }: Props) {
     wasMin.current = nowMin;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [win?.minimized, id]);
+
+  // Once .is-min-hidden owns the hidden state, drop the inline stopgap set at the end of the genie
+  // (Mission Control must still be able to show a minimised window).
+  useLayoutEffect(() => {
+    const frame = frameRef.current;
+    if (frame && win?.minimized) frame.style.visibility = "";
+  }, [win?.minimized]);
 
   // ── Drag ──
   const onHeaderPointerDown = useCallback(
@@ -503,7 +530,8 @@ export function WindowFrame({ id, title, children, expose }: Props) {
   };
 
   if (!win) return null;
-  if (win.minimized && !inExpose) return null;
+  // Minimised windows stay mounted (scroll position, terminal history and drafts survive) but hidden and inert.
+  const hidden = win.minimized && !inExpose;
 
   const exposeStyle = inExpose ? { transform: `translate(${expose.x - win.x}px, ${expose.y - win.y}px) scale(${expose.s})` } : undefined;
   const parkStyle = parked && !inExpose ? { transform: parkTransform(win.x, win.y, win.w, win.h) } : undefined;
@@ -511,9 +539,9 @@ export function WindowFrame({ id, title, children, expose }: Props) {
   return (
     <div
       ref={frameRef}
-      className={`mac-desktop-window${isActive ? " is-active" : ""}${dragging ? " is-dragging" : ""}${resizing ? " is-resizing" : ""}${win.maximized ? " is-maximized" : ""}${leaving ? ` is-leaving is-leaving--${leaving}` : ""}${inExpose ? " is-expose" : ""}${win.minimized ? " is-min" : ""}${parked ? " is-parked" : ""}`}
+      className={`mac-desktop-window${isActive ? " is-active" : ""}${dragging ? " is-dragging" : ""}${resizing ? " is-resizing" : ""}${win.maximized ? " is-maximized" : ""}${leaving ? ` is-leaving is-leaving--${leaving}` : ""}${inExpose ? " is-expose" : ""}${win.minimized ? " is-min" : ""}${parked ? " is-parked" : ""}${hidden ? " is-min-hidden" : ""}`}
       style={{ left: win.x, top: win.y, width: win.w, height: win.h, zIndex: win.z, ...exposeStyle, ...parkStyle }}
-      inert={parked && !inExpose}
+      inert={hidden || (parked && !inExpose)}
       aria-hidden={parked && !inExpose ? true : undefined}
       onMouseDown={() => {
         if (!inExpose) focusWindow(id);

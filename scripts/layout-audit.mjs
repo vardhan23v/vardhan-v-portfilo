@@ -6,6 +6,10 @@ import { join } from "node:path";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const base = process.env.BASE || "http://localhost:4173";
 const routes = ["/", "/mac?noboot=1", "/terminal", "/classic", "/paper", "/aurora", "/forge", "/atlas"];
+// Editions that render the shared 1–7 InterfaceSwitcher (.iswitcher). The Landing is itself the
+// edition chooser, Classic links the editions from its footer, and macOS switches from its own
+// desktop (dock, Launchpad, About), so those three have no switcher by design.
+const SWITCHER_ROUTES = new Set(["/terminal", "/paper", "/aurora", "/forge", "/atlas"]);
 const viewports = [
   [1440, 900],
   [390, 844],
@@ -37,6 +41,13 @@ for (const [w, h] of viewports) {
         if (r.width === 0 || r.height === 0) continue;
         const s = getComputedStyle(el);
         if (s.position === "fixed") continue;
+        // Anything inside a fixed layer (the custom cursor parked off-screen until the first pointer
+        // move, toasts, launchers) is out of the document flow and cannot cause page overflow.
+        let inFixed = false;
+        for (let f = el.parentElement; f; f = f.parentElement) {
+          if (getComputedStyle(f).position === "fixed") { inFixed = true; break; }
+        }
+        if (inFixed) continue;
         const cls = el.className?.toString?.() || "";
         if (/au-blob|hero-neural|bg-grid|bg-glow|cur-ring|cur-dot|cur-fx/.test(cls)) continue;
         let clipped = false;
@@ -62,9 +73,10 @@ for (const [w, h] of viewports) {
     for (const i of audit.issues) {
       chk(`${w}px ${route}: ${i}`, false);
     }
-    // switcher present
+    // switcher present exactly where an edition ships it
     const hasSw = await p.evaluate(() => !!document.querySelector(".iswitcher"));
-    chk(`${w}px ${route}: switcher present`, hasSw);
+    const wantSw = SWITCHER_ROUTES.has(route.split("?")[0]);
+    chk(`${w}px ${route}: switcher ${wantSw ? "present" : "absent"}`, hasSw === wantSw);
     // no horizontal scroll
     const hScroll = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     chk(`${w}px ${route}: no h-scroll (got +${hScroll})`, hScroll <= 0);

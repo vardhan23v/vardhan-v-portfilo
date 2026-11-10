@@ -148,17 +148,23 @@ html:has(.classic-root), body:has(.classic-root) { background: #1d274e; color-sc
 .classic-root .nav-end { margin-left: auto; display: flex; align-items: center; gap: 6px; }
 .classic-root .nav-resume, .classic-root .nav-cta { min-height: 40px; }
 .classic-root .nav-resume { text-decoration: none; }
-.classic-root .nav-menu { display: none; min-height: 44px; padding: 0 16px; border: 1px solid var(--line-strong); border-radius: var(--r-sm); background: var(--surface); color: var(--ink); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
+.classic-root .nav-menu { display: none; justify-content: center; min-width: 84px; min-height: 44px; padding: 0 16px; border: 1px solid var(--line-strong); border-radius: var(--r-sm); background: var(--surface); color: var(--ink); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
 .classic-root .nav-sheet { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; justify-content: space-between; padding: 84px var(--pad) 28px; background: var(--bg); overflow-y: auto; }
-.classic-root .nav-sheet[hidden] { display: none; }
+.classic-root .nav-sheet[hidden] { display: none; pointer-events: none; }
 .classic-root .nav-sheet nav { display: flex; flex-direction: column; }
 .classic-root .nav-sheet nav a { padding: 14px 0; border-bottom: 1px solid var(--line); font-family: var(--font-head); font-size: 26px; font-weight: 650; text-decoration: none; }
 .classic-root .nav-sheet-foot { display: flex; flex-wrap: wrap; gap: 10px; padding-top: 24px; }
 .classic-root .nav-sheet-foot .btn { text-decoration: none; }
+.classic-root .nav-sheet nav a[aria-current] { color: var(--accent); }
 @media (prefers-reduced-motion: no-preference) {
-  html:not([data-motion="reduce"]) .classic-root .nav-sheet.is-open { animation: sheet-in 200ms var(--ease-out) both; }
+  /* The sheet fades in and out (display stays until the fade ends); its links rise one after another. */
+  html:not([data-motion="reduce"]) .classic-root .nav-sheet { transition: opacity 220ms var(--ease-out), display 220ms allow-discrete; }
+  html:not([data-motion="reduce"]) .classic-root .nav-sheet[hidden] { opacity: 0; }
+  @starting-style { html:not([data-motion="reduce"]) .classic-root .nav-sheet.is-open { opacity: 0; } }
+  html:not([data-motion="reduce"]) .classic-root .nav-sheet.is-open nav a { animation: cl-sheet-link 420ms cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(60ms + var(--i, 0) * 40ms); }
+  html:not([data-motion="reduce"]) .classic-root .nav-sheet.is-open .nav-sheet-foot { animation: cl-sheet-link 420ms cubic-bezier(0.22, 1, 0.36, 1) 300ms both; }
 }
-@keyframes sheet-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cl-sheet-link { from { opacity: 0; translate: 0 10px; } }
 
 /* ---------- hero: who, what, and the four ways in ---------- */
 .classic-root .hero { position: relative; padding: clamp(56px, 8vw, 112px) 0 clamp(32px, 4vw, 56px); }
@@ -184,7 +190,7 @@ html:has(.classic-root), body:has(.classic-root) { background: #1d274e; color-sc
 .classic-root .work { padding-top: var(--section); }
 .classic-root .features { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(32px, 4vw, 56px) clamp(24px, 3vw, 44px); }
 .classic-root .feature { display: flex; flex-direction: column; }
-.classic-root .feature-shot { position: relative; aspect-ratio: 16 / 10; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-sm); overflow: clip; }
+.classic-root .feature-shot { position: relative; aspect-ratio: 16 / 10; background: linear-gradient(160deg, var(--surface-2), var(--surface) 70%); border: 1px solid var(--line); border-radius: var(--r-sm); overflow: clip; }
 .classic-root .feature-shot > img, .classic-root .feature-shot > .live-frame { position: absolute; inset: 0; }
 .classic-root .feature-shot img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
 .classic-root .feature-body { display: flex; flex-direction: column; gap: 10px; flex: 1; padding: 18px 0 8px; }
@@ -203,7 +209,7 @@ html:has(.classic-root), body:has(.classic-root) { background: #1d274e; color-sc
 @media (hover: hover) { .classic-root .link:hover { color: var(--ink); text-decoration-color: currentColor; } }
 
 /* The live app, on request, scaled into the screenshot's place. */
-.classic-root .live-frame { position: relative; width: 100%; height: 100%; overflow: clip; background: var(--surface-2); }
+.classic-root .live-frame { position: relative; width: 100%; height: 100%; overflow: clip; background: linear-gradient(160deg, var(--surface-2), var(--surface) 70%); }
 .classic-root .live-frame-poster { position: absolute; inset: 0; transition: opacity 240ms var(--ease-out); }
 .classic-root .live-frame-poster img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
 .classic-root .live-frame-embed { position: absolute; top: 0; left: 0; width: 1440px; height: 900px; border: 0; transform-origin: 0 0; transform: scale(var(--scale, 0.5)); opacity: 0; background: #fff; transition: opacity 240ms var(--ease-out); }
@@ -219,14 +225,24 @@ html:has(.classic-root), body:has(.classic-root) { background: #1d274e; color-sc
 .classic-root .more { margin-top: clamp(40px, 5vw, 64px); }
 .classic-root .more-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; margin-bottom: 18px; }
 .classic-root .filters { display: flex; flex-wrap: wrap; gap: 4px 18px; }
-.classic-root .filter { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 4px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: var(--ink); font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; transition: background-color var(--t-ui) ease, color var(--t-ui) ease, border-color var(--t-ui) ease; }
+.classic-root .filter { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 4px 2px; border: 0; border-radius: 0; background: transparent; color: var(--ink); font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; transition: color var(--t-ui) ease, scale var(--t-press) var(--ease-out); }
+/* The chosen category's underline draws out from the centre, like the nav's indicator (a border, so it survives forced colours). */
+.classic-root .filter::after { content: ""; position: absolute; left: 4px; right: 4px; bottom: 6px; border-top: 2px solid var(--accent); border-radius: 2px; scale: 0 1; transform-origin: 50% 50%; pointer-events: none; transition: scale 360ms cubic-bezier(0.22, 1, 0.36, 1), border-color var(--t-ui) ease; }
+.classic-root .filter:active { scale: 0.97; }
 .classic-root .filter-n { color: var(--muted); font-variant-numeric: tabular-nums; }
-.classic-root .filter[aria-pressed="true"] { border-bottom-color: var(--accent); font-weight: 650; }
-@media (hover: hover) { .classic-root .filter[aria-pressed="false"]:hover { border-bottom-color: var(--line-strong); } }
+.classic-root .filter[aria-pressed="true"] { font-weight: 650; }
+.classic-root .filter[aria-pressed="true"]::after { scale: 1 1; }
+@media (hover: hover) { .classic-root .filter[aria-pressed="false"]:hover::after { scale: 0.35 1; border-top-color: var(--line-strong); } }
+html[data-motion="reduce"] .classic-root .filter, html[data-motion="reduce"] .classic-root .filter::after { transition: none; }
+html[data-motion="reduce"] .classic-root .filter:active { scale: none; }
+@media (prefers-reduced-motion: reduce) {
+  .classic-root .filter, .classic-root .filter::after { transition: none; }
+  .classic-root .filter:active { scale: none; }
+}
 .classic-root .compacts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(24px, 3vw, 44px); border-top: 1px solid var(--line); }
 .classic-root .compact { display: grid; grid-template-columns: 148px minmax(0, 1fr); gap: 16px; align-items: start; padding: 18px 0; border-bottom: 1px solid var(--line); }
 .classic-root .compact--text { grid-template-columns: minmax(0, 1fr); }
-.classic-root .compact-thumb { width: 148px; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--surface-2); }
+.classic-root .compact-thumb { width: 148px; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; border-radius: var(--r-sm); border: 1px solid var(--line); background: linear-gradient(160deg, var(--surface-2), var(--surface) 70%); }
 .classic-root .compact-body { display: grid; gap: 6px; min-width: 0; }
 .classic-root .compact-name { font-size: 18px; }
 .classic-root .compact-cat { margin-left: 6px; font-family: var(--font-text); font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--muted); }
@@ -322,7 +338,7 @@ html:has(.classic-root), body:has(.classic-root) { background: #1d274e; color-sc
 .classic-root .feature-shot::after, .classic-root .compact::after { content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0; border-radius: inherit; transition: opacity 260ms var(--ease-out);
   background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 50%), rgba(110, 137, 162, 0.16), transparent 60%); }
 .classic-root .compact { position: relative; padding-inline: 10px; margin-inline: -10px; border-radius: var(--r-sm); transition: background-color var(--t-ui) ease; }
-.classic-root .compact-thumb { transition: border-color var(--t-ui) ease; }
+.classic-root .compact-thumb { transition: border-color var(--t-ui) ease, opacity 420ms var(--ease-out); }
 @media (hover: hover) and (pointer: fine) {
   .classic-root .feature:hover .feature-shot { translate: 0 -3px; border-color: rgba(110, 137, 162, 0.55); box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(110, 137, 162, 0.12); }
   .classic-root .feature:hover .feature-shot::after, .classic-root .compact:hover::after { opacity: 1; }
@@ -352,7 +368,7 @@ html[data-motion="reduce"] .classic-root .feature:hover .feature-shot { translat
 .classic-root .field label { font-size: 15px; font-weight: 600; color: var(--ink); }
 .classic-root .field input, .classic-root .field textarea { width: 100%; min-height: 46px; padding: 11px 14px; border: 1px solid var(--line-strong); border-radius: var(--r-sm); background: var(--surface); color: var(--ink); font: inherit; font-size: 16px; line-height: 1.4; transition: border-color var(--t-ui) ease, box-shadow var(--t-ui) ease; }
 .classic-root .field textarea { resize: vertical; min-height: 120px; }
-.classic-root .field input:focus-visible, .classic-root .field textarea:focus-visible { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.classic-root .field input:focus-visible, .classic-root .field textarea:focus-visible { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(194, 183, 93, 0.55); }
 .classic-root .field [aria-invalid="true"] { border-color: var(--danger); }
 .classic-root .field-err { font-size: var(--t-small); color: var(--danger); }
 .classic-root .contact-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
@@ -435,7 +451,7 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
 .classic-root[data-scrolling] .sky-layer--near { opacity: 1; }
 .classic-root .email-copy { display: inline-flex; align-items: center; gap: 8px; }
 .classic-root .contact-direct { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
-.classic-root .copy { display: inline-flex; align-items: center; min-height: 36px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 6px; background: transparent; color: var(--ink-2); font: inherit; font-family: var(--font-text); font-size: 13px; font-weight: 600; cursor: pointer; transition: color var(--t-ui) ease, border-color var(--t-ui) ease, background-color var(--t-ui) ease; }
+.classic-root .copy { position: relative; display: inline-flex; align-items: center; min-height: 36px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 6px; background: transparent; color: var(--ink-2); font: inherit; font-family: var(--font-text); font-size: 13px; font-weight: 600; cursor: pointer; transition: color var(--t-ui) ease, border-color var(--t-ui) ease, background-color var(--t-ui) ease; }
 @media (hover: hover) { .classic-root .copy:hover { color: var(--ink); border-color: var(--accent); } }
 .classic-root .copy.is-copied { color: var(--accent-strong); border-color: var(--accent); background: rgba(110, 137, 162, 0.1); }
 .classic-root .keys { margin-left: 10px; }
@@ -446,13 +462,14 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
 @media (prefers-reduced-motion: no-preference) {
   /* Load: the name rises out of its line, then the rest follows in reading order. */
   html:not([data-motion="reduce"]) .classic-root.js .hero .mask-in { transform: translateY(105%); animation: load-line 820ms cubic-bezier(0.16, 1, 0.3, 1) 80ms forwards; }
-  html:not([data-motion="reduce"]) .classic-root.js .hero [data-load] { opacity: 0; transform: translateY(10px); animation: load-rise 560ms var(--ease-out) forwards; animation-delay: var(--d, 300ms); }
+  /* Backwards fill covers the delay; afterwards the animation is gone, so the glance's own tilt transform applies. */
+  html:not([data-motion="reduce"]) .classic-root.js .hero [data-load] { animation: load-rise 560ms var(--ease-out) backwards; animation-delay: var(--d, 300ms); }
   /* Section rules draw left to right as their heading arrives. */
   html:not([data-motion="reduce"]) .classic-root.js .section-head[data-reveal]:not([data-in])::before { transform: scaleX(0); }
   html:not([data-motion="reduce"]) .classic-root.js .section-head[data-reveal][data-in]::before { transition: transform 1000ms var(--ease-out) 80ms; }
   /* Featured screenshots open top-down and settle. */
   html:not([data-motion="reduce"]) .classic-root.js .feature[data-reveal]:not([data-in]) .feature-shot img { clip-path: inset(0 0 100% 0); transform: scale(1.06); }
-  html:not([data-motion="reduce"]) .classic-root.js .feature[data-reveal][data-in] .feature-shot img { transition: clip-path 900ms var(--ease-out) 120ms, transform 1300ms var(--ease-out) 120ms; }
+  html:not([data-motion="reduce"]) .classic-root.js .feature[data-reveal][data-in] .feature-shot img { transition: clip-path 900ms var(--ease-out) 120ms, transform 1300ms var(--ease-out) 120ms, opacity 420ms var(--ease-out); }
   /* Timeline markers light as their role arrives. */
   html:not([data-motion="reduce"]) .classic-root.js .xp-row[data-reveal]:not([data-in])::before { background: var(--sky); box-shadow: none; }
   html:not([data-motion="reduce"]) .classic-root.js .xp-row[data-reveal][data-in]::before { transition-delay: 250ms; }
@@ -466,7 +483,7 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
   }
 }
 @keyframes load-line { to { transform: none; } }
-@keyframes load-rise { to { opacity: 1; transform: none; } }
+@keyframes load-rise { from { opacity: 0; translate: 0 10px; } }
 @keyframes draw { to { stroke-dashoffset: 0; } }
 @keyframes fade-in { to { opacity: 1; } }
 @keyframes rail-draw { from { transform: scaleY(0); } to { transform: none; } }
@@ -500,15 +517,25 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
 .classic-root .hero-dot { position: relative; background: var(--starlight); box-shadow: 0 0 10px rgba(187, 175, 74, 0.7); }
 .classic-root .hero-role { margin: 0 0 10px; font-size: 13px; font-weight: 650; letter-spacing: 0.14em; text-transform: uppercase; }
 .classic-root .hero-title { font-size: clamp(42px, 3.2vw + 22px, 68px); letter-spacing: -0.035em; text-shadow: 0 0 40px rgba(110, 137, 162, 0.18); }
-.classic-root .hero-actions .btn:not(.btn--secondary) { position: relative; overflow: hidden; box-shadow: 0 8px 24px -12px rgba(110, 137, 162, 0.6); }
-.classic-root .hero-actions .btn:not(.btn--secondary)::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgba(207, 207, 187, 0.55) 50%, transparent 70%); transform: translateX(-110%); pointer-events: none; }
+.classic-root .hero-actions .btn:not(.btn--secondary):not(.btn--ghost) { position: relative; overflow: hidden; box-shadow: 0 8px 24px -12px rgba(110, 137, 162, 0.6); }
+.classic-root .hero-actions .btn:not(.btn--secondary):not(.btn--ghost)::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgba(207, 207, 187, 0.55) 50%, transparent 70%); transform: translateX(-110%); pointer-events: none; }
 .classic-root .glance { padding: 6px 18px; background: linear-gradient(180deg, rgba(48, 67, 122, 0.75), rgba(38, 50, 87, 0.55)); border: 1px solid var(--line); border-radius: var(--r); box-shadow: inset 0 1px 0 rgba(207, 207, 187, 0.06); }
 .classic-root .glance-row:last-child { border-bottom: 0; }
 @media (prefers-reduced-motion: no-preference) {
   html:not([data-motion="reduce"]) .classic-root .hero-dot::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 1px solid var(--starlight); animation: pulse 2.6s var(--ease-out) infinite; }
-  html:not([data-motion="reduce"]) .classic-root .hero-actions .btn:not(.btn--secondary)::after { transition: transform 700ms var(--ease-out); }
+  /* One starlight glint after the entrance (touch sees it too), and a fresh left-to-right pass on each hover.
+     The load sweep keeps its slot in the list so leaving the button never replays it; it never rewinds. */
+  html:not([data-motion="reduce"]) .classic-root .hero-actions .btn:not(.btn--secondary):not(.btn--ghost)::after { animation: cl-sweep 900ms cubic-bezier(0.22, 1, 0.36, 1) 1.4s backwards; }
 }
-@media (hover: hover) { .classic-root .hero-actions .btn:not(.btn--secondary):hover::after { transform: translateX(110%); } }
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  html:not([data-motion="reduce"]) .classic-root .hero-actions .btn:not(.btn--secondary):not(.btn--ghost):hover::after { animation: cl-sweep 900ms cubic-bezier(0.22, 1, 0.36, 1) 1.4s backwards, cl-sweep-hover 700ms cubic-bezier(0.22, 1, 0.36, 1); }
+}
+@keyframes cl-sweep { from { transform: translateX(-110%); } to { transform: translateX(110%); } }
+@keyframes cl-sweep-hover { from { transform: translateX(-110%); } to { transform: translateX(110%); } }
+/* The résumé link is a quiet text action: no glow, an underline that firms up instead. */
+.classic-root .hero-actions .btn--ghost { text-decoration-color: var(--line-strong); transition: background-color var(--t-ui) var(--ease-out), text-decoration-color var(--t-ui) var(--ease-out), transform var(--t-press) var(--ease-out); }
+.classic-root .hero-actions .btn--ghost:focus-visible { text-decoration-color: currentColor; }
+@media (hover: hover) { .classic-root .hero-actions .btn--ghost:hover { text-decoration-color: currentColor; } }
 @keyframes pulse { from { transform: scale(0.6); opacity: 0.9; } to { transform: scale(1.9); opacity: 0; } }
 
 /* framed screenshots */
@@ -613,33 +640,47 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
 
 .classic-root .chip-n { margin-left: 6px; padding: 0 6px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-strong); font-size: 11px; font-weight: 650; }
 
-/* project details: native dialog */
-.pd { width: min(720px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); padding: 0; border: 1px solid #7f97b0; border-radius: 12px; background: #263257; color: #cfcfbb; font-family: "Inter Variable", system-ui, sans-serif; line-height: 1.6; box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.9); }
+/* project details: native dialog. It stays a DOM child of .classic-root, so it reads the tokens. */
+html:has(.classic-root .pd[open]) { overflow: hidden; scrollbar-gutter: stable; }
+.pd { width: min(720px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); padding: 0; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); color: var(--ink); font-family: var(--font-text); line-height: 1.6; box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.9); overscroll-behavior: contain; }
 .pd::backdrop { background: rgba(29, 39, 78, 0.8); backdrop-filter: blur(3px); }
 .pd .pd-inner { padding: clamp(18px, 3vw, 30px); display: grid; gap: 8px; }
+.pd .pd-body { display: grid; gap: 8px; }
 .pd .pd-top { display: flex; align-items: center; justify-content: space-between; }
-.pd .feature-cat { margin: 0; font-size: 13px; font-weight: 600; color: #c2b75d; }
-.pd .pd-close { width: 44px; height: 44px; border: 1px solid #4f6173; border-radius: 8px; background: #30437a; color: #cfcfbb; font-size: 22px; cursor: pointer; }
-.pd .pd-title { margin: 0; font-family: "Fraunces Variable", Georgia, serif; font-size: clamp(24px, 2vw + 14px, 32px); letter-spacing: -0.02em; line-height: 1.1; }
+.pd .feature-cat { margin: 0; font-size: 13px; font-weight: 600; color: var(--accent); }
+.pd .pd-close { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); color: var(--ink); cursor: pointer; transition: border-color var(--t-ui) var(--ease-out), color var(--t-ui) var(--ease-out), background-color var(--t-ui) var(--ease-out), transform var(--t-press) var(--ease-out); }
+.pd .pd-close:active { transform: scale(0.94); }
+@media (hover: hover) { .pd .pd-close:hover { border-color: var(--accent); color: var(--accent-strong); background: rgba(110, 137, 162, 0.18); } }
+html[data-motion="reduce"] .pd .pd-close:active { transform: none; }
+.pd .pd-title { margin: 0; font-family: var(--font-head); font-size: clamp(24px, 2vw + 14px, 32px); letter-spacing: -0.02em; line-height: 1.1; }
 .pd .feature-tag { margin: 0; font-weight: 500; }
-.pd .pd-h { margin: 12px 0 0; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #abb9b3; }
-.pd .pd-text, .pd .meta { margin: 0; color: #b5b885; font-size: 15px; }
+.pd .pd-h { margin: 12px 0 0; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.pd .pd-text, .pd .meta { margin: 0; color: var(--ink-2); font-size: 15px; }
 .pd ul { margin: 0; padding: 0; list-style: none; }
-.pd .xp-points { display: grid; gap: 6px; color: #b5b885; font-size: 15px; }
+.pd .xp-points { display: grid; gap: 6px; color: var(--ink-2); font-size: 15px; }
 .pd .xp-points li { position: relative; padding-left: 16px; }
-.pd .xp-points li::before { content: ""; position: absolute; left: 0; top: 0.7em; width: 6px; height: 6px; border-radius: 50%; background: #c2b75d; }
+.pd .xp-points li::before { content: ""; position: absolute; left: 0; top: 0.7em; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
 .pd .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.pd .chip { padding: 3px 10px; border: 1px solid #4f6173; border-radius: 999px; background: #30437a; color: #b5b885; font-size: 13px; }
-.pd .pd-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; padding-top: 14px; border-top: 1px solid #4f6173; }
+.pd .chip { padding: 3px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-2); color: var(--ink-2); font-size: 13px; }
+.pd .pd-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
 .pd .links { display: flex; gap: 20px; margin: 0; }
-.pd .link { display: inline-flex; align-items: center; min-height: 44px; color: #c2b75d; font-weight: 600; }
+.pd .link { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); font-weight: 600; }
 .pd .pd-nav { display: flex; gap: 8px; }
-.pd .btn { min-height: 44px; padding: 0 16px; border: 1px solid #7f97b0; border-radius: 6px; background: #30437a; color: #cfcfbb; font: inherit; font-weight: 600; cursor: pointer; }
-.pd :focus-visible { outline: 2px solid #c2b75d; outline-offset: 3px; }
+.pd .btn { min-height: 44px; padding: 0 16px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--surface-2); color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; }
+.pd :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 @media (prefers-reduced-motion: no-preference) {
-  html:not([data-motion="reduce"]) .pd[open] { animation: pd-in 260ms cubic-bezier(0.22, 1, 0.36, 1); }
+  /* Rises in, sinks out (the top layer and display hold until the fade ends); the backdrop fades with it. */
+  html:not([data-motion="reduce"]) .pd { transition: opacity 220ms var(--ease-out), scale 320ms cubic-bezier(0.22, 1, 0.36, 1), translate 320ms cubic-bezier(0.22, 1, 0.36, 1), overlay 320ms allow-discrete, display 320ms allow-discrete; }
+  html:not([data-motion="reduce"]) .pd:not([open]) { opacity: 0; scale: 0.97; translate: 0 8px; }
+  @starting-style { html:not([data-motion="reduce"]) .pd[open] { opacity: 0; scale: 0.96; translate: 0 14px; } }
+  html:not([data-motion="reduce"]) .pd::backdrop { transition: opacity 260ms ease, overlay 260ms allow-discrete, display 260ms allow-discrete; }
+  html:not([data-motion="reduce"]) .pd:not([open])::backdrop { opacity: 0; }
+  @starting-style { html:not([data-motion="reduce"]) .pd[open]::backdrop { opacity: 0; } }
+  /* Previous / Next: the new project slides in from the side it came from. */
+  html:not([data-motion="reduce"]) .pd .pd-body[data-dir] { animation: pd-step 260ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 }
-@keyframes pd-in { from { opacity: 0; transform: translateY(12px) scale(0.98); } }
+.pd .pd-body[data-dir="-1"] { --dir: -1; }
+@keyframes pd-step { from { opacity: 0; translate: calc(var(--dir, 1) * 12px) 0; } }
 
 @media (max-width: 1024px) {
   .classic-root .process-list { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 24px; }
@@ -665,7 +706,7 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
 .classic-root .compact[data-cat="ai"] { border-left-color: rgba(110, 137, 162, 0.7); }
 .classic-root .compact[data-cat="full-stack"] { border-left-color: rgba(63, 90, 143, 0.85); }
 .classic-root .compact[data-cat="tool"] { border-left-color: rgba(187, 175, 74, 0.6); }
-@media (hover: hover) { .classic-root .compact:hover { background: rgba(48, 67, 122, 0.75); border-top-color: rgba(110, 137, 162, 0.35); border-right-color: rgba(110, 137, 162, 0.35); border-bottom-color: rgba(110, 137, 162, 0.35); } }
+@media (hover: hover) { .classic-root .compact:hover { background: rgba(48, 67, 122, 0.75); } }
 @media (max-width: 640px) { .classic-root .compact { padding: 14px 12px; } }
 
 /* ==========================================================================
@@ -753,7 +794,9 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
   .classic-root .xp-main:hover, .classic-root .skill-row:hover { transform: translateY(-3px); }
   /* Rows that carry an entrance animation lift with `translate`, which the animation never sets. */
   .classic-root .compact:hover { translate: 0 -3px; }
-  .classic-root .xp-main:hover, .classic-root .skill-row:hover, .classic-root .compact:hover { border-color: rgba(187, 175, 74, 0.4); box-shadow: 0 18px 40px -24px rgba(187, 175, 74, 0.35); }
+  .classic-root .xp-main:hover, .classic-root .skill-row:hover { border-color: rgba(187, 175, 74, 0.4); box-shadow: 0 18px 40px -24px rgba(187, 175, 74, 0.35); }
+  /* Project rows keep their 3px category stripe on hover: only the other three sides warm. */
+  .classic-root .compact:hover { border-top-color: rgba(187, 175, 74, 0.4); border-right-color: rgba(187, 175, 74, 0.4); border-bottom-color: rgba(187, 175, 74, 0.4); box-shadow: 0 18px 40px -24px rgba(187, 175, 74, 0.35); }
   .classic-root .feature:hover .shot-frame { box-shadow: 0 0 0 1px rgba(187, 175, 74, 0.3), 0 30px 60px -30px rgba(187, 175, 74, 0.4); border-color: rgba(187, 175, 74, 0.5); }
 }
 .classic-root .btn { transition: background-color var(--t-ui) var(--ease-cinema), border-color var(--t-ui) var(--ease-cinema), transform var(--t-press) var(--ease-cinema), box-shadow var(--t-med) var(--ease-cinema); }
@@ -769,7 +812,6 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
   html:not([data-motion="reduce"]) .classic-root .paint-spiral-a { transform-origin: 66.7% 37.5%; animation: sway 26s ease-in-out infinite alternate; will-change: transform; }
   html:not([data-motion="reduce"]) .classic-root .paint-spiral-b { transform-origin: 85.4% 65%; animation: sway 19s ease-in-out -6s infinite alternate-reverse; will-change: transform; }
   html:not([data-motion="reduce"]) .classic-root .paint-moon { transform-origin: 90.3% 15.3%; animation: breathe 9s ease-in-out infinite alternate; will-change: transform; }
-  html:not([data-motion="reduce"]) .classic-root .hstar .halo { animation: halo 5s ease-in-out infinite alternate; animation-delay: calc(var(--i, 0) * -0.8s); }
   html:not([data-motion="reduce"]) .classic-root.js .painting { animation: canvas-in 1100ms var(--ease-cinema) both; }
   @supports (animation-timeline: scroll()) {
     html:not([data-motion="reduce"]) .classic-root .painting-stage { animation: paint-par linear both; animation-timeline: scroll(root); animation-range: 0 900px; }
@@ -778,7 +820,6 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
 @keyframes wave { from { transform: translateX(-16px) scaleY(0.98); } to { transform: translateX(16px) scaleY(1.03); } }
 @keyframes sway { from { transform: rotate(-5deg) scale(0.98); } to { transform: rotate(5deg) scale(1.02); } }
 @keyframes breathe { from { transform: scale(0.97); opacity: 0.85; } to { transform: scale(1.04); opacity: 1; } }
-@keyframes halo { from { opacity: 0.08; } to { opacity: 0.22; } }
 @keyframes canvas-in { from { opacity: 0; } }
 @keyframes paint-par { to { translate: 0 120px; } }
 /* Van Gogh pass, refinements: ringed halos (not discs), hills that melt into the page, swirls kept off the text. */
@@ -793,7 +834,6 @@ html[data-motion="reduce"] .classic-root .btn:active, html[data-motion="reduce"]
 .classic-root .hill-stop--sky { stop-color: var(--sky); }
 .classic-root .depth--sky { -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.15) 0, rgba(0, 0, 0, 0.15) 40%, #000 62%); mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.15) 0, rgba(0, 0, 0, 0.15) 40%, #000 62%); }
 .classic-root .glance { background: linear-gradient(180deg, rgba(38, 50, 87, 0.94), rgba(38, 50, 87, 0.9)); }
-@keyframes halo { from { opacity: 0.18; } to { opacity: 0.42; } }
 
 /* ==========================================================================
    3D pass: the hero is a diorama (layers at real depths, tilting toward the
@@ -851,7 +891,6 @@ html[data-motion="reduce"] .classic-root .painting-stage, html[data-motion="redu
   .classic-root .painting-stage, .classic-root .hero-copy, .classic-root .glance { transform: none; }
   .classic-root .depth--sky { opacity: 0.55; }
 }
-@keyframes pd-in { from { opacity: 0; transform: perspective(1000px) rotateX(9deg) translateY(18px) scale(0.97); } }
 /* 3D pass refinements: hills run past both edges so a tilt never shows their ends; the WebGL sky fades behind the text like the painting. */
 .classic-root .paint-hills { left: -8%; right: auto; width: 116%; }
 .classic-root .depth--gl { -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.12) 0, rgba(0, 0, 0, 0.12) 40%, #000 64%); mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.12) 0, rgba(0, 0, 0, 0.12) 40%, #000 64%); }
@@ -955,12 +994,11 @@ html:has(.classic-root) .sc-progress { display: none; }
 .classic-root .halo { stroke: var(--ink); opacity: 0.7; }
 .classic-root .halo--outer { stroke: var(--sage); opacity: 0.5; }
 .classic-root .hstar-core { fill: var(--ink); opacity: 1; }
-@keyframes halo { from { opacity: 0.55; } to { opacity: 0.9; } }
 .classic-root .foot { background: var(--village); }
 html:has(.classic-root) { scroll-padding-top: 84px; scrollbar-color: rgba(110, 137, 162, 0.55) #1d274e; }
 html:has(.classic-root) ::-webkit-scrollbar-thumb { background: rgba(110, 137, 162, 0.55); }
 html:has(.classic-root) .sc-top { background: rgba(38, 50, 87, 0.9); border-color: rgba(187, 175, 74, 0.6); color: #cfcfbb; }
-html:has(.classic-root) .sc-top:hover { color: #1d274e; }
+@media (hover: hover) and (pointer: fine) { html:has(.classic-root) .sc-top:hover { color: #1d274e; } }
 html:not([data-motion="reduce"]) .classic-root :is(.section-head, .feature, .xp-row, .skill-row, .compact, .build):focus-within,
 html:not([data-motion="reduce"]) .classic-root :is(.skill-row, .feature):focus-within :is(.sk-word, .feature-shot img) { animation: none; }
 
@@ -989,8 +1027,9 @@ html:not([data-motion="reduce"]) .classic-root :is(.skill-row, .feature):focus-w
 /* Gentle depth for the quieter sections (observer reveal, so it plays both ways like the rest). */
 @keyframes cl-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -4px; } }
 @media (prefers-reduced-motion: no-preference) {
-  /* Process numbers drift like lanterns while their step is on screen. */
-  html:not([data-motion="reduce"]) .classic-root .process-step[data-in] .process-n { animation: cl-bob 5.5s ease-in-out infinite; animation-delay: calc(var(--rv, 0) * -1.1s); }
+  /* Process numbers drift like lanterns; off screen (data-off) they hold their frame, so nothing snaps. */
+  html:not([data-motion="reduce"]) .classic-root .process-n { animation: cl-bob 5.5s ease-in-out infinite; animation-delay: calc(var(--bob, var(--rv, 0)) * -1.1s); }
+  html:not([data-motion="reduce"]) .classic-root .process-step[data-off] .process-n { animation-play-state: paused; }
   /* About facts fold up one after another. */
   html:not([data-motion="reduce"]) .classic-root.js .about-grid[data-reveal]:not([data-in]) .about-facts > div { opacity: 0; transform: perspective(700px) rotateX(-24deg) translateY(10px); }
   html:not([data-motion="reduce"]) .classic-root .about-facts > div { transform-origin: 50% 0; }
@@ -1013,3 +1052,106 @@ html:not([data-motion="reduce"]) .classic-root :is(.skill-row, .feature):focus-w
 
 /* Cards shrink to their column on phones rather than widening it to fit their longest line. */
 .classic-root .features > *, .classic-root .feature-body { min-width: 0; }
+
+/* ==========================================================================
+   UI polish (2026-11-10): composited halos, ambient loops that rest off
+   screen, scoped card morphs, screenshot fade-in, form and copy feedback,
+   card focus, phone footer clearance. Motion gated as everywhere above.
+   ========================================================================== */
+
+/* Hero halos: three whole svg layers pulse out of phase (opacity on a promoted box, no repaint).
+   At rest (reduced motion) the rings keep the static .7 ink / .5 sage look. */
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-motion="reduce"]) .classic-root .paint-halos .halo, html:not([data-motion="reduce"]) .classic-root .paint-halos .halo--outer { opacity: 0.9; }
+  html:not([data-motion="reduce"]) .classic-root .paint-halos { will-change: opacity; animation: cl-halo-layer 5s ease-in-out infinite alternate; }
+  html:not([data-motion="reduce"]) .classic-root .paint-halos--1 { animation-delay: -1.7s; }
+  html:not([data-motion="reduce"]) .classic-root .paint-halos--2 { animation-delay: -3.4s; }
+  /* Off screen (useEffects sets data-off on .hero) the hero's loops hold their frame. */
+  html:not([data-motion="reduce"]) .classic-root .hero[data-off] :is(.paint-wave, .paint-spiral-a, .paint-spiral-b, .paint-moon, .paint-halos),
+  html:not([data-motion="reduce"]) .classic-root .hero[data-off] .hero-dot::after { animation-play-state: paused; }
+}
+/* .611 to 1 on a .9 ring reproduces the old .55 to .9 pulse. */
+@keyframes cl-halo-layer { from { opacity: 0.611; } to { opacity: 1; } }
+
+/* Filters, Show more and skill chips: a scoped View Transition (lib/vt.ts sets data-vt for its duration).
+   The root is not captured, so the page never dips; only named items morph, and the bar stays on top. */
+html[data-vt="cl-local"] { view-transition-name: none; }
+html[data-vt="cl-local"] .classic-root .nav { view-transition-name: cl-nav; }
+html[data-vt="cl-local"] .classic-root :is(.compact, .build, .chip-more, .more-toggle, .empty) { view-transition-name: var(--vtn, none); view-transition-class: cl-card; }
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-motion="reduce"])::view-transition-group(*.cl-card) { animation-duration: 420ms; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+  html:not([data-motion="reduce"])::view-transition-new(*.cl-card):only-child { animation: cl-card-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+  html:not([data-motion="reduce"])::view-transition-old(*.cl-card):only-child { animation: cl-card-out 200ms cubic-bezier(0.4, 0, 1, 1) both; }
+}
+html[data-motion="reduce"]::view-transition-group(*.cl-card), html[data-motion="reduce"]::view-transition-new(*.cl-card), html[data-motion="reduce"]::view-transition-old(*.cl-card) { animation: none; }
+@keyframes cl-card-in { from { opacity: 0; transform: translateY(10px) scale(0.98); } }
+@keyframes cl-card-out { to { opacity: 0; transform: scale(0.97); } }
+/* Where View Transitions exist they carry the entrance, so row-in / build-in would only double the fade. */
+@supports (view-transition-name: none) {
+  @media (prefers-reduced-motion: no-preference) {
+    html:not([data-motion="reduce"]) .classic-root :is(.compact, .build) { animation: none; }
+  }
+}
+@supports (view-transition-name: none) and (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    html:not([data-motion="reduce"]) .classic-root :is(.compact, .build) {
+      animation: cl-fold-in linear backwards, cl-fold-out linear forwards;
+      animation-delay: 0s, 0s;
+      animation-timeline: view(), view();
+      animation-range: entry 0% entry min(100%, 220px), exit 75% exit 100%;
+    }
+  }
+}
+
+/* Screenshots fade in once decoded, over a still moonlit well; never hidden without script or motion. */
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-motion="reduce"]) .classic-root.js :is(.feature-shot img, .compact-thumb):not([data-loaded]) { opacity: 0; }
+  html:not([data-motion="reduce"]) .classic-root .feature-shot img { transition: opacity 420ms var(--ease-out); }
+}
+
+/* Contact: errors ease in, a turning star while sending, and the check draws itself once sent. */
+.classic-root .btn[aria-busy="true"] { opacity: 0.85; cursor: progress; }
+.classic-root .btn[aria-busy="true"]::before { content: ""; flex: none; width: 12px; height: 12px; margin-right: 2px; background: currentColor; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-motion="reduce"]) .classic-root .btn[aria-busy="true"]::before { animation: cl-spin 1.1s linear infinite; }
+  html:not([data-motion="reduce"]) .classic-root .field-err { animation: cl-err-in 240ms var(--ease-out) both; }
+  html:not([data-motion="reduce"]) .classic-root .sent { animation: cl-err-in 300ms var(--ease-out) both; }
+  html:not([data-motion="reduce"]) .classic-root .sent-check path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 520ms cubic-bezier(0.22, 1, 0.36, 1) 120ms forwards; }
+}
+@keyframes cl-spin { to { rotate: 360deg; } }
+@keyframes cl-err-in { from { opacity: 0; translate: 0 -4px; } }
+
+/* Copy email: the label rolls to "Copied" and a small four-point star rises from the button. */
+.classic-root .copy-roll { display: inline-grid; overflow: clip; height: 1.5em; line-height: 1.5em; }
+.classic-root .copy-roll > * { grid-area: 1 / 1; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+.classic-root .copy-roll > :last-child { translate: 0 100%; opacity: 0; }
+.classic-root .copy.is-copied .copy-roll > :first-child { translate: 0 -100%; opacity: 0; }
+.classic-root .copy.is-copied .copy-roll > :last-child { translate: 0 0; opacity: 1; }
+.classic-root .copy-star { position: absolute; left: 50%; top: -2px; width: 10px; height: 10px; margin-left: -5px; background: var(--star); clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); opacity: 0; pointer-events: none; }
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-motion="reduce"]) .classic-root .copy-roll > * { transition: translate 320ms cubic-bezier(0.22, 1, 0.36, 1), opacity 200ms ease; }
+  html:not([data-motion="reduce"]) .classic-root .copy.is-copied .copy-star { animation: cl-copy-star 600ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+}
+@keyframes cl-copy-star { 0% { opacity: 0; transform: translateY(0) scale(0.4); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(-14px) scale(1) rotate(45deg); } }
+
+/* Project rows: a keyboard frame (focus-visible only, so a mouse click does not leave it lit), stripe kept;
+   touch gets press feedback on the links, which are the controls. */
+.classic-root .compact:has(:focus-visible) { border-top-color: rgba(187, 175, 74, 0.45); border-right-color: rgba(187, 175, 74, 0.45); border-bottom-color: rgba(187, 175, 74, 0.45); background: rgba(48, 67, 122, 0.75); }
+.classic-root .compact:has(:focus-visible) .compact-arrow { opacity: 1; transform: translateX(4px); }
+html[data-motion="reduce"] .classic-root .compact:has(:focus-visible) .compact-arrow { transform: none; }
+.classic-root .compact .link { transition: text-decoration-color var(--t-ui) ease, color var(--t-ui) ease, opacity var(--t-press) ease; }
+.classic-root .compact .link:active { opacity: 0.75; }
+
+/* While the menu is open the bar (name and the Close toggle) sits above the sheet and fills its top band. */
+.classic-root .nav[data-menu-open] { z-index: 70; background: rgba(29, 39, 78, 0.96); }
+
+/* Phones: the footer's last line clears the floating Ask AI launcher and back-to-top button. */
+.classic-root .foot-legal p { text-wrap: pretty; }
+@media (max-width: 760px) {
+  .classic-root .foot-legal { flex-direction: column; align-items: flex-start; gap: 6px; padding-bottom: calc(var(--floating-clearance, 88px) + env(safe-area-inset-bottom)); }
+  /* The menu sheet's last row of buttons clears the launcher too. */
+  .classic-root .nav-sheet { padding-bottom: calc(var(--floating-clearance, 88px) + env(safe-area-inset-bottom)); }
+}
+
+/* "Ask AI" spark: the glyph takes the star yellow; assistant.css twinkles it once on hover/focus/press. */
+.classic-root [data-ask-ai] .ask-spark { color: var(--accent); }

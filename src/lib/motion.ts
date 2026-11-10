@@ -78,3 +78,17 @@ export function motionSummary(): { pref: MotionPreference; reduced: boolean; lab
     pref === "on" ? "Animations on" : pref === "off" ? "Animations off" : reduced ? "Animations off (system)" : "Animations on (system)";
   return { pref, reduced, label };
 }
+
+/**
+ * In-page View Transition (filters, sorting, chat bubbles): adds `html.vt-local` for its duration so
+ * the page-level edition-switch animation in src/styles/motion.css stays out of it. Falls back to a
+ * plain update without the API or with reduced motion.
+ */
+export function startLocalTransition(update: () => void): void {
+  const doc = document as Document & { startViewTransition?: (cb: () => void) => { finished: Promise<void> } };
+  if (!doc.startViewTransition || motionReduced()) { update(); return; }
+  const root = document.documentElement;
+  root.classList.add("vt-local");
+  const vt = doc.startViewTransition(update);
+  vt.finished.finally(() => root.classList.remove("vt-local"));
+}

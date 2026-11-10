@@ -90,7 +90,7 @@ All Paper motion uses `cubic-bezier(0.22, 1, 0.36, 1)` unless noted.
 - Masthead: each child rises 14px over 0.65s, staggered 0.04s to 0.36s (`paper.css:186-199`).
 - Scroll reveal: `[data-pp-reveal]` blocks start at opacity 0 and 16px down and settle over 0.6s with a per-item `--d` delay (`paper.css:595-605`); work rows use `min(i × 0.06, 0.3)s` (`PaperSite.tsx:158`). An IntersectionObserver adds `.pp-in` once per element, then stops watching it (`PaperSite.tsx:58-74`, `rootMargin: 0px 0px -6% 0px`, threshold 0.05). Overline rules draw in over 0.7s after 0.12s (`paper.css:171-178`).
 - Active section: a second observer marks the nav link for the section in the band from 35% to 45% down the viewport (`PaperSite.tsx:76-96`); its underline scales in over 0.3s (`paper.css:112-133`).
-- Hover: work rows shift 6px right (0.35s, 0.25s while hovered) and the name gets a terracotta underline over 0.45s (`paper.css:291-296`, `:317-336`, `:607-610`); experience rows indent 14px over 0.35s (`paper.css:474-479`); buttons lift 1px (`paper.css:264-266`); links and chips change colour over 0.2s.
+- Hover (fine pointers only, `@media (hover: hover) and (pointer: fine)`): work rows shift 6px toward their number through `translate` (alt rows shift left) and the name gets a terracotta underline over 0.45s; experience roles slide 18px while a 10px terracotta tick marks the margin; buttons lift 1px; text links draw an ink stroke. See the UI polish note below.
 - Disclosure: engineering details open over 0.45s (rows) and 0.35s (opacity) (`paper.css:429`).
 - Switcher items drift toward the pointer through `useMagnetic` on fine pointers when motion is allowed (`InterfaceSwitcher.tsx:10`, `src/hooks/useMagnetic.ts:10-11`).
 - Reduced motion: Paper has no `prefers-reduced-motion` query of its own. It keys off `html[data-motion="reduce"]`, which `src/lib/motion.ts` sets from the OS setting by default or from the site's motion toggle. Under it, reveal blocks are shown at once with no transition (`paper.css:637-641`), every animation and transition in `.paper-root` is cut to 0.001s with one iteration (`paper.css:642-648`), smooth scrolling is off (`paper.css:649-651`), and the global gate removes all animations (`src/styles/motion.css:46-51`). The hover shifts still apply, without the transition. The reveal pre-state is not gated on script having run.
@@ -126,3 +126,20 @@ All Paper motion uses `cubic-bezier(0.22, 1, 0.36, 1)` unless noted.
 ### Motion polish (2026-11-10)
 - Root uses `overflow-x: clip` (not hidden) so sticky and scroll timelines work.
 - Experience and skill rows stagger via `--d`; About prose reveals; experience hover slides with `translate`.
+
+### UI polish (2026-11-10)
+- Running head: a fixed 44px bar (40px at ≤720px), `aria-hidden`, slides in once the masthead leaves the viewport (its own IntersectionObserver). It shows the wordmark and `§ <section>`; the label re-mounts on change with a 0.35s `pp-runlabel` rise. Section labels live in `SECTION_LABELS` and are shared with each section's h2. Sections get `scroll-margin-top: 56px`.
+- Work rows: the hover shift now uses `translate` (the reveal's `transform: none` used to cancel it) with no reveal delay on un-hover; hover is fine-pointer only. Chip hover replaced by a row-level tinted chip border. Last row's double hairline removed.
+- Touch: a third observer (only when `(hover: none)`) marks the row in a 6% band mid-viewport with `.is-current` (terracotta number, drawn name underline).
+- Phones (≤720px): alternate rows put the number back on top; numbers are set as a folio with a 28px rule.
+- Masthead: the name is set line by line from a baseline mask (`.pp-line`, `pp-set` 0.9s, second line +0.1s); the masthead overline rule draws after 0.45s. The overline keeps "full-stack engineer" together.
+- Text links (masthead meta, work links, footer): hairline `text-decoration` at a 4px offset at rest, plus a terracotta stroke (`::after`, scaleX) drawn on hover and `:focus-visible`.
+- Buttons: `:active` press (scale .97), `:focus-visible` matches hover, ghost hover is a 7% accent tint with `--accent-2` text. Arrow glyphs are `aria-hidden` `.pp-arr` spans that nudge in their direction.
+- Engineering details: a single `→` that rotates 90° when open; the margin rule is a `::before` that draws down; the three blocks settle in sequence on open; closing is immediate; no 16px gap when closed.
+- Experience: hover no longer drags the rule and date; the role slides and an ink tick marks the margin.
+- Contact: a hand-inked SVG stroke under "interesting." draws once on reveal (stops before the g's descender).
+- Footer: rule aligned to the column via a background gradient, a centred ❦ (hidden from AT via `content: "❦" / ""`), and `padding-bottom: calc(var(--floating-clearance) + safe area)` at ≤760px.
+- Typography: `text-wrap: balance` on headings, `pretty` on prose, tabular numerals on dates and numbers, roomier skill lines.
+- Scrollbar: ink thumb via `html:has(.paper-root)`.
+- Prefetch: links to `/` and to case studies call `prefetchEdition` on hover, focus and touchstart.
+- Reduced motion: the stroke rests drawn, arrows and hover slides stay put, the running head simply appears, the masthead lines and rules rest in place.

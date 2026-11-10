@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { site } from "../data/site";
 import { TypeText } from "./TypeCmd";
 import { motionReduced } from "../../lib/motion";
@@ -69,6 +69,8 @@ function MatrixRain() {
     const io = new IntersectionObserver(
       (es) => {
         inView = es[0]?.isIntersecting ?? true;
+        // the banner flicker pauses with the rain (see .hero[data-off] in global.css)
+        hero.toggleAttribute("data-off", !inView);
       },
       { rootMargin: "200px" }
     );
@@ -82,6 +84,7 @@ function MatrixRain() {
     return () => {
       cancelAnimationFrame(raf);
       io.disconnect();
+      hero.removeAttribute("data-off");
       window.removeEventListener("resize", setup);
       window.removeEventListener("folio:phosphor", setup);
     };
@@ -156,6 +159,10 @@ export function Hero() {
     L("type 'help' to explore, or use the buttons below.", "dim"),
   ]);
   const [input, setInput] = useState("");
+  const [col, setCol] = useState(0); // block-caret column
+  const [nativeCaret, setNativeCaret] = useState(false); // selection / IME / overflow → browser caret
+  const composingRef = useRef(false);
+  const chipRef = useRef<number[] | null>(null); // timers of a quick-command chip that is typing
   const [remote, setRemote] = useState(false);
   const [train, setTrain] = useState(false);
   const [game, setGame] = useState<Snake | null>(null);
@@ -192,7 +199,23 @@ export function Hero() {
       return;
     }
     boxRef.current?.scrollTo({ top: boxRef.current.scrollHeight, behavior: motionReduced() ? "auto" : "smooth" });
+    // output can grow the box (narrow layouts): keep the focused prompt clear of the fixed status bar
+    const el = inputRef.current;
+    if (el && document.activeElement === el && el.getBoundingClientRect().bottom > window.innerHeight - 46) {
+      el.scrollIntoView({ block: "nearest", behavior: "instant" });
+    }
   }, [lines]);
+
+  // block caret: follow the text position; hand over to the native caret when it would lie
+  const syncCaret = (el: HTMLInputElement) => {
+    const a = el.selectionStart ?? el.value.length;
+    const b = el.selectionEnd ?? a;
+    setCol(a);
+    setNativeCaret(composingRef.current || a !== b || el.scrollWidth > el.clientWidth);
+  };
+  useLayoutEffect(() => {
+    if (inputRef.current) syncCaret(inputRef.current);
+  }, [input]);
 
   const stopTop = () => {
     window.clearInterval(topTimer.current);
@@ -353,13 +376,43 @@ export function Hero() {
     historyRef.current = [...historyRef.current.filter((c) => c !== raw), raw].slice(-50);
     saveHistory(historyRef.current);
     histIdxRef.current = null;
-    const { lines: out, effects } = runLine(raw, { history: historyRef.current, remote: remoteRef.current });
+    const box = boxRef.current;
+    const cols = box ? Math.floor((box.clientWidth - 40) / 7.8) : undefined;
+    const { lines: out, effects } = runLine(raw, { history: historyRef.current, remote: remoteRef.current, cols });
     const clears = effects.some((e) => e.type === "clear");
-    if (!clears && out.length) setLines((prev) => [...prev, ...out]);
+    // print line by line: each output line gets a capped stagger step (the echoed command stays at 0)
+    if (!clears && out.length) setLines((prev) => [...prev, ...out.map((l, i) => ({ ...l, d: Math.min(i, 16) }))]);
     setInput("");
     runEffects(effects);
   };
   submitRef.current = submit;
+
+  const cancelChip = () => {
+    chipRef.current?.forEach(window.clearTimeout);
+    chipRef.current = null;
+  };
+
+  /** Quick-command chips type into the prompt, then run (≈ 16ms a character, so under 250ms). */
+  const typeThenRun = (cmd: string, e: React.MouseEvent<HTMLButtonElement>) => {
+    touchedRef.current = true;
+    // no phone keyboard pop-up for a tap
+    if ((e.nativeEvent as PointerEvent).pointerType !== "touch") inputRef.current?.focus({ preventScroll: true });
+    if (motionReduced() || chipRef.current) {
+      cancelChip();
+      submit(cmd);
+      return;
+    }
+    const chars = cmd.slice(0, 12);
+    const timers: number[] = [];
+    chars.split("").forEach((_, i) => {
+      timers.push(window.setTimeout(() => setInput(chars.slice(0, i + 1)), (i + 1) * 16));
+    });
+    timers.push(window.setTimeout(() => {
+      chipRef.current = null;
+      submitRef.current(cmd);
+    }, chars.length * 16 + 60));
+    chipRef.current = timers;
+  };
 
   const tab = () => {
     const r = complete(input);
@@ -368,6 +421,8 @@ export function Hero() {
   };
 
   const onKey = (e: React.KeyboardEvent) => {
+    // a real key press wins over a chip that is still typing
+    if (chipRef.current) cancelChip();
     // snake owns the keys while it is running
     if (gameRef.current) {
       const g = gameRef.current;
@@ -453,13 +508,29 @@ export function Hero() {
     };
   }, []);
 
-  // First visit: the shell types `neofetch` by itself so the box is never empty.
+  // First visit: the shell types `neofetch` by itself so the box is never empty —
+  // but only once the shell is actually on screen (it starts below the fold on phones).
   useEffect(() => {
     if (motionReduced()) return;
+    const win = boxRef.current?.closest(".shell-win");
+    if (!win) return;
     let cancelled = false;
+    let ready = false;
+    let visible = false;
+    let started = false;
     const timers: number[] = [];
-    const start = window.setTimeout(() => {
-      if (cancelled || touchedRef.current) return;
+    const io = new IntersectionObserver(
+      (es) => {
+        visible = !!es[0]?.isIntersecting;
+        go();
+      },
+      { threshold: 0.4 }
+    );
+    const go = () => {
+      if (touchedRef.current) io.disconnect();
+      if (started || cancelled || !ready || !visible || touchedRef.current) return;
+      started = true;
+      io.disconnect();
       const cmd = "neofetch";
       cmd.split("").forEach((_, i) => {
         timers.push(window.setTimeout(() => {
@@ -471,14 +542,21 @@ export function Hero() {
         if (cancelled || touchedRef.current) return;
         submitRef.current(cmd);
       }, cmd.length * 70 + 260));
-    }, bootDelay + 2600);
+    };
+    timers.push(window.setTimeout(() => {
+      ready = true;
+      go();
+    }, bootDelay + 1200));
+    io.observe(win);
     return () => {
       cancelled = true;
-      window.clearTimeout(start);
+      io.disconnect();
       timers.forEach(window.clearTimeout);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => () => chipRef.current?.forEach(window.clearTimeout), []);
 
   const host = remote ? "remote" : HOST;
   const Prompt = () => (
@@ -499,7 +577,9 @@ export function Hero() {
           <pre className="hero-banner" aria-hidden="true">
             {banner("VARDHAN.V")}
           </pre>
-          <div className="hero-tag">generative-ai developer :: full-stack developer</div>
+          <div className="hero-tag">
+            <span className="nb">generative-ai developer</span>{"\u00a0::"} <span className="nb">full-stack developer</span>
+          </div>
           <p className="hero-intro">
             <TypeText
               text={`${site.fullName} — b.tech computer science @ nmam. I turn interfaces, APIs, databases and LLM backends into working products, and I ship them.`}
@@ -510,7 +590,7 @@ export function Hero() {
 
           <div className="hero-chips" role="group" aria-label="Quick commands">
             {quickCmds.map((c) => (
-              <button key={c} type="button" className="hero-quick" onClick={() => submit(c)}>
+              <button key={c} type="button" className="hero-quick" onClick={(e) => typeThenRun(c, e)}>
                 <b>$</b> {c}
               </button>
             ))}
@@ -530,8 +610,9 @@ export function Hero() {
 
           <p className="hero-status">
             <span className="ok">● <span className="visually-hidden">online</span></span> status: currently building
-            with AI + full-stack tech <span className="bracket">·</span> location: {site.location}{" "}
-            <span className="bracket">·</span> tty: 1
+            with AI + full-stack tech{"\u00a0"}<span className="bracket">·</span>{" "}
+            <span className="nb">location: {site.location}</span>{"\u00a0"}<span className="bracket">·</span>{" "}
+            <span className="nb">tty: 1</span>
           </p>
         </div>
 
@@ -562,7 +643,7 @@ __/ =| o |=-~~\  /~~\  /~~\  /~~\ ____Y___________|__
               )}
               <div className="shell-lines" ref={boxRef} role="log" aria-live={busy ? "off" : "polite"}>
                 {lines.map((l) => (
-                  <span key={l.key} className={`shell-ln ${l.cls}`}>
+                  <span key={l.key} className={`shell-ln ${l.cls}`} style={l.d ? ({ "--d": l.d } as CSSProperties) : undefined}>
                     {l.cls === "cmd" ? (
                       <>
                         <Prompt />
@@ -574,20 +655,29 @@ __/ =| o |=-~~\  /~~\  /~~\  /~~\ ____Y___________|__
                   </span>
                 ))}
               </div>
-              <div className="shell-entry">
+              <div className="shell-entry" data-native={nativeCaret || busy === "snake" ? "" : undefined}>
                 <Prompt />
-                <input
-                  ref={inputRef}
-                  className="shell-input"
-                  value={input}
-                  onChange={(e) => { touchedRef.current = true; setInput(e.target.value); }}
-                  onFocus={() => { touchedRef.current = true; }}
-                  onKeyDown={onKey}
-                  placeholder={game ? "snake: arrows · q quits" : "type a command…"}
-                  aria-label="Terminal — type a command and press Enter"
-                  autoComplete="off"
-                  spellCheck={false}
-                />
+                <span className="shell-field">
+                  <input
+                    ref={inputRef}
+                    className="shell-input"
+                    value={input}
+                    onChange={(e) => { touchedRef.current = true; setInput(e.target.value); }}
+                    onFocus={() => { touchedRef.current = true; }}
+                    onKeyDown={onKey}
+                    onSelect={(e) => syncCaret(e.currentTarget)}
+                    onCompositionStart={() => { composingRef.current = true; setNativeCaret(true); }}
+                    onCompositionEnd={(e) => { composingRef.current = false; syncCaret(e.currentTarget); }}
+                    placeholder={game ? "snake: arrows · q quits" : "type a command…"}
+                    aria-label="Terminal — type a command and press Enter"
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
+                  {/* re-keyed on every edit so the blink restarts solid, like a real tty */}
+                  <span key={`${input.length}:${col}`} className="shell-caret" aria-hidden="true" style={{ "--col": col } as CSSProperties}>
+                    {input[col] ?? " "}
+                  </span>
+                </span>
               </div>
               <div className="shell-foot">
                 <span>

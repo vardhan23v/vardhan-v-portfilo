@@ -15,7 +15,7 @@ const initials = site.name
  * Boot → login → done. Any key or click completes; reduced motion jumps
  * straight to the login card with no progress animation.
  */
-export function BootScreen({ onDone }: { onDone: () => void }) {
+export function BootScreen({ onDone, onLeave }: { onDone: () => void; onLeave?: () => void }) {
   const { prefs } = usePreferences();
   const instant =
     prefs.reduceMotion ||
@@ -31,8 +31,10 @@ export function BootScreen({ onDone }: { onDone: () => void }) {
   useEffect(() => {
     const finish = () => {
       if (phase === "leaving") return;
+      onLeave?.();
       setPhase("leaving");
-      window.setTimeout(onDone, instant ? 0 : 360);
+      // Matches the 520ms fade in shell.css, plus a frame of slack.
+      window.setTimeout(onDone, instant ? 0 : 560);
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Enter" || e.key === "Escape" || e.key === " ") {
@@ -46,7 +48,7 @@ export function BootScreen({ onDone }: { onDone: () => void }) {
       window.removeEventListener("keydown", onKey);
       delete (window as unknown as { __macBootFinish?: () => void }).__macBootFinish;
     };
-  }, [phase, onDone, instant]);
+  }, [phase, onDone, onLeave, instant]);
 
   const finish = () => (window as unknown as { __macBootFinish?: () => void }).__macBootFinish?.();
 

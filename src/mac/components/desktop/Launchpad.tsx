@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Search } from "lucide-react";
 import { useShell } from "../../hooks/useShell";
 import { useWindowManager, type AppId } from "../../hooks/useWindowManager";
+import { setLaunchOrigin } from "../../lib/launchOrigin";
 import { useNav, type PageId } from "../../hooks/useNav";
 import { AppGlyph } from "../ui/AppGlyph";
 import { motionReduced } from "../../../lib/motion";
@@ -79,9 +80,12 @@ export function Launchpad() {
 
   if (!visible) return null;
 
-  const launch = (id: AppId) => {
+  /** `from` is the launched app's button: the window grows out of its glyph. */
+  const launch = (id: AppId, from?: Element | null) => {
     if (closing) return;
     launched.current = true;
+    // A short delay lets the grid's scale-out read as the icon turning into the window.
+    setLaunchOrigin(id, from?.querySelector(".mac-glyph") ?? from, 40);
     if (PAGE_IDS.has(id)) navigate(id as PageId);
     openWindow(id);
     setOverlay("none");
@@ -92,7 +96,7 @@ export function Launchpad() {
     const grid = (e.currentTarget as HTMLElement).querySelector(".mac-launchpad__grid");
     const cols = grid ? getComputedStyle(grid).gridTemplateColumns.split(" ").length : 6;
     if (e.key === "Escape") { e.preventDefault(); setOverlay("none"); }
-    else if (e.key === "Enter") { e.preventDefault(); if (list[idx]) launch(list[idx].id); }
+    else if (e.key === "Enter") { e.preventDefault(); if (list[idx]) launch(list[idx].id, (e.currentTarget as HTMLElement).querySelector(".mac-launchpad__app.is-active")); }
     else if (e.key === "ArrowRight") { e.preventDefault(); setIdx((i) => Math.min(list.length - 1, i + 1)); }
     else if (e.key === "ArrowLeft") { e.preventDefault(); setIdx((i) => Math.max(0, i - 1)); }
     else if (e.key === "ArrowDown") { e.preventDefault(); setIdx((i) => Math.min(list.length - 1, i + cols)); }
@@ -123,7 +127,7 @@ export function Launchpad() {
               role="option"
               aria-selected={i === idx}
               className={`mac-launchpad__app${i === idx ? " is-active" : ""}`}
-              onClick={() => launch(a.id)}
+              onClick={(e) => launch(a.id, e.currentTarget)}
               onMouseEnter={() => setIdx(i)}
               style={{ "--i": i } as React.CSSProperties}
             >

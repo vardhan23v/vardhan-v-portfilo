@@ -2,6 +2,7 @@
    Each edition root defines its own token values (see edition css files). */
 
 .iswitcher {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 2px;
@@ -29,17 +30,56 @@
   text-decoration: none;
   white-space: nowrap;
   color: var(--sw-dim);
-  transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+  position: relative;
+  z-index: 1;
+  transition: color 0.2s ease, background-color 0.2s ease, scale 0.14s cubic-bezier(0.3, 1.4, 0.5, 1);
 }
 
-.iswitcher-item:hover {
-  color: var(--sw-text);
-  background: color-mix(in srgb, var(--sw-text) 7%, transparent);
-  transform: translateY(-1px);
+@media (hover: hover) and (pointer: fine) {
+  .iswitcher-item:hover {
+    color: var(--sw-text);
+  }
 }
 
+/* press feedback (touch included): composes with any transform an edition sets */
 .iswitcher-item:active {
-  transform: translateY(0);
+  scale: 0.94;
+}
+
+/* One highlight travels between items on hover, keyboard focus and press (InterfaceSwitcher.tsx
+   writes --gx/--gy/--gw/--gh from the item's box). The active edition keeps its own static
+   marker below, so "you are here" never moves away. */
+.iswitcher-glide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--gw, 0);
+  height: var(--gh, 0);
+  transform: translate(var(--gx, 0), var(--gy, 0));
+  border-radius: var(--sw-radius, 999px);
+  background: color-mix(in srgb, var(--sw-text, currentColor) 8%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+}
+
+.iswitcher[data-glide="snap"] .iswitcher-glide {
+  opacity: 1;
+}
+
+.iswitcher[data-glide="on"] .iswitcher-glide {
+  opacity: 1;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), width 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.18s ease;
+}
+
+/* follow each edition's item shape (edition sheets square or soften the items) */
+.atl-bar .iswitcher { --sw-radius: 0; }
+.sl-switcher .iswitcher { --sw-radius: 6px; }
+
+@media (forced-colors: active) {
+  .iswitcher-glide { display: none; }
+  .iswitcher-item--active { outline: 1px solid CanvasText; }
 }
 
 .iswitcher-num {
@@ -50,7 +90,6 @@
 .iswitcher-item--active {
   color: var(--sw-text);
   background: var(--sw-active-bg);
-  transform: none;
 }
 
 .iswitcher-item--active .iswitcher-num {
@@ -59,7 +98,8 @@
 
 .iswitcher-item:focus-visible {
   outline: 2px solid var(--sw-accent);
-  outline-offset: 1px;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--sw-accent) 22%, transparent);
 }
 
 @media (max-width: 720px) {

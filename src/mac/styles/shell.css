@@ -273,10 +273,13 @@
     radial-gradient(60% 50% at 80% 80%, hsl(var(--wp-h3) 60% 30% / 0.5), transparent 70%),
     var(--ink);
   color: #f2f3f8;
-  transition: opacity 360ms var(--ease-cinema), transform 360ms var(--ease-cinema);
+  transition: opacity 520ms var(--ease-cinema), transform 520ms var(--ease-cinema);
 }
 .mac-root[data-theme="light"] .mac-boot { color: #12151f; background: radial-gradient(70% 60% at 30% 20%, hsl(var(--wp-h2) 60% 78% / 0.7), transparent 70%), radial-gradient(60% 50% at 80% 80%, hsl(var(--wp-h3) 60% 80% / 0.6), transparent 70%), var(--ink); }
-.mac-boot--leaving { opacity: 0; transform: scale(1.03); pointer-events: none; }
+.mac-boot--leaving { opacity: 0; transform: scale(1.04); pointer-events: none; }
+/* The desktop is already mounted under the fading login card: the wallpaper wakes as it clears. */
+.mac-root:has(.mac-boot--leaving) .mac-wallpaper { animation: wpWake 520ms var(--ease-cinema) both; }
+@keyframes wpWake { from { transform: scale(1.06); opacity: 0.4; } }
 .mac-boot__stage { display: flex; flex-direction: column; align-items: center; gap: 14px; animation: bootIn 600ms var(--ease-cinema) both; }
 @keyframes bootIn { from { opacity: 0; transform: translateY(10px); } }
 .mac-boot__wordmark { font-family: var(--font-display); font-size: clamp(2.6rem, 6vw, 4.6rem); font-weight: 500; letter-spacing: -0.02em; font-variation-settings: "opsz" 144; }
@@ -434,9 +437,10 @@
   color: #f2f3f8; animation: lpIn 900ms var(--ease-cinema) both;
 }
 .mac-saver__clock {
-  position: absolute; transform: translate(-50%, -50%); max-width: 92vw;
+  position: absolute; left: 0; top: 0; max-width: 92vw;
+  transform: translate(calc(var(--sx, 50vw) - 50%), calc(var(--sy, 50vh) - 50%));
   display: flex; flex-direction: column; align-items: center; gap: 6px;
-  transition: left 6s var(--ease-cinema), top 6s var(--ease-cinema);
+  transition: transform 6s var(--ease-cinema); will-change: transform;
   animation: saverBreathe 6s ease-in-out infinite;
 }
 @keyframes saverBreathe { 50% { opacity: 0.75; } }
@@ -460,11 +464,25 @@
   animation: switcherIn 160ms var(--ease-spring) both;
 }
 @keyframes switcherIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); } }
-.mac-switcher__row { display: flex; gap: 10px; }
-.mac-switcher__app { position: relative; padding: 8px; border-radius: 16px; transition: background 100ms, transform 160ms var(--ease-spring); }
-.mac-switcher__app.is-active { background: var(--nav-pill-active); box-shadow: 0 0 0 2px var(--accent-border); transform: translateY(-3px); }
+.mac-switcher__row { position: relative; display: flex; gap: 10px; }
+/* One pill glides between apps; the active glyph lifts inside it. */
+.mac-switcher__sel {
+  position: absolute; left: 0; top: 0; border-radius: 16px; pointer-events: none;
+  background: var(--nav-pill-active); box-shadow: 0 0 0 2px var(--accent-border);
+  transition: transform 200ms var(--ease-spring);
+}
+.mac-switcher__app { position: relative; z-index: 1; padding: 8px; border-radius: 16px; transition: transform 160ms var(--ease-spring); }
+.mac-switcher__app.is-active { transform: translateY(-3px); }
+.mac-switcher.is-closing { pointer-events: none; animation: switcherOut 120ms ease-in both; }
+@keyframes switcherOut { to { opacity: 0; transform: translate(-50%, -50%) scale(0.96); } }
 .mac-switcher__min { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); color: var(--text-tertiary); font-size: 18px; line-height: 1; }
-.mac-switcher__label { font-family: var(--font-display); font-size: 1rem; color: var(--text-primary); min-height: 1.3em; }
+.mac-switcher__label { font-family: var(--font-display); font-size: 1rem; color: var(--text-primary); min-height: 1.3em; animation: labelIn 160ms var(--ease-cinema) both; }
+@keyframes labelIn { from { opacity: 0; transform: translateY(3px); } }
+
+/* ── Type finish: balanced headings, no orphans in body copy, steady numerals ── */
+.mac-root :is(.ov-name, .page-header__title, .mac-section-title, .mac-widget__lede, .mac-widget__title, .mac-desktop__empty-title, .mac-launchpad__empty, .mac-boot__name) { text-wrap: balance; }
+.mac-root .mac-page :is(p, li) { text-wrap: pretty; }
+.mac-widget__stats b { font-variant-numeric: tabular-nums; }
 
 /* ── Notification banners ─────────────────────────────────── */
 .mac-toast--banner { align-items: flex-start; width: min(360px, calc(100vw - 28px)); padding: 12px 14px; border-radius: 16px; cursor: pointer; pointer-events: auto; }

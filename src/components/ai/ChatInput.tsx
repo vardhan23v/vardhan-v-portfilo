@@ -7,11 +7,16 @@ interface Props {
   onSend: (text: string) => void;
   onStop: () => void;
   autoFocus?: boolean;
+  /** Keeps an unsent draft across close/reopen (the text box unmounts with the panel). */
+  draftKey?: string;
 }
 
+const drafts = new Map<string, string>();
+
 /** Enter sends, Shift+Enter adds a line. Grows up to ~5 lines. */
-export function ChatInput({ busy, onSend, onStop, autoFocus }: Props) {
-  const [value, setValue] = useState("");
+export function ChatInput({ busy, onSend, onStop, autoFocus, draftKey }: Props) {
+  const [value, setValue] = useState(() => (draftKey ? drafts.get(draftKey) ?? "" : ""));
+  useEffect(() => { if (draftKey) drafts.set(draftKey, value); }, [draftKey, value]);
   const ref = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => { if (autoFocus) ref.current?.focus({ preventScroll: true }); }, [autoFocus]);

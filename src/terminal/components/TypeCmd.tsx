@@ -12,14 +12,23 @@ function useTyped(text: string, speed: number, delay: number, threshold: number)
       setN(text.length);
       return;
     }
-    let iv = 0;
+    // Frame-aligned typing driven by elapsed time: no interval outlives the text,
+    // and a background tab simply pauses (rAF does not fire there).
+    let raf = 0;
     let to = 0;
     const io = new IntersectionObserver(
       (entries) => {
         if (!entries[0]?.isIntersecting) return;
         io.disconnect();
         to = window.setTimeout(() => {
-          iv = window.setInterval(() => setN((v) => Math.min(v + 1, text.length)), speed);
+          let t0 = -1;
+          const step = (t: number) => {
+            if (t0 < 0) t0 = t;
+            const k = Math.min(text.length, Math.floor((t - t0) / speed) + 1);
+            setN(k);
+            if (k < text.length) raf = requestAnimationFrame(step);
+          };
+          raf = requestAnimationFrame(step);
         }, delay);
       },
       { threshold }
@@ -28,7 +37,7 @@ function useTyped(text: string, speed: number, delay: number, threshold: number)
     return () => {
       io.disconnect();
       window.clearTimeout(to);
-      window.clearInterval(iv);
+      cancelAnimationFrame(raf);
     };
   }, [text, speed, delay, threshold]);
 
@@ -59,9 +68,17 @@ export function TypeText({
 }) {
   const { ref, n, done } = useTyped(text, speed, delay, 0.2);
   return (
-    <span className={className} ref={ref} aria-label={text}>
-      {text.slice(0, n)}
-      {!done && <span className="type-caret" aria-hidden="true" />}
+    // The hidden ghost reserves the final box before typing starts, so the
+    // live layer types into it without pushing the page down (no CLS).
+    <span className={`type-stack ${className}`.trim()} ref={ref}>
+      <span className="visually-hidden">{text}</span>
+      <span className="type-ghost" aria-hidden="true">
+        {text}
+      </span>
+      <span className="type-live" aria-hidden="true">
+        {text.slice(0, n)}
+        {!done && <span className="type-caret" />}
+      </span>
     </span>
   );
 }

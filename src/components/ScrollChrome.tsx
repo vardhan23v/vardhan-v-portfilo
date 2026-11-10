@@ -1,7 +1,7 @@
-import { useEffect, useState, type CSSProperties } from "react";
-import { useLocation } from "react-router-dom";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useLocation, useNavigation } from "react-router-dom";
 import "./scroll-chrome.css";
-import { motionReduced } from "../lib/motion";
+import { motionReduced, subscribeMotion } from "../lib/motion";
 
 const ACCENTS: Record<string, string> = {
   landing: "#7c6cff",
@@ -11,12 +11,21 @@ const ACCENTS: Record<string, string> = {
   paper: "#be4b2a",
   aurora: "#f0abfc",
   forge: "#7dd3fc",
+  work: "#6ea8ff",
 };
+
+/** Scroll-driven animations run the bar and ring on the compositor; reduced motion removes all
+ *  CSS animations, so position feedback falls back to the JS path there. */
+const cssDriven = () =>
+  typeof CSS !== "undefined" && CSS.supports("animation-timeline: scroll()") && !motionReduced();
 
 export function ScrollChrome() {
   const location = useLocation();
+  const navigation = useNavigation();
   const [accent, setAccent] = useState("#7c6cff");
   const [showTop, setShowTop] = useState(false);
+  const barRef = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     // Editions load lazily, so the root may not exist yet on the first render.
@@ -36,25 +45,40 @@ export function ScrollChrome() {
   }, [location.pathname]);
 
   useEffect(() => {
-    const bar = document.querySelector<HTMLElement>(".sc-progress");
-    const btn = document.querySelector<HTMLElement>(".sc-top");
+    const bar = barRef.current;
+    const btn = btnRef.current;
     let raf = 0;
+    let last: boolean | null = null;
+    let css = cssDriven();
     const update = () => {
       raf = 0;
       const y = window.scrollY;
-      const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-      if (bar) bar.style.transform = `scaleX(${Math.min(1, y / max)})`;
+      if (bar) {
+        if (css) bar.style.removeProperty("transform");
+        else {
+          const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+          bar.style.transform = `scaleX(${Math.min(1, y / max)})`;
+        }
+      }
       const vis = y > 500;
-      if (btn) btn.classList.toggle("is-visible", vis);
-      setShowTop(vis);
+      if (vis !== last) {
+        last = vis;
+        btn?.classList.toggle("is-visible", vis);
+        setShowTop(vis);
+      }
     };
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(update);
     };
+    const unsub = subscribeMotion(() => {
+      css = cssDriven();
+      onScroll();
+    });
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
     return () => {
+      unsub();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
       if (raf) cancelAnimationFrame(raf);
@@ -66,25 +90,27 @@ export function ScrollChrome() {
     window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
   };
 
+  const accentStyle = { "--sc-accent": accent } as CSSProperties;
+
   return (
     <>
-      <div
-        className="sc-progress"
-        style={{
-          background: `linear-gradient(90deg, ${accent}, color-mix(in srgb, ${accent} 55%, #fff))`,
-        }}
-        aria-hidden="true"
-      />
+      <div ref={barRef} className="sc-progress" style={accentStyle} aria-hidden="true" />
+      {/* Navigation pending (a route chunk still downloading): mounted only while loading, shown after 150 ms. */}
+      {navigation.state === "loading" && <div className="sc-pending" style={accentStyle} aria-hidden="true" />}
       <button
+        ref={btnRef}
         type="button"
         className="sc-top"
-        style={{ "--sc-accent": accent } as CSSProperties}
+        style={accentStyle}
         onClick={toTop}
         aria-label="Back to top"
         tabIndex={showTop ? 0 : -1}
         aria-hidden={!showTop}
       >
-        ↑
+        <svg className="sc-ring" viewBox="0 0 42 42" aria-hidden="true" focusable="false">
+          <rect x="1" y="1" width="40" height="40" rx="20" ry="20" pathLength="1" />
+        </svg>
+        <span className="sc-arrow" aria-hidden="true">↑</span>
       </button>
     </>
   );

@@ -43,13 +43,13 @@
 .traffic-light--minimize { background: var(--traffic-minimize); }
 .traffic-light--maximize { background: var(--traffic-maximize); }
 .mac-desktop-window:not(.is-active) .traffic-light { background: var(--traffic-inactive); }
-.mac-desktop-window:not(.is-active) .traffic-lights:hover .traffic-light--close { background: var(--traffic-close); }
-.mac-desktop-window:not(.is-active) .traffic-lights:hover .traffic-light--minimize { background: var(--traffic-minimize); }
-.mac-desktop-window:not(.is-active) .traffic-lights:hover .traffic-light--maximize { background: var(--traffic-maximize); }
+.mac-desktop-window:not(.is-active) .traffic-lights:is(:hover, :has(:focus-visible)) .traffic-light--close { background: var(--traffic-close); }
+.mac-desktop-window:not(.is-active) .traffic-lights:is(:hover, :has(:focus-visible)) .traffic-light--minimize { background: var(--traffic-minimize); }
+.mac-desktop-window:not(.is-active) .traffic-lights:is(:hover, :has(:focus-visible)) .traffic-light--maximize { background: var(--traffic-maximize); }
 .traffic-light::after { content: ""; position: absolute; inset: 0; border-radius: inherit; opacity: 0; transition: opacity 120ms; }
-.traffic-lights:hover .traffic-light--close::after { opacity: 1; background: radial-gradient(circle at center, rgba(0,0,0,0.35) 32%, transparent 34%); }
-.traffic-lights:hover .traffic-light--minimize::after { opacity: 1; background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)) no-repeat center / 6px 1.5px; }
-.traffic-lights:hover .traffic-light--maximize::after { opacity: 1; background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)) no-repeat center / 6px 1.5px, linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)) no-repeat center / 1.5px 6px; }
+.traffic-lights:is(:hover, :has(:focus-visible)) .traffic-light--close::after { opacity: 1; background: radial-gradient(circle at center, rgba(0,0,0,0.35) 32%, transparent 34%); }
+.traffic-lights:is(:hover, :has(:focus-visible)) .traffic-light--minimize::after { opacity: 1; background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)) no-repeat center / 6px 1.5px; }
+.traffic-lights:is(:hover, :has(:focus-visible)) .traffic-light--maximize::after { opacity: 1; background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)) no-repeat center / 6px 1.5px, linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)) no-repeat center / 1.5px 6px; }
 .traffic-light:active { transform: scale(0.9); }
 
 /* page scroll container */

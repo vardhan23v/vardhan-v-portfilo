@@ -98,8 +98,9 @@ export function Navbar() {
   useEffect(() => {
     if (!open) return;
     const sheet = sheetRef.current;
-    const focusables = () => Array.from(sheet?.querySelectorAll<HTMLElement>("a, button") ?? []);
-    focusables()[0]?.focus({ preventScroll: true });
+    // The header's Close toggle stays visible above the sheet, so it is part of the Tab cycle too.
+    const focusables = () => [buttonRef.current, ...Array.from(sheet?.querySelectorAll<HTMLElement>("a, button") ?? [])].filter((el): el is HTMLElement => Boolean(el));
+    sheet?.querySelector<HTMLElement>("a, button")?.focus({ preventScroll: true });
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") { setOpen(false); buttonRef.current?.focus({ preventScroll: true }); return; }
       if (e.key !== "Tab") return;
@@ -137,8 +138,8 @@ export function Navbar() {
     </header>
       <div className={`nav-sheet${open ? " is-open" : ""}`} id="nav-sheet" ref={sheetRef} role="dialog" aria-modal="true" aria-label="Menu" hidden={!open}>
         <nav aria-label="Menu sections">
-          {LINKS.map((l) => (
-            <a key={l.href} href={l.href} onClick={() => setOpen(false)}>{l.label}</a>
+          {LINKS.map((l, i) => (
+            <a key={l.href} href={l.href} onClick={() => setOpen(false)} aria-current={active === l.href.slice(1) ? "location" : undefined} style={{ "--i": i } as React.CSSProperties}>{l.label}</a>
           ))}
         </nav>
         <div className="nav-sheet-foot">

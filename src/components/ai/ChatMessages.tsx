@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState, type WheelEvent } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type WheelEvent } from "react";
 import { ArrowDown, Check, Copy, RotateCcw } from "lucide-react";
 import type { ChatMessage } from "../../lib/ai/useChat";
-import { motionReduced } from "../../lib/motion";
+import { assistantMotionOff } from "../../lib/ai/motion";
 import { Markdown } from "./Markdown";
 import { SourceReferences } from "./SourceReferences";
 import { SuggestedQuestions } from "./SuggestedQuestions";
@@ -32,15 +32,45 @@ function MessageActions({ m, onRetry }: { m: ChatMessage; onRetry: (id: string) 
   );
 }
 
-function AssistantBubble({ m, isNew, onRetry }: { m: ChatMessage; isNew: boolean; onRetry: (id: string) => void }) {
+/** Cited row → visible inside the log (never the page behind the panel), then flashed once. */
+function revealSource(bubble: HTMLElement) {
+  const row = bubble.querySelector<HTMLElement>(".pa-sources li.is-hl");
+  const log = bubble.closest<HTMLElement>(".pa-messages");
+  if (!row || !log) return;
+  const off = assistantMotionOff();
+  const r = row.getBoundingClientRect();
+  const l = log.getBoundingClientRect();
+  // Room for the "Latest" pill and the bottom fade.
+  const below = r.bottom - (l.bottom - 44);
+  const above = l.top + 8 - r.top;
+  const delta = below > 0 ? Math.min(below, r.top - l.top - 8) : above > 0 ? -above : 0;
+  if (delta) log.scrollTo({ top: log.scrollTop + delta, behavior: off ? "auto" : "smooth" });
+  if (!off) row.firstElementChild?.animate?.([{ opacity: 1 }, { opacity: 0 }], { duration: 900, easing: "ease-out", pseudoElement: "::after" });
+}
+
+const AssistantBubble = memo(function AssistantBubble({ m, isNew, onRetry }: { m: ChatMessage; isNew: boolean; onRetry: (id: string) => void }) {
   const [hl, setHl] = useState<number | null>(null);
-  const cites = new Set((m.sources ?? []).map((s) => s.n));
+  const ref = useRef<HTMLDivElement>(null);
+  const timer = useRef<number | undefined>(undefined);
+  const cites = useMemo(() => new Set((m.sources ?? []).map((s) => s.n)), [m.sources]);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+  // Open the sources (SourceReferences opens on highlight), bring the row into view, flash it.
+  // Clicking the same number again replays the scroll and flash; it never collapses the list.
+  const onCite = useCallback((n: number) => {
+    const el = ref.current;
+    if (!el) return;
+    const wasOpen = el.querySelector(".pa-sources")?.hasAttribute("open");
+    setHl(n);
+    window.clearTimeout(timer.current);
+    // 320ms = the ::details-content block-size transition, only when the list has to open.
+    timer.current = window.setTimeout(() => revealSource(el), wasOpen || assistantMotionOff() ? 30 : 330);
+  }, []);
   return (
-    <div className={`pa-msg pa-msg--bot${isNew ? " is-new" : ""}${m.status === "error" ? " is-error" : ""}${m.status === "streaming" && m.content ? " is-streaming" : ""}`}>
+    <div ref={ref} className={`pa-msg pa-msg--bot${isNew ? " is-new" : ""}${m.status === "error" ? " is-error" : ""}${m.status === "streaming" && m.content ? " is-streaming" : ""}`}>
       {m.status === "streaming" && !m.content ? (
         <div className="pa-typing" role="status"><span>Thinking</span><i aria-hidden /><i aria-hidden /><i aria-hidden /></div>
       ) : (
-        m.content && <Markdown className="pa-md" text={m.content} citations={cites} onCite={setHl} />
+        m.content && <Markdown className="pa-md" text={m.content} citations={cites} onCite={onCite} active={hl} />
       )}
       {m.status === "error" && (
         <div className="pa-error" role="alert">
@@ -52,7 +82,7 @@ function AssistantBubble({ m, isNew, onRetry }: { m: ChatMessage; isNew: boolean
       {m.status !== "error" && <MessageActions m={m} onRetry={onRetry} />}
     </div>
   );
-}
+});
 
 export function ChatMessages({ messages, onRetry, onPick, empty }: { messages: ChatMessage[]; onRetry: (id: string) => void; onPick?: (q: string) => void; empty?: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -62,9 +92,11 @@ export function ChatMessages({ messages, onRetry, onPick, empty }: { messages: C
   const [openedAt] = useState(() => Date.now());
   const [awayFromEnd, setAwayFromEnd] = useState(false);
   const last = messages[messages.length - 1];
-  const next = onPick ? followUps(messages) : [];
+  // Follow-ups only exist under a finished answer, so skip the work on every streamed token.
+  const next = onPick && last?.status === "done" ? followUps(messages) : [];
 
-  useEffect(() => {
+  // Before paint, so a newly wrapped line never shows one frame low before the log catches up.
+  useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
     // A new question always returns to the end; streamed text only follows a reader who stayed there.
@@ -87,7 +119,7 @@ export function ChatMessages({ messages, onRetry, onPick, empty }: { messages: C
 
   const jumpToEnd = () => {
     following.current = true;
-    ref.current?.scrollTo({ top: ref.current.scrollHeight, behavior: motionReduced() ? "auto" : "smooth" });
+    ref.current?.scrollTo({ top: ref.current.scrollHeight, behavior: assistantMotionOff() ? "auto" : "smooth" });
   };
 
   return (

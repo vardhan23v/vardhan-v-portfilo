@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { site } from "../classic/data/site";
 import { caseStudies } from "../terminal/data/work";
 import "./command-palette.css";
 import { motionReduced, motionSummary, setMotionPreference } from "../lib/motion";
+import { prefetchEdition } from "../lib/editionLoaders";
 
 type Item = {
   id: string;
@@ -86,7 +87,14 @@ export function CommandPalette() {
   const [query, setQuery] = useState("");
   const [index, setIndex] = useState(0);
   const [copied, setCopied] = useState<string | null>(null);
+  const [closing, setClosing] = useState(false);
+  const [entering, setEntering] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const glideRef = useRef<HTMLSpanElement>(null);
+  const opener = useRef<Element | null>(null);
+  const closeTimer = useRef(0);
+  const closingRef = useRef(false);
 
   const [motionTick, setMotionTick] = useState(0);
   const items = useMemo(() => {
@@ -124,6 +132,59 @@ export function CommandPalette() {
     };
   }, [open]);
 
+  const enterTimer = useRef(0);
+  const openPalette = useCallback(() => {
+    opener.current = document.activeElement;
+    setOpen(true);
+    // rows animate in on the open render only (keyed rows re-inserted while typing would restart)
+    clearTimeout(enterTimer.current);
+    const animate = !motionReduced();
+    setEntering(animate);
+    if (animate) enterTimer.current = window.setTimeout(() => setEntering(false), 300);
+  }, []);
+
+  /** Every close path goes through here: a 140 ms exit (instant under reduced motion), then focus returns to the opener. */
+  const close = useCallback((immediate = false) => {
+    if (closingRef.current && !immediate) return;
+    clearTimeout(closeTimer.current);
+    const done = () => {
+      closingRef.current = false;
+      setClosing(false);
+      setOpen(false);
+      const back = opener.current as HTMLElement | null;
+      opener.current = null;
+      if (back && back.isConnected && back !== document.body) back.focus?.({ preventScroll: true });
+    };
+    if (immediate || motionReduced()) return done();
+    closingRef.current = true;
+    setClosing(true);
+    closeTimer.current = window.setTimeout(done, 140);
+  }, []);
+
+  useEffect(() => () => {
+    clearTimeout(closeTimer.current);
+    clearTimeout(enterTimer.current);
+  }, []);
+
+  // The active row's edition starts downloading before Enter.
+  const activePath = open ? items[index]?.path : undefined;
+  useEffect(() => {
+    if (activePath) prefetchEdition(activePath);
+  }, [activePath]);
+
+  // One highlight glides to the active row; the row stays in view while arrowing through the list.
+  useLayoutEffect(() => {
+    if (!open) return;
+    const list = listRef.current;
+    const glide = glideRef.current;
+    const row = list?.querySelector<HTMLElement>('[aria-selected="true"]');
+    if (!glide || !row) return;
+    glide.style.transform = `translateY(${row.offsetTop}px)`;
+    glide.style.height = `${row.offsetHeight}px`;
+    glide.style.opacity = "1";
+    row.scrollIntoView({ block: "nearest" });
+  }, [index, items, open]);
+
   const select = useCallback(
     (item: Item) => {
       pushRecent(item.id);
@@ -132,9 +193,9 @@ export function CommandPalette() {
         navigator.clipboard?.writeText(text).then(
           () => {
             setCopied(item.id);
-            setTimeout(() => setOpen(false), 650);
+            setTimeout(() => close(), 650);
           },
-          () => setOpen(false)
+          () => close()
         );
         return;
       }
@@ -144,7 +205,10 @@ export function CommandPalette() {
         setMotionTick((t) => t + 1);
         return; // stay open so the new state is visible
       }
-      setOpen(false);
+      // a navigation's page transition covers the palette, so it leaves at once (and focus is not pulled back)
+      const leaving = item.action === "random" || !!item.path;
+      if (leaving) opener.current = null;
+      close(leaving);
       if (item.action === "party") {
         window.dispatchEvent(new CustomEvent("vardhan:party"));
       } else if (item.action === "random") {
@@ -164,7 +228,7 @@ export function CommandPalette() {
         window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
       }
     },
-    [navigate, pathname]
+    [navigate, pathname, close]
   );
 
   useEffect(() => {
@@ -175,13 +239,19 @@ export function CommandPalette() {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        setOpen((o) => !o);
+        if (closingRef.current) return;
+        if (open) close();
+        else openPalette();
         return;
       }
       if (!open) return;
+      if (closingRef.current) {
+        e.preventDefault();
+        return;
+      }
       if (e.key === "Escape") {
         e.preventDefault();
-        setOpen(false);
+        close();
         return;
       }
       if (e.key === "ArrowDown") {
@@ -202,9 +272,11 @@ export function CommandPalette() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, items, index, select, isMac]);
+  }, [open, items, index, select, isMac, close, openPalette]);
 
   if (isMac || !open) return null;
+
+  const optId = (it: Item) => `cp-opt-${it.id}`;
 
   return (
     <div
@@ -212,7 +284,8 @@ export function CommandPalette() {
       role="dialog"
       aria-modal="true"
       aria-label="Command palette"
-      onClick={() => setOpen(false)}
+      data-state={closing ? "closing" : "open"}
+      onClick={() => close()}
     >
       <div className="cp-panel" onClick={(e) => e.stopPropagation()}>
         <input
@@ -220,23 +293,35 @@ export function CommandPalette() {
           className="cp-input"
           value={query}
           onChange={(e) => {
+            if (closingRef.current) return;
             setQuery(e.target.value);
             setIndex(0);
           }}
           placeholder="Jump to a page, interface, or link…"
           aria-label="Search"
+          role="combobox"
+          aria-expanded="true"
+          aria-controls="cp-list"
+          aria-autocomplete="list"
+          aria-activedescendant={items[index] ? optId(items[index]) : undefined}
         />
         {items.length ? (
-          <div className="cp-list" role="listbox">
+          <div ref={listRef} className="cp-list" id="cp-list" role="listbox" aria-label="Results" data-entering={entering || undefined}>
+            <span ref={glideRef} className="cp-glide" aria-hidden="true" />
             {items.map((it, i) => (
               <button
                 key={it.id}
+                id={optId(it)}
                 type="button"
                 role="option"
+                tabIndex={-1}
                 aria-selected={i === index}
                 className={`cp-item${i === index ? " is-active" : ""}`}
+                style={{ "--i": i } as CSSProperties}
                 onMouseEnter={() => setIndex(i)}
-                onClick={() => select(it)}
+                onClick={() => {
+                  if (!closingRef.current) select(it);
+                }}
               >
                 <span>{copied === it.id ? "Copied ✓" : it.label}</span>
                 <span className="cp-hint">{it.hint}</span>
@@ -244,7 +329,10 @@ export function CommandPalette() {
             ))}
           </div>
         ) : (
-          <div className="cp-empty">No matches for “{query}”.</div>
+          <div className="cp-empty" role="status">
+            <span className="cp-empty-glyph" aria-hidden="true">⌕</span>
+            <span className="cp-empty-text">No matches for “{query}”.</span>
+          </div>
         )}
         <div className="cp-footer">
           <span>↑↓ navigate</span>

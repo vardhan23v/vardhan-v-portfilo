@@ -156,3 +156,13 @@ Every pair passes 4.5:1. Light orange and light green were darkened (from `#ea58
 ### Motion polish (2026-11-10)
 - Page headers settle in order; mini project cards fold in on their `.rv` wrapper; widgets bob (`macBob`); Quick Look opens with a rotateX.
 - The Terminal app's `matrix` honours both motion gates.
+
+### UI polish (2026-11-10)
+- Quiet idle: the wallpaper drift pauses under a maximised window, Launchpad, the screensaver, system states and Mission Control, and after 15 s without input (`.mac-wallpaper[data-still]`, set by `Wallpaper.tsx`). Widgets bob twice, then rest. Status dots ping four times as a composited ring (`dotRing`); the login avatar breathes through an opacity/scale ring (`breatheRing`), no animated box-shadow.
+- Boot dissolves into the desktop: `Desktop` mounts when the login card starts its 520 ms fade (`BootScreen onLeave`), and the wallpaper wakes (`wpWake`) under it.
+- Dock: magnification reads cached rest centres (measured at rest, on order/running/resize changes, after each settle) instead of per-frame rects; tracking is 60 ms. Keyboard focus shows the tile's label and swells the Dock; leaving the Dock settles it. The launch bounce is one 720 ms hop and does not play when restoring a minimised window. Phones: proximity snap, glass edge fades (`.mac-dock-wrap[data-more]`), and the active app scrolls into view (the nav scrolls, never `scrollIntoView`).
+- Windows: minimised windows stay mounted (`.is-min-hidden`: hidden, `content-visibility: hidden`, `inert`), so scroll position, terminal history and drafts survive; `bodyIn` plays only before `[data-shown]`, so nothing replays on restore. Windows zoom out of the icon that launched them (Launchpad glyph, desktop icon, Finder item; `src/mac/lib/launchOrigin.ts`), else the Dock tile.
+- Traffic-light glyphs also show when a light has `:focus-visible`. ⌥Tab switcher: one gliding selection pill, a label crossfade and a 120 ms exit.
+- No layout animation on hover: the clock presses (scale) instead of letter-spacing, ledger rows slide their number and name by transform, the contact address fades an underline in; `nameIn` and `timePulse` dropped letter-spacing.
+- Page progress bars are scroll-driven (`animation-timeline: scroll()`), with a rAF/ResizeObserver fallback that writes only the bar's transform. The screensaver clock drifts by transform and stays put with reduced motion.
+- Type: balanced headings, `text-wrap: pretty` in page copy, tabular widget stats.

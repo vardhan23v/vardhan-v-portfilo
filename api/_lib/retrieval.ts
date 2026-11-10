@@ -98,6 +98,8 @@ export const HIRING = /\b(hire|hiring|fit for|good fit|right fit|why (?:him|vard
 const EXPERIENCE = /\b(experience|internships?|intern|employ\w*|career|jobs?|compan(?:y|ies))\b/i;
 const CONTACT = /\b(e-?mail|contact|reach|linkedin|phone|locat\w*|based in|where (?:is|does) (?:he|vardhan) (?:from|live))\b/i;
 const EDUCATION = /\b(study|studied|studying|education|degree|college|university|school|b\.?tech|cgpa)\b/i;
+/** Questions about what a project is built with: its stack, models, database or languages. */
+export const TECH_QUESTION = /\b(stack|tech(?:nolog(?:y|ies))?|llms?|models?|ai providers?|providers?|database|db|frameworks?|librar(?:y|ies)|languages?|built with|written in|hosted|deployed)\b/i;
 const STOPWORDS = new Set("list all any give show the and for with has have had his him was were are does did what which where when who why how can could would should about from that this those these they them built build used using use know work worked project projects tell please vardhan".split(" "));
 
 /**
@@ -220,7 +222,11 @@ export async function retrieve(
   const best = scored[0]?.score ?? 0;
   // Each search keeps its best hits, so one part of a compound question can't erase the other.
   const anchors = new Set(results.flatMap((r) => r.slice(0, 2).map((c) => c.chunkId)));
-  const relevant = scored.filter((c) => (c.score >= best - 0.25 || anchors.has(c.chunkId)) && (c.similarity >= opts.threshold || (projects.length && projects.includes(chunkProject(c) ?? ""))));
+  // For "what does X use" questions the project's fact card is the authoritative tech list, and its
+  // repository files (older notes, superseded summaries) must not contradict it: leave them out.
+  const carded = TECH_QUESTION.test(q) ? new Set(projects.filter((k) => factCard(k))) : new Set<string>();
+  const ownRepoFile = (c: ChunkMatch) => c.sourceType === "github" && carded.has(matchProjects(chunkProject(c) ?? "")[0] ?? "");
+  const relevant = scored.filter((c) => !ownRepoFile(c) && (c.score >= best - 0.25 || anchors.has(c.chunkId)) && (c.similarity >= opts.threshold || (projects.length && projects.includes(chunkProject(c) ?? ""))));
 
   // The top hit of every search gets a guaranteed slot before the general ranking fills the rest.
   if (results.length > 1) {

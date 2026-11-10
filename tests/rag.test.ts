@@ -469,6 +469,23 @@ describe("reasoning upgrade", () => {
     expect(out3).toBe("- **Live site:** [Live site](https://launchradar-psi.vercel.app)\n- Code: [GitHub](https://github.com/vardhan23v/launchradar).\nBuilt in 2026 [3].");
   });
 
+  it("answers stack questions from the fact card, not a project's older repository notes", async () => {
+    const store = new MemoryStore();
+    const embedder = new HashEmbeddings(256);
+    await ingestDocuments("portfolio", buildPortfolioDocuments(), { store, embedder }, { chunkTokens: 700, overlapTokens: 100 });
+    const note = { sourceType: "github" as const, sourceId: "codereviewer/IMPLEMENTATION_SUMMARY.md", title: "codereviewer/IMPLEMENTATION_SUMMARY.md", content: "AI Code Reviewer LLMs: the AI review engine uses the Claude 3.5 Sonnet API.", metadata: { repo: "codereviewer", path: "IMPLEMENTATION_SUMMARY.md", kind: "docs" } };
+    const other = { ...note, sourceId: "launchradar/README.md", title: "launchradar/README.md", content: "LaunchRadar LLMs: Groq gpt-oss-120b for synthesis.", metadata: { repo: "launchradar", path: "README.md", kind: "docs" } };
+    await ingestDocuments("github", [note, other], { store, embedder }, { chunkTokens: 700, overlapTokens: 100 });
+    const plan = (q: string) => ({ ...heuristicPlan(q), standalone: q });
+    const ask = (q: string) => retrieve(q, { store, embedder }, { topK: 8, threshold: 0, maxContextTokens: 4000, plan: plan(q) });
+    const stack = await ask("Which LLMs does AI Code Reviewer use?");
+    expect(stack.map((c) => c.title)).toContain("AI Code Reviewer project facts");
+    expect(stack.some((c) => c.content.includes("Claude"))).toBe(false);
+    // Other questions about the project still see its repository files.
+    const how = await ask("How does AI Code Reviewer review code? Claude Sonnet engine");
+    expect(how.some((c) => c.content.includes("Claude"))).toBe(true);
+  });
+
   it("uses checked analyst notes for judgement questions and skips bad or costly ones", async () => {
     const chunks = [{ n: 1 }, { n: 2 }];
     const good = '{"criteria":["technical depth"],"candidates":[{"project":"LaunchRadar","evidence":[{"claim":"Durable Object jobs","n":1},{"claim":"made up","n":9}]},{"project":"HPL Auction","evidence":[{"claim":"Socket.IO bidding","n":2}]},{"project":"Not Real","evidence":[{"claim":"x","n":1}]}],"pick":"LaunchRadar","runnerUp":"HPL Auction","gaps":["traffic"]}';

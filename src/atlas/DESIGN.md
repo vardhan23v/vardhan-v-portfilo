@@ -94,3 +94,7 @@ Browser theme colour for `/atlas` is `#0a0a0a` (`src/seo.ts:55`). The shared bac
 - Keep the backdrop on-demand: no `requestAnimationFrame` loops while idle.
 - Keep Host Grotesk and Fragment Mono imported only here.
 - Any live source needs a fallback or a clean hide when it fails.
+
+
+### Motion polish (2026-11-10)
+- Plate cards and the send button lift on hover with `translate` (fine pointers). Reduced motion follows `html[data-motion]` only.

@@ -554,8 +554,14 @@ function Hero({ stoked, onStoke }: { stoked: boolean; onStoke: () => void }) {
 function Stat({ value, label, accent }: { value: number; label: string; accent?: boolean }) {
   const ref = useRef<HTMLSpanElement>(null);
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    const host = ref.current;
+    if (!host) return;
+    // Write inside the accent <em> when there is one, so the styling survives the count.
+    const el = host.querySelector("em") ?? host;
+    if (motionReduced()) {
+      el.textContent = String(value);
+      return;
+    }
     let raf = 0;
     const obs = new IntersectionObserver(
       (entries) => {
@@ -573,7 +579,7 @@ function Stat({ value, label, accent }: { value: number; label: string; accent?:
       },
       { threshold: 0.4 }
     );
-    obs.observe(el);
+    obs.observe(host);
     return () => {
       obs.disconnect();
       if (raf) cancelAnimationFrame(raf);

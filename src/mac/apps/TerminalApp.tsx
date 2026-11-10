@@ -59,6 +59,11 @@ export function TerminalApp() {
     if (!matrix) return;
     const cv = canvasRef.current;
     if (!cv) return;
+    // Both the site toggle and the macOS Reduce-motion switch turn the rain off.
+    if (motionReduced() || cv.closest(".mac-root")?.getAttribute("data-mac-motion") === "off") {
+      setMatrix(false);
+      return;
+    }
     const parent = cv.parentElement as HTMLElement;
     cv.width = parent.clientWidth;
     cv.height = parent.clientHeight;

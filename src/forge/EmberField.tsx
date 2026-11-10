@@ -95,10 +95,17 @@ export function EmberField({ stoked = false }: { stoked?: boolean }) {
       }
     };
 
+    // Draw only while the hero is on screen and the tab is visible.
+    let onScreen = true;
     const onVis = () => {
       cancelAnimationFrame(raf);
-      if (!document.hidden) raf = requestAnimationFrame(step);
+      if (!document.hidden && onScreen) raf = requestAnimationFrame(step);
     };
+    const io = new IntersectionObserver((entries) => {
+      onScreen = entries[0]?.isIntersecting ?? true;
+      onVis();
+    });
+    io.observe(canvas);
 
     raf = requestAnimationFrame(step);
     window.addEventListener("resize", resize, { passive: true });
@@ -106,6 +113,7 @@ export function EmberField({ stoked = false }: { stoked?: boolean }) {
     document.addEventListener("visibilitychange", onVis);
     return () => {
       cancelAnimationFrame(raf);
+      io.disconnect();
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", onMove);
       document.removeEventListener("visibilitychange", onVis);

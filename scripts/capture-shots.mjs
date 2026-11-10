@@ -90,6 +90,8 @@ async function captureProject(browser, { slug, live }) {
     page.setDefaultNavigationTimeout(NAV_TIMEOUT);
     page.setDefaultTimeout(NAV_TIMEOUT);
     await page.setViewport(DESKTOP);
+    // Sites that follow the OS theme would otherwise be captured light in headless Chrome.
+    await page.emulateMediaFeatures([{ name: "prefers-color-scheme", value: "dark" }]);
     try {
       await withTimeout(
         (async () => {
@@ -131,6 +133,7 @@ async function captureProject(browser, { slug, live }) {
     page.setDefaultTimeout(NAV_TIMEOUT);
     await page.setUserAgent(PHONE_UA);
     await page.setViewport(PHONE);
+    await page.emulateMediaFeatures([{ name: "prefers-color-scheme", value: "dark" }]);
     try {
       await withTimeout(
         (async () => {

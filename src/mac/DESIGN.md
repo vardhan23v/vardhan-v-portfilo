@@ -151,3 +151,8 @@ Every pair passes 4.5:1. Light orange and light green were darkened (from `#ea58
 - Do skip unmodified shortcuts in inputs, textareas and contenteditable, as the 1–7 and `?` handlers do; keep system shortcuts on a modifier.
 - Don't enlarge the menu bar items or traffic lights to meet the 24px target rule; they are native-sized by design. New controls elsewhere should reach 24px.
 - Don't render the interface switcher or the site CursorFX overlay inside `.mac-root`; the edition uses the menu bar link and CSS cursor images instead.
+
+
+### Motion polish (2026-11-10)
+- Page headers settle in order; mini project cards fold in on their `.rv` wrapper; widgets bob (`macBob`); Quick Look opens with a rotateX.
+- The Terminal app's `matrix` honours both motion gates.

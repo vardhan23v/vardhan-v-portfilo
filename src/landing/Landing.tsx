@@ -68,8 +68,9 @@ function useWallpaperParallax(root: React.RefObject<HTMLElement | null>, head: R
       headEl.style.opacity = String(1 - y / 520);
       headEl.style.transform = `translateY(${y * 0.16}px)`;
     };
+    const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
     const onMove = (e: PointerEvent) => {
-      if (raf) return;
+      if (raf || !fine) return;
       raf = requestAnimationFrame(() => {
         raf = 0;
         rootEl.style.setProperty("--px", (e.clientX / window.innerWidth - 0.5).toFixed(3));

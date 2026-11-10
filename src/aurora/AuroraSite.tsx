@@ -657,7 +657,7 @@ export function AuroraSite() {
   const [expandedExp, setExpandedExp] = useState<number | null>(0);
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const [mouse, setMouse] = useState({ x: 50, y: 50 });
+  const glowRef = useRef<HTMLDivElement>(null);
   const [hue, setHue] = useState<HueId>(readHue);
   const [activeSection, setActiveSection] = useState<string>("home");
   const [modalDir, setModalDir] = useState<1 | -1>(1);
@@ -781,12 +781,21 @@ export function AuroraSite() {
     }
   }, [activeProject]);
 
+  // The pointer glow moves through a CSS property, once per frame, so the page never re-renders for it.
   useEffect(() => {
-    const onMove = (e: MouseEvent) => {
-      setMouse({ x: (e.clientX / window.innerWidth) * 100, y: (e.clientY / window.innerHeight) * 100 });
+    const glow = glowRef.current;
+    if (!glow || motionReduced() || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    let frame = 0;
+    let x = 0;
+    let y = 0;
+    const write = () => { frame = 0; glow.style.translate = `${x}px ${y}px`; };
+    const onMove = (e: PointerEvent) => {
+      x = e.clientX;
+      y = e.clientY;
+      if (!frame) frame = requestAnimationFrame(write);
     };
-    window.addEventListener("mousemove", onMove as unknown as EventListener);
-    return () => window.removeEventListener("mousemove", onMove as unknown as EventListener);
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => { window.removeEventListener("pointermove", onMove); cancelAnimationFrame(frame); };
   }, []);
 
   // derived project list
@@ -883,11 +892,11 @@ export function AuroraSite() {
 
   return (
     <div className="aurora-root" data-cursor-accent="aurora" data-hue={hue} style={{ "--au-hue": `${hueDeg}deg` } as React.CSSProperties}>
-      <div className="aurora-bg" aria-hidden="true" style={{ "--mx": `${mouse.x}%`, "--my": `${mouse.y}%` } as React.CSSProperties}>
+      <div className="aurora-bg" aria-hidden="true">
         <div className="au-glow au-glow-purple" />
         <div className="au-glow au-glow-blue" />
         <div className="au-glow au-glow-cyan" />
-        <div className="au-mouse-glow" style={{ left: `${mouse.x}%`, top: `${mouse.y}%` } as React.CSSProperties} />
+        <div className="au-mouse-glow" ref={glowRef} />
       </div>
 
       {activeProject && (
@@ -1333,7 +1342,7 @@ export function AuroraSite() {
 
         <section className="aurora-section" id="about" aria-labelledby="aurora-about-title">
           <div className="au-about">
-            <div className="au-about-head">
+            <div className="au-about-head au-reveal">
               <h2 id="aurora-about-title">About</h2>
               <span className="tag">whoami</span>
             </div>

@@ -148,3 +148,9 @@ Size scale (`aurora.css` line in brackets):
 - Take counts and copy from `src/classic/data/*` (projects, experience, skills, stats, site). Do not type numbers into the markup.
 - Keep new controls at least 24×24px, following the touch-target block at the end of `aurora.css`.
 - Keep decorative additions `aria-hidden` and outside the reading order, the same way the hero panel and marquee are.
+
+
+### Motion polish (2026-11-10)
+- Background glows keep their own `auglow1-3` drift (the late `float-gentle` override is gone).
+- Pointer glow moves via `translate`, written once per frame from a ref (no React state).
+- Grid cards enter with `auCardIn` (3D fold); hero panel tips away on scroll exit; headings draw an underline on a view() timeline.

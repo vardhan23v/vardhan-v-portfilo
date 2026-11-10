@@ -142,3 +142,10 @@ Notes on what actually wins:
 - The WebGL sky stays optional: lazy, gated to wide fine-pointer screens with WebGL, inside the error boundary, with the SVG painting as the poster. No content may depend on it.
 - Keep primary controls at 44px minimum and secondary text controls at 36px.
 - Two families only: Fraunces for headings and Inter for text (the footer says so, `Footer.tsx:39`).
+
+
+### Motion polish (2026-11-10)
+- `.stat`, `.more` and `.builds` use the observer reveal (no longer in `SCROLL_DRIVEN`), so the stat flip plays.
+- `.build` rows fold with the page like `.compact`; the process connector draws on a `view-timeline`.
+- Process numbers bob (`cl-bob`) only while their step has `data-in`; About facts fold in; footer columns stagger.
+- Rows that carry an entrance animation lift on hover with `translate`, never `transform`.

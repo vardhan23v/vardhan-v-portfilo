@@ -18,6 +18,16 @@
   0%, 100% { transform: translateY(-4px); }
   50% { transform: translateY(4px); }
 }
+/* Floating built on the individual `translate` property, so it adds to an element's
+   own transform (tilt, parallax) instead of replacing it. */
+@keyframes float-y {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -8px; }
+}
+@keyframes float-y-reverse {
+  0%, 100% { translate: 0 -5px; }
+  50% { translate: 0 5px; }
+}
 @keyframes pulse-glow {
   0%, 100% { opacity: 0.6; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.04); }
@@ -56,9 +66,6 @@ html[data-motion="reduce"] *::after {
    ============================================================ */
 .fg-reveal, .au-reveal, .land-stats, .classic-root .reveal {
   will-change: opacity, transform;
-}
-.fg-reveal:not(.fg-in), .au-reveal:not(.is-in) {
-  /* fallback ensures motion.css doesn't break if JS fails */
 }
 
 /* Interface switcher subtle breathe */
@@ -102,31 +109,6 @@ html[data-motion="reduce"]::view-transition-new(root) {
 @keyframes vt-in {
   from { opacity: 0; transform: translateY(14px) scale(0.995); filter: blur(3px); }
   to { opacity: 1; transform: none; filter: none; }
-}
-
-/* ============================================================
-   Scroll-driven reveals — pure CSS, no observers
-   (progressive: only in browsers with animation-timeline)
-   ============================================================ */
-@supports (animation-timeline: view()) {
-  /* motion gate (no-preference) — driven by html[data-motion], see src/lib/motion.ts */
-html:not([data-motion="reduce"]) .edition-tilt,
-html:not([data-motion="reduce"]) .land-stat,
-html:not([data-motion="reduce"]) .land-project-item,
-html:not([data-motion="reduce"]) .classic-root .project-card,
-html:not([data-motion="reduce"]) .paper-root section > * > h2,
-html:not([data-motion="reduce"]) .fg-card,
-html:not([data-motion="reduce"]) .au-card {
-      animation: scroll-rise linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 42%;
-    }
-  
-}
-@keyframes scroll-rise {
-  from { opacity: 0.15; transform: translateY(26px) scale(0.985); }
-  /* `to` deliberately omits transform so hover lifts still apply after entry */
-  to { opacity: 1; }
 }
 
 /* global polish — smoother font rendering + selection */

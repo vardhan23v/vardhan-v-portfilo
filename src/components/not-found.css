@@ -8,3 +8,15 @@
 .nf-link { padding: 8px 14px; border-radius: 999px; border: 0.5px solid var(--border-2); font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em; }
 .nf-link:hover { background: rgba(255,255,255,0.08); }
 .nf-link--primary { background: var(--accent); color: #061024; border-color: transparent; }
+
+/* Entrance: the card rises with a little depth, then the edition links follow one by one. */
+@keyframes nf-card-in { from { opacity: 0; transform: perspective(1000px) translateY(22px) rotateX(10deg); } }
+@keyframes nf-link-in { from { opacity: 0; transform: translateY(8px); } }
+html:not([data-motion="reduce"]) .nf-card { transform-origin: 50% 0; animation: nf-card-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+html:not([data-motion="reduce"]) .nf-link { animation: nf-link-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+html:not([data-motion="reduce"]) .nf-link:nth-child(1) { animation-delay: 0.25s; }
+html:not([data-motion="reduce"]) .nf-link:nth-child(2) { animation-delay: 0.3s; }
+html:not([data-motion="reduce"]) .nf-link:nth-child(3) { animation-delay: 0.35s; }
+html:not([data-motion="reduce"]) .nf-link:nth-child(4) { animation-delay: 0.4s; }
+html:not([data-motion="reduce"]) .nf-link:nth-child(5) { animation-delay: 0.45s; }
+html:not([data-motion="reduce"]) .nf-link:nth-child(n+6) { animation-delay: 0.5s; }

@@ -121,3 +121,8 @@ All Paper motion uses `cubic-bezier(0.22, 1, 0.36, 1)` unless noted.
 - Any new animation must be safe when `html[data-motion="reduce"]` cuts it to 0.001s; do not add motion that only makes sense when it plays.
 - Add new text-link or text-button classes to the 24px target list (`paper.css:674`).
 - Unused rules for `.paper-title`, `.pp-card`, `.pp-chip` and related classes were removed; keep `paper.css` to selectors that `PaperSite.tsx` renders.
+
+
+### Motion polish (2026-11-10)
+- Root uses `overflow-x: clip` (not hidden) so sticky and scroll timelines work.
+- Experience and skill rows stagger via `--d`; About prose reveals; experience hover slides with `translate`.

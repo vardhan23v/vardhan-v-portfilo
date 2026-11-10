@@ -212,3 +212,10 @@ Contrast, computed with the WCAG 2 formula:
 - Mark decorative layers `aria-hidden` and keep the visible label in the accessible name. If a link opens a new tab, add `.sr-only` text saying so.
 - Keep controls at 24×24px or larger, and make sure the 1080px, 720px and 480px breakpoints still collapse the grids cleanly when a card is added.
 - Unused rules (`.landing-title .landing-grad`, `.land-project-item`) were removed; keep `Landing.css` to selectors that `Landing.tsx` or `skins.tsx` render.
+
+
+### Motion polish (2026-11-10)
+- Stage frame floats with `float-y` (the `translate` property), so the pointer tilt still applies.
+- `stage-in` carries `perspective()` inside the keyframe so the rotateX reads as 3D.
+- Edition cards fold in (rotateX + rise); stats and selected-work rows stagger in with backwards-fill animations so hover lifts still work.
+- Wallpaper pointer parallax runs on fine pointers only.

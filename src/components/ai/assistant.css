@@ -252,3 +252,8 @@ html:not([data-motion="reduce"]) .pa-input__btn:active:not(:disabled) { transfor
 @media (max-width: 640px) {
   html:has(.mac-root) .pa-launcher { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
 }
+
+/* Opening flourish on child elements only (the panel's own animationend closes it). */
+html:not([data-motion="reduce"]) .pa-panel:not(.is-closing) .pa-panel__mark svg { animation: pa-mark-in 0.7s var(--pa-spring) 0.12s both; }
+@keyframes pa-mark-in { from { opacity: 0; transform: rotate(-120deg) scale(0.4); } }
+html:not([data-motion="reduce"]) .pa-panel:not(.is-closing) .pa-empty__hi { animation: pa-rise 0.5s var(--pa-spring) 0.14s both; }

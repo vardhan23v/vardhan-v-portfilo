@@ -214,3 +214,8 @@ JetBrains Mono sizes:
 - New shell commands go in `runCmd()` and return lines plus `ShellEffect`s. Keep the engine pure: DOM work belongs in `runEffects` (`Hero.tsx:283-334`). Add a `MAN_PAGES` entry so `help`, `man` and tab completion pick it up.
 - Read motion state from `motionReduced()` (`src/lib/motion.ts`) and gate CSS with `html[data-motion="reduce"]`, never with the media query directly. Anything that starts hidden and is revealed by an animation also needs a visible end state under reduce.
 - Keep controls at 24px or more in both dimensions, and keep the 34px `--bar-h` reserved at the bottom for any new fixed UI.
+
+
+### Motion polish (2026-11-10)
+- Case page: man sections, screenshots and commits print in as they scroll into view (`case-pre` → `case-in`); the title types once.
+- Work `.prog` rows stagger with `--i`.

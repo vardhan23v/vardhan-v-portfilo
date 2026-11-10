@@ -82,25 +82,25 @@ await sleep(500);
 const auClear = await p.evaluate(() => document.querySelector(".au-card").style.getPropertyValue("--ry"));
 chk("aurora exit => vars cleared", auClear === "");
 
-// classic cards
+// classic featured screenshots: useEffects writes --tx/--ty (-1..1); CSS applies the tilt on hover only
 await p.goto("http://localhost:4173/classic", { waitUntil: "networkidle0" });
-await p.waitForSelector(".project-card", { timeout: 10000 });
+await p.waitForSelector(".feature .shot-frame", { timeout: 10000 });
 await sleep(800);
-await p.evaluate(() => document.querySelector(".project-card").scrollIntoView({ block: "center" }));
-await sleep(800);
+await p.evaluate(() => document.querySelector(".feature .shot-frame").scrollIntoView({ block: "center" }));
+await sleep(1200);
 const cl = await p.evaluate(() => {
-  const el = document.querySelector(".project-card");
+  const el = document.querySelector(".feature .shot-frame");
   const r = el.getBoundingClientRect();
   return { x: r.x + r.width - 12, y: r.y + 12 };
 });
-await p.mouse.move(cl.x, cl.y);
+await p.mouse.move(cl.x, cl.y, { steps: 6 });
 await sleep(600);
-const clTilt = await p.evaluate(() => document.querySelector(".project-card").style.getPropertyValue("--ry"));
+const clTilt = await p.evaluate(() => document.querySelector(".feature .shot-frame").style.getPropertyValue("--tx"));
 chk("classic tilt set", Math.abs(parseFloat(clTilt)) > 0.5);
 await p.mouse.move(40, 860, { steps: 12 });
 await sleep(500);
-const clClear = await p.evaluate(() => document.querySelector(".project-card").style.getPropertyValue("--ry"));
-chk("classic exit => vars cleared", clClear === "");
+const clHover = await p.evaluate(() => document.querySelector(".feature .shot-frame").matches(":hover"));
+chk("classic exit => tilt released (not hovered)", clHover === false);
 
 console.log(f === 0 ? "3D TILT CHECKS PASS" : f + " FAILURES");
 await b.close();

@@ -917,9 +917,17 @@
   margin-top: 18px;
 }
 
-.aurora-grid .au-tilt,
 .au-projects .au-ft-tilt {
   animation: auin 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+/* Grid cards fold up in 3D, one after another (the tilt lives on the inner card, so it is untouched). */
+.aurora-grid .au-tilt {
+  transform-origin: 50% 0;
+  animation: auCardIn 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes auCardIn {
+  from { opacity: 0; transform: perspective(1100px) translateY(26px) rotateX(14deg) scale(0.97); }
+  to { opacity: 1; transform: none; }
 }
 
 .aurora-grid .au-tilt {
@@ -1453,6 +1461,19 @@
     animation-timeline: view();
     animation-range: entry 8% entry 34%;
   }
+  /* The hero system panel tips back into the sky as it scrolls away (and returns on the way up). */
+  html:not([data-motion="reduce"]) .au-hero-visual.au-reveal {
+    transform-origin: 50% 0;
+    animation: auin 0.7s ease both, auTiltAway linear forwards;
+    animation-timeline: view(), view();
+    animation-range: entry 8% entry 34%, exit 10% exit 100%;
+  }
+  /* Section titles draw their underline as they come up. */
+  html:not([data-motion="reduce"]) .aurora-root :is(.aurora-head, .au-about-head) h2::after {
+    animation: auLineDraw linear backwards;
+    animation-timeline: view();
+    animation-range: entry 40% cover 35%;
+  }
 
 }
 
@@ -1588,10 +1609,15 @@ html[data-motion="reduce"] .au-reveal {
   border-radius: 50%;
   background: radial-gradient(circle, rgba(167, 139, 250, 0.14), transparent 62%);
   filter: blur(18px);
+  left: 0;
+  top: 0;
   transform: translate(-50%, -50%);
+  /* AuroraSite writes `translate` from the pointer; the transition gives it a soft lag. */
+  translate: 50vw 50vh;
   pointer-events: none;
   opacity: 0.9;
-  transition: left 0.35s ease, top 0.35s ease;
+  transition: translate 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: translate;
   mix-blend-mode: screen;
 }
 
@@ -2914,16 +2940,7 @@ html:not([data-motion="reduce"]) .au-random.is-rolling span {
 /* ============================================================
    4) AURORA — luminous drift + glass
    ============================================================ */
-.aurora-root .au-glow {
-  animation: float-gentle 8s ease-in-out infinite alternate;
-}
-.aurora-root .au-glow-blue {
-  animation: float-gentle-reverse 10s ease-in-out infinite alternate;
-}
-.aurora-root .au-glow-cyan {
-  animation: float-gentle 12s ease-in-out infinite alternate-reverse;
-}
-.aurora-root .au-glow-purple { animation-delay: -1s; }
+/* The glows keep their own slow drift (auglow1-3 above). */
 .aurora-root .au-card,
 .aurora-root .au-ft {
   transition: transform 0.45s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s ease, backdrop-filter 0.3s ease;
@@ -3037,3 +3054,19 @@ html:not([data-motion="reduce"]) .au-random.is-rolling span {
 .au-hue-swatch { min-width: 24px; min-height: 24px; }
 .au-search input, .au-sort select { min-height: 32px; }
 .au-card-links a, .au-eng-btn, .au-work-foot-link, .aurora-foot-links a, .au-foot-top { min-height: 26px; display: inline-flex; align-items: center; }
+
+/* ---------- motion polish: heading underline, hero tilt-away ---------- */
+.aurora-root :is(.aurora-head, .au-about-head) h2 { position: relative; }
+.aurora-root :is(.aurora-head, .au-about-head) h2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -10px;
+  width: 64px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--violet), transparent);
+  transform-origin: 0 50%;
+}
+@keyframes auLineDraw { from { transform: scaleX(0); opacity: 0; } }
+@keyframes auTiltAway { to { opacity: 0.35; transform: perspective(1200px) rotateX(18deg) translateY(-24px) scale(0.96); } }

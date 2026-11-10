@@ -109,7 +109,7 @@
 .finder { position: relative; outline: none; }
 .finder__ql { position: absolute; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; padding: 18px; background: var(--overlay); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); animation: lpIn 160ms var(--ease-cinema) both; }
 .finder__ql-card { width: min(640px, 100%); border-radius: 16px; overflow: hidden; background: var(--glass-bg-strong); border: 0.5px solid var(--glass-border); box-shadow: var(--el-4), var(--glass-inset); animation: qlIn 300ms var(--ease-spring) both; }
-@keyframes qlIn { from { opacity: 0; transform: scale(0.9) translateY(10px); } }
+@keyframes qlIn { from { opacity: 0; transform: perspective(900px) rotateX(16deg) scale(0.9) translateY(14px); } }
 .finder__ql-bar { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-bottom: 0.5px solid var(--border); }
 .finder__ql-title { flex: 1; text-align: center; font-family: var(--font-display); font-size: 1.05rem; font-weight: 500; }
 .finder__ql-close { width: 26px; height: 26px; border-radius: 999px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); }

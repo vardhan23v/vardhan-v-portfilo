@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { caseStudies } from "../data/work";
 import { aboutProject, askAssistant } from "../../lib/ai/ask";
+import { motionReduced } from "../../lib/motion";
 
 /** Old terminal slugs → current ones (kept so shared links keep working). */
 const LEGACY: Record<string, string> = { "code-reviewer": "ai-code-reviewer" };
@@ -33,6 +34,29 @@ export function WorkDetail() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [idx, prev, next, navigate]);
+
+  // Man-page sections, screenshots and commits print in as they scroll into view.
+  useEffect(() => {
+    if (idx === -1 || motionReduced() || typeof IntersectionObserver === "undefined" || document.visibilityState !== "visible") return;
+    const els = Array.from(document.querySelectorAll<HTMLElement>(".case :is(.case-shot, .man-section, .decision)"));
+    const vh = window.innerHeight;
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        e.target.classList.add("case-in");
+        io.unobserve(e.target);
+      }
+    }, { rootMargin: "0px 0px -6% 0px", threshold: 0.06 });
+    for (const el of els) {
+      if (el.getBoundingClientRect().top < vh) continue;
+      el.classList.add("case-pre");
+      io.observe(el);
+    }
+    return () => {
+      io.disconnect();
+      for (const el of els) el.classList.remove("case-pre", "case-in");
+    };
+  }, [idx]);
 
   if (idx === -1) {
     const to = slug && LEGACY[slug];

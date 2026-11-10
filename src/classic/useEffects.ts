@@ -8,7 +8,7 @@ const REVEAL = [".section-head", ".about-grid", ".feature", ".more", ".stat", ".
  * browser supports it. There the scroll position drives them both ways, so they are left out of the
  * observer-driven reveal and never get a data-reveal pre-state that could fight the timeline.
  */
-const SCROLL_DRIVEN = [".section-head", ".feature", ".more", ".stat", ".builds", ".xp-row", ".skill-row"].join(", ");
+const SCROLL_DRIVEN = [".section-head", ".feature", ".xp-row", ".skill-row"].join(", ");
 const viewTimelines = () => typeof CSS !== "undefined" && typeof CSS.supports === "function" && CSS.supports("animation-timeline: view()");
 
 /**

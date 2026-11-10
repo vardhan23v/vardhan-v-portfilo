@@ -166,3 +166,9 @@ Reduced motion is driven only by `html[data-motion]` (`src/lib/motion.ts`), neve
 - Don't bind digit keys or modified keys in Forge; digits switch editions site-wide.
 - Don't remove the `aria-hidden` / `inert` pairs on duplicated or off-face content (marquee copies, card faces).
 - Don't let new canvas or particle work run on hidden tabs or without a cap; follow `EmberField` (count by pointer type, DPR ≤ 2, `visibilitychange` pause).
+
+
+### Motion polish (2026-11-10)
+- Hero heading runs `text-reveal` and `fg-head-shimmer` in one animation list.
+- Stats skip the count-up under reduced motion; the ember canvas pauses off screen.
+- Pipeline panel floats with `float-y` (fine pointers); stack cards fold in; interface cards fan in; About children stagger.

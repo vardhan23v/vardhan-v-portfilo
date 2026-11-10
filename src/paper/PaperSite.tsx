@@ -191,8 +191,8 @@ export function PaperSite() {
           <h2 className="paper-overline" id="paper-exp-title" data-pp-reveal>
             Experience
           </h2>
-          {experience.map((e) => (
-            <div className="paper-exp-item" data-pp-reveal key={e.company}>
+          {experience.map((e, i) => (
+            <div className="paper-exp-item" data-pp-reveal key={e.company} style={{ "--d": `${Math.min(i * 0.07, 0.35)}s` } as React.CSSProperties}>
               <div>
                 <div className="paper-exp-role">{e.role}</div>
                 <div className="paper-exp-company">{e.company}</div>
@@ -207,13 +207,13 @@ export function PaperSite() {
             About
           </h2>
           <div className="paper-prose">
-            <p>
+            <p data-pp-reveal>
               {site.name} — a Generative AI developer and full-stack
               engineer in the making. I enjoy taking an idea from interface to
               API, database, and AI integration, then turning it into a product
               people actually use.
             </p>
-            <p>
+            <p data-pp-reveal style={{ "--d": "0.08s" } as React.CSSProperties}>
               Education: B.Tech — Computer Science &amp; Engineering, NMAM
               Institute of Technology, NITTE (2024–2028). Certifications
               include Forage engineering simulations at Electronic Arts and
@@ -222,8 +222,8 @@ export function PaperSite() {
             </p>
           </div>
           <div className="paper-skills">
-            {skillCategories.map((c) => (
-              <div className="paper-skill-line" data-pp-reveal key={c.label}>
+            {skillCategories.map((c, i) => (
+              <div className="paper-skill-line" data-pp-reveal key={c.label} style={{ "--d": `${Math.min(i * 0.05, 0.3)}s` } as React.CSSProperties}>
                 <span className="paper-skill-label">{c.label}</span>
                 <span className="paper-skill-items">
                   {c.items.map((i) => i.name).join(", ")}

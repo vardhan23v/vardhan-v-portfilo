@@ -9,7 +9,7 @@ import { buildPortfolioDocuments } from "../api/_lib/ingest/portfolio";
 import { conversationFocus, matchProjects, retrieve, normalizeQuestion, searchQueries, standaloneQuestion, termSummary } from "../api/_lib/retrieval";
 import { heuristicPlan } from "../api/_lib/planner";
 import { factCard, judgementDigest } from "../api/_lib/digest";
-import { answerGuard, fixAnswerText, unsupportedCounts } from "../api/_lib/verify";
+import { answerGuard, fixAnswerText, tidyAnswerText, unsupportedCounts } from "../api/_lib/verify";
 import { analystNotes, parseNotes } from "../api/_lib/notes";
 import { projectDigest } from "../api/_lib/digest";
 import { parsePlan, planQuestion } from "../api/_lib/planner";
@@ -446,6 +446,29 @@ describe("reasoning upgrade", () => {
     expect(unsupportedCounts("**Extension AI** has 999 users", [{ n: 1, content: "LaunchRadar has 50 tests" }])).toEqual({ projects: 1, numbers: 1 });
   });
 
+  it("tidies the house style: plain characters, named links, one citation group per claim", () => {
+    expect(tidyAnswerText("Groq\u202fLlama 3.3 and full\u2011stack")).toBe("Groq Llama 3.3 and full-stack");
+    expect(tidyAnswerText("Repo: <https://github.com/vardhan23v/x> and <https://x.vercel.app/>")).toBe("Repo: [GitHub](https://github.com/vardhan23v/x) and [Live site](https://x.vercel.app/)");
+    expect(tidyAnswerText(`See <${site.url}/work/hpl-auction>`)).toBe(`See [Case study](${site.url}/work/hpl-auction)`);
+    expect(tidyAnswerText("React [1][4][5] and Node [2] [6].")).toBe("React [1, 4, 5] and Node [2, 6].");
+    expect(tidyAnswerText("providers[2][6]")).toBe("providers [2, 6]");
+    expect(tidyAnswerText("line one  \nline two")).toBe("line one\nline two");
+    expect(tidyAnswerText("Built at Hack Days 2026. [3]")).toBe("Built at Hack Days 2026 [3].");
+    expect(tidyAnswerText("React (Vite) + Tailwind, Node.js + Express, C++ and 2 + 2")).toBe("React (Vite) and Tailwind, Node.js and Express, C++ and 2 and 2");
+    // A bare URL split across stream chunks is held until it closes, then linked.
+    const g = answerGuard([{ n: 1, content: "https://github.com/vardhan23v/x" }]);
+    const out = ["Code: <https://git", "hub.com/vardhan23v/x> [1]."].map((p) => g.push(p)).join("") + g.flush();
+    expect(out).toBe("Code: [GitHub](https://github.com/vardhan23v/x) [1].");
+    // Citations that stream in one at a time still merge into one group, spaced from the word.
+    const g2 = answerGuard([{ n: 1, content: "a" }, { n: 2, content: "b" }, { n: 5, content: "c" }]);
+    const out2 = ["Uses Groq and Gemini", "[1]", "[2]", "[5]. Next"].map((p) => g2.push(p)).join("") + g2.flush();
+    expect(out2).toBe("Uses Groq and Gemini [1, 2, 5]. Next");
+    // Bare URLs (even split mid-stream) become named links; a citation after the full stop moves before it.
+    const g3 = answerGuard([{ n: 3, content: "https://launchradar-psi.vercel.app and https://github.com/vardhan23v/launchradar" }]);
+    const out3 = ["- **Live site:** htt", "ps://launchradar-psi.vercel", ".app\n- Code: https://github.com/vardhan23v/launchradar.\nBuilt in 2026", ". [3]"].map((p) => g3.push(p)).join("") + g3.flush();
+    expect(out3).toBe("- **Live site:** [Live site](https://launchradar-psi.vercel.app)\n- Code: [GitHub](https://github.com/vardhan23v/launchradar).\nBuilt in 2026 [3].");
+  });
+
   it("uses checked analyst notes for judgement questions and skips bad or costly ones", async () => {
     const chunks = [{ n: 1 }, { n: 2 }];
     const good = '{"criteria":["technical depth"],"candidates":[{"project":"LaunchRadar","evidence":[{"claim":"Durable Object jobs","n":1},{"claim":"made up","n":9}]},{"project":"HPL Auction","evidence":[{"claim":"Socket.IO bidding","n":2}]},{"project":"Not Real","evidence":[{"claim":"x","n":1}]}],"pick":"LaunchRadar","runnerUp":"HPL Auction","gaps":["traffic"]}';
@@ -480,5 +503,24 @@ describe("reasoning upgrade", () => {
     for await (const _ of small.streamChat([{ role: "user", content: "q" }])) void _;
     expect(big.tokensRemaining()).toBe(7000);
     expect(small.tokensRemaining()).toBe(300);
+  });
+});
+
+describe("answer guard streaming", () => {
+  const run = (text: string, size: number) => {
+    const g = answerGuard([{ n: 1, content: "https://hpl-web-production.up.railway.app" }, { n: 3, content: "x" }, { n: 2, content: "y" }]);
+    let out = "";
+    for (let i = 0; i < text.length; i += size) out += g.push(text.slice(i, i + size));
+    return out + g.flush();
+  };
+  it("gives the same answer text however the stream is chunked (sizes 1 to 15)", () => {
+    const cases: [string, string][] = [
+      ["Yes, HPL Auction is live at [Live site](https://hpl-web-production.up.railway.app) [1].", "Yes, HPL Auction is live at [Live site](https://hpl-web-production.up.railway.app) [1]."],
+      ["Yes, HPL Auction is live at https://hpl-web-production.up.railway.app [1].", "Yes, HPL Auction is live at [Live site](https://hpl-web-production.up.railway.app) [1]."],
+      ["built at Hack Days 2026. It was for that event. [3]", "built at Hack Days 2026. It was for that event [3]."],
+      ["Uses React[1][2]. Next part. Done.", "Uses React [1, 2]. Next part. Done."],
+      ["- **Stack:** React and Express [2].\n- **AI:** Groq [1, 9].", "- **Stack:** React and Express [2].\n- **AI:** Groq [1]."],
+    ];
+    for (const [inp, want] of cases) for (let size = 1; size <= 15; size++) expect(run(inp, size), `size ${size}: ${inp}`).toBe(want);
   });
 });

@@ -1,11 +1,18 @@
 import { experience } from "../../src/classic/data/experience.js";
 import { featuredProjects, otherProjects } from "../../src/classic/data/projects.js";
 import { site } from "../../src/classic/data/site.js";
+import { skillCategories } from "../../src/classic/data/skills.js";
 import { caseStudies } from "../../src/terminal/data/work.js";
 
 export const DIGEST_TITLE = "All projects overview";
 export const CAREER_TITLE = "Work experience overview";
 export const CONTACT_TITLE = "Contact details";
+export const SKILLS_TITLE = "Skills overview";
+
+/** Every skill category from the portfolio, one line each. */
+export function skillsOverview(): string {
+  return skillCategories.map((c) => `- ${c.label}: ${c.items.map((i) => i.name).join(", ")}`).join("\n");
+}
 
 export function careerOverview(): string {
   return experience.map((e) => `- ${e.role} at ${e.company} (${e.period}): ${e.points.slice(0, 2).join("; ")}`).join("\n");

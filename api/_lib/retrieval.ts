@@ -2,7 +2,7 @@ import { featuredProjects, otherProjects } from "../../src/classic/data/projects
 import type { ChatTurn, SourceRef, SourceType } from "../../src/lib/ai/types.js";
 import { estimateTokens } from "./chunking.js";
 import type { EmbeddingProvider } from "./embeddings/types.js";
-import { CAREER_TITLE, CONTACT_TITLE, DIGEST_TITLE, careerOverview, contactOverview, factCard, judgementDigest, projectDigest, projectName } from "./digest.js";
+import { CAREER_TITLE, CONTACT_TITLE, DIGEST_TITLE, SKILLS_TITLE, careerOverview, contactOverview, factCard, judgementDigest, projectDigest, projectName, skillsOverview } from "./digest.js";
 import type { QueryPlan } from "./planner.js";
 import type { ChunkMatch, KnowledgeStore, TermHit } from "./store.js";
 
@@ -241,6 +241,7 @@ export async function retrieve(
   else if (intent === "list") fixed.push(syntheticChunk("digest", DIGEST_TITLE, projectDigest()));
   if (opts.plan && (EXPERIENCE.test(q) || HIRING.test(q))) fixed.push(syntheticChunk("career", CAREER_TITLE, careerOverview()));
   if (opts.plan && CONTACT.test(q)) fixed.push(syntheticChunk("contact", CONTACT_TITLE, contactOverview()));
+  if (opts.plan && HIRING.test(q)) fixed.push(syntheticChunk("skills", SKILLS_TITLE, skillsOverview()));
   if (deps.store.findTerm) {
     const TERM_LIMIT = 150;
     for (const term of opts.plan?.terms ?? []) {
@@ -273,6 +274,12 @@ export async function retrieve(
     picked.push({ ...c, n: picked.length + 1, section: (c.chunkMetadata.section ?? c.documentMetadata.section) as string | undefined });
   }
   return picked;
+}
+
+/** A project's fact card as the next numbered source, for projects chosen after retrieval (e.g. the notes' pick). */
+export function cardChunk(key: string, n: number): RetrievedChunk | null {
+  const card = factCard(key);
+  return card ? { ...syntheticChunk(`card:${key}`, card.title, card.content, card.url, key), n, score: 1 } : null;
 }
 
 export function toSourceRef(c: RetrievedChunk): SourceRef {

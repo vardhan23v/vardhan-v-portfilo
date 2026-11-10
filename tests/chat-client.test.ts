@@ -84,6 +84,26 @@ describe("markdown", () => {
     expect(safeHref("app:projects")).toBe("app:projects");
     expect(parseInline("[x](javascript:alert(1))")).toEqual([{ t: "text", v: "x" }, { t: "text", v: ")" }]);
   });
+  it("turns bare <url> links into named links and closes the gap before punctuation", () => {
+    expect(parseInline("Repo: <https://github.com/vardhan23v/x>")).toEqual([{ t: "text", v: "Repo: " }, { t: "link", href: "https://github.com/vardhan23v/x", c: [{ t: "text", v: "GitHub" }] }]);
+    expect(parseInline("Demo <https://x.vercel.app/>")[1]).toMatchObject({ t: "link", c: [{ t: "text", v: "x.vercel.app" }] });
+    expect(parseInline("<javascript:alert(1)>")).toEqual([{ t: "text", v: "<javascript:alert(1)>" }]);
+    expect(parseInline("Uses React [2] .")).toEqual([{ t: "text", v: "Uses React " }, { t: "cite", n: 2 }, { t: "text", v: "." }]);
+    expect(parseInline("React (Vite) + Tailwind, C++ and Node.js + Express")).toEqual([{ t: "text", v: "React (Vite) and Tailwind, C++ and Node.js and Express" }]);
+  });
+
+  it("treats bold-label lines as list items so they never run together", () => {
+    const b = parseMarkdown("Intro sentence.\n**Extension AI:** builds extensions [2].\n**LaunchRadar** – finds gaps [3].\n**Extension AI** is great.");
+    expect(b.map((x) => x.t)).toEqual(["p", "ul", "p"]);
+    expect((b[1] as { items: unknown[] }).items).toHaveLength(2);
+  });
+
+  it("keeps only real links on a Links line", () => {
+    const [b] = parseMarkdown("Links: Extension AI · [GitHub](https://github.com/x) · Vard AI");
+    expect(b).toEqual({ t: "p", c: [{ t: "text", v: "Links: " }, { t: "link", href: "https://github.com/x", c: [{ t: "text", v: "GitHub" }] }] });
+    expect(parseMarkdown("Links: Extension AI · Vard AI")).toEqual([]);
+  });
+
   it("parses lists, bold, code and citations", () => {
     const b = parseMarkdown("**Stack** [1]\n\n- React `19`\n- Node [2, 3]");
     expect(b[0]).toEqual({ t: "p", c: [{ t: "strong", c: [{ t: "text", v: "Stack" }] }, { t: "text", v: " " }, { t: "cite", n: 1 }] });

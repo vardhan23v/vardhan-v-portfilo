@@ -7,7 +7,7 @@ import { projectName } from "./digest.js";
 import { analystNotes } from "./notes.js";
 import { buildMessages, citationStream, citedNumbers, isUnsupportedAnswer } from "./prompt.js";
 import { planQuestion, type Intent } from "./planner.js";
-import { normalizeQuestion, retrieve, toSourceRef } from "./retrieval.js";
+import { cardChunk, normalizeQuestion, retrieve, toSourceRef } from "./retrieval.js";
 import { answerGuard, unsupportedCounts } from "./verify.js";
 import type { KnowledgeStore } from "./store.js";
 import type { ChatRequest } from "./validation.js";
@@ -95,7 +95,13 @@ export function streamChat(req: ChatRequest, deps: ChatDeps): ReadableStream<Uin
 
         // Judgement and comparison answers start from checked analyst notes when the small model has room.
         const notes = plan.intent === "judgement" || plan.intent === "comparison" ? await analystNotes(plan.standalone, chunks, deps.planner) : null;
-        const messages = buildMessages(req.messages, chunks, { focus: plan.focus.map(projectName), notes });
+        // The notes' pick and runner-up get their full fact cards, so the answer argues from (and links to) the right project.
+        for (const key of notes?.picks ?? []) {
+          if (chunks.some((c) => c.chunkId === `card:${key}`)) continue;
+          const card = cardChunk(key, chunks.length + 1);
+          if (card) chunks.push(card);
+        }
+        const messages = buildMessages(req.messages, chunks, { focus: plan.focus.map(projectName), notes: notes?.text });
         const hasStrongSource = chunks.some((c) => c.chunkMetadata.card || (!c.chunkMetadata.synthetic && c.similarity >= STRONG_SOURCE));
         const effort = () => effortFor(plan.intent, deps.llm.tokensRemaining?.());
         let droppedCitations = 0;

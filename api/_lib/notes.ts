@@ -73,7 +73,7 @@ export function formatNotes(n: AnalystNotes): string {
 }
 
 /** Runs the notes step when the provider has headroom; any failure, delay or bad output skips it. */
-export async function analystNotes(question: string, chunks: RetrievedChunk[], llm?: LLMProvider, timeoutMs = 4500): Promise<string | null> {
+export async function analystNotes(question: string, chunks: RetrievedChunk[], llm?: LLMProvider, timeoutMs = 4500): Promise<{ text: string; picks: string[] } | null> {
   if (!llm) return null;
   const left = llm.tokensRemaining?.();
   if (left !== undefined && left < NOTES_MIN_TOKENS) return null;
@@ -85,7 +85,7 @@ export async function analystNotes(question: string, chunks: RetrievedChunk[], l
     ];
     for await (const d of llm.streamChat(messages, { temperature: 0, maxTokens: 1400, reasoningEffort: "low" })) raw += d;
     const notes = parseNotes(raw, chunks);
-    return notes ? formatNotes(notes) : null;
+    return notes ? { text: formatNotes(notes), picks: [notes.pick, ...(notes.runnerUp ? [notes.runnerUp] : [])] } : null;
   };
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<null>((resolve) => { timer = setTimeout(() => resolve(null), timeoutMs); });

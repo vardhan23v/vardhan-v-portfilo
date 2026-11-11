@@ -33,17 +33,10 @@ export const CREDIT: Record<string, string> = {
 /** Specific responsibilities per role. Keyed by company. */
 export const ROLE_DETAIL: Record<string, string[]> = {
   OxCode: [
-    "Part-time member of the OxCode Founding Builders community, testing AI software-engineering tools before public release.",
-    "Evaluates product features and AI-assisted developer workflows, and reports bugs that feed pre-launch iteration.",
+    "Part-time member of the OxCode Founding Builders community, testing AI software-engineering workflows before public release.",
+    "Gave feedback on AI-assisted developer workflows and built web apps with OxCode's AI coding assistant.",
   ],
   "FlyRank AI": [
-    "Front-end engineering on AI-driven product interfaces.",
-  ],
-  "Zetheta Algorithms Private Limited": [
-    "Built a multi-step loan application form and its step-by-step workflow.",
-    "Connected the form to custom backend APIs for submission and application processing.",
-  ],
-  "Zaalima Development Pvt. Ltd.": [
-    "Built web features as part of a startup team.",
+    "Completed the Front-end AI Engineering program with a certificate, building AI-driven product interfaces.",
   ],
 };

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Vallur Sree Vardhan - Resume</title>
+<!--
+  Plain ATS-friendly résumé: one column, black text, standard section names, no tables or icons.
+  Facts come only from src/classic/data/* and the user's own résumé. Rebuild with:
+    node scripts/resume/build.mjs
+-->
+<style>
+  @page { size: A4; margin: 9mm 13mm; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 9.4pt/1.28 Arial, "Helvetica Neue", Helvetica, sans-serif; color: #000; }
+  a { color: inherit; text-decoration: none; }
+  header { text-align: center; margin-bottom: 6pt; }
+  h1 { font-size: 18pt; margin: 0 0 2pt; letter-spacing: .02em; }
+  .contact { margin: 0; font-size: 9.5pt; }
+  h2 { font-size: 10.5pt; text-transform: uppercase; letter-spacing: .04em; border-bottom: .75pt solid #000; padding-bottom: 1pt; margin: 6pt 0 2.5pt; }
+  p { margin: 0; }
+  .row { display: flex; justify-content: space-between; gap: 12pt; }
+  .entry { margin-bottom: 2.5pt; break-inside: avoid; }
+  .tech { font-size: 9.5pt; }
+  ul { margin: 1.5pt 0 0; padding-left: 13pt; }
+  li { margin: .8pt 0; }
+  .skills p { margin: 1pt 0; }
+  .certs { columns: 2; column-gap: 16pt; }
+  .certs li { break-inside: avoid; }
+</style>
+</head>
+<body>
+<header>
+  <h1>VALLUR SREE VARDHAN</h1>
+  <p class="contact">Generative AI Developer and Full-Stack Developer | Kurnool, Andhra Pradesh, India | +91 98859 23035</p>
+  <p class="contact"><a href="mailto:23vvardhan@gmail.com">23vvardhan@gmail.com</a> | <a href="https://www.linkedin.com/in/vardhan-v23">linkedin.com/in/vardhan-v23</a> | <a href="https://github.com/vardhan23v">github.com/vardhan23v</a> | <a href="https://vardhan-v-portfilo.vercel.app" style="white-space:nowrap">vardhan-v-portfilo.vercel.app</a></p>
+</header>
+
+<h2>Summary</h2>
+<p>Computer Science undergraduate who ships AI-powered products end to end: multi-provider LLM apps, agent pipelines, real-time systems and full-stack web apps. Shipped 12 featured projects, 8 of them live, including two hackathon builds.</p>
+
+<h2>Experience</h2>
+<div class="entry">
+  <div class="row"><p><b>Front-end AI Engineering Intern</b>, FlyRank AI (Remote)</p><p>Jul 2026 – Sep 2026</p></div>
+  <ul>
+    <li>Completed FlyRank's Front-end AI Engineering internship program with a certificate of completion.</li>
+    <li>Built intelligent interfaces combining AI features with modern web technologies on collaborative projects.</li>
+  </ul>
+</div>
+<div class="entry">
+  <div class="row"><p><b>AI Product Beta Tester (Part-time)</b>, Oxlo.ai</p><p>Jul 2026 – Oct 2026</p></div>
+  <ul>
+    <li>Selected for the OxCode Founding Builders community, focused on AI software engineering.</li>
+    <li>Tested AI-powered software-engineering workflows and gave feedback to improve developer experience.</li>
+    <li>Built and refined web applications with the OxCode AI coding assistant, contributing to product improvement.</li>
+  </ul>
+</div>
+
+<h2>Projects</h2>
+<div class="entry">
+  <div class="row"><p><b>Extension AI</b> | <a href="https://extension-ai-five.vercel.app">extension-ai-five.vercel.app</a></p></div>
+  <p class="tech">React, Node.js, Express, MongoDB, Gemini 2.0 Flash, Groq Llama 3.3, JWT, Manifest V3</p>
+  <ul>
+    <li>Built an AI developer tool that turns a plain-English prompt into a working Manifest V3 Chrome extension.</li>
+    <li>Implemented Gemini and Groq generation with automatic fallback, live preview, templates, ZIP download and JWT auth.</li>
+  </ul>
+</div>
+<div class="entry">
+  <div class="row"><p><b>LaunchRadar</b> | <a href="https://launchradar-psi.vercel.app">launchradar-psi.vercel.app</a></p></div>
+  <p class="tech">Next.js 16, React 19, TypeScript, Cloudflare Workers, Durable Objects, Cloudflare D1, Groq, SerpApi</p>
+  <ul>
+    <li>Designed a market-research engine where every claim traces to a quote from a recorded SerpApi search.</li>
+    <li>Ran jobs on Durable Objects so they survive a closed tab, streaming a resumable SSE log; 50 tests and CI.</li>
+  </ul>
+</div>
+<div class="entry">
+  <div class="row"><p><b>HPL Auction</b> | <a href="https://hpl-web-production.up.railway.app">hpl-web-production.up.railway.app</a></p></div>
+  <p class="tech">Next.js 16, React, Socket.IO, Prisma, Cloud MySQL, Railway, Cloudinary</p>
+  <ul>
+    <li>Built a live cricket auction where six teams bid at once over WebSockets, with captain dashboards.</li>
+    <li>Engineered a server-authoritative timer and purse engine so countdowns and budgets never go out of sync.</li>
+  </ul>
+</div>
+<div class="entry">
+  <div class="row"><p><b>TrustLens AI</b> | ACM x MLH Hack Days 2026</p></div>
+  <p class="tech">Python, FastAPI, CrewAI, Gemini, ONNX Runtime, Whisper, React, TypeScript, Docker, Railway</p>
+  <ul>
+    <li>Built explainable trust reports for images, video, audio and text: likelihood, evidence and confidence.</li>
+    <li>Orchestrated a CrewAI pipeline with ONNX Runtime image forensics and Whisper transcription in one container.</li>
+  </ul>
+</div>
+<div class="entry">
+  <div class="row"><p><b>AI Code Reviewer</b> | <a href="https://codereviewer-eta.vercel.app">codereviewer-eta.vercel.app</a></p></div>
+  <p class="tech">React, Vite, Monaco Editor, Groq Llama 3.3, Gemini 2.0 Flash, GPT-4o Mini, Recharts</p>
+  <ul>
+    <li>Built a code review tool giving structured AI feedback on bugs, quality, performance and security.</li>
+  </ul>
+</div>
+<div class="entry">
+  <div class="row"><p><b>ChitChain</b> | 24-hour buildathon, MST x NEWRRO 2026</p></div>
+  <p class="tech">Solidity, Hardhat, Next.js, TypeScript, Express, Prisma, PostgreSQL, FastAPI, CrewAI</p>
+  <ul>
+    <li>Put a chit fund's pot in a Solidity contract with an AI risk engine and CrewAI bidder; 49 Hardhat, 68 backend tests.</li>
+  </ul>
+</div>
+
+<h2>Technical Skills</h2>
+<div class="skills">
+  <p><b>Languages:</b> JavaScript, TypeScript, Python, Java, C, SQL, HTML, CSS</p>
+  <p><b>Frontend:</b> React, Next.js, TanStack Start, Vite, Tailwind CSS, Framer Motion, Zustand, React Router</p>
+  <p><b>Backend:</b> Node.js, Express.js, Spring Boot, Jakarta EE, REST APIs, Socket.IO, JWT, NextAuth, Sequelize, Zod</p>
+  <p><b>Databases:</b> MongoDB, MySQL, PostgreSQL, Prisma, Supabase</p>
+  <p><b>AI and LLM:</b> Gemini API, Groq API, Claude API, OpenAI API, CrewAI, MCP, AI agents, prompt engineering, streaming</p>
+  <p><b>Cloud and Tools:</b> Vercel, Railway, Cloudinary, Git, GitHub, Postman, VS Code, Jest, Vitest, Playwright</p>
+</div>
+
+<h2>Education</h2>
+<div class="row"><p><b>NMAM Institute of Technology (NITTE)</b>, Karnataka - B.Tech, Computer Science and Engineering</p><p>2024 – 2028</p></div>
+<div class="row"><p><b>Narayana Junior College</b>, Kurnool - Class XII (MPC)</p><p>2022 – 2024</p></div>
+<div class="row"><p><b>Narayana English Medium School</b>, Kurnool - Class X (SSC)</p><p>2022</p></div>
+
+<h2>Certifications and Hackathons</h2>
+<ul class="certs">
+  <li>Front-end AI Engineering Internship - FlyRank AI</li>
+  <li>Claude 101 - Anthropic</li>
+  <li>Intro to Software Engineering - Commonwealth Bank (Forage)</li>
+  <li>Full Stack Generative and Agentic AI with Python - Udemy</li>
+  <li>PostgreSQL Developer - Infosys Springboard</li>
+  <li>MST Blockchain Buildathon 2026 (24-hour)</li>
+  <li>ACM x MLH Hack Days 2026: Beyond Reality</li>
+  <li>Odoo x NMIT Hackathon 2026</li>
+</ul>
+</body>
+</html>

@@ -73,7 +73,7 @@ check("cat skills.tree end", t.includes("end of file"));
 
 await run("cat experience.log", "OxCode");
 t = await text();
-check("cat experience.log → zetheta", t.includes("Zetheta"));
+check("cat experience.log → flyrank", t.includes("FlyRank"));
 check("cat experience.log end", t.includes("end of file"));
 
 await run("cat how_i_work.sh", "shebang");

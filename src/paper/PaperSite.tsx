@@ -288,8 +288,9 @@ export function PaperSite() {
             <p data-pp-reveal style={{ "--d": "0.08s" } as React.CSSProperties}>
               Education: B.Tech — Computer Science &amp; Engineering, NMAM
               Institute of Technology, NITTE (2024–2028). Certifications
-              include Forage engineering simulations at Electronic Arts and
-              Commonwealth Bank, generative &amp; agentic AI with Python, and
+              include FlyRank AI's Front-end AI Engineering internship,
+              Anthropic's Claude 101, a Commonwealth Bank software engineering
+              simulation, generative &amp; agentic AI with Python, and
               PostgreSQL.
             </p>
           </div>

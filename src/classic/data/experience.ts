@@ -10,50 +10,25 @@ export const experience: Experience[] = [
   {
     company: "OxCode",
     role: "AI Product Beta Tester",
-    period: "July 2026 — Present",
+    period: "July 2026 — October 2026",
     points: [
       "Selected for the OxCode Founding Builders community",
       "Tested AI-powered software engineering workflows",
-      "Reported bugs and product feedback",
-      "Evaluated developer experience",
-      "Built and refined web applications using AI coding tools",
+      "Gave feedback to improve developer experience",
+      "Built and refined web apps with OxCode's AI coding assistant",
     ],
     accent: "#38bdf8",
   },
   {
     company: "FlyRank AI",
     role: "Front-end AI Engineering Intern",
-    period: "July 2026 — Present",
+    period: "July 2026 — September 2026",
     points: [
-      "AI-focused frontend engineering",
-      "Built intelligent interfaces",
-      "Worked with modern AI + web technologies",
+      "Completed the Front-end AI Engineering program with a certificate",
+      "Built intelligent interfaces with AI and modern web technologies",
+      "Hands-on, collaborative projects (remote)",
     ],
     accent: "#7c6cff",
-  },
-  {
-    company: "Zetheta Algorithms Private Limited",
-    role: "Full Stack Engineer",
-    period: "July 2026 — August 2026",
-    points: [
-      "Built a multi-step loan application form",
-      "Custom API integration",
-      "Frontend development with multi-step form workflows",
-      "Backend communication and application workflow development",
-    ],
-    accent: "#34d399",
-  },
-  {
-    company: "Zaalima Development Pvt. Ltd.",
-    role: "Web Development Intern",
-    period: "March 2026 — June 2026",
-    points: [
-      "Hands-on web development experience",
-      "Built web-based solutions",
-      "Worked in a startup environment",
-      "Hands-on problem solving",
-    ],
-    accent: "#f472b6",
   },
 ];
 
@@ -86,12 +61,14 @@ export const education: Education[] = [
 ];
 
 export const certifications = [
-  "Software Engineering Job Simulation — Electronic Arts (Forage)",
-  "Introduction to Software Engineering Job Simulation — Commonwealth Bank (Forage)",
+  "Front-end AI Engineering Internship — FlyRank AI (Sep 2026)",
+  "Claude 101 — Anthropic (Jul 2026)",
+  "Introduction to Software Engineering Job Simulation — Commonwealth Bank (Forage, Jul 2026)",
   "Full Stack Generative and Agentic AI with Python — Udemy",
   "PostgreSQL Developer — Infosys Springboard",
-  "CS105: Introduction to Python",
-  "Web Development Fundamentals",
-  "Java 11 Essentials",
-  "Java Programming Fundamentals",
+  "MST Blockchain Buildathon 2026, 24-hour buildathon — MST Blockchain (Oct 2026)",
+  "ACM × MLH Hack Days 2026: Beyond Reality — ACM NMAMIT (Oct 2026)",
+  "Odoo × NMIT Hackathon 2026 — Odoo (Sep 2026)",
+  "Google Gemini QuizOff 2026, main quiz — Unstop (Jun 2026)",
+  "Suraksha AI Panel Discussion 2025 — IIC, NMAM Institute of Technology (Mar 2025)",
 ];

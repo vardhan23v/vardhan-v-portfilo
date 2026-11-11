@@ -7,7 +7,7 @@ export function Stats() {
   const items = [
     { n: stats.featured, label: "products built", sub: "all open source" },
     { n: stats.live, label: "live on the web", sub: "deployed and running" },
-    { n: stats.roles, label: "roles since 2026", sub: "internships and testing" },
+    { n: stats.roles, label: "roles since 2026", sub: "internship and beta testing" },
     { n: featuredProjects.filter((p) => p.category === "ai").length, label: "AI products", sub: "agents, LLM apps, dev tools" },
   ];
   return (

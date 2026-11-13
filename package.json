@@ -10,7 +10,8 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "vitest",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "resume": "node scripts/resume/build.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",

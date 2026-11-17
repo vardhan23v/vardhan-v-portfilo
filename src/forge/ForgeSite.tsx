@@ -21,6 +21,7 @@ import { experience } from "../classic/data/experience";
 import { skillCategories } from "../classic/data/skills";
 import { site } from "../classic/data/site";
 import { github, aiStack } from "../classic/data/stats";
+import { contributions, ossStats, OSS_AS_OF, type PrStatus } from "../classic/data/opensource";
 import "./styles/forge.css";
 import { motionReduced, startLocalTransition } from "../lib/motion";
 import { prefetchEdition } from "../lib/editionLoaders";
@@ -89,9 +90,10 @@ const SECTION_META: Record<string, [string, string]> = {
   work: ["01", "selected work"],
   stack: ["02", "stack"],
   experience: ["03", "experience"],
-  about: ["04", "about"],
-  contact: ["05", "contact"],
-  interfaces: ["06", "interfaces"],
+  opensource: ["04", "open source"],
+  about: ["05", "about"],
+  contact: ["06", "contact"],
+  interfaces: ["07", "interfaces"],
 };
 
 const INTERFACES: { to: string; name: string; desc: string; key: string }[] = [
@@ -318,7 +320,7 @@ function useForgeSpy() {
     const links = [
       ...document.querySelectorAll<HTMLAnchorElement>(".fg-nav-links a[href^='#'], .fg-nav-panel a[href^='#']"),
     ];
-    const ids = ["work", "stack", "experience", "about", "contact"];
+    const ids = ["work", "stack", "experience", "opensource", "about", "contact"];
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -383,6 +385,7 @@ function ForgeNav() {
     ["#work", "Projects"],
     ["#stack", "Stack"],
     ["#experience", "Experience"],
+    ["#opensource", "Open source"],
     ["#about", "About"],
     ["#contact", "Contact"],
   ];
@@ -857,6 +860,75 @@ function Experience() {
             </li>
           ))}
         </ol>
+      </div>
+    </section>
+  );
+}
+
+/** Forge words for a PR state: merged is "shipped", open is "in review". Never more than GitHub says. */
+const FORGE_PR_STATUS: Record<PrStatus, string> = { merged: "shipped", open: "in review" };
+
+function OpenSource() {
+  return (
+    <section className="fg-section" id="opensource">
+      <div className="fg-oss fg-reveal">
+        <SectionEyebrow id="opensource" />
+        <StaggerHeading text="Open source" />
+        <p className="fg-oss-lede">
+          {ossStats.prs} pull requests to {ossStats.projects} upstream projects · {ossStats.merged} shipped ·{" "}
+          {ossStats.open} in review <span className="fg-oss-asof">as of {OSS_AS_OF}</span>
+        </p>
+        <div className="fg-oss-grid">
+          {contributions.map((c, i) => {
+            const shipped = c.prs.filter((pr) => pr.status === "merged").length;
+            return (
+              <article className="fg-oss-card" key={c.repo} style={{ "--i": i } as CSSProperties}>
+                <header className="fg-oss-head">
+                  <span className="fg-oss-repo">{c.repo}</span>
+                  <span className="fg-oss-stars">
+                    <span aria-hidden="true">★ </span>
+                    {c.stars}
+                    <span className="sr-only"> GitHub stars</span>
+                  </span>
+                </header>
+                <div className="fg-oss-body">
+                  <h3 className="fg-oss-name">
+                    <a href={c.homepage} target="_blank" rel="noopener noreferrer">
+                      {c.project}
+                      <span aria-hidden="true"> ↗</span>
+                      <span className="sr-only"> (opens in a new tab)</span>
+                    </a>
+                  </h3>
+                  <p className="fg-oss-about">{c.about}</p>
+                </div>
+                <ol className="fg-oss-prs">
+                  {c.prs.map((pr) => (
+                    <li className="fg-oss-pr" key={pr.number} data-status={pr.status}>
+                      <span className="fg-oss-num">#{pr.number}</span>
+                      <a className="fg-oss-title" href={pr.url} target="_blank" rel="noopener noreferrer">
+                        {pr.title}
+                        <span className="sr-only"> (pull request, opens in a new tab)</span>
+                      </a>
+                      <span className="fg-oss-status">
+                        <i aria-hidden="true" />
+                        {FORGE_PR_STATUS[pr.status]}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+                <footer className="fg-oss-foot">
+                  <span>
+                    {shipped}/{c.prs.length} shipped
+                  </span>
+                  <a href={c.url} target="_blank" rel="noopener noreferrer">
+                    repo<span className="sr-only"> {c.repo} on GitHub (opens in a new tab)</span>{" "}
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                </footer>
+              </article>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
@@ -1394,6 +1466,7 @@ export function ForgeSite() {
         <Work />
         <Stack />
         <Experience />
+        <OpenSource />
         <About />
         <Contact />
         <Interfaces />

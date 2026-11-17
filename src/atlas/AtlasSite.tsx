@@ -8,6 +8,7 @@ import { CATEGORY_LABEL, featuredProjects, otherProjects } from "../classic/data
 import { education, experience } from "../classic/data/experience";
 import { skillCategories } from "../classic/data/skills";
 import { site } from "../classic/data/site";
+import { contributions, ossStats, statusLabel, OSS_AS_OF } from "../classic/data/opensource";
 import { mailtoHref, sendMessage } from "../lib/contact";
 import { caseStudyPath, hasCaseStudy } from "../work/links";
 import { prefetchEdition } from "../lib/editionLoaders";
@@ -53,9 +54,13 @@ const SECTIONS = [
   { id: "atl-more", roman: "II", label: "More projects" },
   { id: "atl-skills", roman: "III", label: "Skills" },
   { id: "atl-activity", roman: "IV", label: "Activity" },
-  { id: "atl-route", roman: "V", label: "Route" },
-  { id: "contact", roman: "VI", label: "Contact" },
+  { id: "atl-oss", roman: "V", label: "Open source" },
+  { id: "atl-route", roman: "VI", label: "Route" },
+  { id: "contact", roman: "VII", label: "Contact" },
 ] as const;
+
+/** Pull requests to projects maintained by others; ids anchor the search results. */
+const OSS = contributions.map((c, i) => ({ c, n: pad(i + 1), id: `oss-${c.repo.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}` }));
 
 const ext = { target: "_blank", rel: "noopener noreferrer" } as const;
 const NewTab = () => <span className="sr-only"> (opens in a new tab)</span>;
@@ -118,8 +123,9 @@ function TitleSheet({ activity, more }: { activity: number | null | "failed"; mo
     { icon: "hollow", n: 1, count: pad(more) },
     { icon: "ridge", n: 2, count: pad(SKILL_COUNT) },
     { icon: "profile", n: 3, count: activity === null ? "…" : activity === "failed" ? null : activity.toLocaleString("en-GB") },
-    { icon: "trail", n: 4, count: pad(experience.length) },
-    { icon: "datum", n: 5, count: "" },
+    { icon: "merge", n: 4, count: pad(ossStats.prs) },
+    { icon: "trail", n: 5, count: pad(experience.length) },
+    { icon: "datum", n: 6, count: "" },
   ];
   return (
     <section className="atl-title" id="atl-top" aria-labelledby="atl-name" data-p="" data-range="exit">
@@ -187,6 +193,7 @@ function useTargets(rows: Row[]): Target[] {
     ...SECTIONS.map((s) => ({ label: s.label, kind: `Section ${s.roman}`, href: `#${s.id}` })),
     ...PLATES.map(({ p, n }) => ({ label: p.name, kind: `Plate ${n}`, href: `#plate-${p.slug}` })),
     ...rows.map((r) => ({ label: r.name, kind: `Project ${r.n}`, href: `#row-${r.n}` })),
+    ...OSS.map(({ c, id }) => ({ label: c.project, kind: "Open source", href: `#${id}` })),
     ...skillCategories.flatMap((c) => c.items.map((s) => ({ label: s.name, kind: c.label, href: `#atl-skills` }))),
   ], [rows]);
 }
@@ -508,11 +515,59 @@ function ActivitySec({ act }: { act: ReturnType<typeof useContributions> }) {
   );
 }
 
-/* ---------- V. Route ---------- */
+/* ---------- V. Open source (survey contributions) ---------- */
+function OpenSource() {
+  return (
+    <section className="atl-sec" id="atl-oss" aria-labelledby="atl-oss-h">
+      <Head i={4} lead={`${ossStats.prs} pull requests to ${ossStats.projects} projects maintained by others: ${ossStats.merged} merged, ${ossStats.open} in review.`} />
+      <div className="atl-oss">
+        <div className="atl-oss-side">
+          <p className="atl-oss-cap">Survey contributions</p>
+          <p className="atl-gaz-big" aria-hidden="true">{pad(ossStats.prs)}</p>
+          <dl className="atl-facts atl-oss-facts">
+            <div><dt>Merged</dt><dd>{ossStats.merged}</dd></div>
+            <div><dt>In review</dt><dd>{ossStats.open}</dd></div>
+            <div><dt>Surveyed</dt><dd>{OSS_AS_OF}</dd></div>
+          </dl>
+        </div>
+        <ol className="atl-oss-list">
+          {OSS.map(({ c, n, id }) => (
+            <li key={c.repo} id={id} className="atl-oss-plate" data-p="" data-span="0.5">
+              <p className="atl-plate-ref"><span className="atl-gaz-n">{n}</span><span>Upstream project</span></p>
+              <h3 className="atl-oss-name">
+                <a className="atl-gaz-name" href={c.homepage} {...ext}><span className="atl-gaz-name-t">{c.project}</span><NewTab /></a>
+              </h3>
+              <p className="atl-gaz-text">{c.about}</p>
+              <dl className="atl-facts">
+                <div><dt>Repository</dt><dd><a className="atl-oss-repo" href={c.url} {...ext}>github.com/<wbr />{c.repo}<NewTab /></a></dd></div>
+                <div><dt>Stars</dt><dd>{c.stars}</dd></div>
+              </dl>
+              <p className="atl-oss-cap atl-oss-cap--prs">Pull requests · {pad(c.prs.length)}</p>
+              <ol className="atl-oss-prs">
+                {c.prs.map((pr) => (
+                  <li key={pr.number} data-p="" data-span="0.4">
+                    <span className="atl-oss-num">#{pr.number}</span>
+                    <a className="atl-oss-pr" href={pr.url} {...ext}>{pr.title}<NewTab /></a>
+                    <span className={`atl-oss-status is-${pr.status}`}>
+                      <span className={`atl-tri${pr.status === "merged" ? "" : " atl-tri--hollow"}`} aria-hidden="true" />
+                      {statusLabel(pr.status)}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- VI. Route ---------- */
 function Route() {
   return (
     <section className="atl-sec" id="atl-route" aria-labelledby="atl-route-h">
-      <Head i={4} lead="Roles so far, newest first, as waypoints on one trail." />
+      <Head i={5} lead="Roles so far, newest first, as waypoints on one trail." />
       <ol className="atl-route">
         {experience.map((x, i) => (
           <li key={x.company + x.role} data-p="" data-span="0.45">
@@ -563,7 +618,7 @@ function Contact() {
     <section className="atl-sec atl-contact" id="contact" aria-labelledby="contact-h" data-p="" data-span="0.8">
       <Ruler />
       <div className="atl-contact-left">
-        <p className="atl-roman" aria-hidden="true">VI</p>
+        <p className="atl-roman" aria-hidden="true">{SECTIONS[6].roman}</p>
         <h2 id="contact-h" className="atl-h2 atl-h2--xl">Contact</h2>
         <p className="atl-lead">Write to me directly, or find me on these. I reply {site.replyTime}.</p>
         <svg className="atl-compass" viewBox="-60 -60 120 120" aria-hidden="true" focusable="false">
@@ -642,6 +697,7 @@ export function AtlasSite() {
         <More rows={rows} live={repos.status} />
         <Skills />
         <ActivitySec act={act} />
+        <OpenSource />
         <Route />
         <Contact />
       </main>

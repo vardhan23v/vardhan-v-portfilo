@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useState, type RefObject } from "react";
 import { motionReduced } from "../lib/motion";
 
 /** What rises into view as you scroll. Everything else (the hero, the nav) is on screen at load. */
-const REVEAL = [".section-head", ".about-grid", ".feature", ".more", ".stat", ".process-step", ".builds", ".xp-row", ".xp-aside", ".skill-row", ".contact-card", ".foot-grid"].join(", ");
+const REVEAL = [".section-head", ".about-grid", ".feature", ".more", ".stat", ".process-step", ".builds", ".xp-row", ".xp-aside", ".oss-card", ".skill-row", ".contact-card", ".foot-grid"].join(", ");
 /**
  * Blocks that classic.css animates on a view() scroll timeline (fold in on entry, soften on exit) where the
  * browser supports it. There the scroll position drives them both ways, so they are left out of the

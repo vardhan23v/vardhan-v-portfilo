@@ -1155,3 +1155,54 @@ html[data-motion="reduce"] .classic-root .compact:has(:focus-visible) .compact-a
 
 /* "Ask AI" spark: the glyph takes the star yellow; assistant.css twinkles it once on hover/focus/press. */
 .classic-root [data-ask-ai] .ask-spark { color: var(--accent); }
+
+/* Open source (2026-11-18): one card per project (the role-card surface), PR rows with a status pill.
+   Merged = filled accent; in review = outline, so an open PR never reads as merged. */
+.classic-root .oss { padding-top: var(--section); }
+.classic-root .oss-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap); }
+.classic-root .oss-card { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 20px 22px; border: 1px solid var(--line); border-radius: var(--r); background: linear-gradient(180deg, rgba(48, 67, 122, 0.6), rgba(38, 50, 87, 0.35)); box-shadow: inset 0 1px 0 rgba(207, 207, 187, 0.05);
+  transition: translate var(--t-med) var(--ease-cinema), border-color var(--t-med) var(--ease-cinema), box-shadow var(--t-med) var(--ease-cinema); }
+.classic-root .oss-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
+.classic-root .oss-name { font-size: 22px; line-height: 1.2; }
+.classic-root .oss-name a { color: var(--ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; text-decoration-color: transparent; transition: text-decoration-color var(--t-ui) ease, color var(--t-ui) ease; }
+.classic-root .oss-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 14px; color: var(--muted); }
+.classic-root .oss-repo { display: inline-flex; align-items: center; min-height: 36px; color: var(--accent); font-weight: 500; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); transition: text-decoration-color var(--t-ui) ease; overflow-wrap: anywhere; }
+.classic-root .oss-stars { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.classic-root .oss-stars [aria-hidden] { color: var(--star); }
+.classic-root .oss-about { color: var(--ink-2); font-size: 15px; text-wrap: pretty; }
+.classic-root .oss-asof { white-space: nowrap; }
+.classic-root .oss-prs { list-style: none; margin: 4px 0 0; padding: 0; }
+.classic-root .oss-pr { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 4px 12px; padding: 6px 0; border-top: 1px solid var(--line); }
+.classic-root .oss-num { font: 600 12px/1 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: 0.04em; color: var(--muted); font-variant-numeric: tabular-nums; }
+.classic-root .oss-title { display: inline-flex; align-items: center; min-height: 36px; color: var(--ink); font-size: 15px; line-height: 1.4; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; text-decoration-color: color-mix(in srgb, currentColor 30%, transparent); transition: text-decoration-color var(--t-ui) ease, color var(--t-ui) ease, opacity var(--t-press) ease; }
+.classic-root .oss-title:active { opacity: 0.75; }
+.classic-root .oss-pill { display: inline-flex; align-items: center; padding: 2px 10px; border: 1px solid var(--accent); border-radius: 999px; font-size: 12px; font-weight: 650; line-height: 1.5; white-space: nowrap; }
+.classic-root .oss-pill--merged { background: var(--accent); color: var(--accent-ink); }
+.classic-root .oss-pill--open { background: none; color: var(--accent); }
+.classic-root .oss-card:has(:focus-visible) { border-color: rgba(187, 175, 74, 0.45); }
+@media (hover: hover) and (pointer: fine) {
+  .classic-root .oss-card:hover { border-color: rgba(187, 175, 74, 0.4); box-shadow: 0 18px 40px -24px rgba(187, 175, 74, 0.35); }
+  .classic-root .oss-name a:hover { text-decoration-color: currentColor; color: var(--accent-strong); }
+  .classic-root .oss-repo:hover, .classic-root .oss-title:hover { text-decoration-color: currentColor; }
+}
+/* The card carries the observer reveal (transform), so its hover lift uses `translate`. */
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  html:not([data-motion="reduce"]) .classic-root .oss-card:hover { translate: 0 -3px; }
+}
+/* PR rows rise in turn after their card (opacity and transform only). */
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-motion="reduce"]) .classic-root.js .oss-card[data-reveal]:not([data-in]) .oss-pr { opacity: 0; transform: translateY(8px); }
+  html:not([data-motion="reduce"]) .classic-root.js .oss-card[data-reveal][data-in] .oss-pr { transition: opacity 420ms var(--ease-cinema), transform 520ms var(--ease-cinema); transition-delay: calc(160ms + var(--rv, 0) * 60ms); }
+  html:not([data-motion="reduce"]) .classic-root.js .oss-card[data-reveal][data-in] .oss-pr:nth-child(2) { transition-delay: calc(230ms + var(--rv, 0) * 60ms); }
+  html:not([data-motion="reduce"]) .classic-root.js .oss-card[data-reveal][data-in] .oss-pr:nth-child(n + 3) { transition-delay: calc(300ms + var(--rv, 0) * 60ms); }
+}
+@media (max-width: 900px) { .classic-root .oss-list { grid-template-columns: 1fr; } }
+@media (max-width: 720px) {
+  .classic-root .oss-card { padding: 14px 16px; }
+  .classic-root .oss-name { font-size: 20px; }
+  /* Phones: number and pill share the first line, the title takes the full width under them. */
+  .classic-root .oss-pr { grid-template-columns: auto 1fr; padding: 8px 0 4px; }
+  .classic-root .oss-num { grid-row: 1; grid-column: 1; }
+  .classic-root .oss-pill { grid-row: 1; grid-column: 2; justify-self: end; }
+  .classic-root .oss-title { grid-row: 2; grid-column: 1 / -1; min-height: 36px; }
+}

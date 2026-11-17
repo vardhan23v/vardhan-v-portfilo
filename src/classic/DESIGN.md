@@ -162,3 +162,9 @@ Notes on what actually wins:
 - Copy email rolls its label to a checked "Copied" and a small star rises; filter chips get a centre-drawn underline (a border, for forced colours) and a press scale.
 - Project rows keep their category stripe on hover, show a keyboard frame via `:has(:focus-visible)`, and their links dim on press. Below 760px the footer legal line and the menu sheet leave `--floating-clearance` for the Ask AI launcher and back-to-top button.
 
+
+### Open source (2026-11-18)
+- New section `components/OpenSource.tsx` (`#open-source`) after Experience; also in the navbar, the mobile sheet and the `g` then `o` jump key (footer hint updated). Facts only from `data/opensource.ts`: the intro line is built per project from PR statuses, labels come from `statusLabel()`, and the "Status as of" date is `OSS_AS_OF`. An open PR is always "in review", never "merged".
+- One card per project on the role-card surface (2 columns, 1 at ≤900px): name to homepage, repo link, star count, about line, then PR rows (#number, title to the PR in a new tab, status pill). Merged = filled accent with `--accent-ink`; in review = accent outline. At ≤720px the number and pill share a line above the full-width title.
+- `.oss-card` joins the observer reveal (`REVEAL` in `useEffects.ts`, not scroll-driven); its PR rows rise in turn (opacity/transform). Hover (fine pointers only) warms the border and lifts with `translate`; `:has(:focus-visible)` warms the border for keyboards. Styles are the last block in `classic.css`.
+- Stats strip unchanged: a fifth stat would break the 4-column / 2×2 grid.

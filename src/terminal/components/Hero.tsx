@@ -649,6 +649,10 @@ __/ =| o |=-~~\  /~~\  /~~\  /~~\ ____Y___________|__
                         <Prompt />
                         {l.text.slice(2)}
                       </>
+                    ) : l.href ? (
+                      <a className="shell-a" href={l.href} target="_blank" rel="noopener noreferrer">
+                        {l.text}
+                      </a>
                     ) : (
                       l.text
                     )}

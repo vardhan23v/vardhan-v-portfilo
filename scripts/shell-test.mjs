@@ -49,6 +49,7 @@ let t = await text();
 // help prints grouped `name  summary` rows (aliases live in the summary)
 check("help lists neofetch", t.includes("neofetch") && t.includes("alias: fetch"));
 check("help lists cat <file>", /\bcat\s+read a file/.test(t));
+check("help lists contributions", /\bcontributions\s+pull requests to upstream/.test(t));
 check("help lists backtick hint", t.includes("focus this terminal"));
 check("help lists tab/history hint", t.includes("completion / history / clear"));
 
@@ -108,6 +109,13 @@ t = await text();
 check("resume link printed", t.includes("/resume/resume.pdf"));
 check("resume no placeholder hint", !t.includes("placeholder"));
 
+await run("contributions", "in review");
+t = await text();
+check("contributions prints roadmap.sh", t.includes("roadmap.sh"));
+check("contributions prints in review", t.includes("in review"));
+check("contributions prints merged", t.includes("[merged]"));
+check("contributions links the PRs", await p.$$eval(".shell-lines a.shell-a", (as) => as.some((a) => a.href.includes("/pull/") && a.target === "_blank" && a.rel.includes("noopener"))));
+
 await run("vim", "not a text editor");
 
 await run("42", "answer to life");
@@ -119,6 +127,12 @@ await p.keyboard.type("neo");
 await p.keyboard.press("Tab");
 await sleep(40);
 check("tab: neo→neofetch ", (await val()) === "neofetch ");
+
+await clear();
+await p.keyboard.type("contrib");
+await p.keyboard.press("Tab");
+await sleep(40);
+check("tab: contrib→contributions ", (await val()) === "contributions ");
 
 await clear();
 await p.keyboard.type("cat ");

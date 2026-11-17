@@ -9,6 +9,7 @@ import { Work } from "./components/Work";
 import { Stats } from "./components/Stats";
 import { Process } from "./components/Process";
 import { Experience } from "./components/Experience";
+import { OpenSource } from "./components/OpenSource";
 import { Skills } from "./components/Skills";
 import { Contact } from "./components/Contact";
 import { Footer } from "./components/Footer";
@@ -19,8 +20,8 @@ import "./styles/classic.css";
  * cobalt surfaces, canvas-cream text and starlight-gold actions; Fraunces for headings, Inter for reading. Four projects lead, the rest are browsable,
  * and motion is kept to feedback that explains an interaction.
  */
-/** "g" then a letter jumps to a section: a About, p Projects, e Experience, s Skills, c Contact. */
-const JUMPS: Record<string, string> = { a: "about", p: "work", e: "experience", s: "skills", c: "contact" };
+/** "g" then a letter jumps to a section: a About, p Projects, e Experience, o Open source, s Skills, c Contact. */
+const JUMPS: Record<string, string> = { a: "about", p: "work", e: "experience", o: "open-source", s: "skills", c: "contact" };
 function useJumpKeys() {
   useEffect(() => {
     let armed = 0;
@@ -59,6 +60,7 @@ export function ClassicSite() {
         <About />
         <Work />
         <Experience />
+        <OpenSource />
         <Skills />
         <Process />
         <Contact />

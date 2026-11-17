@@ -5,6 +5,7 @@ import { featuredProjects, type Project } from "../classic/data/projects";
 import { experience } from "../classic/data/experience";
 import { skillCategories } from "../classic/data/skills";
 import { site } from "../classic/data/site";
+import { contributions, ossStats, statusLabel, OSS_AS_OF } from "../classic/data/opensource";
 import { caseStudyPath, hasCaseStudy } from "../work/links";
 import { aboutProject, askAssistant } from "../lib/ai/ask";
 import { prefetchEdition } from "../lib/editionLoaders";
@@ -52,11 +53,12 @@ export function EngineeringDetails({ p }: { p: Project }) {
   );
 }
 
-const SECTION_IDS = ["work", "experience", "about", "contact"] as const;
+const SECTION_IDS = ["work", "experience", "opensource", "about", "contact"] as const;
 /** Section overline text, shared by each section's h2 and the running head. */
 const SECTION_LABELS: Record<(typeof SECTION_IDS)[number], string> = {
   work: "Selected work",
   experience: "Experience",
+  opensource: "Open source",
   about: "About",
   contact: "Contact",
 };
@@ -164,6 +166,7 @@ export function PaperSite() {
         <div className="paper-nav-links">
           <a href="#work">Work</a>
           <a href="#experience">Experience</a>
+          <a href="#opensource">Open source</a>
           <a href="#about">About</a>
           <a href="#contact">Contact</a>
         </div>
@@ -271,6 +274,48 @@ export function PaperSite() {
               </div>
               <span className="paper-exp-period">{e.period}</span>
             </div>
+          ))}
+        </section>
+
+        <section className="paper-section" id="opensource" aria-labelledby="paper-oss-title">
+          <h2 className="paper-overline" id="paper-oss-title" data-pp-reveal>
+            {SECTION_LABELS.opensource}
+          </h2>
+          <p className="paper-oss-lede" data-pp-reveal>
+            {ossStats.prs} pull requests to {ossStats.projects} open-source projects: {ossStats.merged} merged,{" "}
+            {ossStats.open} in review. <span className="paper-oss-asof">As of {OSS_AS_OF}.</span>
+          </p>
+          {contributions.map((c, i) => (
+            <article className="paper-oss-item" data-pp-reveal key={c.repo} style={{ "--d": `${Math.min(i * 0.07, 0.35)}s` } as React.CSSProperties}>
+              <header className="paper-oss-head">
+                <h3 className="paper-oss-name">
+                  <a href={c.homepage} target="_blank" rel="noopener noreferrer">
+                    {c.project}
+                    <span className="sr-only"> (opens in a new tab)</span>
+                  </a>
+                </h3>
+                <span className="paper-oss-stars">
+                  <span aria-hidden="true">★ </span>
+                  {c.stars}
+                  <span className="sr-only"> GitHub stars</span>
+                </span>
+              </header>
+              <p className="paper-oss-about">{c.about}</p>
+              <ul className="paper-oss-prs">
+                {c.prs.map((pr) => (
+                  <li className="paper-oss-pr" key={pr.number}>
+                    <span className="paper-oss-num">#{pr.number}</span>
+                    <a className="paper-oss-title" href={pr.url} target="_blank" rel="noopener noreferrer">
+                      {pr.title}
+                      <span className="sr-only"> (pull request, opens in a new tab)</span>
+                    </a>
+                    <span className="paper-oss-status" data-status={pr.status}>
+                      {statusLabel(pr.status)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </article>
           ))}
         </section>
 

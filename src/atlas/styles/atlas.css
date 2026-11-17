@@ -613,3 +613,53 @@ html[data-motion="reduce"] .atl-plate[data-range="sticky"] .atl-plate-stage { po
   html:not([data-motion="reduce"]) .atl-btn { transition: background 0.2s, transform 0.2s var(--ease), translate 0.3s var(--ease), box-shadow 0.3s var(--ease); }
   html:not([data-motion="reduce"]) .atl-btn:hover { translate: 0 -2px; box-shadow: 0 14px 30px -18px rgba(236, 232, 223, 0.5); }
 }
+
+/* ---------- V. open source (survey contributions, 2026-11-18) ---------- */
+.atl-oss { display: grid; grid-template-columns: var(--cols); column-gap: var(--colgap); }
+.atl-oss-side { grid-column: 1 / 4; position: sticky; top: 140px; align-self: start; }
+.atl-oss-list { grid-column: 4 / 13; margin: 0; padding: 0; list-style: none; display: grid; row-gap: clamp(48px, 6vw, 80px); }
+.atl-oss-cap { font-family: var(--mono); font-size: 12.5px; color: var(--ink-3); padding-bottom: 12px; }
+.atl-oss-facts dd { font-variant-numeric: tabular-nums; }
+.atl-oss-facts div { grid-template-columns: 7em 1fr; }
+.atl-oss-plate { scroll-margin-top: 90px; padding: clamp(18px, 2.4vw, 30px); border: 1px solid var(--line-2); background: var(--card); outline: 1px solid var(--line); outline-offset: 6px; min-width: 0; }
+.atl-oss-plate:target { border-color: var(--ink-2); }
+.atl-oss-plate .atl-plate-ref span:last-child { overflow-wrap: anywhere; }
+.atl-oss-name { margin-top: 2px; }
+.atl-oss-name .atl-gaz-name { display: inline-flex; align-items: center; font-size: clamp(1.8rem, 2.6vw, 2.3rem); letter-spacing: -0.03em; }
+.atl-oss-plate > .atl-gaz-text { margin-top: 12px; max-width: 60ch; }
+.atl-oss-plate .atl-facts div { grid-template-columns: 7.5em minmax(0, 1fr); }
+.atl-oss-repo { display: inline-block; padding: 2px 0; min-height: 28px; text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 5px; overflow-wrap: anywhere; }
+.atl-oss-cap.atl-oss-cap--prs { padding-top: 30px; padding-bottom: 10px; }
+.atl-oss-prs { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--ink-2); }
+.atl-oss-prs > li { position: relative; display: grid; grid-template-columns: 64px minmax(0, 1fr) 112px; gap: 0 20px; align-items: first baseline; padding: 14px 0; }
+.atl-oss-prs > li::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: var(--line); transform-origin: 0 50%; transform: scaleX(var(--p, 1)); }
+.atl-oss-num { font-family: var(--mono); font-size: 12.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.atl-oss-pr { display: inline; min-height: 28px; font-size: 16.5px; line-height: 1.45; color: var(--ink); text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 4px; overflow-wrap: anywhere; transition: text-decoration-color 0.2s; }
+.atl-oss-pr:focus-visible { text-decoration-color: var(--orange); }
+.atl-oss-status { display: inline-flex; align-items: center; gap: 8px; justify-self: end; font-family: var(--mono); font-size: 12.5px; color: var(--ink-2); white-space: nowrap; }
+.atl-oss-status.is-merged { color: var(--ink); }
+.atl-oss-status .atl-tri { transform: scale(0.8); }
+/* scroll: rule draws, words settle through a clip (never an opacity fade on text) */
+.atl-oss-prs > li > :not(.atl-oss-num) { clip-path: inset(-6px calc((1 - clamp(0, var(--p, 1) * 1.8, 1)) * 100%) -6px 0); transform: translateY(calc((1 - clamp(0, var(--p, 1) * 1.6, 1)) * 10px)); }
+.atl-oss-plate { transform: translateY(calc((1 - var(--p, 1)) * 24px)); }
+@media (hover: hover) and (pointer: fine) {
+  .atl-oss-pr:hover, .atl-oss-repo:hover { text-decoration-color: var(--orange); }
+  .atl-oss-plate { transition: border-color 0.3s; }
+  .atl-oss-plate:hover { border-color: var(--ink-2); }
+}
+@media (max-width: 1100px) {
+  .atl-oss { grid-template-columns: 1fr; row-gap: 40px; }
+  .atl-oss-side { position: static; grid-column: 1 / -1; }
+  .atl-oss-list { grid-column: 1 / -1; }
+}
+@media (max-width: 640px) {
+  .atl-oss-plate { outline-offset: 4px; }
+  .atl-oss-prs > li { grid-template-columns: minmax(0, 1fr) auto; row-gap: 6px; }
+  .atl-oss-num { grid-column: 1; grid-row: 1; }
+  .atl-oss-status { grid-column: 2; grid-row: 1; }
+  .atl-oss-pr { grid-column: 1 / -1; grid-row: 2; font-size: 15.5px; }
+  .atl-oss-side .atl-gaz-big { font-size: 4.2rem; }
+  .atl-oss-plate .atl-facts div { grid-template-columns: 6.5em minmax(0, 1fr); gap: 12px; }
+  .atl-oss-plate .atl-facts dd { font-size: 15px; }
+}
+.atl-ico--merge { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='4' cy='3' r='2' fill='none' stroke='%23ece8df' stroke-width='1.2'/%3E%3Ccircle cx='4' cy='13' r='2' fill='none' stroke='%23ece8df' stroke-width='1.2'/%3E%3Ccircle cx='12' cy='8' r='2' fill='none' stroke='%23ece8df' stroke-width='1.2'/%3E%3Cpath d='M4 5v6M4 5c0 3 3 3 6 3' fill='none' stroke='%23ece8df' stroke-width='1.2'/%3E%3C/svg%3E"); }

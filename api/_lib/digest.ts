@@ -1,4 +1,5 @@
 import { experience } from "../../src/classic/data/experience.js";
+import { contributions, OSS_AS_OF } from "../../src/classic/data/opensource.js";
 import { featuredProjects, otherProjects } from "../../src/classic/data/projects.js";
 import { site } from "../../src/classic/data/site.js";
 import { skillCategories } from "../../src/classic/data/skills.js";
@@ -8,6 +9,7 @@ export const DIGEST_TITLE = "All projects overview";
 export const CAREER_TITLE = "Work experience overview";
 export const CONTACT_TITLE = "Contact details";
 export const SKILLS_TITLE = "Skills overview";
+export const OSS_TITLE = "Open-source contributions";
 
 /** Every skill category from the portfolio, one line each. */
 export function skillsOverview(): string {
@@ -16,6 +18,12 @@ export function skillsOverview(): string {
 
 export function careerOverview(): string {
   return experience.map((e) => `- ${e.role} at ${e.company} (${e.period}): ${e.points.slice(0, 2).join("; ")}`).join("\n");
+}
+
+/** Pull requests to other projects, with their real status (open PRs are not merged). */
+export function ossOverview(): string {
+  const lines = contributions.map((c) => `- ${c.project} (${c.repo}, ${c.stars} stars, ${c.url}): ${c.prs.map((p) => `#${p.number} "${p.title}" ${p.status === "merged" ? `merged ${p.merged}` : "open, in review, not merged yet"}`).join("; ")}`);
+  return `Statuses as of ${OSS_AS_OF}.\n${lines.join("\n")}`;
 }
 
 export function contactOverview(): string {

@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "smoke": "node scripts/smoke.mjs",
-    "resume": "node scripts/resume/build.mjs"
+    "resume": "node scripts/resume/build.mjs",
+    "oss": "node scripts/oss-refresh.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",

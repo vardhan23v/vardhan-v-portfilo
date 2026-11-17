@@ -3161,3 +3161,165 @@ html[data-edition="terminal"]:not([data-motion="reduce"]):not(.vt-local):not(.ma
 }
 @keyframes term-vt-out { to { opacity: 0; transform: translateY(-6px); } }
 @keyframes term-vt-in { from { opacity: 0; transform: translateY(8px); } }
+
+/* ---------- Open source: upstream contributions (git log --author) ---------- */
+
+.terminal-root .oss-term {
+  margin-top: 22px;
+}
+
+.terminal-root .oss-head {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.terminal-root .oss-sum,
+.terminal-root .oss-about,
+.terminal-root .oss-foot {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.terminal-root .oss-proj {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line-2);
+}
+
+.terminal-root .oss-repo {
+  margin: 0;
+  font-size: 13px;
+}
+
+.terminal-root .oss-star {
+  color: var(--amber);
+}
+
+.terminal-root .oss-repo-link {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  column-gap: 1ch;
+  min-height: 24px;
+  color: var(--green);
+  font-weight: 700;
+}
+
+.terminal-root .oss-slug {
+  color: var(--cyan);
+  font-weight: 400;
+}
+
+.terminal-root .oss-stars {
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.terminal-root .oss-prs {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+
+.terminal-root .oss-pr {
+  display: grid;
+  grid-template-columns: 7ch minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: baseline;
+  min-height: 24px;
+  padding: 7px 8px;
+  margin: 0 -8px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--ink-2);
+  transition: background-color 0.2s ease;
+}
+
+.terminal-root .oss-num {
+  color: var(--green-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.terminal-root .oss-title {
+  min-width: 0;
+}
+
+.terminal-root .oss-status {
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.terminal-root .oss-status.is-merged,
+.terminal-root .oss-merged { color: var(--green); }
+.terminal-root .oss-status.is-open,
+.terminal-root .oss-open { color: var(--amber); }
+
+.terminal-root .oss-pr:focus-visible {
+  background: rgba(var(--green-rgb), 0.06);
+}
+.terminal-root .oss-pr:focus-visible .oss-title {
+  color: var(--ink);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .terminal-root .oss-pr:hover {
+    background: rgba(var(--green-rgb), 0.04);
+  }
+  .terminal-root .oss-pr:hover .oss-title {
+    color: var(--ink);
+  }
+  .terminal-root .oss-repo-link:hover .oss-slug {
+    color: var(--green-2);
+  }
+}
+
+.terminal-root .oss-foot {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line-2);
+}
+
+@media (max-width: 640px) {
+  .terminal-root .oss-pr {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 12px;
+  }
+  .terminal-root .oss-title {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+.terminal-root .reveal.is-visible .oss-pr-row {
+  animation: ln-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 0.07s);
+}
+
+html[data-motion="reduce"] .terminal-root .reveal.is-visible .oss-pr-row {
+  animation: none;
+}
+
+/* shell output lines that carry an href (e.g. `contributions`) */
+.terminal-root .shell-a {
+  color: inherit;
+  text-decoration: underline 1px;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s ease;
+}
+.terminal-root .shell-a:focus-visible {
+  text-decoration-color: currentColor;
+}
+@media (hover: hover) and (pointer: fine) {
+  .terminal-root .shell-a:hover {
+    text-decoration-color: currentColor;
+  }
+}
+/* `contributions` status colours (the line's own class; the older `.shell-ln .green` rules only colour nested spans) */
+.terminal-root .shell-ln.st-merged { color: var(--green); }
+.terminal-root .shell-ln.st-open { color: var(--amber); }
+.terminal-root .shell-ln.st-repo { color: var(--cyan); }
+.terminal-root .shell-ln.st-url { color: var(--ink-3); }

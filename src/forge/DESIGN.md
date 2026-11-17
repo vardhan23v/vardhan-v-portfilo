@@ -186,3 +186,9 @@ Reduced motion is driven only by `html[data-motion]` (`src/lib/motion.ts`), neve
 - Nav: full-bleed glass and heat bar, the switcher drops its numbers to fit, solid mobile panel with 44px rows, staggered links, Escape and outside-tap close. Footer sits on the 1200px column and clears the floating buttons on phones.
 - Layout: About facts no longer break mid-word (`auto-fit` columns, `<wbr>` after the slash); `text-wrap: pretty` on prose; Interfaces lists Atlas (six cards, 3 × 2); Contact / Interfaces spacing tightened. Hero Liquid CTA and the gold Contact button are pills that match `.fg-btn`.
 - Fixes: project numbers read 01–12 (were 010–012); the "Cloud & Tools" stack card has its caption; pipeline rows are visible under reduced motion.
+
+### Open source (2026-11-18)
+- New `<OpenSource />` section `#opensource` after Experience; `SECTION_META` renumbered (open source 04, about 05, contact 06, interfaces 07); added to the desktop nav, the mobile panel and `useForgeSpy`. Data comes only from `src/classic/data/opensource.ts`.
+- One build card per project (`.fg-oss-card`, panel surface borrowed from `.fg-pipe` but no tilt or float): a mono head with `owner/repo` and the star count, the project name linking to its homepage, the about line, then PR rows (`#number`, title link in a new tab with `rel="noopener noreferrer"`, status) and a foot with "n/m shipped" and a repo link.
+- Status words: merged is "shipped" (filled green dot, `#86efac`), open is "in review" (hollow `--fg-violet` ring). Never show an open PR as shipped.
+- Motion: cards rise in with the section's `.fg-reveal` (opacity/transform, `--i` stagger); fine-pointer hover lifts 4px and fades in a cyan ring and a row tint (opacity only). Under reduced motion the cards rest visible (added to the reduce list). ≤520px: titles wrap under the number/status row.

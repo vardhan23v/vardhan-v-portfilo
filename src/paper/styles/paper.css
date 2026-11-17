@@ -796,6 +796,153 @@ html:has(.paper-root)::-webkit-scrollbar-thumb:hover {
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------- open source ---------- */
+
+.paper-oss-lede {
+  max-width: 620px;
+  margin-bottom: 8px;
+  color: var(--ink-2);
+  font-size: 15.5px;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.paper-oss-asof {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.paper-oss-item {
+  padding: 24px 0 8px;
+  border-top: 1px solid var(--rule);
+}
+
+.paper-oss-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+}
+
+.paper-oss-name {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 550;
+  letter-spacing: -0.01em;
+}
+
+.paper-oss-name a,
+.paper-oss-title {
+  position: relative;
+  text-decoration: underline 1px var(--rule);
+  text-underline-offset: 4px;
+  text-decoration-skip-ink: auto;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+.paper-oss-stars {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.paper-oss-about {
+  margin-top: 6px;
+  color: var(--ink-2);
+  font-size: 14.5px;
+  line-height: 1.6;
+  max-width: 620px;
+  text-wrap: pretty;
+}
+
+.paper-oss-prs {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+}
+
+.paper-oss-pr {
+  display: grid;
+  grid-template-columns: 7ch 1fr auto;
+  gap: 4px 16px;
+  align-items: baseline;
+  padding: 10px 0;
+  border-top: 1px dashed var(--rule);
+}
+
+.paper-oss-num {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.paper-oss-title {
+  color: var(--ink-2);
+  font-size: 14.5px;
+  line-height: 1.5;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  justify-self: start;
+  min-height: 24px; /* grid item, so blockified: the 24px target holds without inline-flex */
+}
+
+/* Status mark: a filled terracotta dot for merged, a hollow ink ring for in review. */
+.paper-oss-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.paper-oss-status::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink-3);
+}
+
+.paper-oss-status[data-status="merged"] {
+  color: var(--accent-2);
+}
+
+.paper-oss-status[data-status="merged"]::before {
+  border-color: var(--accent-2);
+  background: var(--accent-2);
+}
+
+.paper-oss-name a:focus-visible,
+.paper-oss-title:focus-visible {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .paper-oss-name a:hover,
+  .paper-oss-title:hover {
+    color: var(--accent);
+    text-decoration-color: var(--accent);
+  }
+}
+
+@media (max-width: 720px) {
+  .paper-oss-name { font-size: 21px; }
+  .paper-oss-pr {
+    grid-template-columns: 1fr auto;
+  }
+  .paper-oss-title {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
 /* ---------- about + skills ---------- */
 
 .paper-prose {

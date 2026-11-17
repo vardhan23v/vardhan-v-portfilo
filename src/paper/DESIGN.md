@@ -143,3 +143,9 @@ All Paper motion uses `cubic-bezier(0.22, 1, 0.36, 1)` unless noted.
 - Scrollbar: ink thumb via `html:has(.paper-root)`.
 - Prefetch: links to `/` and to case studies call `prefetchEdition` on hover, focus and touchstart.
 - Reduced motion: the stroke rests drawn, arrows and hover slides stay put, the running head simply appears, the masthead lines and rules rest in place.
+
+### Open source (2026-11-18)
+- New `#opensource` section ("Open source") between Experience and About, data from `src/classic/data/opensource.ts` (`contributions`, `ossStats`, `statusLabel`, `OSS_AS_OF`); nothing is written inline. Listed in the nav, `SECTION_IDS` and `SECTION_LABELS`, so the running head shows `§ Open source`.
+- A one-line lede with the counts and the as-of date, then one `.paper-oss-item` per project (reveals with `data-pp-reveal`, `--d` stagger): serif project name linking to its homepage, mono star count, about line, then `.paper-oss-pr` rows: mono `#number`, the PR title (hairline-underlined link, new tab, `rel="noopener noreferrer"`) and a status mark.
+- Status: `merged` is a filled `--accent-2` dot with `--accent-2` text; open PRs read "in review" with a hollow `--ink-3` ring. Never label an open PR merged.
+- Hover (fine pointers only) and `:focus-visible` turn links terracotta; titles keep a 24px min height. At ≤720px the title drops under the number and status.

@@ -237,3 +237,7 @@ JetBrains Mono sizes:
 - Line-break polish: hero tag breaks only at `::`, status line only at `·`, `text-wrap: balance/pretty` on titles and paragraphs, EOF rules hide on phones, tighter CTA padding at ≤480px; neofetch wraps the role under the value column and drops the logo column in a narrow shell.
 - `useActiveSection` no longer reads a stale value between sections.
 
+
+### Open source (2026-11-18)
+- `OpenSource.tsx` has a second window, `git log --author=vardhan23v --all-repos`, built from `src/classic/data/opensource.ts`: each upstream project (repo link, stars, about) and its PRs as `#number title [status]` links (new tab, `noopener noreferrer`). Status uses `statusLabel()`: merged in `--green`, in review in `--amber`; an open PR is never shown as merged. Rows stagger with `ln-in` and rest visible under reduce; hover is behind `(hover: hover) and (pointer: fine)`; title moves under the number at ≤640px.
+- New shell command `contributions` (alias `prs`, listed under `read` in `help`, tab-completes) prints the same log. A `Line` can now carry `href`; Hero renders it as `a.shell-a` (new tab). Line-level colours use `.shell-ln.st-merged / .st-open / .st-repo / .st-url`, because the older `.shell-ln .green` rules only colour nested spans (so `cls: "green"` on a line has no visible effect).

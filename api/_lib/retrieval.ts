@@ -2,7 +2,7 @@ import { featuredProjects, otherProjects } from "../../src/classic/data/projects
 import type { ChatTurn, SourceRef, SourceType } from "../../src/lib/ai/types.js";
 import { estimateTokens } from "./chunking.js";
 import type { EmbeddingProvider } from "./embeddings/types.js";
-import { CAREER_TITLE, CONTACT_TITLE, DIGEST_TITLE, SKILLS_TITLE, careerOverview, contactOverview, factCard, judgementDigest, projectDigest, projectName, skillsOverview } from "./digest.js";
+import { CAREER_TITLE, CONTACT_TITLE, DIGEST_TITLE, OSS_TITLE, SKILLS_TITLE, careerOverview, contactOverview, factCard, judgementDigest, ossOverview, projectDigest, projectName, skillsOverview } from "./digest.js";
 import type { QueryPlan } from "./planner.js";
 import type { ChunkMatch, KnowledgeStore, TermHit } from "./store.js";
 
@@ -94,6 +94,8 @@ export function preferredSources(question: string): SourceType[] {
 
 const FOLLOW_UP = /\b(it|its|that|this|those|these|them|they|former|latter|first one|second one|the project|more|else|hardest part|which (?:one|is|was|of|would)|harder|easier|tougher|better|why not|how so)\b|^(?:and|so|but|why)\b/i;
 export const JUDGEMENT = /\b(strongest|best|better|most (?:impressive|complex|challenging|difficult|technical)|hardest|harder|easier|tougher|favou?rite|stand ?out|more (?:complex|impressive|difficult|technical|challenging)|compare|versus|vs)\b/i;
+/** Questions about contributions to other people's open-source projects. */
+export const OSS = /\b(open[- ]?source|oss|contribut\w*|pull requests?|prs?|roadmap\.sh|cline|upstream)\b/i;
 export const HIRING = /\b(hire|hiring|fit for|good fit|right fit|why (?:him|vardhan)|strengths?|qualified)\b/i;
 const EXPERIENCE = /\b(experience|internships?|intern|employ\w*|career|jobs?|compan(?:y|ies))\b/i;
 const CONTACT = /\b(e-?mail|contact|reach|linkedin|phone|locat\w*|based in|where (?:is|does) (?:he|vardhan) (?:from|live))\b/i;
@@ -239,7 +241,7 @@ export async function retrieve(
   // let the caller refuse without a model call.
   const aboutWork = projects.length > 0 || /\b(projects?|work|built|build|apps?|portfolio|repos?|code|stack|products?)\b/i.test(q);
   const overviewQuestion = intent === "list" || HIRING.test(q) || ((intent === "judgement" || intent === "comparison") && aboutWork);
-  if (!relevant.length && !opts.plan?.terms.length && !projects.length && !overviewQuestion) return [];
+  if (!relevant.length && !opts.plan?.terms.length && !projects.length && !overviewQuestion && !OSS.test(q)) return [];
 
   // Context every answer of this kind needs, ahead of the ranked evidence.
   const fixed: ChunkMatch[] = [];
@@ -248,6 +250,7 @@ export async function retrieve(
   if (opts.plan && (EXPERIENCE.test(q) || HIRING.test(q))) fixed.push(syntheticChunk("career", CAREER_TITLE, careerOverview()));
   if (opts.plan && CONTACT.test(q)) fixed.push(syntheticChunk("contact", CONTACT_TITLE, contactOverview()));
   if (opts.plan && HIRING.test(q)) fixed.push(syntheticChunk("skills", SKILLS_TITLE, skillsOverview()));
+  if (OSS.test(q) || HIRING.test(q)) fixed.push(syntheticChunk("oss", OSS_TITLE, ossOverview()));
   if (deps.store.findTerm) {
     const TERM_LIMIT = 150;
     for (const term of opts.plan?.terms ?? []) {

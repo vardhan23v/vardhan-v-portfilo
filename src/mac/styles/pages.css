@@ -146,6 +146,34 @@
 .achievement-card__title { font-family: var(--font-display); font-size: 1.05rem; font-weight: 500; line-height: 1.25; }
 .achievement-card__text { margin-top: 4px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-tertiary); }
 
+/* ── Achievements: open source (upstream PRs) ── */
+.mac-root .oss-lede { margin: -4px 0 14px; font-size: 13.5px; line-height: 1.55; color: var(--text-secondary); max-width: 62ch; text-wrap: pretty; }
+.mac-root .oss-card { display: flex; flex-direction: column; height: 100%; }
+.mac-root .oss-grid > .rv { min-width: 0; }
+.mac-root .oss-card__repo { display: inline-flex; align-items: center; gap: 4px; min-height: 24px; color: var(--text-primary); border-radius: 4px; }
+.mac-root .oss-card__repo svg { width: 15px; height: 15px; color: var(--accent); transition: transform 200ms var(--ease-cinema); }
+.mac-root .oss-card__about { margin-top: 8px; font-size: 13px; line-height: 1.5; color: var(--text-secondary); text-wrap: pretty; }
+.mac-root .oss-card__prs { list-style: none; margin: 10px 0 0 -36px; padding: 0; display: flex; flex-direction: column; border-top: 0.5px solid var(--border); }
+.mac-root .oss-pr {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "num status" "title title";
+  gap: 2px 10px; align-items: center; min-height: 44px; padding: 8px 8px; margin: 0 -8px;
+  border-radius: 8px; color: var(--text-primary); transition: background-color 160ms;
+}
+.mac-root .oss-card__prs li + li { border-top: 0.5px solid var(--border); }
+.mac-root .oss-pr__num { grid-area: num; font-family: var(--font-mono); font-size: 12px; color: var(--accent); font-variant-numeric: tabular-nums; }
+.mac-root .oss-pr__title { grid-area: title; font-size: 13px; line-height: 1.45; text-wrap: pretty; }
+.mac-root .oss-pr__status {
+  grid-area: status; justify-self: end; display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-secondary);
+}
+.mac-root .oss-pr__status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); }
+.mac-root .oss-pr__status.is-open::before { background: transparent; box-shadow: inset 0 0 0 1.5px var(--traffic-minimize); }
+.mac-root .oss-pr:focus-visible { background: var(--accent-subtle); }
+@media (hover: hover) and (pointer: fine) {
+  .mac-root .oss-pr:hover { background: var(--accent-subtle); }
+  .mac-root .oss-card__repo:hover svg { transform: translate(2px, -2px); }
+}
+
 /* ── About essay ── */
 .about-section__text { font-size: 15px; line-height: 1.75; color: var(--text-secondary); max-width: 64ch; }
 .about-section__text--lede { font-family: var(--font-display); font-size: 1.25rem; line-height: 1.5; color: var(--text-primary); }

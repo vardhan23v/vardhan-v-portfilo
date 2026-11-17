@@ -16,6 +16,7 @@ import { experience, education, certifications } from "../classic/data/experienc
 import { skillCategories, exploring } from "../classic/data/skills";
 import { site } from "../classic/data/site";
 import { github, stats, aiStack } from "../classic/data/stats";
+import { contributions, ossStats, statusLabel, OSS_AS_OF } from "../classic/data/opensource";
 import { Icon } from "../classic/lib/icons";
 import { ExpandableTabs, type ExpandableTabItem } from "../components/ui/expandable-tabs";
 import "./styles/aurora.css";
@@ -108,6 +109,7 @@ const NAV_TABS: ExpandableTabItem[] = [
     icon: <Icon.briefcase width={16} height={16} />,
     value: "experience",
   },
+  { type: "tab", title: "Open source", icon: <Icon.github width={16} height={16} />, value: "opensource" },
   { type: "separator" },
   { type: "tab", title: "About", icon: <Icon.user width={16} height={16} />, value: "about" },
   { type: "tab", title: "Contact", icon: <Icon.mail width={16} height={16} />, value: "contact" },
@@ -122,6 +124,7 @@ const SECTIONS = [
   { id: "work", label: "Work" },
   { id: "stack", label: "Stack" },
   { id: "experience", label: "Experience" },
+  { id: "opensource", label: "Open source" },
   { id: "education", label: "Education" },
   { id: "about", label: "About" },
   { id: "contact", label: "Contact" },
@@ -1475,6 +1478,57 @@ export function AuroraSite() {
               );
             })}
           </div>
+        </section>
+
+        {/* ---------- OPEN SOURCE ---------- */}
+        <section className="aurora-section" id="opensource" aria-labelledby="aurora-oss-title">
+          <div className="aurora-head au-reveal">
+            <div>
+              <h2 id="aurora-oss-title">Open source</h2>
+              <p className="aurora-subhead">
+                Pull requests to other people&apos;s projects: {ossStats.merged} merged, {ossStats.open} in review.
+              </p>
+            </div>
+            <span className="tag">upstream · {ossStats.prs} PRs</span>
+          </div>
+          <div className="au-oss-grid au-reveal">
+            {contributions.map((c, i) => (
+              <article className="au-oss-card" key={c.repo} style={{ "--i": i } as React.CSSProperties}>
+                <div className="au-oss-head">
+                  <h3 className="au-oss-name">
+                    <a href={c.homepage} target="_blank" rel="noopener noreferrer">
+                      {c.project}
+                      <span className="sr-only"> (opens in a new tab)</span>
+                    </a>
+                  </h3>
+                  <span className="au-oss-stars">
+                    <Icon.star width={12} height={12} aria-hidden="true" />
+                    {c.stars}
+                    <span className="sr-only"> stars on GitHub</span>
+                  </span>
+                </div>
+                <a className="au-oss-repo" href={c.url} target="_blank" rel="noopener noreferrer">
+                  {c.repo}
+                  <span className="sr-only"> on GitHub (opens in a new tab)</span>
+                </a>
+                <p className="au-oss-about">{c.about}</p>
+                <span className="au-eng-label">pull requests · {c.prs.length}</span>
+                <ul className="au-oss-prs">
+                  {c.prs.map((pr, j) => (
+                    <li className="au-oss-pr" key={pr.number} style={{ "--j": j } as React.CSSProperties}>
+                      <span className="au-oss-num">#{pr.number}</span>
+                      <a className="au-oss-title" href={pr.url} target="_blank" rel="noopener noreferrer">
+                        {pr.title}
+                        <span className="sr-only"> (pull request, opens in a new tab)</span>
+                      </a>
+                      <span className={`au-oss-chip is-${pr.status}`}>{statusLabel(pr.status)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+          <p className="au-oss-foot au-reveal">Statuses as GitHub reported them on {OSS_AS_OF}.</p>
         </section>
 
         {/* ---------- EDUCATION ---------- */}

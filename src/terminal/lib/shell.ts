@@ -11,12 +11,13 @@ import { caseStudies, otherWork } from "../data/work";
 import { certifications, experience, education, process } from "../data/experience";
 import { PHOSPHORS, getPhosphor, isPhosphor, setPhosphor, getCrt, setCrt } from "./phosphor";
 import { bannerRows } from "./banner";
+import { contributions, ossStats, statusLabel, OSS_AS_OF } from "../../classic/data/opensource";
 
 export const OS_VERSION = "3.0.0";
 export const HOST = "folio";
 
-/** `d` is an optional print-in stagger step (set by the Hero shell, not by commands). */
-export type Line = { key: number; text: string; cls: string; d?: number };
+/** `d` is an optional print-in stagger step (set by the Hero shell, not by commands); `href` renders the line as a link (new tab). */
+export type Line = { key: number; text: string; cls: string; d?: number; href?: string };
 let keySeq = 0;
 export const nextKey = () => ++keySeq;
 export const L = (text: string, cls = ""): Line => ({ key: nextKey(), text, cls });
@@ -140,6 +141,7 @@ export const MAN_PAGES: Record<string, { syn: string; desc: string }> = {
   tech: { syn: "tech", desc: "scroll to the skills tree. alias: tree." },
   about: { syn: "about", desc: "scroll to the longer story." },
   remote: { syn: "remote", desc: "scroll to the open-source repos. alias: opensource." },
+  contributions: { syn: "contributions", desc: "pull requests to upstream open-source projects, with status. alias: prs." },
   contact: { syn: "contact", desc: "scroll to the mail form. aliases: mail, email." },
   social: { syn: "social", desc: "print my links. alias: links." },
   resume: { syn: "resume", desc: "download the résumé pdf." },
@@ -185,6 +187,7 @@ export const ALIASES: Record<string, string> = {
   projects: "work",
   tree: "tech",
   opensource: "remote",
+  prs: "contributions",
   mail: "contact",
   email: "contact",
   links: "social",
@@ -349,7 +352,7 @@ function runCmd(cmdRaw: string, arg: string, ctx: ShellCtx): ShellResult {
       push("available commands — `man <cmd>` for details, tab completes, | pipes into grep/head/tail/wc/sort", "cyan");
       const groups: [string, string[]][] = [
         ["navigate", ["work", "experience", "tech", "about", "remote", "contact", "cd", "open"]],
-        ["read", ["ls", "cat", "whoami", "stats", "social", "resume", "neofetch", "history", "man"]],
+        ["read", ["ls", "cat", "whoami", "stats", "social", "contributions", "resume", "neofetch", "history", "man"]],
         ["network", ["ping", "curl", "ssh", "exit"]],
         ["play", ["snake", "top", "sl", "matrix", "cowsay", "banner", "fortune", "42"]],
         ["display", ["theme", "crt", "clear", "uptime", "date", "weather"]],
@@ -446,6 +449,22 @@ function runCmd(cmdRaw: string, arg: string, ctx: ShellCtx): ShellResult {
       push("git remote -v               # repos", "cyan");
       effects.push({ type: "scroll", id: "opensource" });
       break;
+    case "contributions": {
+      push("git log --author=vardhan23v --all-repos --oneline", "cyan");
+      push(`# ${ossStats.prs} pull requests · ${ossStats.projects} projects · ${ossStats.merged} merged · ${ossStats.open} in review`, "dim");
+      contributions.forEach((c) => {
+        push("");
+        lines.push({ ...L(`* ${c.project}  ${c.repo}  ★ ${c.stars}`, "cyan b st-repo"), href: c.url });
+        c.prs.forEach((pr) => {
+          const label = statusLabel(pr.status);
+          lines.push({ ...L(`  #${pr.number}  ${`[${label}]`.padEnd(11)}  ${pr.title}`, pr.status === "merged" ? "green st-merged" : "amber st-open"), href: pr.url });
+          lines.push({ ...L(`    ${pr.url.replace("https://", "")}`, "dim st-url"), href: pr.url });
+        });
+      });
+      push("");
+      push(`# statuses as of ${OSS_AS_OF} · click a line to open it · \`remote\` scrolls to the panel`, "dim");
+      break;
+    }
     case "contact":
       push(`opening mail session → ${site.email}`, "cyan");
       effects.push({ type: "scroll", id: "contact" });

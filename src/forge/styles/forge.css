@@ -1141,6 +1141,268 @@
   color: var(--fg-cyan);
 }
 
+/* ---------- open source (upstream PRs as build cards) ---------- */
+
+.fg-oss-lede {
+  margin: 18px 0 0;
+  max-width: 680px;
+  font-family: var(--fg-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  text-wrap: pretty;
+}
+
+.fg-oss-asof {
+  color: var(--fg-faint);
+  white-space: nowrap;
+}
+
+.fg-oss-grid {
+  margin-top: 44px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 22px;
+}
+
+.fg-oss-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--fg-line);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(20, 20, 24, 0.9), rgba(13, 13, 15, 0.94));
+  box-shadow: 0 30px 80px -40px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1), transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--i, 0) * 0.08s);
+}
+
+.fg-oss.fg-in .fg-oss-card {
+  opacity: 1;
+  transform: none;
+}
+
+/* Hover glow: a fixed cyan ring that only fades in. */
+.fg-oss-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.4), 0 0 0 0 transparent;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.fg-oss-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--fg-line);
+  font-family: var(--fg-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.fg-oss-repo {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-transform: none;
+  letter-spacing: 0.04em;
+}
+
+.fg-oss-stars {
+  flex: none;
+  color: var(--fg-cyan);
+  font-variant-numeric: tabular-nums;
+}
+
+.fg-oss-body {
+  padding: 20px 20px 8px;
+}
+
+.fg-oss-name {
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.fg-oss-name a {
+  color: var(--fg-text);
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.fg-oss-about {
+  margin-top: 8px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--fg-muted);
+  text-wrap: pretty;
+}
+
+.fg-oss-prs {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  flex: 1;
+}
+
+.fg-oss-pr {
+  position: relative;
+  display: grid;
+  grid-template-columns: 7ch 1fr auto;
+  gap: 4px 14px;
+  align-items: baseline;
+  padding: 13px 20px;
+  font-family: var(--fg-mono);
+  --st: var(--fg-violet);
+}
+
+.fg-oss-pr[data-status="merged"] {
+  --st: #86efac;
+}
+
+.fg-oss-pr:not(:last-child) {
+  border-bottom: 1px solid rgba(215, 226, 234, 0.06);
+}
+
+.fg-oss-pr::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.04);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.fg-oss-num {
+  font-size: 10.5px;
+  color: var(--fg-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.fg-oss-title {
+  position: relative;
+  min-width: 0;
+  min-height: 28px;
+  justify-self: start;
+  font-family: var(--fg-sans);
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--fg-text);
+  text-decoration: underline 1px var(--fg-line-2);
+  text-underline-offset: 4px;
+  overflow-wrap: anywhere;
+  border-radius: 4px;
+}
+
+.fg-oss-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--st);
+  white-space: nowrap;
+}
+
+.fg-oss-status i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--st);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--st) 70%, transparent);
+}
+
+.fg-oss-pr[data-status="open"] .fg-oss-status i {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--st);
+}
+
+.fg-oss-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--fg-line);
+  font-family: var(--fg-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+.fg-oss-foot a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  color: var(--fg-muted);
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.fg-oss-name a:focus-visible,
+.fg-oss-title:focus-visible,
+.fg-oss-foot a:focus-visible {
+  color: var(--fg-cyan);
+  text-decoration-color: var(--fg-cyan);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .fg-oss-card:hover::after,
+  .fg-oss-pr:hover::before {
+    opacity: 1;
+  }
+
+  html:not([data-motion="reduce"]) .fg-oss.fg-in .fg-oss-card:hover {
+    transform: translateY(-4px);
+    transition-delay: 0s;
+  }
+
+  .fg-oss-name a:hover,
+  .fg-oss-title:hover,
+  .fg-oss-foot a:hover {
+    color: var(--fg-cyan);
+    text-decoration-color: var(--fg-cyan);
+  }
+}
+
+@media (max-width: 520px) {
+  .fg-oss-pr {
+    grid-template-columns: 1fr auto;
+    padding: 13px 18px;
+  }
+
+  .fg-oss-title {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .fg-oss-head,
+  .fg-oss-body,
+  .fg-oss-foot {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .fg-oss-name {
+    font-size: 21px;
+  }
+}
+
 /* ---------- selected work ---------- */
 
 .fg-work {
@@ -1803,6 +2065,7 @@ html[data-motion="reduce"] .forge-root *::after {
 html[data-motion="reduce"] .fg-reveal,
 html[data-motion="reduce"] .fg-enter,
 html[data-motion="reduce"] .fg-stack-card,
+html[data-motion="reduce"] .fg-oss-card,
 html[data-motion="reduce"] .fg-tl-item {
     opacity: 1 !important;
     transform: none !important;

@@ -166,3 +166,7 @@ Every pair passes 4.5:1. Light orange and light green were darkened (from `#ea58
 - No layout animation on hover: the clock presses (scale) instead of letter-spacing, ledger rows slide their number and name by transform, the contact address fades an underline in; `nameIn` and `timePulse` dropped letter-spacing.
 - Page progress bars are scroll-driven (`animation-timeline: scroll()`), with a rAF/ResizeObserver fallback that writes only the bar's transform. The screensaver clock drifts by transform and stays put with reduced motion.
 - Type: balanced headings, `text-wrap: pretty` in page copy, tabular widget stats.
+
+### Open source (2026-11-18)
+- Achievements has an "Open source" group (after Certifications) and an "Upstream PRs" stat, from `src/classic/data/opensource.ts`. Each project is an `.achievement-card.oss-card` with a repo link and its PRs as `.oss-pr` rows (`#number`, title, status pill; new tab, `noopener noreferrer`). Status text is `--text-secondary` with a dot: filled `--ok` for merged, a `--traffic-minimize` ring for in review; open PRs are never called merged.
+- Cards use the existing `.rv` reveal (covered by both motion gates); the hover tint and arrow nudge are behind `(hover: hover) and (pointer: fine)`, and `:focus-visible` tints the row. Single column at ≤760px via `.achievements-grid`.

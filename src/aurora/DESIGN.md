@@ -171,3 +171,8 @@ Size scale (`aurora.css` line in brackets):
 - Details: subhead clears the heading underline, `dd` indent removed, hue swatches are 14px dots in 24px targets (active keeps a glow), contact pills align left, tabular numerals on stats, `text-wrap: pretty/balance`.
 - Links to `/` and case studies call `prefetchEdition` on hover, focus and touch.
 - Removed permanent `will-change` from toolbar, lab, education cards, cert chips and form, and the dead `backdrop-filter` transition on cards.
+
+### Open source (2026-11-18)
+- New `section#opensource` right after Experience, in `NAV_TABS` ("Open source", GitHub icon) and `SECTIONS` (dots). Data only from `src/classic/data/opensource.ts` (`contributions`, `ossStats`, `statusLabel`, `OSS_AS_OF`); an open PR is always labelled "in review", never merged.
+- One `.au-oss-card` glass panel per project (edu-card recipe: `--glass`, violet→cyan left bar): name links to the homepage, repo links to GitHub, stars and about, then PR rows (`#number`, title link, `.au-oss-chip` mint "merged" / violet "in review"). All external links open in a new tab with `rel="noopener noreferrer"` and sr-only "(opens in a new tab)".
+- Cards and rows stagger with `auin` on `.au-oss-grid.is-in`; the opacity-0 rest state is gated on `html:not([data-motion="reduce"])`. Hover lift only inside `(hover: hover) and (pointer: fine)`. Two columns, one at ≤900px; at ≤560px each row puts number and chip above the title.

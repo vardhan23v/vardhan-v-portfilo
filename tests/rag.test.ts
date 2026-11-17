@@ -315,6 +315,16 @@ describe("reasoning pipeline", () => {
     expect(got[1].content).toContain("@");
   });
 
+  it("includes open-source contributions with their real status", async () => {
+    const deps = await indexedPortfolio();
+    const q = "What open source contributions has he made?";
+    const got = await retrieve(q, deps, { topK: 3, threshold: 0.05, maxContextTokens: 2800, plan: { intent: "fact", standalone: q, searches: [], terms: [] } });
+    const oss = got.find((c) => c.title === "Open-source contributions");
+    expect(oss).toBeTruthy();
+    expect(oss!.content).toContain("roadmap.sh");
+    expect(oss!.content).toMatch(/#15175 [^;]*not merged yet/);
+  });
+
   it("picks more effort for harder questions", () => {
     expect(effortFor("judgement", 9500)).toEqual({ reasoningEffort: "high", maxTokens: 2200 });
     expect(effortFor("comparison", 7000)).toEqual({ reasoningEffort: "medium", maxTokens: 1800 });

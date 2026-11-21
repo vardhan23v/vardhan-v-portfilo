@@ -7,6 +7,7 @@ import { InterfaceSwitcher } from "../interface-switcher/InterfaceSwitcher";
 import { CATEGORY_LABEL, featuredProjects, otherProjects } from "../classic/data/projects";
 import { education, experience } from "../classic/data/experience";
 import { skillCategories } from "../classic/data/skills";
+import { careerStart } from "../classic/data/stats";
 import { site } from "../classic/data/site";
 import { contributions, ossStats, statusLabel, OSS_AS_OF } from "../classic/data/opensource";
 import { mailtoHref, sendMessage } from "../lib/contact";
@@ -47,7 +48,7 @@ const usedIn = (skill: string) => NUMBERED.filter((x) => x.tech.some((t) => uses
 const SKILL_COUNT = skillCategories.reduce((a, c) => a + c.items.length, 0);
 
 const school = education[0];
-const BIO = `I study computer science${school ? ` at ${school.school.replace(" (NITTE)", "")}` : ""} and build AI products from the interface to the model behind them, then keep them running once they are live. Since March 2026 I have held ${experience.length} roles, and every project is on GitHub with its source.`;
+const BIO = `I study computer science${school ? ` at ${school.school.replace(" (NITTE)", "")}` : ""} and build AI products from the interface to the model behind them, then keep them running once they are live. Since ${careerStart} I have held ${experience.length} roles, and every project is on GitHub with its source.`;
 
 const SECTIONS = [
   { id: "atl-projects", roman: "I", label: "Projects" },
@@ -545,7 +546,7 @@ function OpenSource() {
               <p className="atl-oss-cap atl-oss-cap--prs">Pull requests · {pad(c.prs.length)}</p>
               <ol className="atl-oss-prs">
                 {c.prs.map((pr) => (
-                  <li key={pr.number} data-p="" data-span="0.4">
+                  <li key={pr.number} data-p="" data-span="0.22">
                     <span className="atl-oss-num">#{pr.number}</span>
                     <a className="atl-oss-pr" href={pr.url} {...ext}>{pr.title}<NewTab /></a>
                     <span className={`atl-oss-status is-${pr.status}`}>

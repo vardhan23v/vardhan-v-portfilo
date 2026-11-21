@@ -1025,7 +1025,7 @@ html:not([data-motion="reduce"]) .classic-root :is(.skill-row, .feature):focus-w
 }
 
 /* Gentle depth for the quieter sections (observer reveal, so it plays both ways like the rest). */
-@keyframes cl-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -4px; } }
+@keyframes cl-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -2px; } }
 @media (prefers-reduced-motion: no-preference) {
   /* Process numbers drift like lanterns; off screen (data-off) they hold their frame, so nothing snaps. */
   html:not([data-motion="reduce"]) .classic-root .process-n { animation: cl-bob 5.5s ease-in-out infinite; animation-delay: calc(var(--bob, var(--rv, 0)) * -1.1s); }
@@ -1205,4 +1205,44 @@ html[data-motion="reduce"] .classic-root .compact:has(:focus-visible) .compact-a
   .classic-root .oss-num { grid-row: 1; grid-column: 1; }
   .classic-root .oss-pill { grid-row: 1; grid-column: 2; justify-self: end; }
   .classic-root .oss-title { grid-row: 2; grid-column: 1 / -1; min-height: 36px; }
+}
+
+/* Review polish (2026-11-21). Placed last so these win over the earlier unscoped rules. */
+.classic-root .hero-role, .classic-root .feature-tag { text-wrap: balance; }
+.classic-root .xp-period { text-wrap: balance; }
+.classic-root .xp-main .xp-points { max-width: none; }
+/* Education takes the narrow column; the certificates fill the wide one in two columns. */
+.classic-root .xp-aside { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+.classic-root .xp-block:last-child .card-list { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--gap); }
+.classic-root .xp-block:last-child .card-list li { align-content: start; }
+/* Featured trio: each card is a flex column so the links sit on one shared baseline. */
+.classic-root .features .feature:not(.feature--flagship), .classic-root .features .feature:not(.feature--flagship) .feature-body { display: flex; flex-direction: column; }
+.classic-root .features .feature:not(.feature--flagship) .feature-body { flex: 1; }
+.classic-root .features .feature:not(.feature--flagship) .links { margin-top: auto; gap: 4px 20px; }
+/* More projects: links pack tightly so "Ask AI" never wraps alone. */
+.classic-root .compact { align-items: start; }
+.classic-root .compact .links { gap: 0 16px; }
+/* Two-up cards on desktop: the link row runs the full card width under the thumbnail, so all five links share one line. */
+@media (min-width: 1025px) {
+  .classic-root .compact:not(.compact--text) { grid-template-rows: auto auto auto 1fr; row-gap: 6px; }
+  .classic-root .compact:not(.compact--text) .compact-body { display: contents; }
+  .classic-root .compact:not(.compact--text) .compact-thumb { grid-row: 1 / 4; }
+  .classic-root .compact:not(.compact--text) .compact-body > * { grid-column: 2; min-width: 0; }
+  .classic-root .compact:not(.compact--text) .compact-body > .links { grid-column: 1 / -1; grid-row: 4; align-self: end; padding-top: 6px; }
+}
+/* Menu sheet: links start under the bar, the buttons follow, no dead band between them. */
+.classic-root .nav-sheet { justify-content: flex-start; gap: 32px; }
+.classic-root .nav-sheet-foot { padding-top: 0; }
+@media (max-width: 720px) {
+  /* The rail diamond sits in the left gutter, clear of the dates. */
+  .classic-root .xp-row { padding: 12px 0 12px 26px; }
+  .classic-root .xp-aside { grid-template-columns: 1fr; }
+  .classic-root .xp-block:last-child .card-list { grid-template-columns: 1fr; }
+  /* How I work: number on the left, label and text beside it. */
+  .classic-root .process-step { grid-template-columns: 44px 1fr; column-gap: 14px; row-gap: 4px; }
+  .classic-root .process-n { grid-row: span 2; }
+  .classic-root .process-label { margin-top: 0; align-self: end; }
+}
+@media (max-width: 600px) {
+  .classic-root .oss-top { flex-direction: column; align-items: flex-start; }
 }

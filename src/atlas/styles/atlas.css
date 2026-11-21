@@ -640,7 +640,7 @@ html[data-motion="reduce"] .atl-plate[data-range="sticky"] .atl-plate-stage { po
 .atl-oss-status.is-merged { color: var(--ink); }
 .atl-oss-status .atl-tri { transform: scale(0.8); }
 /* scroll: rule draws, words settle through a clip (never an opacity fade on text) */
-.atl-oss-prs > li > :not(.atl-oss-num) { clip-path: inset(-6px calc((1 - clamp(0, var(--p, 1) * 1.8, 1)) * 100%) -6px 0); transform: translateY(calc((1 - clamp(0, var(--p, 1) * 1.6, 1)) * 10px)); }
+.atl-oss-prs > li > :not(.atl-oss-num) { clip-path: inset(-6px calc((1 - clamp(0, var(--p, 1) * 2.6, 1)) * 100%) -6px 0); transform: translateY(calc((1 - clamp(0, var(--p, 1) * 2.4, 1)) * 10px)); }
 .atl-oss-plate { transform: translateY(calc((1 - var(--p, 1)) * 24px)); }
 @media (hover: hover) and (pointer: fine) {
   .atl-oss-pr:hover, .atl-oss-repo:hover { text-decoration-color: var(--orange); }

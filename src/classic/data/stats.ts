@@ -11,6 +11,10 @@ export const github = GITHUB_FALLBACK;
 
 /** Featured projects with a public deployment. */
 export const liveProjects = featuredProjects.filter((p) => Boolean(p.live));
+/** "July 2026" — the start of the earliest role, so "since …" copy follows the data. */
+export const careerStart: string = experience
+  .map((e) => e.period.split(" — ")[0].trim())
+  .sort((a, b) => Date.parse(`1 ${a}`) - Date.parse(`1 ${b}`))[0] ?? "";
 /** Roles whose period is still open. */
 export const ongoingRoles = experience.filter((e) => /present/i.test(e.period)).length;
 /** The AI / LLM tools listed in the skills data — the single source for "ships with AI" copy. */

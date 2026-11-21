@@ -1154,6 +1154,10 @@
   text-wrap: pretty;
 }
 
+.fg-oss-nw {
+  white-space: nowrap;
+}
+
 .fg-oss-asof {
   color: var(--fg-faint);
   white-space: nowrap;

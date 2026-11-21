@@ -149,7 +149,6 @@ export function Navbar() {
           <a className="btn btn--secondary" href={site.github} target="_blank" rel="noopener noreferrer">GitHub</a>
           <a className="btn btn--secondary" href={site.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
           <a className="btn btn--secondary" href={`mailto:${site.email}`}>Email</a>
-          <button type="button" className="btn btn--ghost" onClick={() => { setOpen(false); buttonRef.current?.focus({ preventScroll: true }); }}>Close</button>
         </div>
       </div>
     </>

@@ -16,7 +16,7 @@ export function AchievementsPage() {
         </p>
       </div>
 
-      <div className="mac-stats" style={{ marginBottom: "var(--sp-8)" }}>
+      <div className="mac-stats mac-stats--achv" style={{ marginBottom: "var(--sp-8)" }}>
         <Reveal index={0}>
           <div className="mac-stat">
             <div className="mac-stat__value">
@@ -118,7 +118,7 @@ export function AchievementsPage() {
                   </a>
                 </h3>
                 <div className="achievement-card__text">
-                  {c.repo} · ★ {c.stars}
+                  <span className="oss-card__slug">{c.repo}</span> · ★ {c.stars}
                 </div>
                 <p className="oss-card__about">{c.about}</p>
                 <ul className="oss-card__prs">

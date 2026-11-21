@@ -14,8 +14,11 @@ const WINDOWS = [
   { n: 2, label: "experience", id: "experience", href: "/terminal#experience" },
   { n: 3, label: "tech", id: "tech", href: "/terminal#tech" },
   { n: 4, label: "about", id: "about", href: "/terminal#about" },
-  { n: 5, label: "mail", id: "contact", href: "/terminal#contact" },
+  { n: 5, label: "oss", id: "opensource", href: "/terminal#opensource" },
+  { n: 6, label: "mail", id: "contact", href: "/terminal#contact" },
 ];
+
+const LAST = WINDOWS[WINDOWS.length - 1].n;
 
 /** The 1s clock re-renders only itself, not the whole bar. */
 function Clock() {
@@ -160,13 +163,13 @@ export function StatusLine() {
         window.location.href = `mailto:${site.email}`;
         return;
       case "h": case "help":
-        say(":1-5 sections · :e <edition> · :theme <p> · :set nocrt · :q · :!<shell cmd>");
+        say(`:1-${LAST} sections · :e <edition> · :theme <p> · :set nocrt · :q · :!<shell cmd>`);
         return window.dispatchEvent(new CustomEvent("folio:shell", { detail: "help" }));
       case "sh": case "!":
         return window.dispatchEvent(new CustomEvent("folio:shell", { detail: arg }));
       default:
         if (head.startsWith("!")) return window.dispatchEvent(new CustomEvent("folio:shell", { detail: line.slice(1) }));
-        if (/^\d+$/.test(head)) return say(`E486: no window ${head} (0–5)`, true);
+        if (/^\d+$/.test(head)) return say(`E486: no window ${head} (0–${LAST})`, true);
         return say(`E492: Not an editor command: ${line}`, true);
     }
   };
@@ -264,7 +267,7 @@ export function StatusLine() {
           })}
           {onCase && (
             <span className="is-active" aria-current="location">
-              <b>6:</b>
+              <b>{LAST + 1}:</b>
               {cwd.split("/").pop()}*
             </span>
           )}

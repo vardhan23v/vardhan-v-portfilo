@@ -128,7 +128,7 @@ JetBrains Mono sizes:
   - Architecture tree (`:131-149`), decisions written as git log (`:155-169`), previous/next nav (`:198-209`).
 - Status line: `src/terminal/components/StatusLine.tsx:31-306`.
   - Mode cell (NORMAL / INSERT / `:` input).
-  - Brand link and windows `0:~` to `5:mail`.
+  - Brand link and windows `0:~` to `6:mail` (`5:oss` is the open-source section).
   - Message / progress fill, interface switcher, phosphor cycle, crt toggle, `ln N · %` position, clock.
   - Burger and bottom sheet with a scrim.
 - Footer, with an EOF banner and a session summary (uptime, history count, phosphor): `src/terminal/components/Footer.tsx:9-57`.

@@ -872,15 +872,17 @@ function OpenSource() {
   return (
     <section className="fg-section" id="opensource">
       <div className="fg-oss fg-reveal">
-        <SectionEyebrow id="opensource" />
+        <SectionEyebrow id="opensource" left />
         <StaggerHeading text="Open source" />
         <p className="fg-oss-lede">
-          {ossStats.prs} pull requests to {ossStats.projects} upstream projects · {ossStats.merged} shipped ·{" "}
-          {ossStats.open} in review <span className="fg-oss-asof">as of {OSS_AS_OF}</span>
+          {ossStats.prs} pull requests to {ossStats.projects} upstream projects ·{" "}
+          <span className="fg-oss-nw">{ossStats.merged} shipped</span> ·{" "}
+          <span className="fg-oss-nw">{ossStats.open} in review</span> <span className="fg-oss-asof">as of {OSS_AS_OF}</span>
         </p>
         <div className="fg-oss-grid">
           {contributions.map((c, i) => {
             const shipped = c.prs.filter((pr) => pr.status === "merged").length;
+            const open = c.prs.filter((pr) => pr.status === "open").length;
             return (
               <article className="fg-oss-card" key={c.repo} style={{ "--i": i } as CSSProperties}>
                 <header className="fg-oss-head">
@@ -917,9 +919,7 @@ function OpenSource() {
                   ))}
                 </ol>
                 <footer className="fg-oss-foot">
-                  <span>
-                    {shipped}/{c.prs.length} shipped
-                  </span>
+                  <span>{shipped > 0 ? `${shipped}/${c.prs.length} shipped` : `${open} in review`}</span>
                   <a href={c.url} target="_blank" rel="noopener noreferrer">
                     repo<span className="sr-only"> {c.repo} on GitHub (opens in a new tab)</span>{" "}
                     <span aria-hidden="true">↗</span>

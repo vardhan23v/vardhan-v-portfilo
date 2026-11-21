@@ -1,6 +1,7 @@
 import { certifications, education, experience } from "../data/experience";
 import { ROLE_DETAIL } from "../content";
 import { site } from "../data/site";
+import { careerStart } from "../data/stats";
 
 const period = (p: string) => p.replace(" — ", " to ").replace("Present", "now");
 
@@ -11,7 +12,7 @@ export function Experience() {
         <div className="section-head">
           <h2 className="h2" id="xp-h2">Experience</h2>
           <p className="section-sub">
-            {experience.length} roles since March 2026. <a href={site.resume} download="sree-vardhan-v-resume.pdf">Download the résumé (PDF)</a>
+            {experience.length} roles since {careerStart}. <a href={site.resume} download="sree-vardhan-v-resume.pdf">Download the résumé (PDF)</a>
           </p>
         </div>
         <ol className="xp-list">

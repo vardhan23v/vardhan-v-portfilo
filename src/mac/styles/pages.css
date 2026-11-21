@@ -152,6 +152,14 @@
 .mac-root .oss-grid > .rv { min-width: 0; }
 .mac-root .oss-card__repo { display: inline-flex; align-items: center; gap: 4px; min-height: 24px; color: var(--text-primary); border-radius: 4px; }
 .mac-root .oss-card__repo svg { width: 15px; height: 15px; color: var(--accent); transition: transform 200ms var(--ease-cinema); }
+.mac-root .oss-card__slug { text-transform: none; letter-spacing: 0.02em; }
+/* three stat tiles stay on one row on phones instead of 2 + 1 */
+@media (max-width: 480px) {
+  .mac-root .mac-stats--achv { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .mac-root .mac-stats--achv .mac-stat { padding: 12px 10px; }
+  .mac-root .mac-stats--achv .mac-stat__value { font-size: 1.75rem; }
+  .mac-root .mac-stats--achv .mac-stat__label { font-size: 9px; letter-spacing: 0.04em; overflow-wrap: anywhere; }
+}
 .mac-root .oss-card__about { margin-top: 8px; font-size: 13px; line-height: 1.5; color: var(--text-secondary); text-wrap: pretty; }
 .mac-root .oss-card__prs { list-style: none; margin: 10px 0 0 -36px; padding: 0; display: flex; flex-direction: column; border-top: 0.5px solid var(--border); }
 .mac-root .oss-pr {

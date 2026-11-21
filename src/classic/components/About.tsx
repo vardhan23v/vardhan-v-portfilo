@@ -1,5 +1,6 @@
 import { education, experience } from "../data/experience";
 import { site } from "../data/site";
+import { careerStart, ongoingRoles } from "../data/stats";
 
 export function About() {
   const school = education[0];
@@ -16,7 +17,7 @@ export function About() {
               I study computer science at {school.school.replace(" (NITTE)", "")} ({school.period.replace(" — ", " to ")}) and build AI products from the interface to the model behind them, then keep them running once they are live.
             </p>
             <p>
-              The latest one turns a plain-English prompt into a working Chrome extension. Since March 2026 I have held {experience.length} roles, currently as {latest.role.toLowerCase().startsWith("ai") ? "an" : "a"} {latest.role} at {latest.company}, and I write TypeScript end to end.
+              The latest one turns a plain-English prompt into a working Chrome extension. Since {careerStart} I have held {experience.length} roles, {ongoingRoles ? "currently" : "most recently"} as {latest.role.toLowerCase().startsWith("ai") ? "an" : "a"} {latest.role} at {latest.company}, and I write TypeScript end to end.
             </p>
             <p>
               Hackathons are where I build the real-time and agent-based systems, and every project is on GitHub with its source. I am {site.availability.toLowerCase().replace(/&/g, "and")}.

@@ -181,6 +181,11 @@ await sleep(400);
 t = await text();
 check("clear wipes session", t === "");
 
+// status bar windows: 5:oss is the open-source section, mail moved to 6
+const wins = await p.$$eval(".sl-sheet nav a", (as) => as.map((a) => a.textContent.trim()));
+check("statusline 5:oss window", wins.includes("5: cd oss/"));
+check("statusline 6:mail window", wins.includes("6: cd mail/"));
+
 await b.close();
 console.log(fails === 0 ? "\nALL PASS" : `\n${fails} FAILURES`);
 process.exit(fails === 0 ? 0 : 1);

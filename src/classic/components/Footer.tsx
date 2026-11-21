@@ -18,6 +18,7 @@ export function Footer() {
           <a href="#about">About</a>
           <a href="#work">Projects</a>
           <a href="#experience">Experience</a>
+          <a href="#open-source">Open source</a>
           <a href="#skills">Skills</a>
           <a href="#contact">Contact</a>
         </nav>

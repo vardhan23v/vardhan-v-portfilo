@@ -2,6 +2,7 @@ import { experience, education } from "../data/experience";
 import { site } from "../data/site";
 import { HeroPainting } from "./NightSky";
 import { CopyEmail } from "./CopyEmail";
+import { ongoingRoles } from "../data/stats";
 
 export function Hero() {
   const now = experience[0];
@@ -31,7 +32,7 @@ export function Hero() {
         </div>
         <dl className="glance" aria-label="At a glance" data-load style={{ "--d": "380ms" } as React.CSSProperties}>
           <div className="glance-row"><dt>Studying</dt><dd>{school.degree.replace("B.Tech — ", "B.Tech, ")}, {school.school.replace(" (NITTE)", "")}, {school.period.replace(" — ", " to ")}</dd></div>
-          <div className="glance-row"><dt>Now</dt><dd>{now.role}, {now.company}</dd></div>
+          <div className="glance-row"><dt>{ongoingRoles ? "Now" : "Latest"}</dt><dd>{now.role}, {now.company}</dd></div>
           <div className="glance-row"><dt>Based in</dt><dd>{site.location.replace(", Andhra Pradesh", "")}</dd></div>
         </dl>
       </div>

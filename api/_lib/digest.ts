@@ -64,7 +64,7 @@ export function judgementDigest(): string {
     const cs = caseStudies.find((c) => c.slug === p.slug);
     const parts = [
       `- ${p.name} (${p.category}; ${p.role ?? "sole builder"}${p.year ? `, ${p.year}` : ""}): ${clip(p.problem, 16)}`,
-      `  Scope: ${p.features.length} features (${p.features.slice(0, 2).join("; ")}). Tech: ${p.tech.slice(0, 6).join(", ")}.${p.live ? " Live." : ""}`,
+      `  Scope: ${p.features.length} features (${p.features.slice(0, 2).join("; ")}). Tech: ${p.tech.slice(0, 5).join(", ")}.${p.live ? " Live." : ""}`,
     ];
     if (cs?.decisions.length) parts.push(`  Decisions: ${cs.decisions.slice(0, 3).map((d) => d.title).join("; ")}.`);
     return parts.join("\n");

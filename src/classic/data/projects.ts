@@ -190,25 +190,27 @@ export const featuredProjects: Project[] = [
     name: "Vard AI",
     slug: "vard-ai",
     category: "ai",
-    kicker: "AI ASSISTANT",
-    tagline: "Voice-first AI assistant with streaming conversations and tool integration.",
+    kicker: "AI DESKTOP APP · CODING AGENT",
+    tagline: "A macOS app and CLI that combine AI chat with a plan-first coding agent.",
     problem:
-      "Most assistants are chat-only. Vard AI focuses on voice-first interaction with streaming responses, persistent memory, and MCP tool use.",
+      "Chat assistants talk about code; coding agents change it with little oversight. Vard AI puts both in one macOS app: a streaming chat, and an agent you point at a git project that plans first, works in its own worktree, asks before risky commands and hands you a diff to merge. You bring your own keys for Groq, Claude, GPT, Gemini, OpenRouter or local Ollama.",
     features: [
-      "Voice-first interaction",
-      "Streaming AI responses",
-      "MCP tools",
-      "Persistent memory",
-      "Authentication",
-      "Customizable themes",
+      "Streaming multi-provider chat",
+      "Plan-first agent in isolated git worktrees",
+      "Approvals for risky commands",
+      "Project memory and reusable skills",
+      "Agent teams with a reviewer",
+      "Code intelligence and browser testing",
+      "MCP integrations",
+      "vard terminal CLI",
     ],
-    tech: ["TypeScript", "React", "TanStack Start", "Groq Llama 3.3", "MCP", "Supabase", "Tailwind CSS"],
+    tech: ["Tauri 2", "Rust", "React 19", "TypeScript", "TanStack Router", "Tailwind CSS 4", "Firebase", "MCP", "Groq", "Claude API"],
     github: "https://github.com/vardhan23v/Vard-AI",
-    live: "https://vard-ai.lovable.app",
+    live: "https://vard-ai.vercel.app",
     cover: "/shots/vard-ai/desktop.jpg",
     screenshots: ["/shots/vard-ai/desktop.jpg", "/shots/vard-ai/desktop-2.jpg", "/shots/vard-ai/phone.jpg"],
-    accent: ["#f472b6", "#a78bfa", "#38bdf8"],
-    emoji: "🎙️",
+    accent: ["#c2b75d", "#30437a", "#1d274e"],
+    emoji: "🛠️",
   },
   {
     name: "Apex Retail ERP",
@@ -233,6 +235,27 @@ export const featuredProjects: Project[] = [
     screenshots: ["/shots/apex-retail-erp/desktop.jpg", "/shots/apex-retail-erp/phone.jpg"],
     accent: ["#0ea5e9", "#0284c7", "#38bdf8"],
     emoji: "🧾",
+  },
+  {
+    name: "Relay",
+    slug: "relay",
+    category: "full-stack",
+    kicker: "BACKEND PLATFORM · API-AS-A-SERVICE",
+    tagline: "Define a schema, get a versioned CRUD API per environment.",
+    problem:
+      "Every new app rebuilds the same backend: CRUD endpoints, API keys, environments, rate limits and a way to roll back. Relay turns immutable, versioned resource schemas into a JSONB-backed CRUD API for sandbox, development and production, with releases you can roll back and an OpenAPI export for handoff.",
+    features: [
+      "Versioned, immutable resource schemas",
+      "JSONB-backed CRUD API per environment",
+      "Environment-scoped API keys",
+      "Declarative API workflows and modules",
+      "Releases with history and rollback",
+      "Quotas, rate limiting and OpenAPI export",
+    ],
+    tech: ["Java 21", "Spring Boot 4", "Spring JDBC", "Flyway", "PostgreSQL", "React 18", "TypeScript", "Vite", "Docker", "GitHub Actions"],
+    github: "https://github.com/vardhan23v/relay",
+    accent: ["#2dd4bf", "#0f766e", "#99f6e4"],
+    emoji: "🔁",
   },
   {
     name: "CareerForge Pro",
@@ -334,6 +357,32 @@ export interface MiniProject {
 }
 
 export const otherProjects: MiniProject[] = [
+  {
+    name: "ExamGrid",
+    description:
+      "Automated exam seating and invigilation allocation for a college: halls, students, faculty and exam slots, with seating plans exported to PDF. A Java and Spring Framework lab mini-project at NMAMIT.",
+    tech: ["Java 17", "Spring Boot 3", "Spring Security", "Spring Data JPA", "Thymeleaf", "MySQL", "OpenPDF"],
+    github: "https://github.com/vardhan23v/ExamGrid",
+    emoji: "🪑",
+    category: "full-stack",
+  },
+  {
+    name: "Cache Flow",
+    description:
+      "A price tracker that scrapes two demo stores with Jsoup every minute and on webhook, compares prices, highlights the best deal and keeps price history in MySQL.",
+    tech: ["Java", "Spring Boot", "Jsoup", "MySQL"],
+    github: "https://github.com/vardhan23v/cache-flow",
+    emoji: "💸",
+    category: "full-stack",
+  },
+  {
+    name: "Word Counter",
+    description: "A Manifest V3 Chrome extension that counts the words in selected text, generated with Extension AI.",
+    tech: ["JavaScript", "Manifest V3"],
+    github: "https://github.com/vardhan23v/word-counter-extensio",
+    emoji: "🔢",
+    category: "tool",
+  },
   {
     name: "IPL Mega Auction",
     description:

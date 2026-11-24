@@ -26,7 +26,7 @@ export interface Contribution {
   prs: ContributionPr[];
 }
 
-export const OSS_AS_OF = "2026-11-18";
+export const OSS_AS_OF = "2026-11-24";
 
 export const contributions: Contribution[] = [
   {
@@ -53,6 +53,30 @@ export const contributions: Contribution[] = [
       { number: 15175, title: "fix(core): time out unanswered hook capability requests", url: "https://github.com/cline/cline/pull/15175", status: "open", opened: "2026-10-18" },
       { number: 15176, title: "fix(core): preserve context limits from model source catalogs", url: "https://github.com/cline/cline/pull/15176", status: "open", opened: "2026-10-18" },
       { number: 15177, title: "fix(desktop): persist the sidebar session sort mode", url: "https://github.com/cline/cline/pull/15177", status: "open", opened: "2026-10-18" },
+    ],
+  },
+  {
+    project: "Meshery",
+    repo: "meshery/meshery",
+    url: "https://github.com/meshery/meshery",
+    homepage: "https://meshery.io",
+    stars: "12k",
+    about: "The cloud native manager (CNCF). Fixes in the server, the UI and the docs.",
+    prs: [
+      { number: 24141, title: "fix(ui): report missing component definitions during schema validation", url: "https://github.com/meshery/meshery/pull/24141", status: "open", opened: "2026-11-22" },
+      { number: 24142, title: "[Docs] Fix dark-mode contrast on archived v0.9 category pages", url: "https://github.com/meshery/meshery/pull/24142", status: "open", opened: "2026-11-22" },
+      { number: 24143, title: "fix(server): add docs link to Kubernetes registration event", url: "https://github.com/meshery/meshery/pull/24143", status: "open", opened: "2026-11-22" },
+    ],
+  },
+  {
+    project: "Hermes Agent",
+    repo: "NousResearch/hermes-agent",
+    url: "https://github.com/NousResearch/hermes-agent",
+    homepage: "https://hermes-agent.nousresearch.com",
+    stars: "266k",
+    about: "Nous Research's open-source AI agent. A fix to how messaging sessions appear in the project tree.",
+    prs: [
+      { number: 157406, title: "fix(projects): keep messaging sessions in the project tree", url: "https://github.com/NousResearch/hermes-agent/pull/157406", status: "open", opened: "2026-11-18" },
     ],
   },
 ];

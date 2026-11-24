@@ -14,6 +14,7 @@ export const H = 80;
 const SPOTS: [number, number][] = [
   [0.62, 0.24], [0.83, 0.3], [0.55, 0.46], [0.72, 0.08], [0.52, 0.64], [0.5, 0.9],
   [0.24, 0.07], [0.44, 0.1], [0.86, 0.16], [0.68, 0.4], [0.3, 0.92], [0.1, 0.9],
+  [0.06, 0.05], [0.6, 0.79], [0.96, 0.04], [0.37, 0.97],
 ];
 
 export interface Summit { x: number; y: number; ref: string }
@@ -21,8 +22,12 @@ export interface Summit { x: number; y: number; ref: string }
 export const gridRef = (fx: number, fy: number) =>
   `${GRID_COLS[Math.min(GRID_COLS.length - 1, Math.floor(fx * GRID_COLS.length))]}${Math.min(GRID_ROWS, Math.floor(fy * GRID_ROWS) + 1)}`;
 
+/** Spot i: a hand-placed one, or (past the list) a deterministic point on the right half of the map. */
+const spot = (i: number): [number, number] =>
+  SPOTS[i] ?? [0.5 + ((i * 0.37) % 0.45), 0.1 + ((i * 0.61) % 0.8)];
+
 export const summitsFor = (n: number): Summit[] =>
-  SPOTS.slice(0, n).map(([fx, fy]) => ({ x: fx * W, y: fy * H, ref: gridRef(fx, fy) }));
+  Array.from({ length: n }, (_, i) => spot(i)).map(([fx, fy]) => ({ x: fx * W, y: fy * H, ref: gridRef(fx, fy) }));
 
 /* Small seeded value noise: deterministic, so the map never changes between visits. */
 function rng(seed: number) {

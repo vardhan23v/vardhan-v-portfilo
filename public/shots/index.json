@@ -60,9 +60,9 @@
     ]
   },
   "vard-ai": {
-    "live": "https://vard-ai.lovable.app",
-    "finalUrl": "https://vard-ai.lovable.app/",
-    "title": "Vard — Your Personal AI Assistant",
+    "live": "https://vard-ai.vercel.app",
+    "finalUrl": "https://vard-ai.vercel.app/",
+    "title": "Vard AI · Chat and a coding agent for your Mac",
     "files": [
       "desktop.jpg",
       "desktop-2.jpg",

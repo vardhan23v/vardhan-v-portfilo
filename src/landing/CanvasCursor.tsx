@@ -7,8 +7,10 @@ import { motionReduced, subscribeMotion } from "../lib/motion";
  * Each line is a chain of spring nodes (the classic canvas-cursor technique), drawn as one smooth
  * quadratic curve with additive blending, tinted to the current edition's hue.
  *
- * Only on fine pointers with hover (no touch), off with reduced motion, and the loop sleeps once
- * the lines have settled and the pointer is still.
+ * Over links and buttons the lines tighten and brighten a little. After the pointer leaves the
+ * window or the loop sleeps, the next move reseeds the lines at the pointer (no streak across the
+ * screen). Only on fine pointers with hover (no touch), off with reduced motion, and the loop
+ * sleeps once the lines have settled and the pointer is still.
  */
 
 const TONE_HUE: Record<Tone, number> = { term: 150, classic: 228, paper: 30, aurora: 300, forge: 20, mac: 225, atlas: 150 };
@@ -36,6 +38,7 @@ export function CanvasCursor({ tone }: { tone: Tone }) {
 
     let lines: Line[] = [];
     let raf = 0, running = false, lastMove = -Infinity, phase = Math.random() * 6;
+    let stale = true, hot = false, heat = 0;
     const pos = { x: -1, y: -1 };
     let enabled = fine.matches && !motionReduced();
 
@@ -55,7 +58,7 @@ export function CanvasCursor({ tone }: { tone: Tone }) {
     };
 
     const step = (l: Line) => {
-      let e = l.spring;
+      let e = l.spring * (1 + heat * 0.15);
       const head = l.nodes[0];
       head.vx += (pos.x - head.x) * e;
       head.vy += (pos.y - head.y) * e;
@@ -93,7 +96,8 @@ export function CanvasCursor({ tone }: { tone: Tone }) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.globalCompositeOperation = "lighter";
       const hue = hueRef.current + Math.sin(phase * 40) * 18;
-      ctx.strokeStyle = `hsla(${hue.toFixed(1)} 70% 62% / 0.22)`;
+      heat += ((hot ? 1 : 0) - heat) * 0.15;
+      ctx.strokeStyle = `hsla(${hue.toFixed(1)} ${(70 + heat * 10).toFixed(0)}% ${(62 + heat * 8).toFixed(0)}% / ${(0.22 + heat * 0.08).toFixed(3)})`;
       ctx.lineWidth = 1;
       let energy = 0;
       for (const l of lines) {
@@ -107,6 +111,7 @@ export function CanvasCursor({ tone }: { tone: Tone }) {
         ctx.globalCompositeOperation = "source-over";
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         running = false;
+        stale = true;
         return;
       }
       raf = requestAnimationFrame(frame);
@@ -120,7 +125,8 @@ export function CanvasCursor({ tone }: { tone: Tone }) {
 
     const onMove = (e: PointerEvent) => {
       if (!enabled || e.pointerType !== "mouse") return;
-      if (pos.x < 0) seed(e.clientX, e.clientY);
+      if (stale) { seed(e.clientX, e.clientY); stale = false; }
+      hot = !!(e.target as Element | null)?.closest?.("a, button, [role='tab']");
       pos.x = e.clientX;
       pos.y = e.clientY;
       lastMove = performance.now();
@@ -129,9 +135,11 @@ export function CanvasCursor({ tone }: { tone: Tone }) {
     const stop = () => {
       cancelAnimationFrame(raf);
       running = false;
+      stale = true;
       ctx.globalCompositeOperation = "source-over";
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     };
+    const onLeave = () => { stale = true; };
     const onVisible = () => { if (document.hidden) stop(); };
     const recheck = () => {
       enabled = fine.matches && !motionReduced();
@@ -141,6 +149,7 @@ export function CanvasCursor({ tone }: { tone: Tone }) {
     size();
     window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("resize", size);
+    document.documentElement.addEventListener("pointerleave", onLeave);
     document.addEventListener("visibilitychange", onVisible);
     fine.addEventListener("change", recheck);
     const unsubscribe = subscribeMotion(recheck);
@@ -149,6 +158,7 @@ export function CanvasCursor({ tone }: { tone: Tone }) {
       stop();
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("resize", size);
+      document.documentElement.removeEventListener("pointerleave", onLeave);
       document.removeEventListener("visibilitychange", onVisible);
       fine.removeEventListener("change", recheck);
       unsubscribe();

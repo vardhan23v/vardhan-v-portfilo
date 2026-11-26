@@ -232,3 +232,10 @@ Contrast, computed with the WCAG 2 formula:
 - Phones: stage role line on its own row, pipeline on one line (chips only at ≤370px), two-line taglines, wrapping footer links clear of the floating buttons (`--floating-clearance`).
 - Edition chunks prefetch on hover intent (fine pointers, 120ms), focus, pointer-down and at the start of the portal.
 - 404: landing atmosphere (drifting glows), ghost "404" numeral, tone-dotted edition pills with focus/press states, typographic apostrophe.
+
+### Name, component motion and cursor trail (2026-11-26)
+- The hero name is split into letters (`Letters` in `Landing.tsx`; the `h1` keeps `aria-label`, letters are `aria-hidden`, words never break). Letters rise out of a blur with a 38ms stagger (the italic last name tilts in); `useLetterLift.ts` writes `--lift` (0–1, 120px radius) so letters near the pointer rise, grow slightly and shift toward the accent, easing back on leave. Fine pointers only; static with reduced motion.
+- `usePointerGlow.ts`: one delegated pointermove on the landing root writes `--gx/--gy` on the hovered `.land-stat`, `.land-row` or `.stage-frame`. Stats glow in the accent, project rows in their own colour (both lift with a soft shadow); the stage frame gets a bright rim that follows the pointer. Hidden with reduced motion.
+- Section titles: the italic words get an underline that wipes in when the section is revealed (`.is-in`).
+- `CanvasCursor.tsx` (fine pointers only): 20 springy lines chasing the pointer, additive blend, edition-tinted; z-index 40, no pointer events; sleeps once settled and when the tab is hidden; off with reduced motion.
+- The earlier dot-field experiment was dropped; its design study stays in `design/dots/`.

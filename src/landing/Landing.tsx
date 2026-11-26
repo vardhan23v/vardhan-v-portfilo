@@ -1,4 +1,7 @@
 import "@fontsource/kanit/latin-400.css"; // mini Forge skin + Forge portal name
+import { useLetterLift } from "./useLetterLift";
+import { usePointerGlow } from "./usePointerGlow";
+import { CanvasCursor } from "./CanvasCursor";
 import "@fontsource/kanit/latin-ext-400.css";
 import "@fontsource/kanit/latin-500.css";
 import "@fontsource/kanit/latin-ext-500.css";
@@ -198,6 +201,29 @@ function usePortal(reduced: boolean) {
 
 /* ── components ────────────────────────────────────────────── */
 
+/** Components that get the pointer-following glow (see usePointerGlow). */
+const GLOW_TARGETS = ".land-stat, .land-row, .stage-frame";
+
+/** The name split into letters (kept whole per word, so lines never break mid-word) for the entrance and pointer lift. */
+function Letters({ text, from }: { text: string; from: number }) {
+  const words = text.split(" ");
+  const starts = words.map((_, w) => from + words.slice(0, w).reduce((n, x) => n + x.length + 1, 0));
+  return (
+    <>
+      {words.map((word, w) => (
+        <span key={w}>
+          {w > 0 && " "}
+          <span className="lt-w" aria-hidden="true">
+            {[...word].map((ch, i) => (
+              <span key={i} className="lt-ch" style={{ "--c": starts[w] + i } as CSSProperties}>{ch}</span>
+            ))}
+          </span>
+        </span>
+      ))}
+    </>
+  );
+}
+
 function PortalOverlay({ p }: { p: Portal }) {
   const style = { "--pl": `${p.x}px`, "--pt": `${p.y}px`, "--pw": `${p.w}px`, "--ph": `${p.h}px` } as CSSProperties;
   return (
@@ -371,6 +397,8 @@ export function Landing() {
   const ist = useIstTime(false);
   const gh = useGithub();
   const rootRef = useRef<HTMLDivElement>(null);
+  const titleRef = useLetterLift<HTMLHeadingElement>();
+  usePointerGlow(rootRef, GLOW_TARGETS);
   const wallRef = useRef<HTMLDivElement>(null);
   const [heroOff, setHeroOff] = useState(false);
   const cardsRef = useRef<HTMLDivElement>(null);
@@ -422,6 +450,7 @@ export function Landing() {
         <i className="grain" />
       </div>
 
+      <CanvasCursor tone={current.tone} />
       <header className="landing-top" data-reveal>
         <span className="lt-mark">✦ <em>{site.name}</em></span>
         <nav className="lt-nav" aria-label="Quick links">
@@ -441,8 +470,8 @@ export function Landing() {
                 <span>{site.location.split(",")[0]}</span>
                 <span>{site.availability}</span>
               </p>
-              <h1 className="landing-title" id="landing-h1">
-                {FIRST} <em>{LAST}</em>
+              <h1 className="landing-title" id="landing-h1" ref={titleRef} aria-label={site.name}>
+                <Letters text={FIRST} from={0} /> <em><Letters text={LAST} from={FIRST.length} /></em>
               </h1>
               <p className="landing-tagline" aria-hidden="true">One body of work. <em>Seven ways in.</em></p>
               <p className="landing-what">

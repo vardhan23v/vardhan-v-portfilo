@@ -15,15 +15,15 @@
     "oss": "node scripts/oss-refresh.mjs"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.119.0",
+    "@supabase/supabase-js": "^2.119.2",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.1.0",
-    "lucide-react": "^1.73.0",
+    "lucide-react": "^1.77.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-router-dom": "^7.18.2",
+    "react-router-dom": "^7.18.6",
     "three": "^0.187.0",
-    "unpdf": "^2.2.0",
+    "unpdf": "^2.2.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {
@@ -40,13 +40,13 @@
     "@types/react-dom": "^19.2.3",
     "@types/three": "^0.187.0",
     "@vitejs/plugin-react": "^6.3.0",
-    "oxlint": "^1.93.0",
-    "puppeteer": "^25.17.0",
+    "oxlint": "^1.94.0",
+    "puppeteer": "^25.18.1",
     "puppeteer-core": "^25.7.0",
     "rollup-plugin-visualizer": "^7.1.3",
     "sharp": "^0.35.5",
     "typescript": "~6.0.2",
     "vite": "^8.3.8",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.1"
   }
 }
